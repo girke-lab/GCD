@@ -140,8 +140,13 @@ public class ClusterDataView implements DataView
                 out.println("<a href='"+fileUrl+"html'>Consensus shaded</a>&nbsp&nbsp");
                 out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/domainShader?cid="+row.get(CLUSTER_ID_COL)+"'>Domain shaded</a>");
                 out.println("</TD>");
+                
+                
+                String treeViewLink="DispatchServlet?hid="+hid+"&script=treeViewer.pl&range=0&clusterId="+row.get(CLUSTER_ID_COL);
+                
+                out.println("\t\t<TD><a href='"+treeViewLink+"'>view</a></TD>");
                 //out.println("<TD><a href='"+base+row.get(CLUSTER_ID_COL)+".jpg'>view</a></TD>");   
-                out.println("<TD><a href='"+fileUrl+"jpg'>view</a></TD>");   
+                //out.println("<TD><a href='"+fileUrl+"jpg'>view</a></TD>");   
             }
             else
                 out.println("<td>&nbsp</td><td>&nbsp</td>");

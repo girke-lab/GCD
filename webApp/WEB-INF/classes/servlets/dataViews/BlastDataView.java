@@ -74,7 +74,7 @@ public class BlastDataView implements DataView
     public void printData(PrintWriter out)
     {
         out.println("click on titles to sort");
-        out.println("[ Database is currently updating ]");
+        //out.println("[ Database is currently updating ]");
         displayData(out,getData());
         out.println("</td></tr></table></font></body></html>"); //close header
     }

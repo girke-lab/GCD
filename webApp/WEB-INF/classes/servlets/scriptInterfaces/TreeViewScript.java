@@ -61,7 +61,7 @@ public class TreeViewScript implements Script
         if(keys==null)
             return;
         
-        printForm(out, keys);
+        printData(out, keys);
     }
     
     private void printForm(OutputStream out,List data)
@@ -123,26 +123,32 @@ public class TreeViewScript implements Script
             for(Iterator i=data.iterator();i.hasNext();)
             {
                 List row=(List)i.next();
-                log.debug("row="+row);
+                //log.debug("row="+row);
                 if(lastMethod==null || !lastMethod.equals(row.get(0)))
                 {//new cluster
                     log.debug("new cluster");
                     
                     dos.writeBytes("data=");
-                    dnd=getDnd(clusterId,(String)row.get(0));
+                    try{
+                        dnd=getDnd(clusterId,(String)row.get(0));
+                    }catch(FileNotFoundException e){
+                        Common.quit(new PrintWriter(out),"no tree found for "+clusterId);
+                        return;
+                    }
                     dos.writeBytes(dnd+"\n");
-                }                
+                } 
+                //log.debug("writing: "+row.get(1)+"\t"+row.get(1)+"\tblue\t\t"+link+row.get(1)+"\n");
                 dos.writeBytes(row.get(1)+"\t"+row.get(1)+"\tblue\t\t"+link+row.get(1)+"\n");
                 lastMethod=(String)row.get(0);
             }            
-            dos.writeBytes("&action=make_session");
+            dos.writeBytes("&action=machine_upload");
             dos.close();
                                                            
             BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String sessionId=br.readLine();
+            String newUrl=br.readLine();
             br.close();
-            
-            response.sendRedirect(url.toString());
+            log.debug("newUrl="+newUrl);
+            response.sendRedirect(newUrl);
             
             
 //            byte[] bytes=new byte[1024];
