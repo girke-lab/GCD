@@ -4,16 +4,11 @@
   <servlet>
     <servlet-name>QueryPageServlet</servlet-name>
     <servlet-class>servlets.QueryPageServlet</servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>AdvancedSearchServlet</servlet-name>
-    <servlet-class>servlets.AdvancedSearchBean</servlet-class>
-  </servlet>
+  </servlet>    
   <servlet>
     <servlet-name>DispatchServlet</servlet-name>
     <servlet-class>servlets.DispatchServlet</servlet-class>
-  </servlet>
+  </servlet>  
   
   <servlet-mapping>
     <servlet-name>QueryPageServlet</servlet-name>
@@ -22,12 +17,9 @@
   <servlet-mapping>
     <servlet-name>DispatchServlet</servlet-name>
     <url-pattern>/DispatchServlet</url-pattern>
-  </servlet-mapping>
- 
+  </servlet-mapping> 
   
-  <security-role>
-    <role-name>query_admin</role-name>
-  </security-role>
+  
   <security-constraint>
     <web-resource-collection>
         <web-resource-name>queryAdmin page</web-resource-name>
@@ -37,10 +29,6 @@
         <role-name>query_admin</role-name>
     </auth-constraint>        
   </security-constraint>
-  
-  <security-role>
-    <role-name>database</role-name>
-  </security-role>
   <security-constraint>
     <web-resource-collection>
       <web-resource-name> all </web-resource-name>
@@ -52,9 +40,18 @@
   </security-constraint> 
   
   <login-config>
-    <auth-method>DIGEST</auth-method>
+    <auth-method>BASIC</auth-method>
     <realm-name>UserDatabase</realm-name>
   </login-config>
+  
+  <security-role>
+    <role-name>query_admin</role-name>
+  </security-role>
+  <security-role>
+    <role-name>database</role-name>
+  </security-role>
+ 
+  
   
   
 </web-app>

@@ -26,7 +26,7 @@ public class Common {
     public final static int MAX_QUERY_KEYS=10000; //max number of keys to list in a query
     
     //the caselss compare keyword is ILIKE in postgres, but LIKE in mysql
-    public final static String ILIKE="LIKE";
+    public final static String ILIKE="ILIKE";
                             
 //    private static DbConnection dbc=null;
     private static Logger log=Logger.getLogger(Common.class);
@@ -35,8 +35,7 @@ public class Common {
     }
     
     public static List sendQuery(String q)
-    {
-        //System.out.println("sending query "+q);
+    {        
         List rs=null;
         DbConnection dbc;
         try{
@@ -48,8 +47,7 @@ public class Common {
             }
             rs=dbc.sendQuery(q);        
             log.info("Stats: "+dbc.getStats());
-        }catch(Exception e){
-            System.out.println("query error: "+e.getMessage());
+        }catch(Exception e){            
             log.error("query error: "+e.getMessage());         
         }
         if(rs==null)
@@ -146,7 +144,7 @@ public class Common {
         "</tr>"+
         "<tr>"+
         "    <td align='center' colspan='"+cs+"' bgcolor='AAAAAA'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.cepceb.ucr.edu/' target='_blank'>"+
-        "       Center for Plant Cell Biology at UC Riverside</a></font></td>"+
+        "       Center for \nPlant Cell Biology at UC Riverside</a></font></td>"+
         "</tr>"+
         "<tr bgcolor='AAAAAA'><td colspan='"+cs+"'>&nbsp</td></tr>"+
         "<tr><td colspan='"+cs+"'>&nbsp</td></tr>"+

@@ -14,7 +14,7 @@ package servlets.dataViews.queryWideViews;
 import servlets.search.Search;
 import servlets.Common;
 import java.io.*;
-
+import java.util.Map;
 /**
  * Provides a default implementation of {@link QueryWideView }.
  */
@@ -77,5 +77,12 @@ public class DefaultQueryWideView implements QueryWideView
         return false;
     }    
    
+    public void printGeneral(PrintWriter out, Search search, String position)
+    {
+    }    
+    
+    public void printGeneral(PrintWriter out, Search search, String position, Map storage)
+    {
+    }
     
 }

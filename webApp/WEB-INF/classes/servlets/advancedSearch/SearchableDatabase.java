@@ -21,9 +21,9 @@ public interface SearchableDatabase
     public String[] getOperators();
     public String[] getBooleans();    
     
-    public String buildQuery(SearchState state);
-    public String getDestination(); 
-    public java.util.List sendQuery(String query);
+//    public String buildQuery(SearchState state);
+//    public String getDestination(); 
+//    public java.util.List sendQuery(String query);
     
     public void displayResults(SearchState state, ServletContext context,
             HttpServletRequest request, HttpServletResponse response);

@@ -25,7 +25,7 @@ public class ResultPage
     DataView dv;
     Search search;
     int hid,rpp,pos;    
-       
+    Map storage;
     
     /**
      * Creates a new instance of ResultPage
@@ -35,13 +35,14 @@ public class ResultPage
      * @param hid history id
      * @param rpp records per page
      */
-    public ResultPage(DataView dv,Search s,int pos, int hid, int rpp)    
+    public ResultPage(DataView dv,Search s,int pos, int hid, int rpp,Map stor)    
     {
         this.dv=dv;
         this.search=s;
         this.hid=hid;
         this.rpp=rpp;
         this.pos=pos;
+        this.storage=stor;
     }
     
     /**
@@ -79,6 +80,7 @@ public class ResultPage
         dv.printStats(out);
         out.println("</td></tr></table>");
         
+        dv.getQueryWideView().printGeneral(out, search,"",storage);        
         dv.printData(out);
         
         printMismatches(out,search.notFound());

@@ -14,6 +14,7 @@ import org.apache.log4j.*;
 
 import servlets.search.*;
 import servlets.dataViews.*;
+import servlets.dataViews.unknownViews.Unknowns2DataView;
 /**
  *
  * @author  Kevin Horan
@@ -30,15 +31,12 @@ public class QueryPageServlet extends HttpServlet
     private static Logger log; 
     
     public void init(ServletConfig config) throws ServletException
-    {
-        System.out.println("inside init");
-        
+    {       
         super.init(config);       
         
         //setup logger
         Properties props=new Properties();
-        try{
-            System.out.println("initializing logger.");
+        try{        
             props.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("log4j.properties"));
             PropertyConfigurator.configure(props);
         }catch(IOException e){
@@ -51,7 +49,6 @@ public class QueryPageServlet extends HttpServlet
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, java.io.IOException
     {
-        System.out.println("staring processRequest");
         HttpSession session = request.getSession(true);
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
@@ -119,7 +116,9 @@ public class QueryPageServlet extends HttpServlet
         dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);
         dv.setData(qi.getSortCol(),qi.getDbs(),hid);
         dv.setSortDirection((String)qi.getObject("sortDirection"));
-        ResultPage page=new ResultPage(dv, s, pos, hid, rpp); 
+        
+        Map generalStor=(Map)qi.getObject("general_storage");
+        ResultPage page=new ResultPage(dv, s, pos, hid, rpp,generalStor); 
         page.dipslayPage(out);
                         
         out.println("</body>");
@@ -142,6 +141,8 @@ public class QueryPageServlet extends HttpServlet
                 return new StatsDataView();
             else if(displayType.equals("unknownsView"))
                 return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));
+            else if(displayType.equals("unknowns2View"))
+                return new Unknowns2DataView();
         }
         else if(sortCol!=null)
         {
@@ -215,7 +216,7 @@ public class QueryPageServlet extends HttpServlet
         s.init(inputKeys,limit, dbNums);              
         qi.setSearch(s);
         qi.setInputCount(inputKeys.size());
-        
+        qi.setObject("general_storage",new HashMap());
         
         return qi;
     }   

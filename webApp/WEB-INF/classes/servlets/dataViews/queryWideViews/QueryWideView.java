@@ -12,6 +12,7 @@ package servlets.dataViews.queryWideViews;
  */
 
 import java.io.*;
+import java.util.Map;
 import servlets.search.Search;
 
 /**
@@ -51,4 +52,8 @@ public interface QueryWideView
      * false otherwise.
      */    
     public boolean printAllData();
+    
+    
+    public void printGeneral(PrintWriter out, Search search, String position);
+    public void printGeneral(PrintWriter out, Search search, String position,Map storage);
 }

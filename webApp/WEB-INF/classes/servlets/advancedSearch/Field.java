@@ -36,13 +36,20 @@ import java.util.*;
         {
             displayName=name;
             dbName=dbn;
-            type=List.class;
+            type=String.class;
+            list=l;
+        }
+        public Field(String name, String dbn,Class t,Object[] l)
+        {
+            displayName=name;
+            dbName=dbn;
+            type=t;
             list=l;
         }
         
         public String render(String currentValue)
         {//draws corect input statement for this type
-            if(type.isAssignableFrom(List.class))
+            if(list!=null && list.length != 0)
             {//render dropdown box
                 String output="<SELECT name='values'>\n";                
                 for(int i=0;i<list.length;i++)

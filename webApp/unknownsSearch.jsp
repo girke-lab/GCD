@@ -8,7 +8,7 @@
 <jsp:useBean id='common' class='servlets.Common' />
 <%      
         //common.printHeader(out);
-        bean.setDatabase("unknowns");
+        bean.setDatabase("unknowns2");
         bean.setContext(application,request,response);
         bean.loadValues(request); //get entered values for fields, opts, bools , etc ...
 %>
@@ -21,15 +21,15 @@
 <table>
 	<tr>
 		<td valign="top", bgcolor="#F0F8FF", width=180><font SIZE=-1>
-			<a href="./index.html"><li>Project</a></li>
-			<a href="./descriptors.html"><li>Unknown Descriptors</a></li>
-			<a href="./retrieval.html"><li>Search Options</a></li>
-			<a href="./interaction.html"><li>Protein Interaction</a></li>
-			<a href="./KO_cDNA.html"><li>KO & cDNA Results</a></li>
-			<a href="./profiling.html"><li>Chip Profiling</a></li> 
-			<a href="./tools.html"><li>Technical Tools</a></li> 
-			<a href="./external.html"><li>External Resources</a></li>
-			<a href="./downloads.html"><li>Downloads</a></li>
+			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/index.html"><li>Project</a></li>
+			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/descriptors.html"><li>Unknown Descriptors</a></li>
+			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/retrieval.html"><li>Search Options</a></li>
+			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/interaction.html"><li>Protein Interaction</a></li>
+			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/KO_cDNA.html"><li>KO & cDNA Results</a></li>
+			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/profiling.html"><li>Chip Profiling</a></li> 
+			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/tools.html"><li>Technical Tools</a></li> 
+			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/external.html"><li>External Resources</a></li>
+			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/downloads.html"><li>Downloads</a></li>
 		</font></td>
 		<td>&nbsp;&nbsp;&nbsp;</td>
 		<td valign="top" width=600> 
@@ -139,6 +139,7 @@
                             <tr>
                                 <td colspan='4'>
                                     <%= bean.printStoreOptions() %>
+                                    <a href='/databaseWeb/queryAdmin.jsp'>Admin page</a>
                                 </td>
                             </tr>
                         </table>

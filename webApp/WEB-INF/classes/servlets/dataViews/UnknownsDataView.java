@@ -94,47 +94,56 @@ public class UnknownsDataView implements DataView
             }
             public void printButtons(PrintWriter out, int hid,int pos,int size,int rpp)
             {}
+            public void printGeneral(PrintWriter out, Search search, String pos,Map storage)
+            {
+                File tempFile=(File)storage.get("unknowns.tempfile");
+                if(tempFile==null)
+                { //create temp file for entire query.            
+                    log.debug("generating a new temp file");
+                    List temp=seq_ids; //bakup old id list
+                    setIds(search.getResults());
+                    tempFile=writeTempFile(getData());
+                    storage.put("unknowns.tempfile", tempFile);
+                    seq_ids=temp;
+                }
+                if(tempFile!=null) //make sure tempFile is still not null
+                    out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>");
+                else
+                    log.warn("could not create csv file");
+                
+            }
         };
     }   
     ////////////////////////////////////////////////////////////////
     private void printUnknownHeader(PrintWriter out)
     {
+        String base="http://bioinfo.ucr.edu/projects/internal/Unknowns/external";
         out.println(
         "  <font face='sans-serif, Arial, Helvetica, Geneva'>"+
         "  <img alt='Unknown Database' src='images/unknownspace3.png'>"+
         "  <table>"+
         "  <tr>"+
         "  <td valign='top' bgcolor='#F0F8FF'' width=180 nowrap ><font SIZE=-1>"+
-        "  <a href='./index.html'><li>Project</a></li>"+
-        "  <a href='./descriptors.html'><li>Unknown Descriptors</a></li>"+
-        "  <a href='./retrieval.html'><li>Search Options</a></li>"+
-        "  <a href='./interaction.html'><li>Protein Interaction</a></li>"+
-        "  <a href='./KO_cDNA.html'><li>KO & cDNA Results</a></li>"+
-        "  <a href='./profiling.html'><li>Chip Profiling</a></li>"+
-        "  <a href='./tools.html'><li>Technical Tools</a></li>"+
-        "  <a href='./external.html'><li>External Resources</a></li>"+
-        "  <a href='./downloads.html'><li>Downloads</a></li>"+
+        "  <a href='"+base+"/index.html'><li>Project</a></li>"+
+        "  <a href='"+base+"/descriptors.html'><li>Unknown Descriptors</a></li>"+
+        "  <a href='"+base+"/retrieval.html'><li>Search Options</a></li>"+
+        "  <a href='"+base+"/interaction.html'><li>Protein Interaction</a></li>"+
+        "  <a href='"+base+"/KO_cDNA.html'><li>KO & cDNA Results</a></li>"+
+        "  <a href='"+base+"/profiling.html'><li>Chip Profiling</a></li>"+
+        "  <a href='"+base+"/tools.html'><li>Technical Tools</a></li>"+
+        "  <a href='"+base+"/external.html'><li>External Resources</a></li>"+
+        "  <a href='"+base+"/downloads.html'><li>Downloads</a></li>"+
         "  </font></td>"+
         "  <td>&nbsp;&nbsp;&nbsp;</td>"+
         "  <td valign='top'' width=600> ");
     }
     private void printData(PrintWriter out,List data)
-    {
-         String titleColor="AAAAAA", dataColor="D3D3D3";
-         String lastId="";
-         StringBuffer fileOutput=new StringBuffer(1000);
-         File tempFile=null;
+    {         
+         String lastId="";                          
          if(data==null)
-             return;
-         try{            
-            tempFile=File.createTempFile("results",".csv",tempDir);             
-         }catch(IOException e){
-             log.warn("could not create temp file: "+e.getMessage());
-         }
-         if(tempFile!=null)
-            out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>");
-         out.println("<TABLE border='1' cellspacing='0' cellpadding='0' bgcolor='"+dataColor+"'>");
-         out.println("<TR bgcolor='"+titleColor+"'>");
+             return;         
+         out.println("<TABLE border='1' cellspacing='0' cellpadding='0' bgcolor='"+Common.dataColor+"'>");
+         out.println("<TR bgcolor='"+Common.titleColor+"'>");
          
          //print titles
          String newDir;
@@ -145,11 +154,9 @@ public class UnknownsDataView implements DataView
                  newDir=(sortDir.equals("asc"))? "desc":"asc"; //flip direction
              out.println("<th><a href='QueryPageServlet?hid="+hid+"&sortCol="+dbColNames[i]+
                 "&sortDirection="+newDir+"'>"+printNames[i]+"</a></th>");             
-             fileOutput.append(printNames[i]+", ");
          }
          //out.println("<th colspan='5'>"+printNames[printNames.length-1]+"</th>");
          out.println("</TR><tr>");
-         fileOutput.append("\n");
          for(Iterator i=data.iterator();i.hasNext();)
          {
             List row=(List)i.next();
@@ -157,12 +164,10 @@ public class UnknownsDataView implements DataView
             {               
                 //then just print the last element
                 out.println(" &nbsp&nbsp&nbsp "+row.get(row.size()-1));
-                fileOutput.append(row.get(row.size()-1)+", ");
             }
             else{ //new record
                 lastId=(String)row.get(0);
                 out.println("</td></tr><tr>");
-                fileOutput.append("\n");
                 int c=0;
                 for(Iterator j=row.iterator();j.hasNext();c++)
                 {
@@ -176,22 +181,63 @@ public class UnknownsDataView implements DataView
                     else
                         out.print(t);             
                     if(j.hasNext()) //don't print last td, so we can put more treatments in cell
-                        out.println("</td>");
-                    
-                    fileOutput.append(t+", ");
+                        out.println("</td>");                    
                 }
             }            
          }
          out.println("</td></tr></TABLE>");
-         fileOutput.append("\n");
-         try{
-            if(tempFile!=null)
-                new FileOutputStream(tempFile).write(fileOutput.toString().getBytes());
-         }catch(Exception e){
-             log.warn("could not write to tempfile "+tempFile.getPath()+": "+e.getMessage());
-         }
     }
-    
+    private File writeTempFile(List data)
+    {
+        File tempFile=null;        
+        FileWriter fw;
+        try{            
+            tempFile=File.createTempFile("results",".csv",tempDir);             
+        }catch(IOException e){
+             log.warn("could not create temp file: "+e.getMessage());
+        }
+        if(tempFile==null)
+            return null;
+        try{
+            fw=new FileWriter(tempFile);
+            //print title row
+            for(int i=0;i<printNames.length;i++)
+            {
+                fw.write(printNames[i]);
+                if(i+1<printNames.length)
+                    fw.write(',');
+            }
+            fw.write('\n');
+            //print data
+            Object temp;
+            List row;
+            Object lastID=null;
+            for(Iterator i=data.iterator();i.hasNext();)
+            {
+                row=(List)i.next();
+                if(lastID!=null && lastID.equals(row.get(0)))
+                    fw.write(","+row.get(row.size()-1).toString());
+                else
+                {
+                    lastID=row.get(0);
+                    fw.write('\n');
+                    for(Iterator j=row.iterator();j.hasNext();)
+                    {
+                        temp=j.next();
+                        if(temp!=null)
+                            fw.write(temp.toString());
+                        if(j.hasNext())
+                            fw.write(',');
+                    }
+                }                
+            }
+            fw.write('\n');
+            fw.close();
+        }catch(IOException e){
+            log.warn("could not write to temp file "+tempFile.getPath()+":"+e.getMessage());
+        }
+        return tempFile;
+    }
     private List getData()
     {
         StringBuffer conditions=new StringBuffer();

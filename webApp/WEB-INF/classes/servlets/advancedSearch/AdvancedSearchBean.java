@@ -50,6 +50,8 @@ public class AdvancedSearchBean {
             db=new CommonDatabase();
         else if(name.equals("unknowns"))
             db=new UnknownsDatabase();
+        else if(name.equals("unknowns2"))
+            db=new Unknowns2Database();
         else //default to common
             db=new CommonDatabase();
     }
@@ -260,18 +262,18 @@ public class AdvancedSearchBean {
         }
         db.displayResults(currentState, servletContext,(HttpServletRequest)request,(HttpServletResponse)response);
         
-        if(true)
-            return;                
-        
-        String query=db.buildQuery(currentState);                          
-        
-        log.info("query is: "+query);
-        List results=db.sendQuery(query);
-        //List results=Common.sendQuery(query);
-        if(results==null)
-            results=new ArrayList(); //let someone else report that their are no results.
-     
-        sendToServlet(results,db.getDestination());
+//        if(true)
+//            return;                
+//        
+//        String query=db.buildQuery(currentState);                          
+//        
+//        log.info("query is: "+query);
+//        List results=db.sendQuery(query);
+//        //List results=Common.sendQuery(query);
+//        if(results==null)
+//            results=new ArrayList(); //let someone else report that their are no results.
+//     
+//        sendToServlet(results,db.getDestination());
     }
     private void sendToServlet(List results,String destination)
     {        
