@@ -123,7 +123,7 @@ public class SearchTreeManager
             key="query_"+Integer.toString((int)(Math.random()*1000));
         }while(queries.containsKey(key+".sql"));
         log.debug("key="+key);
-        queries.setProperty(key+".sql", new SqlVisitor().getSql(q));
+        queries.setProperty(key+".sql", new SqlVisitor().getSql(q,false));
         queries.setProperty(key+".description",description);
         queries.setProperty(key+".limit",q.getLimit().toString());
         writeQueries();
@@ -132,7 +132,7 @@ public class SearchTreeManager
     public void setSearchState(String name,Query q)
     {        
         SqlVisitor sv=new SqlVisitor();
-        queries.setProperty(name+".sql", sv.getSql(q));
+        queries.setProperty(name+".sql", sv.getSql(q,false));
         queries.setProperty(name+".limit",q.getLimit().toString());
         writeQueries();
     }
@@ -149,7 +149,7 @@ public class SearchTreeManager
             InputStream is=new FileInputStream(file.getPath());
                         
             queries.load(is);
-            //log.debug("initial quries are: "+queries);
+            log.debug("initial quries are: "+queries);
         }catch(IOException e){
             log.error("could not read queries from file "+file+": "+e);
         }

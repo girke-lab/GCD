@@ -11,7 +11,7 @@
         bean.setDefaultDatabase("unknowns2");
         bean.setContext(application,request,response);
         bean.loadValues(request); //get entered values for fields, opts, bools , etc ...
-        bean.adminEnabled(true);
+        //bean.adminEnabled(true);
 %>
 
 <p><p> 

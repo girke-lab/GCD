@@ -36,9 +36,10 @@ public class AdvancedSearchBean2
     SearchableDatabase db;
     String selectedQueryName,message;
     boolean printAdminControls=false;
+    boolean printSql=false;
     String defaultDb;
     Query currentQuery=null;
-    boolean drawForm=true; //set to false when search started
+    boolean drawForm=true; //set to false when search started    
     
     
     /** Creates a new instance of AdvancedSearchBean2 */
@@ -60,7 +61,10 @@ public class AdvancedSearchBean2
     {
         printAdminControls=b;
     }
-    
+    public void setPrintSql(boolean b)
+    {
+        printSql=b;
+    }
     /**
     * set the database to use
     * @param name name of a database
@@ -82,7 +86,10 @@ public class AdvancedSearchBean2
         else //default to common
             setDatabase(defaultDb);
     }
-       
+    public String getDatabase()
+    {
+        return currentState.getDatabase();
+    }
     public void initPage(ServletContext sc,HttpServletRequest rq,HttpServletResponse rs)
     {
         servletContext=sc;
@@ -127,13 +134,16 @@ public class AdvancedSearchBean2
         log.debug("drawing form");
         currentQuery.accept(hv); //renders the html
         log.debug("done rendering");
-        
+                
         try{
             out.println("<p>");
             out.println(printStoreOptions());
-            SqlVisitor sv=new SqlVisitor();
-            out.println("<p><h4>Sql</h4><p>");
-            out.println("<pre>"+sv.getSql(currentQuery)+"</pre>");
+            if(printSql)
+            {
+                SqlVisitor sv=new SqlVisitor();
+                out.println("<p><h4>Sql</h4><p>");
+                out.println("<pre>"+sv.getSql(currentQuery)+"</pre>");
+            }
         }catch(IOException e){
             log.warn("could not print : "+e);
         }

@@ -29,15 +29,18 @@
     <servlet-name>QueryDispatcherServlet</servlet-name>
     <url-pattern>/QueryDispatcherServlet</url-pattern>
   </servlet-mapping>
+  
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>queryAdmin page</web-resource-name>
-      <url-pattern>/queryAdmin.jsp</url-pattern>
+      <url-pattern>/as2.jsp</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>query_admin</role-name>
     </auth-constraint>
   </security-constraint>
+  
+  
   <security-constraint>
     <web-resource-collection>
       <web-resource-name> all </web-resource-name>
@@ -47,10 +50,13 @@
       <role-name>database</role-name>
     </auth-constraint>
   </security-constraint>
+  
+  
   <login-config>
     <auth-method>BASIC</auth-method>
     <realm-name>UserDatabase</realm-name>
   </login-config>
+  
   <security-role>
     <role-name>query_admin</role-name>
   </security-role>

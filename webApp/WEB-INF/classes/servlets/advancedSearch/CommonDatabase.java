@@ -189,6 +189,7 @@ public class CommonDatabase extends DefaultSearchableDatabase
         mRequest.getParameterMap().put("searchType","seq_model");
         mRequest.getParameterMap().put("limit", state.getLimit());
         mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName.replaceAll("sequences","sequence_view"));         
+        mRequest.getParameterMap().put("origin_page","advancedSearch.jsp");
                 
         if(getFields()[state.getSortField()].dbName.startsWith("cluster_info"))
             mRequest.getParameterMap().put("displayType","clusterView");

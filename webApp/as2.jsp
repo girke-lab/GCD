@@ -7,11 +7,12 @@
         <jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean2' scope='page'/>
         <jsp:useBean id='common' class='servlets.Common' />
         <%
-            common.printHeader(out,"Advanced Search 2");
+            common.printHeader(out,"Query Administration");
             bean.setDefaultDatabase("unknowns2");
             bean.setDatabase("unknowns2");
             bean.initPage(application,request,response);
             bean.setPrintAmdinControls(true);
+            bean.setPrintSql(true);
             
             bean.printMessage(out);
                         

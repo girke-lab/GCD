@@ -20,7 +20,7 @@ public class SqlVisitor implements QueryTreeVisitor
 {
     private static Logger log=Logger.getLogger(SqlVisitor.class);
     StringBuffer sql;
-    boolean printParinths;
+    boolean printParinths,printLimit=true;
     
     /** Creates a new instance of SqlVisitor */
     public SqlVisitor()
@@ -30,7 +30,12 @@ public class SqlVisitor implements QueryTreeVisitor
         printParinths=true;
     }
     public String getSql(Query q)
+    {        
+        return getSql(q,true);
+    }
+    public String getSql(Query q, boolean printLimit)
     {
+        this.printLimit=printLimit;
         q.accept(this);
         //log.debug("sql="+sql);
         return sql.toString();
@@ -129,7 +134,8 @@ public class SqlVisitor implements QueryTreeVisitor
         n.getCondition().accept(this); //add condtion to sql string
         log.debug("adding order");
         n.getOrder().accept(this);
-        sql.append("\nLIMIT "+n.getLimit()); 
+        if(printLimit)
+            sql.append("\nLIMIT "+n.getLimit()); 
         sql.append(";");
     }
 
