@@ -4,7 +4,7 @@
  * Created on October 26, 2004, 3:14 PM
  */
 
-package servlets.dataViews.unknownViews;
+package servlets.dataViews.records;
 
 /**
  *
@@ -100,20 +100,28 @@ public class ProteomicsRecord implements Record
             log.error("could not send ProteomicsRecord query: "+e.getMessage());
             return new HashMap();
         }
-        List row,l;
-        Map output=new HashMap(); //need to maintain order here
-        for(Iterator i=data.iterator();i.hasNext();)
-        {
-            row=(List)i.next();
-            l=(List)output.get(row.get(1));
-            if(l==null)
-            {
-                l=new LinkedList();
-                output.put(row.get(1),l);
+        
+        RecordBuilder rb=new RecordBuilder(){
+            public Record buildRecord(List l){
+                return new ProteomicsRecord(l);
             }
-            l.add(new ProteomicsRecord(row.subList(2,7)));            
-        }
-        return output;
+        };                
+        return RecordGroup.buildRecordMap(rb,data,2,7);     
+        
+//        List row,l;
+//        Map output=new HashMap(); //need to maintain order here
+//        for(Iterator i=data.iterator();i.hasNext();)
+//        {
+//            row=(List)i.next();
+//            l=(List)output.get(row.get(1));
+//            if(l==null)
+//            {
+//                l=new LinkedList();
+//                output.put(row.get(1),l);
+//            }
+//            l.add(new ProteomicsRecord(row.subList(2,7)));            
+//        }
+//        return output;
     } 
     
 }

@@ -4,7 +4,7 @@
  * Created on October 13, 2004, 9:28 AM
  */
 
-package servlets.dataViews.unknownViews;
+package servlets.dataViews.records;
 
 /**
  *

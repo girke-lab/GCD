@@ -14,7 +14,7 @@ import org.apache.log4j.*;
 
 import servlets.search.*;
 import servlets.dataViews.*;
-import servlets.dataViews.unknownViews.Unknowns2DataView;
+import servlets.dataViews.Unknowns2DataView;
 /**
  *
  * @author  Kevin Horan

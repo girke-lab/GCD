@@ -4,7 +4,7 @@
  * Created on October 19, 2004, 1:50 PM
  */
 
-package servlets.dataViews.unknownViews;
+package servlets.dataViews.records;
 
 /**
  * This interface is used to create classes that can print information

@@ -4,7 +4,7 @@
  * Created on October 12, 2004, 1:54 PM
  */
 
-package servlets.dataViews.unknownViews;
+package servlets.dataViews.records;
 
 /**
  *
@@ -23,14 +23,15 @@ import servlets.DbConnection;
 public class UnknownRecord implements Record
 {
     String key,description;
-    int estCount;
+    int estCount,key_id;
     boolean[] go_unknowns;
 
     Map subRecords=new LinkedHashMap();
     private static Logger log=Logger.getLogger(UnknownRecord.class);
 
-    public UnknownRecord(String key, String desc, int estCount, String[] go_unknowns)
+    public UnknownRecord(int key_id,String key, String desc, int estCount, String[] go_unknowns)
     {
+        this.key_id=key_id;
         this.key=key;
         this.description=desc;
         this.estCount=estCount;
@@ -41,40 +42,34 @@ public class UnknownRecord implements Record
     }
     public UnknownRecord(List values)
     {
-        if(values==null || values.size()!=6)
+        if(values==null || values.size()!=7)
         {
             log.error("invalid list in UnknownRecord constructor");
             if(values!=null)
                 log.error("recieved list of size "+values.size()+", but expected size of 6");
             return;
         }
-        key=(String)values.get(0);
-        description=(String)values.get(1);
-        estCount=Integer.parseInt((String)values.get(2));
+        key_id=Integer.parseInt((String)values.get(0));
+        key=(String)values.get(1);
+        description=(String)values.get(2);
+        estCount=Integer.parseInt((String)values.get(3));
         go_unknowns=new boolean[3];
-        go_unknowns[0]=getBoolean((String)values.get(3));
-        go_unknowns[1]=getBoolean((String)values.get(4));
-        go_unknowns[2]=getBoolean((String)values.get(5));
+        go_unknowns[0]=getBoolean((String)values.get(4));
+        go_unknowns[1]=getBoolean((String)values.get(5));
+        go_unknowns[2]=getBoolean((String)values.get(6));
     }
     private boolean getBoolean(String str)
     {
         return str.compareToIgnoreCase("true")==0 || str.compareToIgnoreCase("yes")==0 ||
                 str.compareToIgnoreCase("t")==0|| str.equals("1");
     }
-    public void addSubRecord(String name,Object record)
+   
+    public void setSubRecord(String name,Object o)
     {
-        Object collection=subRecords.get(name);
-        if(collection==null)
-        {
-            collection=new HashSet();
-            subRecords.put(name, collection);
-        }
-        ((Collection)collection).add(record);             
+        //log.debug("adding sub record: "+o);
+        subRecords.put(name, o);
     }
-    public void setSubRecordList(String name,Collection col)
-    {
-        subRecords.put(name, col);
-    }
+    
     public boolean equals(Object o)
     {
         if(this==o)
@@ -120,30 +115,98 @@ public class UnknownRecord implements Record
     }    
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
+        log.debug("getting data for unknownRecords");
+        Map unknownRecords,t;
+        RecordGroup unknownRG;
         if(ids==null || ids.size()==0)
             return new HashMap();
+
+        Map[] subRecordMaps=new Map[]{
+            GoRecord.getData(dbc,ids),
+            BlastRecord.getData(dbc,ids),            
+            ProteomicsRecord.getData(dbc,ids),
+            ClusterRecord.getData(dbc,ids),
+            ExternalUnknownRecord.getData(dbc,ids)
+        };//array of maps of ids to RecordGroups
         
+        log.debug("got data for all sub records");
+        
+        //load the unknown records
         if(!sortCol.startsWith("unknowns.unknown_keys."))
             sortCol="key";
-        String query="SELECT * " +
+        String query="SELECT 1,unknowns.unknown_keys.* " +
         "   FROM unknowns.unknown_keys " +
         "   WHERE "+Common.buildIdListCondition("key_id",ids)+ 
         "   ORDER BY "+sortCol+" "+sortDir;
+        
         List data=null;
-
         try{
+            log.debug("sending query for data");
             data=dbc.sendQuery(query);
         }catch(java.sql.SQLException e){
             log.error("could not send unknownRecord query: "+e.getMessage());
             return new HashMap();
         }
-        List row;
-        Map output=new LinkedHashMap(); //need to maintain order here
-        for(Iterator i=data.iterator();i.hasNext();)
-        {
-            row=(List)i.next();            
-            output.put(row.get(0),new UnknownRecord(row.subList(1,7)));
+        log.debug("parsing data and building a RecordGroup");
+        RecordBuilder rb=new RecordBuilder(){
+            public Record buildRecord(List l){
+                return new UnknownRecord(l);
+            }
+        };                
+        //this will return a map with one mapping to a RecordGroup (the root)
+        unknownRecords=RecordGroup.buildRecordMap(rb,data,1,8);  
+        unknownRG=(RecordGroup)unknownRecords.get("1");
+        
+        //these names must appear in the same order as the subRecordMaps array
+        String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters","externals"};
+            
+        log.debug("matching up child records with parent records");
+        UnknownRecord ur;
+        Object o;
+        for(Iterator i=unknownRG.iterator();i.hasNext();) 
+        {//match up the child records to the parent records
+            ur=(UnknownRecord)i.next();
+            for(int j=0;j<subRecordMaps.length;j++)
+            {
+                o=subRecordMaps[j].get(""+ur.key_id);
+                if(o==null)
+                {
+                    log.debug("could not find key "+ur.key_id+" for dataset "+names[j]);
+                    log.debug(" in list "+subRecordMaps[j].keySet());
+                }
+
+                if(o==null)
+                    o=new RecordGroup();                    
+                
+                ur.setSubRecord(names[j],o);
+                
+                
+                //ur.setSubRecord(names[j], subRecordMaps[j].get(""+ur.key_id));
+            }
         }
-        return output;
+        log.debug("all done with UnknownRecords");
+        return unknownRecords;
+        
+        
+//        for(Iterator i=records.entrySet().iterator();i.hasNext();)
+//        {            
+//            Map.Entry set=(Map.Entry)i.next();
+//         //   log.debug("working on key "+set.getKey());
+//            for(int j=0;j<subRecordMaps.length;j++)
+//                ((UnknownRecord)set.getValue()).setSubRecord(names[j], subRecordMaps[j].get(set.getKey()));
+//        }        
+        
+        
+         
+          
+        
+//        List row;
+//        Map output=new LinkedHashMap(); //need to maintain order here
+//        for(Iterator i=data.iterator();i.hasNext();)
+//        {
+//            row=(List)i.next();            
+//            output.put(row.get(0),new UnknownRecord(row.subList(1,7)));
+//        }
+//        return output;
     }          
 }

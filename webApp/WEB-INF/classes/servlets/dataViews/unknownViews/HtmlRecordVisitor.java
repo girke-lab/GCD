@@ -4,7 +4,7 @@
  * Created on October 19, 2004, 1:54 PM
  */
 
-package servlets.dataViews.unknownViews;
+package servlets.dataViews.records;
 
 /**
  *
@@ -14,7 +14,7 @@ package servlets.dataViews.unknownViews;
 import java.io.*;
 import java.util.*;
 import servlets.Common;
-
+import org.apache.log4j.Logger;
 /**
  * This class implements RecordVisitor so that it can print Records in 
  * html format.  Each record gets its own table, which can be nested inside
@@ -22,6 +22,8 @@ import servlets.Common;
  */
 public class HtmlRecordVisitor implements RecordVisitor
 {
+    
+    private static Logger log=Logger.getLogger(HtmlRecordVisitor.class);
     
     /** Creates a new instance of HtmlRecordVisitor */
     public HtmlRecordVisitor()
@@ -35,8 +37,9 @@ public class HtmlRecordVisitor implements RecordVisitor
     
     public void printHeader(java.io.Writer out, BlastRecord br) throws java.io.IOException
     {
-        out.write("<tr bgcolor='"+Common.titleColor+"'><th>Target Key</th><th>E-value</th>" +
-                    "<th>Score</th><th>DB/Method</th></tr>\n");
+        out.write("<tr bgcolor='"+Common.titleColor+"'>" +
+                "<th>Target Key</th><th>E-value</th>" +
+                "<th>Score</th><th>DB/Method</th></tr>\n");
     }
     
     public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
@@ -72,35 +75,49 @@ public class HtmlRecordVisitor implements RecordVisitor
             out.write("<b>"+names[i]+"</b>: "+ur.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
         out.write("</td></tr>\n");               
         
-        Record rec;
-        Collection list;
-        boolean firstRecord;
+        RecordGroup rg;
+        Object o;
         
-        for(Iterator i=ur.subRecords.values().iterator();i.hasNext();) 
-        {            
-            list=(Collection)i.next();
-            if(list==null) continue;
-            firstRecord=true;
+        for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
+        {
+            o=i.next();
+            if(o==null)
+                log.debug("o is null");
+            rg=(RecordGroup)o;
+            //rg=(RecordGroup)i.next();
             out.write("<tr><td colspan='5'><TablE bgcolor='"+Common.dataColor+"' width='100%'" +
                 " border='1' cellspacing='0' cellpadding='0'>\n");
-            
-            for(Iterator j=list.iterator();j.hasNext();)
-            {
-                rec=(Record)j.next();
-                if(firstRecord){
-                    rec.printHeader(out,this);
-                    firstRecord=false;
-                }
-                rec.printRecord(out,this);
-                if(!j.hasNext()) //this is the last record
-                    rec.printFooter(out,this);
-            }            
+            rg.printRecords(out,this); 
             out.write("</TablE></td></tr>\n");
-        }        
+        }
+        out.write("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>\n");
+                
+//        Record rec;
+//        Collection list;
+//        boolean firstRecord;
+//        
+//        for(Iterator i=ur.subRecords.values().iterator();i.hasNext();) 
+//        {            
+//            list=(Collection)i.next();
+//            if(list==null) continue;
+//            firstRecord=true;
+//            
+//            for(Iterator j=list.iterator();j.hasNext();)
+//            {
+//                rec=(Record)j.next();
+//                if(firstRecord){
+//                    rec.printHeader(out,this);
+//                    firstRecord=false;
+//                }
+//                rec.printRecord(out,this);
+//                if(!j.hasNext()) //this is the last record
+//                    rec.printFooter(out,this);
+//            }            
+//        }        
     }
     public void printFooter(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
-    {
-        out.write("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>\n");
+    {        
+        
     }
     
     public void printHeader(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException

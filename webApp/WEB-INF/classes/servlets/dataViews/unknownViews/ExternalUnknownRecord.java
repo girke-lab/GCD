@@ -4,7 +4,7 @@
  * Created on November 5, 2004, 8:36 AM
  */
 
-package servlets.dataViews.unknownViews;
+package servlets.dataViews.records;
 
 /**
  *
@@ -96,19 +96,27 @@ public class ExternalUnknownRecord implements Record
             log.error("could not send ExternalUnknownRecord query: "+e.getMessage());
             return new HashMap();
         }
-        List row,l;
-        Map output=new HashMap(); //need to maintain order here
-        for(Iterator i=data.iterator();i.hasNext();)
-        {
-            row=(List)i.next();
-            l=(List)output.get(row.get(0));
-            if(l==null)
-            {
-                l=new LinkedList();
-                output.put(row.get(0),l);
-            }            
-            l.add(new ExternalUnknownRecord(row.subList(1,3)));            
-        }
-        return output;
+        
+        RecordBuilder rb=new RecordBuilder(){
+            public Record buildRecord(List l){
+                return new ExternalUnknownRecord(l);
+            }
+        };                
+        return RecordGroup.buildRecordMap(rb,data,1,3);     
+        
+//        List row,l;
+//        Map output=new HashMap(); //need to maintain order here
+//        for(Iterator i=data.iterator();i.hasNext();)
+//        {
+//            row=(List)i.next();
+//            l=(List)output.get(row.get(0));
+//            if(l==null)
+//            {
+//                l=new LinkedList();
+//                output.put(row.get(0),l);
+//            }            
+//            l.add(new ExternalUnknownRecord(row.subList(1,3)));            
+//        }
+//        return output;
     }
 }

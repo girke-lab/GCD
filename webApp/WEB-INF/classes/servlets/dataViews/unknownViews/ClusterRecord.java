@@ -4,7 +4,7 @@
  * Created on October 26, 2004, 3:14 PM
  */
 
-package servlets.dataViews.unknownViews;
+package servlets.dataViews.records;
 
 /**
  *
@@ -113,20 +113,28 @@ public class ClusterRecord implements Record
             log.error("could not send ClusterRecord query: "+e.getMessage());
             return new HashMap();
         }
-        List row,l;
-        Map output=new HashMap(); //need to maintain order here
-        for(Iterator i=data.iterator();i.hasNext();)
-        {
-            row=(List)i.next();
-            l=(List)output.get(row.get(0));
-            if(l==null)
-            {
-                l=new LinkedList();
-                output.put(row.get(0),l);
-            }            
-            l.add(new ClusterRecord(row.subList(1,5)));            
-        }
-        return output;
+        
+        RecordBuilder rb=new RecordBuilder(){
+            public Record buildRecord(List l){
+                return new ClusterRecord(l);
+            }
+        };                
+        return RecordGroup.buildRecordMap(rb,data,1,5);     
+        
+//        List row,l;
+//        Map output=new HashMap(); //need to maintain order here
+//        for(Iterator i=data.iterator();i.hasNext();)
+//        {
+//            row=(List)i.next();
+//            l=(List)output.get(row.get(0));
+//            if(l==null)
+//            {
+//                l=new LinkedList();
+//                output.put(row.get(0),l);
+//            }            
+//            l.add(new ClusterRecord(row.subList(1,5)));            
+//        }
+//        return output;
     }
     
    

@@ -4,13 +4,14 @@
  * Created on October 12, 2004, 1:56 PM
  */
 
-package servlets.dataViews.unknownViews;
+package servlets.dataViews.records;
 
 /**
  *
  * @author  khoran
  */
 import java.util.*;
+import java.io.*;
 import servlets.Common;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
@@ -20,7 +21,7 @@ import servlets.DbConnection;
  */
 public class BlastRecord implements Record
 {
-    String target,targetDesc,score,ident,positives,gaps,dbname,link,method;
+    String target,targetDesc,score,ident,positives,gaps,dbname,link,method,purpose;
     int length;
     double evalue;
     
@@ -29,7 +30,8 @@ public class BlastRecord implements Record
     /**
      * Creates a new instance of BlastRecord
      */
-    public BlastRecord(String t,String d,String s,String id,String pos,String gaps,String db,String l,String m,int len,double e)
+    public BlastRecord(String t,String d,String s,String id,String pos,
+            String gaps,String db,String l,String m,int len,double e,String p)
     {
         target=t;
         targetDesc=d;
@@ -42,6 +44,7 @@ public class BlastRecord implements Record
         length=len;
         evalue=e;       
         method=m;
+        purpose=p;
     }
     /**
      * Takes a list of values corresponding to the data values that can be stored.
@@ -53,11 +56,11 @@ public class BlastRecord implements Record
      */
     public BlastRecord(List values)
     {
-        if(values==null || values.size()!=11)
+        if(values==null || values.size()!=12)
         {
             log.error("invalid values list in BlastRecord constructor");
             if(values!=null)
-                log.error("recieved list of size "+values.size()+", but expected size of 10");
+                log.error("recieved list of size "+values.size()+", but expected size of 12");
             return;
         }
         if(values.get(0)==null) //this is a no hit
@@ -76,6 +79,7 @@ public class BlastRecord implements Record
             dbname=(String)values.get(8);
             link=buildLink((String)values.get(9),target); 
             method=(String)values.get(10);
+            purpose=(String)values.get(11);
         }
     }
     private String buildLink(String link,String key)
@@ -182,7 +186,7 @@ public class BlastRecord implements Record
         String query="SELECT * " +
         "   FROM unknowns.blast_summary_mv " +
         "   WHERE "+Common.buildIdListCondition("key_id",ids)+
-        "   ORDER BY "+sortCol+" "+sortDir;
+        "   ORDER BY purpose, "+sortCol+" "+sortDir;
                 
         List data=null;
         try{
@@ -191,21 +195,49 @@ public class BlastRecord implements Record
             log.error("could not send BlastRecord query: "+e.getMessage());
             return new HashMap();
         }
-        List row,l;
-        Map output=new HashMap(); 
-        for(Iterator i=data.iterator();i.hasNext();)
+        
+        RecordBuilder rb=new RecordBuilder(){
+            public Record buildRecord(List l){
+                return new BlastRecord(l);
+            }
+            public RecordGroup buildRecordGroup(){
+                return new BlastRecordGroup();
+            }
+        };                
+        return RecordGroup.buildRecordMap(rb,data,2,14);                
+    }           
+}
+
+class BlastRecordGroup extends RecordGroup
+{
+     public void printRecords(Writer out, RecordVisitor visitor)  
+        throws IOException
+     {
+        BlastRecord rec;
+        boolean firstRecord=true;
+        String lastPurpose=null;
+        
+        Map titles=new HashMap();
+        titles.put("UD","Unknown Searches");
+        titles.put("orthologs","Orothlog Searches");
+        
+        for(Iterator i=records.iterator();i.hasNext();)
         {
-            row=(List)i.next();
-            l=(List)output.get(row.get(0));
-            if(l==null)
+            rec=(BlastRecord)i.next();
+            if(firstRecord)
             {
-                l=new LinkedList();
-                output.put(row.get(0),l);
+                rec.printHeader(out, visitor);
+                firstRecord=false;
             }            
-            //log.debug("adding row "+row.subList(2,13));
-            l.add(new BlastRecord(row.subList(2,13)));
+            if(lastPurpose==null || !lastPurpose.equals(rec.purpose))
+            {
+                out.write("<tr><th align='left' colspan='4' bgcolor='"+Common.titleColor+"'>"+
+                        titles.get(rec.purpose)+"</th></tr>");
+                lastPurpose=rec.purpose;
+            }
+            rec.printRecord(out, visitor);
+            if(!i.hasNext()) //last record
+                rec.printFooter(out, visitor);
         }
-        return output;
-    }       
-    
+     }
 }

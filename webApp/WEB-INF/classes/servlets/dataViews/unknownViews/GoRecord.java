@@ -4,7 +4,7 @@
  * Created on October 12, 2004, 3:16 PM
  */
 
-package servlets.dataViews.unknownViews;
+package servlets.dataViews.records;
 
 /**
  *
@@ -97,20 +97,28 @@ public class GoRecord implements Record
             log.error("could not send GoRecord query: "+e.getMessage());
             return new HashMap();
         }
-        List row,l;
-        Map output=new HashMap(); //need to maintain order here
-        for(Iterator i=data.iterator();i.hasNext();)
-        {
-            row=(List)i.next();
-            l=(List)output.get(row.get(0));
-            if(l==null)
-            {
-                l=new LinkedList();
-                output.put(row.get(0),l);
+        
+        RecordBuilder rb=new RecordBuilder(){
+            public Record buildRecord(List l){
+                return new GoRecord(l);
             }
-            l.add(new GoRecord(row.subList(1,4)));            
-        }
-        return output;
+        };                
+        return RecordGroup.buildRecordMap(rb,data,1,4);     
+        
+//        List row,l;
+//        Map output=new HashMap(); //need to maintain order here
+//        for(Iterator i=data.iterator();i.hasNext();)
+//        {
+//            row=(List)i.next();
+//            l=(List)output.get(row.get(0));
+//            if(l==null)
+//            {
+//                l=new LinkedList();
+//                output.put(row.get(0),l);
+//            }
+//            l.add(new GoRecord(row.subList(1,4)));            
+//        }
+//        return output;
     }      
     
 }

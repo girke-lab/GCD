@@ -15,8 +15,16 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 import org.apache.log4j.Logger;
-import servlets.dataViews.unknownViews.*;
 import servlets.*;
+import servlets.dataViews.records.GoRecord;
+import servlets.dataViews.records.BlastRecord;
+import servlets.dataViews.records.TextRecordVisitor;
+import servlets.dataViews.records.ProteomicsRecord;
+import servlets.dataViews.records.UnknownRecord;
+import servlets.dataViews.records.ExternalUnknownRecord;
+import servlets.dataViews.records.Record;
+import servlets.dataViews.records.RecordVisitor;
+import servlets.dataViews.records.ClusterRecord;
 
 public class UnknownsTextScript implements Script
 {
@@ -55,13 +63,13 @@ public class UnknownsTextScript implements Script
         {            
             Map.Entry set=(Map.Entry)i.next();         
             for(int j=0;j<subRecordMaps.length;j++)
-                ((UnknownRecord)set.getValue()).setSubRecordList(names[j], (List)subRecordMaps[j].get(set.getKey())); 
+                ((UnknownRecord)set.getValue()).setSubRecord(names[j], subRecordMaps[j].get(set.getKey())); 
         }        
         return records.values();
     }
     
     private void writeTempFile(java.io.OutputStream out, Collection data)
-    {                
+    {                //TODO: this needs to work with RecordGroups.
         RecordVisitor visitor=new TextRecordVisitor();
         PrintWriter fw;
         try{
