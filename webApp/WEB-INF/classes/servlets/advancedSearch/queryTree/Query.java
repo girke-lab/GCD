@@ -19,8 +19,10 @@ public class Query extends QueryTreeNode
     private Expression condition;
     private List fields; //list of field names
     private List from;  //list of table names
+    private List distinctFields; 
     private Order order; 
     private Integer limit;
+    private boolean distinct=true;
     
     /** Creates a new instance of Query */
     public Query(Expression c,List fields,List from,Order o,Integer limit)
@@ -31,12 +33,7 @@ public class Query extends QueryTreeNode
         order=o;
         this.limit=limit;
         
-        if(c==null)
-            log.warn("no condition");
-        if(o==null)
-            log.warn("no order");
-        if(limit==null)
-            log.warn("no limit");
+        distinctFields=new LinkedList();
     }
 
     public String toString(String indent)
@@ -88,5 +85,23 @@ public class Query extends QueryTreeNode
     public void setOrder(Order order)
     {
         this.order = order;
+    }
+
+    public boolean isDistinct()
+    {
+        return distinct;
+    }
+
+    public void setDistinct(boolean distinct)
+    {
+        this.distinct = distinct;
+    }
+    public void addDistinctField(String f)
+    {
+        distinctFields.add(f);
+    }
+    public List getDistinctFields()
+    {
+        return distinctFields;
     }
 }

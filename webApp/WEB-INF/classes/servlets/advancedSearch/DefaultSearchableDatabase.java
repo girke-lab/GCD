@@ -39,16 +39,17 @@ public class DefaultSearchableDatabase implements SearchableDatabase
     
     static DbConnection dbc=null;  //need a connection to a different database
     static Logger log=Logger.getLogger(DefaultSearchableDatabase.class);
-    static SearchTreeManager stm;
+    SearchTreeManager stm;  
     
     private int sp,ep,index;
     
     /** Creates a new instance of DefaultSearchableDatabase */
-    public DefaultSearchableDatabase(DbConnection dbc,String filename)
+    public DefaultSearchableDatabase(DbConnection dbc,SearchTreeManager stm)
     {
         log.debug("createing new DefauleSearchableDatabase");
         this.dbc=dbc;
-        stm=new SearchTreeManager(filename);
+        this.stm=stm;
+    
         defineOptions();
     }
     
@@ -83,7 +84,8 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         condition=buildCondition(state,tables);
         
         query=new Query(condition,fields,new LinkedList(tables),order,limit);
-        log.debug("query="+query);
+        
+        //log.debug("query="+query);
         return query;
     }
 
@@ -121,6 +123,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         mRequest.getParameterMap().put("rpp",new Integer(rpp).toString());
                 
         mRequest.getParameterMap().put("displayType","unknowns2View");
+        mRequest.getParameterMap().put("origin_page","as2.jsp");
         
         StringBuffer inputStr=new StringBuffer();      
         for(Iterator i=results.iterator();i.hasNext();)
@@ -358,8 +361,23 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         {
             List l=new LinkedList();
             StringTokenizer tok=new StringTokenizer(v);
+            String value;
             while(tok.hasMoreTokens())
-                l.add(tok.nextToken()); 
+            {//TODO: this should be more intelligent about types.
+                value=tok.nextToken();
+                try{
+                    int i=Integer.parseInt(value);
+                    l.add(new IntLiteralValue(i));
+                }catch(Exception e){
+                    try{
+                        float fl=Float.parseFloat(value);
+                        l.add(new FloatLiteralValue(fl));
+                    }catch(Exception e2){
+                        l.add(new StringLiteralValue(value));                        
+                    }
+                }
+                
+            }
             return new ListLiteralValue(l);
         }            
         else
@@ -367,7 +385,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         return null;
     }
     private String getTableName(String str)
-    {//str should be in form 'schema.table.column', so this function
+    {//str should be in form '[schema.]table.column', so this function
         //cuts off the column to get the schema qualified table name.
         log.debug("getting table name from "+str);
         int i=str.lastIndexOf('.');

@@ -52,7 +52,7 @@ public class HtmlVisitor implements QueryTreeVisitor
         out.println("<select name='fields' onChange=\"action.value='refresh'; submit()\">");
         Field[] fields=db.getFields();
         for(int i=0;i<fields.length;i++)
-        {
+        {            
             out.println("<option value='"+i+"'");
             //log.debug("comparing tree name "+n.getName()+" to Field name "+fields[i].dbName+".");
             if(n.getName().equalsIgnoreCase(fields[i].dbName))
@@ -85,8 +85,7 @@ public class HtmlVisitor implements QueryTreeVisitor
         //operations between two DbFields are join conditions,
         //and should not be rendered.        
         if(isJoinOperation(n))
-        {
-            log.debug("join expression found: \n"+n);
+        {            
             wasJoinExpression=true;
             return;
         }
@@ -180,6 +179,8 @@ public class HtmlVisitor implements QueryTreeVisitor
                 "Sort by: <select name='sortField' >");
         for(int i=0;i<db.getFields().length;i++)
         {
+            if(!db.getFields()[i].isSortable()) //only print sortable fields
+                continue;
             out.println("<option value='"+i+"'");
             if(n.getOrder() instanceof DbField && ((DbField)n.getOrder()).getName()==db.getFields()[i].dbName)
                 out.println("selected");
@@ -260,8 +261,22 @@ public class HtmlVisitor implements QueryTreeVisitor
     public void visit(servlets.advancedSearch.queryTree.ListLiteralValue n)
     {
         StringBuffer values=new StringBuffer();
+        Object o;
         for(Iterator i=n.getValues().iterator();i.hasNext();)
-            values.append(i.next()+" ");
+        {
+            o=i.next();
+            if(o instanceof IntLiteralValue)
+                values.append(((IntLiteralValue)o).getValue().toString());
+            else if(o instanceof StringLiteralValue)
+                values.append(((StringLiteralValue)o).getValue());
+            else if(o instanceof BooleanLiteralValue)
+                values.append(((BooleanLiteralValue)o).getValue().toString());
+            else if(o instanceof FloatLiteralValue)
+                values.append(((FloatLiteralValue)o).getValue().toString());
+            else
+                values.append(i.next());
+            values.append(" ");
+        }
         printLiteral(values.toString());    
     }
     public void visit(servlets.advancedSearch.queryTree.StringLiteralValue n)

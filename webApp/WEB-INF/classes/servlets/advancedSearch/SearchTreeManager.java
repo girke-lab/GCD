@@ -23,29 +23,42 @@ public class SearchTreeManager
     private static Logger log=Logger.getLogger(SearchTreeManager.class);
     
     Properties queries; 
-    String path="storedQueries/";
-    String filename;
+    final String path="storedQueries/";
+    //final String filename; //this should be set by constructor and never changed.
+    final URL file;
     
     /** Creates a new instance of SearchTreeManager */
     public SearchTreeManager(String filename)
     {
-        this.filename=filename;
+        //this.filename=filename;
         queries=new Properties();
+        URL temp=null;
         try{
-            InputStream is=Thread.currentThread().getContextClassLoader().getResourceAsStream(path+filename);
-            if(is==null)
-            {
-                log.error("could not open inputstream for "+path+filename);
-                return;
-            }
-            queries.load(is);
-        }catch(IOException e){
-            log.error("could not read queries from file "+filename+": "+e);
+            temp=Thread.currentThread().getContextClassLoader().getResource(path);            
+            if(temp==null)
+                throw new IOException("could not find directory "+path);
+            //we really want a URL to this file, but must use only the directory
+            //above beause the file might not exist yet, but we still want at least
+            //a url to its future directory.
+            temp=new URL("file://"+temp.getPath()+filename);
+        }catch(Exception e){
+            log.warn("could not find file "+path+filename+": "+e);  
+            file=null;
+            return;
         }
+        
+        file=temp; //make it final.        
+        readQueries();
     }    
-
+    public SearchTreeManager(URL file)
+    {
+        queries=new Properties();
+        this.file=file;
+        readQueries();
+    }
     public Query getSearchState(String name)
     {
+        //log.debug("queries are: "+queries);
         String sql=queries.getProperty(name+".sql");
         if(sql==null)
         {
@@ -71,8 +84,7 @@ public class SearchTreeManager
         return q;
     }
     public String getDescription(String name)
-    {
-        log.debug("getting description for "+name);
+    {        
         return queries.getProperty(name+".description");
     }
 
@@ -89,7 +101,9 @@ public class SearchTreeManager
             else
                 names.add(key);
         }
-        return names;
+        List l=new LinkedList(names);        
+        Collections.sort(l,new QueryComparator());        
+        return l;
     }
 
     public void removeSearchState(String name)
@@ -111,11 +125,12 @@ public class SearchTreeManager
         log.debug("key="+key);
         queries.setProperty(key+".sql", new SqlVisitor().getSql(q));
         queries.setProperty(key+".description",description);
+        queries.setProperty(key+".limit",q.getLimit().toString());
         writeQueries();
     }
 
     public void setSearchState(String name,Query q)
-    {
+    {        
         SqlVisitor sv=new SqlVisitor();
         queries.setProperty(name+".sql", sv.getSql(q));
         queries.setProperty(name+".limit",q.getLimit().toString());
@@ -125,21 +140,51 @@ public class SearchTreeManager
     {
         queries.setProperty(name+".description",desc);
         writeQueries();
+    } 
+    private void readQueries()
+    {
+        try{     
+            
+            log.debug("fullPath="+file.getPath());
+            InputStream is=new FileInputStream(file.getPath());
+                        
+            queries.load(is);
+            //log.debug("initial quries are: "+queries);
+        }catch(IOException e){
+            log.error("could not read queries from file "+file+": "+e);
+        }
     }
     private void writeQueries()
     {
         log.debug("writing tree queries");
         try{
-            URL file=Thread.currentThread().getContextClassLoader().getResource(path);
-            if(file==null)
-                throw new IOException("could not find directory "+path);
-            String fullPath=file.getPath()+filename;
-            log.debug("fullPath="+fullPath);
-            OutputStream os=new FileOutputStream(fullPath);                        
+            //URL file=Thread.currentThread().getContextClassLoader().getResource(path);
+            //if(file==null)
+            //    throw new IOException("could not find directory "+path);
+            
+//            File f=new File(file.getPath());
+//            String fullPath=file.getPath()+filename;
+//            log.debug("fullPath="+fullPath);
+            OutputStream os=new FileOutputStream(file.getPath());                        
             queries.store(os,"SQL queries used for advanced search page");
+            os.close();
         }catch(IOException e){
             log.error("could no write queries: "+e);            
                
+        }
+    }
+    
+    class QueryComparator implements Comparator
+    {
+        public int compare(Object o1,Object o2)
+        {
+            if(!(o1 instanceof String) || !(o2 instanceof String))
+                throw new ClassCastException("bad types in QueryComparator: o1 is a "+o1.getClass()+", o2 is a "+o2.getClass());
+            
+            String d1,d2;
+            d1=getDescription((String)o1);
+            d2=getDescription((String)o2);
+            return d1.compareTo(d2);
         }
     }
 }

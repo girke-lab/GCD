@@ -25,7 +25,7 @@ public class SearchStateManager
     private String filename;
     private static Logger log=Logger.getLogger(SearchStateManager.class);
     String path="storedQueries/";      
-    
+    URL file;
     
     /**
      * Creates a new instance of SearchStateManager
@@ -33,24 +33,35 @@ public class SearchStateManager
      */
     public SearchStateManager(String filename) 
     {
-        this.filename=filename;        
+        this.filename=filename; 
+        try{
+            file=Thread.currentThread().getContextClassLoader().getResource(path+filename);
+            if(file==null)
+                throw new Exception("file not found");                
+        }catch(Exception e){
+            log.warn("could not find file "+path+filename+": "+e);
+        }
         loadSearchStates();        
+    }
+    public SearchStateManager(URL file)
+    {
+        this.file=file;
+        loadSearchStates();
     }
     private void loadSearchStates()
     { //load searchStates from persistant storage
-        try{
-            URL url;
+        try{            
             ObjectInputStream in; 
                 
-            url=Thread.currentThread().getContextClassLoader().getResource(path+filename);
-            if(url==null)
-                throw new Exception("file not found");                
-            
-            in=new ObjectInputStream(url.openStream());            
+//            url=Thread.currentThread().getContextClassLoader().getResource(path+filename);
+//            if(url==null)
+//                throw new Exception("file not found");                
+//            
+            in=new ObjectInputStream(file.openStream());            
             searchStates=(Vector)in.readObject();
             in.close();
         }catch(Exception e){
-            log.warn("could not open/read "+filename+": "+e.getMessage());
+            log.warn("could not read "+filename+": "+e.getMessage());
             searchStates=new Vector();
         }
     }

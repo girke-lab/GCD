@@ -103,6 +103,7 @@ public class SqlVisitor implements QueryTreeVisitor
     { 
         log.debug("visiting "+n.getClass().getName());
         sql.append("SELECT ");
+        printDistinct(n);
         
         log.debug("adding fields");
         //add field list
@@ -128,8 +129,7 @@ public class SqlVisitor implements QueryTreeVisitor
         n.getCondition().accept(this); //add condtion to sql string
         log.debug("adding order");
         n.getOrder().accept(this);
-//        log.debug("adding limit");
-//        sql.append("\nLIMIT "+n.getLimit()); 
+        sql.append("\nLIMIT "+n.getLimit()); 
         sql.append(";");
     }
 
@@ -147,10 +147,16 @@ public class SqlVisitor implements QueryTreeVisitor
     public void visit(servlets.advancedSearch.queryTree.ListLiteralValue n)
     {
         log.debug("visiting "+n.getClass().getName());
+        if(n.getValues()==null || n.getValues().size()==0)
+        {
+            sql.append("('')");
+            return;
+        }
         sql.append("(");
         for(Iterator i=n.getValues().iterator();i.hasNext();)
         {
-            sql.append(i.next());
+            //sql.append(i.next());
+            ((LiteralValue)i.next()).accept(this);
             if(i.hasNext())
                 sql.append(",");
         }
@@ -208,10 +214,29 @@ public class SqlVisitor implements QueryTreeVisitor
         sql.append("(");
         for(Iterator i=llv.getValues().iterator();i.hasNext();)
         {
-            sql.append(dbf.getName()+" "+n.getOperation()+" '"+i.next()+"'");
+            sql.append(dbf.getName()+" "+n.getOperation()+" ");
+            ((LiteralValue)i.next()).accept(this);
             if(i.hasNext())
                 sql.append(" OR ");
         }
         sql.append(")");
+    }
+    private void printDistinct(Query n)
+    {
+        if(n.isDistinct())
+        {
+            sql.append("DISTINCT ");
+            if(n.getDistinctFields().size()!=0)            
+            {
+                sql.append("ON (");
+                for(Iterator i=n.getDistinctFields().iterator();i.hasNext();)
+                {
+                    sql.append(i.next());
+                    if(i.hasNext())
+                        sql.append(",");
+                }
+                sql.append(")");
+            }
+        }
     }
 }

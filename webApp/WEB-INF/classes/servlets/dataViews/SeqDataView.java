@@ -447,7 +447,7 @@ public class SeqDataView implements DataView
                     
                     String treeViewLink="DispatchServlet?hid="+hid+"&script=treeViewer.pl&range=0&clusterId="+cs.clusterNum;
                     //out.println("\t\t<TD><a href='"+webBase+"jpg'>view</a></TD>");
-                    out.println("\t\t<TD><a href='"+treeViewLink+"'>view</a></TD>");
+                    out.println("\t\t<TD><a href='"+treeViewLink+"' target='tree'>view</a></TD>");
                  }             
                  else
                      out.println("<TD>&nbsp</TD><TD>&nbsp</TD>");

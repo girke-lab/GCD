@@ -27,12 +27,13 @@ public class CommonDatabase extends DefaultSearchableDatabase
 //    
 //    private static Logger log=Logger.getLogger(CommonDatabase.class);
 //    private static SearchStateManager ssm=new SearchStateManager("CommonDatabase.sss");
+    private static SearchTreeManager stm=new SearchTreeManager("CommonDatabase.properties");
     
     /** Creates a new instance of CommonDatabase */
     public CommonDatabase() 
     {
-        super(DbConnectionManager.getConnection("common"),"CommonDatabase.properites");
-        defineOptions();
+        super(DbConnectionManager.getConnection("common"),stm);
+        //defineOptions();
     }
     
 //    public String[] getBooleans() 
@@ -123,8 +124,7 @@ public class CommonDatabase extends DefaultSearchableDatabase
         fields=new Field[]{ new Field("Loci Id", "sequences.primary_key",List.class), 
                             new Field("Loci Description","sequences.description"),
                             new Field("Cluster Id","clusters_and_info.filename",List.class),
-                            new Field("Cluster Name","clusters_and_info.name"),
-                            //new Field("Cluster Type","cluster_info.filename",new String[]{"blast","hmm"}),
+                            new Field("Cluster Name","clusters_and_info.name"),                            
                             new Field("Cluster Size","clusters_and_info.size",Integer.class),
                             new Field("Clustering Method","clusters_and_info.method",
                                 new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
@@ -133,6 +133,9 @@ public class CommonDatabase extends DefaultSearchableDatabase
                             new Field("Database","sequences.Genome",new String[]{"arab","rice"}),
                             new Field("GO Number","go.go",List.class)
         };
+        int[] sortableFields=new int[]{0,1};
+        for(int i=0;i<sortableFields.length;i++)
+            fields[sortableFields[i]].setSortable(true);
         operators=new String[]{"=","!=","<",">","<=",">=",Common.ILIKE,"NOT "+Common.ILIKE};
         booleans=new String[]{"and","or"};        
     }

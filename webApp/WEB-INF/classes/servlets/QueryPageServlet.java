@@ -94,11 +94,14 @@ public class QueryPageServlet extends HttpServlet
         //parameters that need to be evaluated for each page should be grabbed
         //here, all others should be grabbed in the getInput() method and stored in
         //a QueryInfo object.
+        String origin=request.getParameter("origin_page"); //should be the name of a jsp to send errors back to
+        if(origin==null || origin.equals(""))
+            origin="index.jsp";
         try{
             hid=Integer.parseInt(request.getParameter("hid"));           
             if(hid < 0 || hid >= ((ArrayList)session.getAttribute("history")).size())
             {
-                Common.quit(out,"hid "+hid+" out of bounds");
+                Common.sendError(response,origin,"hid "+hid+" out of bounds");
                 return;
             }
             qi=(QueryInfo)((ArrayList)session.getAttribute("history")).get(hid);                    
@@ -106,7 +109,8 @@ public class QueryPageServlet extends HttpServlet
             qi=getStaticSettings(request);
             if(qi==null)
             {
-               Common.quit(out,"no results found");
+                //Common.quit(out,"no results found");
+                Common.sendError(response,origin,"No results found");
                 return;
             }            
             hid=((Integer)session.getAttribute("hid")).intValue();
@@ -120,11 +124,11 @@ public class QueryPageServlet extends HttpServlet
         s=qi.getSearch(); 
                         
         if(s.getResults()==null || s.getResults().size()==0){
-            Common.quit(out,"no matches found");
+            Common.sendError(response,origin,"No matches found");
             return;
         }
         if(pos < 0 || pos > s.getResults().size() ){
-            Common.quit(out, "position "+pos+" is out of bounds");
+            Common.sendError(response,origin,"Position "+pos+" is out of bounds");
             return;
         }
                 

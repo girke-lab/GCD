@@ -37,15 +37,14 @@ public class Unknowns2Database extends DefaultSearchableDatabase
 //    private static DbConnection dbc=null;  //need a connection to a different database
 //    private static Logger log=Logger.getLogger(Unknowns2Database.class);
 //    private static SearchStateManager ssm=new SearchStateManager("Unknown2Database.sss");
-//    private static SearchTreeManager stm=new SearchTreeManager("Unknown2Database.properties");
+    private static SearchTreeManager stm=new SearchTreeManager("Unknown2Database.properties");
     
     /** Creates a new instance of Unknowns2Database */
    
     public Unknowns2Database()
     {        
-        super(null,"Unknown2Database.properties");
-        log.debug("back from super constructor");
-        dbc=DbConnectionManager.getConnection("khoran");
+        super(DbConnectionManager.getConnection("khoran"),stm);
+                
         if(dbc==null)
             try{
                 Class.forName("org.postgresql.Driver").newInstance();
@@ -92,7 +91,7 @@ public class Unknowns2Database extends DefaultSearchableDatabase
             new Field(space+"description",db+"go_view.text"),
             new Field(space+"function",db+"go_view.function",
                         new String[]{"process","component","function"}),
-            new Field(space+"Molecular function unknown?",db+"unknown_keys.mfu",
+            new Field(space+"Molecular function unknown?",db+"unknown_keys.mfu",  //15
                         Boolean.class,new String[]{"TRUE","FALSE"}),
             new Field(space+"Cellular component unknown?",db+"unknown_keys.ccu",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
@@ -105,7 +104,7 @@ public class Unknowns2Database extends DefaultSearchableDatabase
                         new String[]{"35","50","70"}),
             new Field(space+"Size",db+"cluster_info_and_counts_view.size",Integer.class),
             
-            new Field("Proteomic Stats",""),            
+            new Field("Proteomic Stats",""),   //21         
             new Field(space+"Molecular Weight",db+"proteomics_stats.mol_weight"),
             new Field(space+"Isoelectric Point",db+"proteomics_stats.ip"),
             new Field(space+"Charge",db+"proteomics_stats.charge"),
@@ -113,12 +112,17 @@ public class Unknowns2Database extends DefaultSearchableDatabase
             new Field(space+"Probability is negative",db+"proteomics_stats.prob_is_neg",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
                         
-            new Field("External Sources",""),
+            new Field("External Sources",""),  //27
             new Field(space+"Source",db+"external_unknowns.source",new String[]{"tigr","citosky"}),
             new Field(space+"is unknown?",db+"external_unknowns.is_unknown",Boolean.class,
                         new String[]{"TRUE","FALSE"})
         };
 //new Field(space+"",""),
+        
+        int[] sortableFields=new int[]{0,1,2,11,15,16,17,21,22,23,24,25,26,27,28,29};
+        for(int i=0;i<sortableFields.length;i++)
+            fields[sortableFields[i]].setSortable(true);
+        
         operators=new String[]{"=","!=","<",">","<=",">=",
                 "ILIKE","NOT ILIKE","IS NULL","IS NOT NULL"};
         unaryBoundry=8; //index of first unary op.

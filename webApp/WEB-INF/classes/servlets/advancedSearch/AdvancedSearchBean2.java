@@ -34,10 +34,11 @@ public class AdvancedSearchBean2
     
     SearchState currentState;
     SearchableDatabase db;
-    String selectedQueryName;
+    String selectedQueryName,message;
     boolean printAdminControls=false;
     String defaultDb;
     Query currentQuery=null;
+    boolean drawForm=true; //set to false when search started
     
     
     /** Creates a new instance of AdvancedSearchBean2 */
@@ -90,12 +91,22 @@ public class AdvancedSearchBean2
         buildState(request);
         processCommands(request);
     }
+    public void printMessage(JspWriter out)
+    {
+        try{
+            if(message!=null && !message.equals(""))
+                out.println("<span align='center'><font color='#FF0000' size=+1>"+
+                        message+"</font></span>");
+        }catch(IOException e){}
+    }
     public void drawSearchForm(JspWriter out)
     {
         drawSearchForm(out,new String[]{});
     }
     public void drawSearchForm(JspWriter out,String[] dbs)
     {
+        if(!drawForm)
+            return;
         log.debug("rendering form");
         log.debug("using database: "+db.getClass());
         if(currentQuery==null)
@@ -143,7 +154,8 @@ public class AdvancedSearchBean2
         currentState.setSelectedBools(getIntList(request.getParameterValues("bools")));
         currentState.setStartParinths(getIntList(request.getParameterValues("startPars")));
         currentState.setEndParinths(getIntList(request.getParameterValues("endPars")));
-        log.debug("end pars are: "+currentState.getEndParinths());
+        
+        message=request.getParameter("error_message");
         
         log.debug("getting values");
         currentState.setValues(getList(request.getParameterValues("values")));
@@ -157,8 +169,8 @@ public class AdvancedSearchBean2
         currentState.setLimit(request.getParameter("limit"));    
         
         selectedQueryName=request.getParameter("stored_query");               
-        if(selectedQueryName==null && db.getSearchManager().getSearchStateList().size() > 0)
-            selectedQueryName=(String)db.getSearchManager().getSearchStateList().iterator().next();
+        //if(selectedQueryName==null && db.getSearchManager().getSearchStateList().size() > 0)
+        //    selectedQueryName=(String)db.getSearchManager().getSearchStateList().iterator().next();
     }
     
     private void processCommands(HttpServletRequest request)
@@ -232,7 +244,8 @@ public class AdvancedSearchBean2
     private void doQuery()
     {         
         log.debug("submitting query");
-        db.displayResults(currentState, servletContext,request,response);
+        drawForm=false;
+        db.displayResults(currentState, servletContext,request,response);        
     }
     private void addExpression()
     {
@@ -383,7 +396,8 @@ public class AdvancedSearchBean2
         SearchTreeManager stm=db.getSearchManager();        
         Collection c=stm.getSearchStateList();        
         String name;
-        out.append("<SELECT name='stored_query'>\n");
+        out.append("<SELECT name='stored_query' onChange=\"action.value='load_query';submit()\" >\n");
+        out.append("<OPTION value=''>--- Stored Queries ---</OPTION>");
         for(Iterator i=c.iterator();i.hasNext();)          
         {
             name=(String)i.next();
@@ -393,8 +407,8 @@ public class AdvancedSearchBean2
             out.append(">"+stm.getDescription(name)+"\n");
         }
         out.append("</SELECT>\n");
-        out.append("<INPUT type=submit name='load_query' value='Load Query' " +
-                        " onClick=\"action.value='load_query';submit()\" >\n");
+//        out.append("<INPUT type=submit name='load_query' value='Load Query' " +
+//                        " onClick=\"action.value='load_query';submit()\" >\n");
         return out.toString();
     }
     /**
@@ -404,8 +418,11 @@ public class AdvancedSearchBean2
     private String printSaveOptions()
     {
         StringBuffer out=new StringBuffer();
+        String name=db.getSearchManager().getDescription(selectedQueryName);
+        if(name==null)
+            name="";
         //out.append("<h4>Save query: </h4>\n");
-        out.append("Description: <INPUT name='description' value='"+db.getSearchManager().getDescription(selectedQueryName)+"'>\n ");
+        out.append("Description: <INPUT name='description' value='"+name+"'>\n ");
         out.append("<INPUT type=submit name='store_query' value='Store Query' " +
                         " onClick=\"action.value='store_query'; submit()\" >\n");
         return out.toString();

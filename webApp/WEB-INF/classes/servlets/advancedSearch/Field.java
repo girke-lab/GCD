@@ -33,14 +33,17 @@ import org.apache.log4j.Logger;
   */
  public class Field
  {
-        public String displayName,dbName;
-        /**
-         * The type of this field
-         */
+        public static final int POSTGRESQL=0;
+        public static final int MYSQL=1;
+     
+        public String displayName,dbName;       
         public Class type;
+        
+        private int dbType=POSTGRESQL; //should be one of POSTGRESQL or MYSQL
         private Object[] list;
         private static Map validOps;  //maps types to operations
         private static Logger log=Logger.getLogger(Field.class);
+        private boolean sortable=false; //fields are only sortable if the are in a 1-1 relation with primary key.
         
         /**
          * 
@@ -76,6 +79,10 @@ import org.apache.log4j.Logger;
             type=t;
             list=l;
         }
+        public void setDbType(int t)
+        {
+            dbType=t;
+        }
         
         /**
          * Returns html view of this field with the current value.
@@ -91,7 +98,7 @@ import org.apache.log4j.Logger;
                 {
                     String str=list[i].toString();
                     output+="<OPTION ";
-                    if(currentValue.equals(str))
+                    if(currentValue.equalsIgnoreCase(str))
                         output+="selected ";
                     output+=">"+str+"</OPTION>";
                 }
@@ -120,11 +127,25 @@ import org.apache.log4j.Logger;
         {
             validOps=new HashMap();
             
-            validOps.put(String.class, new String[]{"=","!=",Common.ILIKE,"NOT "+Common.ILIKE});
+            String like="ILIKE";
+            if(dbType==MYSQL)
+                like="LIKE";
+            
+            validOps.put(String.class, new String[]{"=","!=",like,"NOT "+like});
             validOps.put(Integer.class, new String[]{"<",">","<=",">=","=","!="});
             validOps.put(Float.class, new String[]{"<",">","<=",">=","=","!="});
-            validOps.put(List.class, new String[]{"IN","NOT IN",Common.ILIKE,"NOT "+Common.ILIKE});
+            validOps.put(List.class, new String[]{"IN","NOT IN",like,"NOT "+like});
             validOps.put(Boolean.class, new String[]{"=","!="});
             
         }
+
+     public boolean isSortable()
+     {
+         return sortable;
+     }
+
+     public void setSortable(boolean sortable)
+     {
+         this.sortable = sortable;
+     }
     }

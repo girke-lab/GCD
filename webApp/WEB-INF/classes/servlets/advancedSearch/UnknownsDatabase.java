@@ -32,20 +32,21 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
 //    private static DbConnection dbc=null;  //need a connection to a different database
 //    private static Logger log=Logger.getLogger(UnknownsDatabase.class);
 //    private static SearchStateManager ssm=new SearchStateManager("UnknownDatabase.sss");
+    private static SearchTreeManager stm=new SearchTreeManager("UnknownDatabase.properties");
     
     /** Creates a new instance of UnknownsDatabase */
     public UnknownsDatabase() 
     {
-        super(null,"UnknownDatabase.properties");
-        dbc=DbConnectionManager.getConnection("unknowns");
-        if(dbc==null)
-            try{
-                Class.forName("org.gjt.mm.mysql.Driver").newInstance();
-                dbc=new DbConnection("jdbc:mysql://138.23.191.152/unknowns","servlet","512256");
-                DbConnectionManager.setConnection("unknowns",dbc); 
-            }catch(Exception e){
-                log.error("could not connect to database: "+e.getMessage());
-            }
+        super(dbc=DbConnectionManager.getConnection("khoran"),stm);
+        
+//        if(dbc==null)
+//            try{
+//                Class.forName("org.gjt.mm.mysql.Driver").newInstance();
+//                dbc=new DbConnection("jdbc:mysql://138.23.191.152/unknowns","servlet","512256");
+//                DbConnectionManager.setConnection("unknowns",dbc); 
+//            }catch(Exception e){
+//                log.error("could not connect to database: "+e.getMessage());
+//            }
         //defineOptions();
     }
     
@@ -117,7 +118,7 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
 //    }
     void defineOptions()
     {                
-        rootTableName="unknowns";
+        rootTableName="old_unknowns.unknowns";
         primaryKey="unknown_id";
         defaultColumn="At_key";
                 
@@ -182,12 +183,16 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
             rootTableName+".Focus_list_of_grant",
             rootTableName+".Selected_by",
             rootTableName+".Multiple_selects",
-            "treats.Occurrence_in_treaments",
-            "treats.treat"
+            rootTableName+".Occurrence_in_treaments",
+            "old_unknowns.treats.treat"
         };
         fields=new Field[dbNames.length];
         for(int i=0;i<fields.length;i++)
+        {
             fields[i]=new Field(printNames[i],dbNames[i]);
+            if(i!=fields.length-1) //last field is not sortable
+                fields[i].setSortable(true);
+        }
         
         operators=new String[]{"=","!=","<",">","<=",">=",
                 "LIKE","NOT LIKE","is NULL","is not NULL"};

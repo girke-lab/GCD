@@ -280,7 +280,15 @@ public class Common {
         out.println("</body></html>");
         out.close();
     }
-
+    public static void sendError(javax.servlet.http.HttpServletResponse response,String page,String error)
+    {
+        try{
+            response.sendRedirect(page+"?error_message="+error);
+        }catch(IOException e){
+            log.error("could not redirect to "+page+", error: "+error+
+                    ", exception: "+e);
+        }
+    }
     public static void printStatsTable(PrintWriter out,String title,String[] subTitles,Object[] values)
     {        
         out.println("<table border='1' cellspacing='0' bgcolor='"+Common.dataColor+"'>");

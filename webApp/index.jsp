@@ -13,6 +13,8 @@
      <% String input=request.getParameter("input");
         String limit=request.getParameter("limit");
         String fieldName=request.getParameter("fieldName");
+        String errMessage=request.getParameter("error_message");
+        
         if(input==null)
             input="";
         if(limit==null)
@@ -28,22 +30,23 @@
             <TABLE width='70%' align='center' border='0'>
                 <TR>
                     <TD  align='center'>
-<!--                        1.Obtain selected sequences for one or many ID numbers.
-                        <BR>
-                        2.Text search of putative gene function. Booleans may be used: and, or, not.
-                        <BR>
-                        3.For perfomance reasons, the maximum number of query results is 1000.
-                         To download entire datasets, please use our 
-                        <A href='ftp://138.23.191.152/pub/'> FTP site.</A>
--->
-                        <font color='#FF0000'>News:</font> Version 3 rice annotation and interactive tree viewer implemetned.
+                        
+                        <font color='#FF0000'>News:</font> Version 3 rice gene IDs and interactive tree viewer implemented.
                         &nbsp<P>
                         GCD is a database for genome-wide sequence <BR> family mining in Arabidopsis and rice.
                         <P>
                         <A href='about.jsp#search'>
                             How to Search GCD</A>
                     </TD>                    
-                </TR>  
+                </TR>
+                <TR>
+                    <TD align='center'>
+                        <% if(errMessage!=null && !errMessage.equals("")){ %>
+                            <font color='#FF0000' size=+1><%=errMessage%></font>
+                        <%}%>
+                                
+                    </TD>
+                </TR>
                 <TR >
                     <TD  align='center'>
                         <B>Search string</B>                      

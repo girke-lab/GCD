@@ -58,6 +58,7 @@ public class SqlParser
     
     private static Expression buildExpression(ZExp ze)
     {
+        log.debug("building expression of type "+ze.getClass());
         if(ze instanceof ZQuery)
         {
             log.warn("unsupported subquery found, ignoring it");
@@ -66,12 +67,19 @@ public class SqlParser
         else if(ze instanceof ZConstant)
         {
             ZConstant zc=(ZConstant)ze;
-            if(zc.getType()==ZConstant.COLUMNNAME)
+            log.debug("value of constant: "+zc.getValue());
+            if(zc.getValue().equalsIgnoreCase("TRUE") || zc.getValue().equalsIgnoreCase("FALSE"))
+                return new BooleanLiteralValue(new Boolean(zc.getValue()));
+            else if(zc.getType()==ZConstant.COLUMNNAME)
                 return new DbField(zc.getValue(),String.class); //don't really know what class is here
             else if(zc.getType()==ZConstant.NUMBER)
                 return new IntLiteralValue(Integer.valueOf(zc.getValue()));
             else if(zc.getType()==ZConstant.STRING)
+            {
+                log.debug("found string value: "+zc.getValue());
+                
                 return new StringLiteralValue(zc.getValue());
+            }                
             else
                 log.warn("unknown constant type found: "+zc.getType());
             return null;
@@ -79,17 +87,45 @@ public class SqlParser
         else if(ze instanceof ZExpression )
         {
             ZExpression zexp=(ZExpression)ze;
-            String op=zexp.getOperator();
-            if(op.equalsIgnoreCase("like"))
+            String op=zexp.getOperator();            
+            
+            log.debug("operation of expression: "+op+", "+zexp.nbOperands()+" operands");
+            
+            if(op.toLowerCase().indexOf("like")!=-1)
             {
                 log.info("subbing 'ILIKE' for operator 'like'");
-                op="ILIKE";
+                op=op.toUpperCase().replaceAll("LIKE","ILIKE");
             }
             
             if(zexp.nbOperands()==0)
                 return null;
             else if(zexp.nbOperands()==1)
                 return new Operation(op,buildExpression(zexp.getOperand(0)),Operation.LEFT);
+            else if(op.equalsIgnoreCase("in") || op.equalsIgnoreCase("not in"))
+            { //first vector element is db field name, rest are values in list
+                log.debug("building in expression");
+                Expression fieldExp=buildExpression(zexp.getOperand(0));
+                if(!(fieldExp instanceof DbField))
+                {
+                    log.error("first operand of an 'in' operation should be a field name, but got a "+fieldExp.getClass());
+                    return null;
+                }
+                //rest of operands should be String, Integer, or Boolean LiteralValues
+                Expression exp;
+                List list=new LinkedList();
+                for(int i=1;i<zexp.nbOperands();i++)
+                {
+                    exp=buildExpression(zexp.getOperand(i));
+                    if(!(exp instanceof LiteralValue))
+                    {
+                        log.error("non literal value in list: "+exp.getClass());
+                        continue;
+                    }
+                    list.add(exp);
+                }
+                log.debug("list="+list);
+                return new Operation(op,(DbField)fieldExp,new ListLiteralValue(list));
+            }
             else
             {
                 Expression exp=buildExpression(zexp.getOperand(0));
