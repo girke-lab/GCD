@@ -38,4 +38,8 @@ public class SeqIdSearch implements Search, java.io.Serializable
         return 0;
     }
     
+    public List getStats() {
+        return null;
+    }
+    
 }

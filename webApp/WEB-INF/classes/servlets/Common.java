@@ -11,6 +11,7 @@ package servlets;
 import java.util.*;
 import java.io.*;
 import java.sql.*;
+import servlets.search.Search;
 
 
 public class Common {
@@ -18,16 +19,32 @@ public class Common {
     //actual database names
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
+    public final static String dataColor="D3D3D3",titleColor="AAAAAA";
     public final static int recordsPerPage=50;
     public final static int dbCount=2;
     public final static int MAXKEYS=100000; //maximum number of results that can be returned 
                             //per database query
+    private static DbConnection dbc=null;
     
     /** Creates a new instance of Common */
     public Common() {
     }
     
     public static List sendQuery(String q)
+    {
+        List rs=null;
+        try{
+            if(dbc==null)
+                dbc=new DbConnection(); //use default connection
+            rs=dbc.sendQuery(q);        
+            System.out.println("Stats: "+dbc.getStats());
+        }catch(Exception e){
+            System.out.println("error connecting: "+e.getMessage());         
+        }
+        return rs;
+    }
+    
+    public static List sendQuery2(String q)
     {
         Connection conn;
         try{
@@ -85,6 +102,33 @@ public class Common {
         }
         out.println(rows+" rows, "+cols+" columns");
     }
+    public static void printList(PrintStream out,List list)
+    {
+        int rows=0,cols=0;
+        String cell;
+        for(ListIterator l=list.listIterator();l.hasNext();)
+        {
+            rows++;
+            cols=0;
+            for(ListIterator l2=((ArrayList)l.next()).listIterator();l2.hasNext();)
+            {
+                cols++;
+                out.println(l2.next()+", ");
+            }
+            out.println("<BR>");    
+        }
+        out.println(rows+" rows, "+cols+" columns");
+    }
+    public static String printArray(int[] a)
+    {
+        String out="[";
+        for(int i=0;i<a.length;i++){
+            out+=a[i];
+            if(i+1<a.length)
+                out+=",";
+        }
+        return out+"]";            
+    }
     public static void blastLinks(PrintWriter out,int currentDB,int hid)
     {   //inputKey is a list of keys only, no words
         //print links to blastp page and tblastn page
@@ -110,8 +154,9 @@ public class Common {
     }
     public static void printForm(PrintWriter out,int hid)
     {
-        out.println("\n<FORM method=post name='form1' action='SequenceServlet'>\n"+
+        out.println("\n<FORM method=post name='form1' action='QueryPageServlet'>\n"+  //SequenceServlet
             "<INPUT type=hidden name='hid' value='"+hid+"'>"+
+            "<INPUT type=hidden name='displayType' value='modelView'>"+                        
             "<TABLE align='center' border='0'>\n"+
             "\t<TR>\n"+
             "\t\t<TD><INPUT type=checkbox name='fields' value='3'><a href='/titleInfo.html'>TU</a></TD>\n"+
@@ -129,7 +174,9 @@ public class Common {
             "</TR></TABLE>\n"+ 
             "<TABLE align='center' border='0'>\n"+
             "\t<TR>\n"+
-            "\t\t<TD><INPUT type=submit value='Sequence Data' >\n"+
+            //"\t\t<TD><INPUT type=submit name='seq_fields' value='Sequence Data' ></TD>\n"+
+            "\t\t<TD><INPUT type=image name='submit' width='100' height='25' border='0' src='images/data.jpg' ></TD>\n"+
+            "\t\t<TD><a href='QueryPageServlet?hid="+hid+"&displayType=seqView'><img width='100' height='25' border='0' src='images/summary.jpg'></a></TD>\n"+
             //"\t\t<TD><INPUT type=submit value='Annotation Data' onClick='getDetails();'>\n"+
             "\t</TR>\n"+            
             "</TABLE>\n"+
@@ -231,5 +278,33 @@ public class Common {
         out.println(message);
         out.println("</body></html>");
         out.close();
+    }
+    public static void printTotals(PrintWriter out,Search s)
+    {
+        out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
+        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>Query Stats</th></tr>");
+        out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
+        out.println("<tr>");
+        out.println("<td>"+s.getResults().size()+"</td>");
+        if(s.getStats()!=null && s.getStats().size()==2)
+        {
+            out.println("<td>"+s.getStats().get(0)+"</td>");
+            out.println("<td>"+s.getStats().get(1)+"</td>");
+        }
+        else
+            out.println("<td>&nbsp</td><td>&nbsp</td>");
+        out.println("</tr></table>");
+    }
+    public static void printPageStats(PrintWriter out,int keys,int models,int clusters)
+    {
+        out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
+        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>Page Stats</th></tr>");
+        out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
+        out.println("<tr>");
+        out.println("<td>"+keys+"</td>");
+        out.println("<td>"+models+"</td>");
+        out.println("<td>"+clusters+"</td>");
+        out.println("</tr></table>");
+        
     }
 }

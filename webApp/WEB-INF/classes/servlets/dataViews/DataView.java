@@ -20,4 +20,5 @@ public interface DataView
      */
     void printData(java.io.PrintWriter out);
     void printHeader(java.io.PrintWriter out);
+    void printStats(java.io.PrintWriter out);
 } 

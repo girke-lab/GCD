@@ -153,4 +153,8 @@ public class ClusterDataView implements DataView
         System.out.println("cluster view query: "+query);
         return query.toString();        
     }          
+     
+     public void printStats(java.io.PrintWriter out) {
+     }
+     
 }

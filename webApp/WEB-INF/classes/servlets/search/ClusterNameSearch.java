@@ -64,6 +64,7 @@ public class ClusterNameSearch extends AbstractSearch
             al.add(row.get(0));
         }                
         data=al;
+        stats=Arrays.asList(new String[]{null,Integer.toString(data.size())});
     }
    
     private String buildIdStatement(String conditions, int limit,int[] DBs)

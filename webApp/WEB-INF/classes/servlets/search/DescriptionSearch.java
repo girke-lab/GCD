@@ -20,6 +20,11 @@ public class DescriptionSearch extends AbstractSearch
     public DescriptionSearch() 
     {
     }
+    public void init(java.util.List data, int limit, int[] dbID) {
+        super.init(data,limit, dbID);
+        //set stats to null so that data will be loaded before we use it.
+        stats=null;
+    }
     void loadData()
     {
         Iterator in=input.iterator();
@@ -48,6 +53,7 @@ public class DescriptionSearch extends AbstractSearch
             }    
         }
         rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
+        
         ArrayList al=new ArrayList();
         String lastDb="";
         List row;
@@ -62,7 +68,7 @@ public class DescriptionSearch extends AbstractSearch
             al.add(row.get(0));
         }
         data=al;
-        System.out.println("start positions are: "+printList(dbStartPositions));
+        stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
     }
     private String printList(int[] a)
     {
@@ -88,5 +94,25 @@ public class DescriptionSearch extends AbstractSearch
         id+=" limit "+limit;
         System.out.println("Description query: "+id);   
         return id;
-    }            
+    }        
+    private String buildStatsStatement(String conditions,int[] dbs)
+    {
+        conditions="( "+conditions+") AND (";
+        for(int i=0;i<dbs.length;i++)
+        {
+            conditions+=" Genome='"+Common.dbRealNames[dbs[i]]+"' ";
+            if(i < dbs.length-1)//not last iteration of loop
+                conditions+=" or ";
+        }
+        conditions+=" )";
+        String query="SELECT t1.count as model_count, t2.count as cluster_count "+
+            "FROM " +
+                "(select count(m.model_id) from sequences , models as m" +
+                " where sequences.seq_id=m.seq_id and "+conditions+" ) as t1," +
+                "(select count(c.cluster_id) from sequences , clusters as c" +
+                " where sequences.seq_id=c.seq_id and "+conditions+" ) as t2 ";
+                
+        System.out.println("Description stats query: "+query);
+        return query;
+    }
 }

@@ -26,6 +26,7 @@ public class QueryInfo implements Serializable
     private String sortCol,displayType;
     private int inputCount; //number of keys
     private int currentPos;
+    private Map storage; //object for different classes to store data in, should all be serializable
     
     /** Creates a new instance of QueryInfo */
     public QueryInfo(int[] dbNums,int dbsLength,int limit)
@@ -34,12 +35,14 @@ public class QueryInfo implements Serializable
         this.dbsLength=dbsLength;
         this.limit=limit;
         this.keys=new ArrayList();
+        storage=new HashMap();
     }
     public QueryInfo(int[] dbs,String sc,String dt)
     {
         this.dbs=dbs;
         sortCol=sc;
         displayType=dt;
+        storage=new HashMap();
     }
    
     // add/get KeySet is deprecated.
@@ -88,5 +91,13 @@ public class QueryInfo implements Serializable
     }
     public int getCurrentPos()    {
         return currentPos;
+    }
+    public void setObject(Object name,Object o)
+    {
+        storage.put(name, o);
+    }
+    public Object getObject(Object name)
+    {
+        return storage.get(name);
     }
 }

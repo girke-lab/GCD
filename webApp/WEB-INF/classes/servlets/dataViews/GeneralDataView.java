@@ -376,6 +376,8 @@ public class GeneralDataView implements DataView
             "Clusters.cluster_id=Cluster_Info.Cluster_id AND "+conditions;
     }
     
+    public void printStats(java.io.PrintWriter out) {
+    }    
     
     class ClusterSet {
         public String clusterNum, size,name;

@@ -51,6 +51,7 @@ public class ClusterIDSearch extends AbstractSearch
             keysFound.add(t.get(1));
         }
         data=al;
+        stats=Arrays.asList(new String[]{null,Integer.toString(data.size())});        
     }
     
     private String buildClusterStatement(String conditions, int limit, int[] DBs)
@@ -72,7 +73,7 @@ public class ClusterIDSearch extends AbstractSearch
 
         return q;
     }
-
+    
     public List notFound() 
     {//find the intersection of inputKeys and keysFound.
         List temp=new ArrayList();

@@ -26,4 +26,7 @@ public interface Search extends java.io.Serializable
     
     int getDbStartPos(int i);
     
+    //should return a list with model count and cluster count
+    List getStats();
+    
 }

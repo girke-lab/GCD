@@ -8,6 +8,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import servlets.search.Search;
 
+
 /**
  *
  * @author  khoran
@@ -15,7 +16,7 @@ import servlets.search.Search;
  */
 import java.io.*;
 import java.util.*;
-public class SequenceServlet extends HttpServlet 
+public class SequenceServlet extends HttpServlet
 {
     final int fieldCount=10;    
     final int dbCount=2;
@@ -60,8 +61,7 @@ public class SequenceServlet extends HttpServlet
         out.println("<title>Servlet</title>");
         Common.javaScript(out);
         out.println("</head>");
-        Common.printHeader(out);
-        Common.navLinks(out);
+        Common.printHeader(out);        
         Common.printForm(out,hid);
 ////////////////////////////////////////////////////////////////////////////////////////////////
         if(session==null)

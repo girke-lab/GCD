@@ -21,6 +21,7 @@ public class SeqDataView implements DataView
     int hid;
     String sortCol;
     int[] dbNums;
+    List records=null;
     
     private final int GENOME_COL=0, P_KEY_COL=1,
                       DESC_COL=2,   MODEL_COL=3,
@@ -41,17 +42,25 @@ public class SeqDataView implements DataView
     }
     public void printHeader(java.io.PrintWriter out) {
         Common.printForm(out,hid);    
-    }
-    
+    }   
     public void printData(java.io.PrintWriter out) 
     {        
-//        System.out.println("seq_ids="+seq_ids);
-        List data=getData(seq_ids, sortCol,dbNums);
-        List records=parseData(data);
-        printCounts(out,records);        
+        if(records==null)
+            loadData();
         printSummary(out,records);
     }
- 
+    public void printStats(java.io.PrintWriter out) {
+        if(records==null)
+            loadData();
+        printCounts(out,records);
+    }    
+    
+    
+///////////////////////////////////////////////////////////////////////
+    private void loadData()
+    {
+        records=parseData(getData(seq_ids,sortCol,dbNums));
+    }
     private void printCounts(PrintWriter out,List records)
     { //print number of keys and models
         int modelCount=0;        
@@ -64,8 +73,9 @@ public class SeqDataView implements DataView
             temp.addAll(sr.getClusters());
         }
 
-        out.println("Unique clusters found: "+temp.size()+"<BR>");
-        out.println("Keys found: "+records.size()+",&nbsp&nbsp Models found: "+modelCount+"<BR>");
+        Common.printPageStats(out, records.size(), modelCount, temp.size());
+//        out.println("Unique clusters found: "+temp.size()+"<BR>");
+//        out.println("Keys found: "+records.size()+",&nbsp&nbsp Models found: "+modelCount+"<BR>");
     }
     private List parseData(List data)
     {
@@ -195,7 +205,10 @@ public class SeqDataView implements DataView
         System.out.println("sequence view query: "+query);
         return query.toString();
     }
-    
+//////////////////////////////////////////////////////////////////////
+    //  Classes 
+//////////////////////////////////////////////////////////////////////    
+   
     
     class ClusterSet {
         public String clusterNum, size,name;

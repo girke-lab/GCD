@@ -51,6 +51,7 @@ public class IdSearch extends AbstractSearch
         }
         System.out.println("al="+al);
         data=al;
+        //stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
     }
 
     private String buildIdStatement(String conditions, int limit,int[] DBs)
@@ -71,7 +72,26 @@ public class IdSearch extends AbstractSearch
         System.out.println("IdSearch query: "+id);   
         return id;
     }
-    
+    private String buildStatsStatement(String conditions,int[] dbs)
+    {
+        conditions="( "+conditions+") AND (";
+        for(int i=0;i<dbs.length;i++)
+        {
+            conditions+=" Genome='"+Common.dbRealNames[dbs[i]]+"' ";
+            if(i < dbs.length-1)//not last iteration of loop
+                conditions+=" or ";
+        }
+        conditions+=" )";
+        String query="SELECT t1.count as model_count, t2.count as cluster_count "+
+            "FROM " +
+                "(select count(m.model_id) from sequences , models as m" +
+                " where sequences.seq_id=m.seq_id and "+conditions+" ) as t1," +
+                "(select count(c.cluster_id) from sequences , clusters as c" +
+                " where sequences.seq_id=c.seq_id and "+conditions+" ) as t2 ";
+                
+        System.out.println("Description stats query: "+query);
+        return query;
+    }
     public List notFound()
     {//find the intersection of inputKeys and keysFound.
         List temp=new ArrayList();

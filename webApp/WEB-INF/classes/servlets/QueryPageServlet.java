@@ -26,16 +26,10 @@ public class QueryPageServlet extends HttpServlet
     final int arab=0,rice=1; //database names
     
     long ID=0;//id number used to identify query
-    
-    String[] fullNames;//names to use in querys
-    String[] printNames;//names to print on screen
-    String[] dbPrintNames;
-    String[] dbRealNames;
-    
+       
     public void init(ServletConfig config) throws ServletException
     {
-        super.init(config);
-        defineNames();
+        super.init(config);       
     }    
     public void destroy()
     {    }    
@@ -48,20 +42,6 @@ public class QueryPageServlet extends HttpServlet
         
         int hid,pos;
         
-        try{
-            pos=Integer.parseInt(request.getParameter("pos"));
-            if(pos < 0)
-                pos=0;
-        }catch(Exception e){
-            pos=0;
-        }
-        try{
-            hid=Integer.parseInt(request.getParameter("hid"));
-            System.out.println("got hid="+hid);
-        }catch(Exception e){
-            System.out.println("setting hid=-1");
-            hid=-1; 
-        }
         
         if(session.getAttribute("hid")==null)
         {//session was just created.
@@ -75,22 +55,20 @@ public class QueryPageServlet extends HttpServlet
         out.println("</head>");      
         Common.printHeader(out);
         /////////////////////////// main   ////////////////////////////////////////////////////
-        List returnedKeys;
+        List returnedKeys,stats;
         Search s=null;
         DataView dv=null;
         QueryInfo qi=null;
          
-        if(hid!=-1) //hid was given for an exsisting search
-        {
+        try{
+            hid=Integer.parseInt(request.getParameter("hid"));           
             if(hid < 0 || hid >= ((ArrayList)session.getAttribute("history")).size())
             {
                 Common.quit(out,"hid "+hid+" out of bounds");
                 return;
             }
             qi=(QueryInfo)((ArrayList)session.getAttribute("history")).get(hid);                    
-        }
-        else //no hid, so start a new search
-        {
+        }catch(Exception e){ //no hid, so start a new search       
             qi=getInput(request);
             if(qi==null)
             {
@@ -101,8 +79,23 @@ public class QueryPageServlet extends HttpServlet
             session.setAttribute("hid",new Integer(hid+1));
             ((ArrayList)session.getAttribute("history")).add(qi);            
         }
-        qi.setCurrentPos(pos);
+        try{
+            pos=Integer.parseInt(request.getParameter("pos"));
+            if(pos < 0)
+                pos=0;
+            System.out.println("setting pos to "+pos);
+            qi.setCurrentPos(pos);
+        }catch(Exception e){
+            pos=qi.getCurrentPos();
+            System.out.println("retirvied pos as "+pos);
+        }
+        
         s=qi.getSearch(); 
+        
+        String displayType=request.getParameter("displayType");
+        if(displayType!=null) //if a display type was given, save it
+            qi.setDisplayType(displayType);
+        
         if(s.getResults()==null || s.getResults().size()==0){
             Common.quit(out,"no matches found");
             return;
@@ -113,31 +106,40 @@ public class QueryPageServlet extends HttpServlet
         }
         int end=pos+Common.recordsPerPage > s.getResults().size()? s.getResults().size() : pos+Common.recordsPerPage;
         returnedKeys=s.getResults().subList(pos,end);
-        dv=getDataView(qi.getDisplayType(),qi.getSortCol());        
-        
+        stats=s.getStats();
+        dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);                
         dv.setData(returnedKeys, qi.getSortCol(),qi.getDbs(),hid); //rpp is redundent here
-        dv.printHeader(out);
+        
+        //print page
+        dv.printHeader(out); //prints form for  seq servlet
         Common.printPageControls(out, pos, s.getResults().size(),s.getDbStartPos(Common.rice),hid); 
-        printMismatches(out, s.notFound());
-        out.println("Keys entered: "+qi.getInputCount()+"<br>");
-        out.println("Total Keys found: "+s.getResults().size()+"<br>");
+        out.println("Keys entered: "+qi.getInputCount()+"<br>");        
+        out.println("<table cellspacing='0'><tr><td>");
+        Common.printTotals(out,s);
+        out.println("</td><td>");
+        dv.printStats(out);
+        out.println("</td></tr></table>");
+        
         dv.printData(out);
                 
-        
+        printMismatches(out, s.notFound());
         out.println("</body>");
         out.println("</html>");
 
         out.close();
         /////////////////////////////////  end of main  ////////////////////////////////////////////
     }
-    private DataView getDataView(String displayType,String sortCol)
+    private DataView getDataView(String displayType,String sortCol,HttpServletRequest request)
     {        
+        System.out.println("displayType="+displayType);
         if(displayType!=null)
         {
             if(displayType.equals("clusterView"))
                 return new ClusterDataView();
             else if(displayType.equals("seqView"))
                 return new SeqDataView();
+            else if(displayType.equals("modelView"))
+                return new ModelDataView(request);
         }
         else if(sortCol!=null)
         {
@@ -165,8 +167,7 @@ public class QueryPageServlet extends HttpServlet
             return new SeqIdSearch();
         else
             return new IdSearch();   //default to id search
-    }
-   
+    }   
     
     private QueryInfo getInput(HttpServletRequest request)
     {
@@ -180,7 +181,6 @@ public class QueryPageServlet extends HttpServlet
         String searchType=request.getParameter("searchType");
         String[] dbTemp=request.getParameterValues("dbs"); //list of databases to use
         String sortCol=request.getParameter("sortCol");
-        String displayType=request.getParameter("displayType");
 
         try{//test limit
             limit=Integer.parseInt(request.getParameter("limit"));
@@ -206,7 +206,7 @@ public class QueryPageServlet extends HttpServlet
             while(tok.hasMoreTokens())
                 inputKeys.add(tok.nextToken());
         }
-        qi=new QueryInfo(dbNums,sortCol,displayType);
+        qi=new QueryInfo(dbNums,sortCol,"");
         //search all databases simultaniously
         s=getSearchObj(searchType);        
         s.init(inputKeys,limit, dbNums);              
@@ -228,33 +228,6 @@ public class QueryPageServlet extends HttpServlet
             out.println(keys.get(i));
         }
     }            
-    ////////////////////////////  Query stuff    ////////////////////////////////////////////////
-    
-   
-    private void defineNames()
-    {
-        //assign names for later lookup
-        fullNames=new String[feildCount];
- 
-        fullNames[0]="Id_Associations.Accession";fullNames[1]="Sequences.Description";fullNames[2]="Sequences.Intergenic";
-        fullNames[3]="Models.TU";fullNames[4]="Models.5UTR";fullNames[5]="Sequences.Intergenic";
-        fullNames[6]="Models.CDS";fullNames[7]="Sequences.Intergenic";fullNames[8]="Models.3UTR";
-        fullNames[9]="Models.Protein";fullNames[10]="Id_Associations.Accession";fullNames[11]="Id_Associations.OS_id";
-        fullNames[12]="Sequences.Description";fullNames[13]="Models.Protein";fullNames[14]="Models.CDS";
-        fullNames[15]="Sequences.Intergenic";fullNames[16]="Models.TU";
-
-        //names to be printed on the screen
-        printNames=new String[feildCount];
-        printNames[0]="Key";printNames[1]="Description" ;printNames[2]="Promoter 1500";printNames[3]="Transcription Model";
-        printNames[4]="5`UTR";printNames[5]="Intergenic";printNames[6]="ORF";printNames[7]="Promoter_1500";
-        printNames[8]="3`UTR";printNames[9]="Protein";printNames[10]="ID 1 (TIGR)";printNames[11]="ID 2 (TIGR)";
-        printNames[12]="Description";printNames[13]="Protein";printNames[14]="CDS";printNames[15]="Intergenic Region";
-        printNames[16]="TU";
-        //names for databases
-        dbPrintNames=new String[dbCount];
-        dbPrintNames[0]="Arabidopsis"; dbPrintNames[1]="Rice";
-        
-    }
     
     ///////////////////////////////////////////////////////////////////////////////////////////
    
