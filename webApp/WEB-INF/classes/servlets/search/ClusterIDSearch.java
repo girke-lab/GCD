@@ -12,32 +12,15 @@ import java.util.*;
 import servlets.search.Search;
 import servlets.Common;
 
-public class ClusterIDSearch implements Search { 
-    
-    List input,keysFound,data;
-    int limit;
-    int[] db;
-
+public class ClusterIDSearch extends AbstractSearch
+{   
+   
     /** Creates a new instance of ClusterIDSearch */
     public ClusterIDSearch() 
     {
     }
 
-    public void init(List data, int limit, int[] dbID)
-    {
-        this.input=data;
-        this.limit=limit;
-        this.db=dbID;
-        keysFound=new ArrayList();
-    }
-     
-    public List getResults() 
-    {
-        if(data==null)
-            loadData();
-        return data;
-    }
-    public void loadData()
+    void loadData()
     {
         ListIterator in=input.listIterator();
         StringBuffer conditions=new StringBuffer();
@@ -55,17 +38,22 @@ public class ClusterIDSearch implements Search {
         
         rs=Common.sendQuery(buildClusterStatement(conditions.toString(),limit,db));
         ArrayList al=new ArrayList();
-        ArrayList t;
-        for(Iterator i=rs.iterator();i.hasNext();)
+        String lastDb="";
+        int c=0;
+        for(Iterator i=rs.iterator();i.hasNext();c++)
         {
-            t=(ArrayList)i.next();
+            ArrayList t=(ArrayList)i.next();
+            if(!lastDb.equals(t.get(2))){
+                lastDb=(String)t.get(2);
+                dbStartPositions[Common.getDBid(lastDb)]=c;
+            }
             al.add(t.get(0));
-            keysFound.add(t.get(1));            
+            keysFound.add(t.get(1));
         }
         data=al;
     }
     
-     private String buildClusterStatement(String conditions, int limit, int[] DBs)
+    private String buildClusterStatement(String conditions, int limit, int[] DBs)
     {
         String q="SELECT distinct  Sequences.Seq_id, Cluster_Info.filename,sequences.genome "+
                  "FROM Sequences, Cluster_Info, Clusters "+
@@ -85,8 +73,6 @@ public class ClusterIDSearch implements Search {
         return q;
     }
 
-    
-    
     public List notFound() 
     {//find the intersection of inputKeys and keysFound.
         List temp=new ArrayList();
@@ -100,10 +86,5 @@ public class ClusterIDSearch implements Search {
         System.out.println("temp="+temp);
         temp.removeAll(keysFound);
         return temp;        
-    }    
-    
-    public List getResults(int offset, int length) {
-        return null;
-    }
-    
+    }                 
 }

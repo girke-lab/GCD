@@ -24,4 +24,6 @@ public interface Search extends java.io.Serializable
     //operation does not make sense.
     List notFound();
     
+    int getDbStartPos(int i);
+    
 }

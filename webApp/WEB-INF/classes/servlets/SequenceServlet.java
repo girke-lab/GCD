@@ -6,6 +6,7 @@
 package servlets;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import servlets.search.Search;
 
 /**
  *
@@ -95,7 +96,14 @@ public class SequenceServlet extends HttpServlet
         
         ///////////////////////  main /////////////////////////////////////////////////////////
         List keySet,main;
-        keySet=qi.getSearch().getResults().subList(pos,pos+Common.recordsPerPage);
+        Search s=qi.getSearch();
+        if(pos < 0 || pos > s.getResults().size() )
+        {
+            Common.quit(out, "position "+pos+" is out of bounds");
+            return;
+        }        
+        int end=pos+Common.recordsPerPage > s.getResults().size()? s.getResults().size() : pos+Common.recordsPerPage;
+        keySet=s.getResults().subList(pos,end);                
         main=searchByKey(keySet,fieldNums,fieldsLength);
         out.println("Models found: "+main.size()+"<br>");        
         printFasta(out,main,fieldNums,length,format);            
@@ -165,7 +173,7 @@ public class SequenceServlet extends HttpServlet
 //            out.println("<FORM METHOD='POST' ACTION='http://138.23.191.152/blast/blastSearch.cgi'>");
 //            out.println("<INPUT type='submit' value='Blast it'><BR>");
             System.out.println("size of rs is "+((ArrayList)rs.get(0)).size());
-            standard.append("<TABLE align='center'>");
+            standard.append("<TABLE align='center' border='1' cellspacing='0'>");
             
             for(ListIterator l=rs.listIterator();l.hasNext();)
             {

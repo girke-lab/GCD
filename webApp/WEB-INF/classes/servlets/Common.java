@@ -19,6 +19,7 @@ public class Common {
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
     public final static int recordsPerPage=50;
+    public final static int dbCount=2;
     public final static int MAXKEYS=100000; //maximum number of results that can be returned 
                             //per database query
     
@@ -208,7 +209,7 @@ public class Common {
             return rice;
         return -1;
     }
-    public static void printPageControls(PrintWriter out,int pos,int end,int hid)
+    public static void printPageControls(PrintWriter out,int pos,int end,int ricePos,int hid)
     {
         String action="QueryPageServlet?hid="+hid;
         out.println("<table align='center'>");
@@ -220,7 +221,8 @@ public class Common {
         if(pos+Common.recordsPerPage < end)
             out.println("<td><a href='"+action+"&pos="+(pos+recordsPerPage)+"'>&gt</a></td>");        
         out.println("<td><a href='"+action+"&pos="+(end-(end%recordsPerPage))+"'>&gt|</a></td>");
-        
+        if(ricePos!=0)
+            out.println("<td>&nbsp<a href='"+action+"&pos="+ricePos+"'>go to Rice</a></td>");
         out.println("</tr>");
         out.println("</table>");
     }

@@ -103,8 +103,11 @@ public class QueryPageServlet extends HttpServlet
         }
         qi.setCurrentPos(pos);
         s=qi.getSearch(); 
-        if(pos < 0 || pos > s.getResults().size() )
-        {
+        if(s.getResults()==null || s.getResults().size()==0){
+            Common.quit(out,"no matches found");
+            return;
+        }
+        if(pos < 0 || pos > s.getResults().size() ){
             Common.quit(out, "position "+pos+" is out of bounds");
             return;
         }
@@ -114,7 +117,7 @@ public class QueryPageServlet extends HttpServlet
         
         dv.setData(returnedKeys, qi.getSortCol(),qi.getDbs(),hid); //rpp is redundent here
         dv.printHeader(out);
-        Common.printPageControls(out, pos, s.getResults().size(),hid);
+        Common.printPageControls(out, pos, s.getResults().size(),s.getDbStartPos(Common.rice),hid); 
         printMismatches(out, s.notFound());
         out.println("Keys entered: "+qi.getInputCount()+"<br>");
         out.println("Total Keys found: "+s.getResults().size()+"<br>");

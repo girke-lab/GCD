@@ -9,35 +9,16 @@ package servlets.search;
  * @author  khoran
  */
 import java.util.*;
-import servlets.search.Search;
 import servlets.Common;
 
-public class IdSearch implements Search {
-    
-    List input,data;
-    ArrayList keysFound; //list of the keys found, of the same type of the query key.
-    int limit;
-    int[] db;
+public class IdSearch extends AbstractSearch
+{
     
     /** Creates a new instance of IdSearch */
     public IdSearch() 
     {
     }
-    public void init(List data, int limit, int[] dbID)
-    {
-        this.input=data;
-        this.limit=limit;
-        this.db=dbID;
-        keysFound=new ArrayList();
-    }
-    
-    public List getResults()
-    {
-        if(data==null)
-            loadData();
-        return data;
-    }
-    private void loadData()
+    void loadData()
     {
         ListIterator in=input.listIterator();
         StringBuffer conditions=new StringBuffer();
@@ -56,9 +37,15 @@ public class IdSearch implements Search {
 
         rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
         ArrayList al=new ArrayList();
-        for(Iterator i=rs.iterator();i.hasNext();)
+        String lastDb="";
+        int c=0;
+        for(Iterator i=rs.iterator();i.hasNext();c++)
         {
             ArrayList t=(ArrayList)i.next();
+            if(!lastDb.equals(t.get(2))){
+                lastDb=(String)t.get(2);
+                dbStartPositions[Common.getDBid(lastDb)]=c;
+            }
             al.add(t.get(0));
             keysFound.add(t.get(1));
         }
@@ -68,7 +55,7 @@ public class IdSearch implements Search {
 
     private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
-        String id="SELECT DISTINCT a.Seq_id, a.Accession FROM Sequences as s, Id_Associations as a "+
+        String id="SELECT DISTINCT a.Seq_id, a.Accession,s.genome FROM Sequences as s, Id_Associations as a "+
                   "WHERE s.seq_id=a.seq_id AND ("; 
 
         for(int i=0;i<DBs.length;i++)
@@ -79,12 +66,11 @@ public class IdSearch implements Search {
         }
         
         id+=") and ("+conditions+")";
+        id+=" order by genome";
         id+=" limit "+limit;
         System.out.println("IdSearch query: "+id);   
         return id;
     }
-    
-
     
     public List notFound()
     {//find the intersection of inputKeys and keysFound.
@@ -100,11 +86,4 @@ public class IdSearch implements Search {
         temp.removeAll(keysFound);
         return temp;        
     }
-    
-    public List getResults(int offset, int length) 
-    {
-        return null;
-    }
-    
-    
 }

@@ -12,31 +12,15 @@ import java.util.*;
 import servlets.search.Search;
 import servlets.Common;
 
-public class ClusterNameSearch implements Search, java.io.Serializable
-{
-    
-    List input,data=null;
-    int limit;
-    int[] db;
+public class ClusterNameSearch extends AbstractSearch
+{   
     
     /** Creates a new instance of ClusterNameSearch */
     public ClusterNameSearch() 
     {
     }
     
-    public void init(List data, int limit, int[] dbID)
-    {
-        this.input=data;
-        this.limit=limit;
-        this.db=dbID;
-    }
-    public List getResults() 
-    {
-        if(data==null)
-            loadData();
-        return data;
-    }
-    private void loadData()
+    void loadData()
     {
         Iterator in=input.iterator();
         StringBuffer conditions=new StringBuffer();
@@ -65,15 +49,26 @@ public class ClusterNameSearch implements Search, java.io.Serializable
             }    
         }
         rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
+        
         ArrayList al=new ArrayList();
-        for(Iterator i=rs.iterator();i.hasNext();)        
-            al.add(((ArrayList)i.next()).get(0));
+        String lastDb="";
+        List row;
+        int c=0;
+        for(Iterator i=rs.iterator();i.hasNext();c++)        
+        {
+            row=(List)i.next();
+            if(!lastDb.equals(row.get(1))){
+                lastDb=(String)row.get(1);
+                dbStartPositions[Common.getDBid(lastDb)]=c;
+            }            
+            al.add(row.get(0));
+        }                
         data=al;
     }
    
     private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
-        String id="SELECT DISTINCT Sequences.Seq_id from Cluster_Info, Clusters, Sequences "+
+        String id="SELECT DISTINCT Sequences.Seq_id,sequences.genome from Cluster_Info, Clusters, Sequences "+
                   "WHERE Cluster_Info.cluster_id=Clusters.cluster_id AND "+
                   " Clusters.seq_id=Sequences.seq_id AND (";
 
@@ -85,15 +80,9 @@ public class ClusterNameSearch implements Search, java.io.Serializable
         }
 
         id+=") AND "+conditions;
+        id+=" order by genome";
         id+=" limit "+limit;
         System.out.println("ClusterNameSearch query: "+id);
         return id;
     }
-
-    public List notFound()
-    {
-        return new ArrayList();
-    }
-     
-     
 }

@@ -34,4 +34,8 @@ public class SeqIdSearch implements Search, java.io.Serializable
         return new ArrayList();
     }
     
+    public int getDbStartPos(int i) {
+        return 0;
+    }
+    
 }

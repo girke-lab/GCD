@@ -12,32 +12,16 @@ import java.util.*;
 import servlets.search.Search;
 import servlets.Common;
 
-public class GoSearch implements Search, java.io.Serializable 
+public class GoSearch extends AbstractSearch
 {
-    List input,keysFound,data=null;
-    int limit;
-    int[] db;
+   
     
     /** Creates a new instance of GoSearch */
     public GoSearch() 
     {
     }
-    
-    public void init(List data, int limit, int[] dbID)
-    {
-        this.input=data;
-        this.limit=limit;
-        this.db=dbID;
-        keysFound=new ArrayList();
-    }
-    
-    public List getResults() 
-    {
-        if(data==null)
-            loadData();
-        return data;
-    }
-    public void loadData()
+      
+    void loadData()
     {
         ListIterator in=input.listIterator();
         StringBuffer conditions=new StringBuffer();
@@ -55,10 +39,15 @@ public class GoSearch implements Search, java.io.Serializable
         rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
 
         ArrayList al=new ArrayList();
-        ArrayList t;
-        for(Iterator i=rs.iterator();i.hasNext();)        
+        String lastDb="";
+        int c=0;
+        for(Iterator i=rs.iterator();i.hasNext();c++)
         {
-            t=(ArrayList)i.next();
+            ArrayList t=(ArrayList)i.next();
+            if(!lastDb.equals(t.get(2))){
+                lastDb=(String)t.get(2);
+                dbStartPositions[Common.getDBid(lastDb)]=c;
+            }
             al.add(t.get(0));
             keysFound.add(t.get(1));
         }
@@ -67,8 +56,8 @@ public class GoSearch implements Search, java.io.Serializable
     
     private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
-        String id="SELECT DISTINCT Seq_id,Go.Go from Go "+
-                  "WHERE ";
+        String id="SELECT DISTINCT go.Seq_id,Go.Go,sequences.genome from Go,sequences "+
+                  "WHERE sequences.seq_id=go.seq_id AND ";
         id+="("+conditions+")";
         id+=" limit "+limit;
         System.out.println("IdSearch query: "+id);   
@@ -89,6 +78,5 @@ public class GoSearch implements Search, java.io.Serializable
         temp.removeAll(keysFound);
         return temp;        
     }
-    
   
 }
