@@ -44,7 +44,7 @@ public class ClusterNameSearch implements Search {
             {
                 if(wasOp==0)//last token was not an operator, but we must have an operator between every word
                     conditions.append(" and ");
-                conditions.append(" ( Cluster_Info.Name LIKE '%"+temp+"%') ");
+                conditions.append(" ( Cluster_Info.Name ILIKE '%"+temp+"%') ");
 
                 wasOp=0;
             }

@@ -45,7 +45,7 @@ public class DescriptionSearch implements Search
             {
                 if(wasOp==0)//last token was not an operator, but we must have an operator between every word
                     conditions.append(" and ");
-                conditions.append(" ( Sequences.Description LIKE '%"+temp+"%') ");
+                conditions.append(" ( Sequences.Description ILIKE '%"+temp+"%') ");
                 wasOp=0;
             }
             else //must be a keyword or a parinth

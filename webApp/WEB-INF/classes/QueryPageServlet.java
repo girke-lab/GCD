@@ -334,7 +334,7 @@ public class QueryPageServlet extends HttpServlet
         for(Iterator i=set.iterator();i.hasNext();)
         {
              ClusterSet cs=(ClusterSet)i.next();
-             out.println("<TR bgcolor='"+colors[count%2]+"'><TH align='left'>");
+             out.println("<TR bgcolor='"+colors[count%2]+"'><TH align='left' nowrap >");
 
              if(cs.clusterNum.matches("PF.*"))
              {//print a link for each id in the hmm cluster name
