@@ -294,7 +294,7 @@ public class QueryPageServlet extends HttpServlet
 
             currentDB=Common.getDBid((String)row.get(4));
             if(currentDB!=lastDB)//we have changed databases, so print the title of the new db
-                out.println("<TR><TH colspan='2'><H3 align='center'>"+dbPrintNames[currentDB]+" search results</H3></TH></TR>");
+                out.println("<TR><TH colspan='2'><H2 align='center'>"+dbPrintNames[currentDB]+" search results</H2></TH></TR>");
             lastDB=currentDB; //update lastDB
 
 
@@ -335,14 +335,25 @@ public class QueryPageServlet extends HttpServlet
         {
              ClusterSet cs=(ClusterSet)i.next();
              out.println("<TR bgcolor='"+colors[count%2]+"'><TH align='left'>");
+
              if(cs.clusterNum.matches("PF.*"))
-                 out.println("Hmm Cluster");
-             else
-                 out.println("Blast Cluster");
-             out.println("</TH><TD>");
-             out.println("Key: <a href='/databaseWeb/ClusterServlet?hid="+hid+"&clusterID="+cs.clusterNum+"'>"+cs.clusterNum+"</a>&nbsp&nbsp");
+             {//print a link for each id in the hmm cluster name
+                 out.println("Hmm Cluster</TH><TD>Cluster Id");                 
+                 StringTokenizer tok=new StringTokenizer(cs.clusterNum,"_");
+                 while(tok.hasMoreTokens())
+                 {
+                     String n=tok.nextToken();                     
+                     out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+n.substring(0,n.indexOf('.'))+"'>"+n+"</a>");
+                     if(tok.hasMoreTokens())
+                         out.println("_");
+                 }
+                 out.println("&nbsp&nbsp");
+             }
+             else                 
+                 out.println("Blast Cluster</TH><TD>Cluster Id: "+cs.clusterNum+"&nbsp&nbsp");
              out.println("Size: "+cs.size+"&nbsp&nbsp");
              out.println("Name: "+cs.name+"&nbsp&nbsp");
+             out.println("<a href='/databaseWeb/ClusterServlet?hid="+hid+"&clusterID="+cs.clusterNum+"'>Query</a>&nbsp&nbsp");
              if(!cs.size.equals("1"))
              {
                  String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
@@ -365,10 +376,13 @@ public class QueryPageServlet extends HttpServlet
              db="osa1";
          out.println("\t\t<TD>");
          if(currentDB==arab)
-            out.println("<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+ key+"'>MIPS</a>&nbsp&nbsp");
+         {
+             out.println("<a href='http://www.arabidopsis.org/servlets/TairObject?type=locus&name="+key+"'>TAIR</a>&nbsp&nbsp");
+             out.println("<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+ key+"'>MIPS</a>&nbsp&nbsp");
+         }
          out.println("<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+ "ORF_infopage.cgi?db="+db+"&orf="+key+"'>TIGR</a>&nbsp&nbsp");
          out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/geneview.pl?accession="+key+"'>GeneStructure*</a>&nbsp&nbsp");
-         out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?PF'>PFAM</a>&nbsp&nbsp");
+         //out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?PF'>PFAM</a>&nbsp&nbsp");
          //expression link goes here
          if(currentDB==arab)
             out.println("<a href='http://signal.salk.edu/cgi-bin/tdnaexpress?GENE="+key+"&FUNCTION=&JOB=HITT&DNA=&INTERVAL=10'>KO</a>&nbsp&nbsp");
@@ -385,11 +399,7 @@ public class QueryPageServlet extends HttpServlet
          //does this link work for rice? no
          out.println("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");
          out.println("\t\t</TD>");
-
     }
- 
-     
-    
    
     private void printMismatches(PrintWriter out,List keys)
     {
