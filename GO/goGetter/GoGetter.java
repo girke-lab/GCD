@@ -14,7 +14,7 @@ package GO.goGetter;
 import java.util.*;
 import java.sql.*;
 import java.io.*;
-import khoran.debugPrint.Debug;
+import khoran.debugPrint.Debug; 
 
 public class GoGetter 
 {

@@ -220,12 +220,12 @@ public class GoDag implements Serializable
         {
             d.print("adding "+gn.getGoNumber()+" to index");            
             index.put(new Integer(goNum), gn);        
-            for(Iterator si=t.getSynonym().iterator();si.hasNext();)
-            {
-                Synonym s=(Synonym)si.next();
-                //test to see if this is a go number, if so, add to index
-                //make sure this go is not already in index, error if it is
-            }
+//            for(Iterator si=t.getSynonym().iterator();si.hasNext();)
+//            {
+//                Synonym s=(Synonym)si.next();
+//                //test to see if this is a go number, if so, add to index
+//                //make sure this go is not already in index, error if it is
+//            }
         }
         return gn;
     }
