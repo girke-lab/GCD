@@ -14,6 +14,7 @@ package servlets.advancedSearch;
 
 import java.util.*;
 import java.io.*;
+import java.net.*;
 import org.apache.log4j.Logger;
 
 public class SearchStateManager
@@ -22,8 +23,8 @@ public class SearchStateManager
     private Vector searchStates;
     private String filename;
     private static Logger log=Logger.getLogger(SearchStateManager.class);
-    private ObjectOutputStream out;
-    private ObjectInputStream in; 
+    String path="storedQueries/";      
+    
     
     /** Creates a new instance of SearchStateManager */
     public SearchStateManager(String filename) 
@@ -34,7 +35,14 @@ public class SearchStateManager
     private void loadSearchStates()
     { //load searchStates from persistant storage
         try{
-            in=new ObjectInputStream(new FileInputStream(filename));            
+            URL url;
+            ObjectInputStream in; 
+                
+            url=Thread.currentThread().getContextClassLoader().getResource(path+filename);
+            if(url==null)
+                throw new Exception("file not found");                
+            
+            in=new ObjectInputStream(url.openStream());            
             searchStates=(Vector)in.readObject();
             in.close();
         }catch(Exception e){
@@ -44,9 +52,17 @@ public class SearchStateManager
     }
     private void writeSearchStates()
     {//write searchStates to file
-       try{
-            out=new ObjectOutputStream(new FileOutputStream(filename));
-            //opening file zeros it, so write vector out now
+       try{           
+           URL url;
+           ObjectOutputStream out;
+           String fullName="";
+           
+           url=Thread.currentThread().getContextClassLoader().getResource(path);           
+           if(url==null)
+               throw new Exception("file not found");           
+           fullName=url.getPath()+filename;
+                          
+            out=new ObjectOutputStream(new FileOutputStream(fullName));           
             out.writeObject(searchStates);
             out.close(); 
         }catch(Exception e){
@@ -66,7 +82,6 @@ public class SearchStateManager
     }
     public Collection getSearchStateList()
     {
-//        log.debug("retrieving list: "+searchStates);
         return searchStates;
     }
     public SearchState getSearchState(int i)
@@ -80,3 +95,10 @@ public class SearchStateManager
         writeSearchStates();
     }
 }
+
+//            else if((url=ClassLoader.getSystemResource(path+filename))!=null)
+//                log.debug("2 found in file at: "+url);
+//            else if((url=ClassLoader.getSystemClassLoader().getResource(path+filename))!=null)
+//                log.debug("3 found in file at: "+url);  
+//            else if((url=new servlets.QueryPageServlet().getClass().getClassLoader().getResource(path+filename))!=null)            
+//                log.debug("4 found in file at: "+url);                              

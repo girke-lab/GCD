@@ -38,7 +38,7 @@ public class AdvancedSearchBean {
     
     public AdvancedSearchBean()
     {                
-        log.debug("createing new bean");        
+        //log.debug("createing new bean");        
     }
     public void setDatabase(String name)
     {        //this is not storing state properly!!
@@ -140,7 +140,7 @@ public class AdvancedSearchBean {
     }
     public String printStoreOptions()
     {
-        boolean printAdminControls=false;
+        boolean printAdminControls=true;
         StringBuffer out=new StringBuffer();
         out.append("<table align='center'>\n");
         out.append("<tr><th colspan='3'>Stored Queries</th></tr>\n");
