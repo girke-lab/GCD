@@ -367,7 +367,8 @@ public class SeqDataView implements DataView
             out.println("<TR bgcolor='"+titleColor+"'><TH align='"+align+"'>Key</TH><TH colspan='6' align='"+align+"'>Description</TH></TR>");
             out.println("<TR><TD><A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+key+"'>"+key+"</A>");
             if(v3Key!=null)
-                out.println("&nbsp&nbsp v3: <A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+v3Key+"'>"+v3Key+"</a>");
+                //out.println("&nbsp&nbsp v3: <A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+v3Key+"'>"+v3Key+"</a>");
+                out.println("&nbsp&nbsp v3: "+v3Key);
             out.println("</TD>");
             out.println("<TD colspan='6'>"+desc+"</TD></TR>");        
 
@@ -439,7 +440,7 @@ public class SeqDataView implements DataView
                      out.println(cs.clusterNum);
                  out.println("\t\t</TD>");
                  out.println("\t\t<TD>"+cs.size+"</TD>");
-                 out.println("\t\t<TD nowrap><a href='/databaseWeb/index.jsp?fieldName=Cluster Id&limit=0&input="+cs.clusterNum+"'>" +
+                 out.println("\t\t<TD nowrap><a href='pfamSearches.jsp?input="+cs.clusterNum+"'>" +
                             cs.arab_size+" Ath &nbsp&nbsp "+cs.rice_size+" Osa</a></TD>");
                  if(!cs.size.equals("1") && !cs.method.endsWith("_50") && !cs.method.endsWith("_70"))
                  {

@@ -28,7 +28,21 @@
                                 </tr>
                         </table>
                 <p>
-                <li type=I><b>Search Functions</b></li><p>
+                <a name="limitations"></a>
+                <li type=I><b>Limitations of Data Sets</b></li><p>
+
+                        <dl>
+                                <dt><b>Cluster, Alignment and Tree Data</b></dt>
+                                <dd>
+                                Accurate clustering of entire proteomes is a complex task. Currently, GCD provides data of high quality for most but not all families. Due to this limitation, clusters and trees in GCD should only be used after quality inspection of the corresponding alignments using the available consensus and domain shading tools.<p>				    </dd>
+                                <dt><b>Rice Data</b></dt>
+                                <dd>
+				All rice sequences and features in GCD are currently based on TIGR's Version 2 annotation. The full upgrade to Version 3 will occur soon.
+                                </dd>
+                        </dl>
+                <p>
+
+		<li type=I><b>Search Functions</b></li><p>
                         <dl>
                                 <a name="search"></a>
                                 <dt><b><a href="http://138.23.191.152:8080/databaseWeb/index.jsp">Basic Searches in Single or Batch Mode</a></b></dt>
@@ -40,11 +54,11 @@
                                                 <li>Cluster names (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Name&limit=0&input=oxidoreductase%20activity">oxidoreductase activity</a>)'</li>
 
                                                 <li>One or many locus IDs from Arabidopsis or rice (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Id%20Id&limit=0&input=At1g01190%20At3g62720%209631.m01858">At1g01190 &nbsp; At3g62720 &nbsp; 9631.m01858</a>')</li> 
-                                                <li>Cluster or Pfam ID numbers (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=53">53</a>' or '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF00067.9">PF00067.9</a>')</li>
+                                                <li>Cluster or Pfam ID numbers (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=53">53</a>' or '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF00067">PF00067</a>')</li>
 
                                                 <li>Gene Ontology keys (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=GO%20Number&limit=0&input=GO:0019825">GO:0019825</a>')</li>
                                         </ol>
-                                Before submitting a query, the correct <b>search category</b> needs to be selected in the drop down menu on the bottom of the search page. The maximum number of query hits can be specified in a separate field. In addition, all searches can be delimited against one organism by selecting/de-selecting one of them. A user-friendly 'Loop Query' system on the resulting <a href="http://138.23.191.152:8080/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=At1g18690">List Page</a> allows quick retrieval of all members of a family of interest by clicking on the organism distribution links (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF05637.2">7 Ath &nbsp; 8 Osa</a>'). A similar facility is in place to quickly retrieve all proteins containing a Pfam domain of interest by clicking on its link under domain cluster ID. This action will loop through the Advanced Search Page.
+                                Before submitting a query, the correct <b>search category</b> needs to be selected in the drop down menu on the bottom of the search page. The maximum number of query hits can be specified in a separate field. In addition, all searches can be delimited against one organism by selecting/de-selecting one of them. A user-friendly 'Loop Query' system on the resulting <a href="http://138.23.191.152:8080/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=At1g18690">List Page</a> allows quick retrieval of all members of a family of interest by clicking on the organism distribution links (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF05637">7 Ath &nbsp; 8 Osa</a>'). A similar facility is in place to quickly retrieve all proteins containing a Pfam domain of interest by clicking on its link under domain cluster ID. This action will loop through the Advanced Search Page.
 
                                 </dd>
 
@@ -57,7 +71,7 @@
                                 <dt><b><a href="http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size">Cluster Table Search</a></b></dt>
                                 <dd>
 
-                                A search- and sortable cluster table enables family mining by cluster sizes, cluster names and family IDs. The cluster method used for generating a cluster is defined in the table by the type of the 'Family ID' number. Clusters that were generated with BLASTCLUST (<a href="#BCL">BCL</a>) have blank numbers, while domain-based clusters (<a href="#BCL">HCL</a>) follow the Pfam ID syntax, <i>e.g.</i>: 'PF00026.10'.    
+                                A search- and sortable cluster table enables family mining by cluster sizes, cluster names and family IDs. The cluster method used for generating a cluster is defined in the table by the type of the 'Family ID' number. Clusters that were generated with BLASTCLUST (<a href="#BCL">BCL</a>) have blank numbers, while domain-based clusters (<a href="#BCL">HCL</a>) follow the Pfam ID syntax, <i>e.g.</i>: 'PF00026'.    
                                 </dd>
 
                         </dl>
@@ -68,7 +82,7 @@
                         <dl>
                                 <dt><b>General</b></dt>
                                 <dd>
-                                All of the above query types return a Result List page that provides the <i>A. thaliana</i> members on the top and the <i>O. sativa</i> members on the bottom. The result statistics on the beginning of the page lists the number of loci, gene models and clusters returned by a query. To restrict a query to a protein family of interest, users can simply click on the organism distribution links (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF05637.2">7 Ath &nbsp; 8 Osa</a>'). This actions sends the correct query syntax back to the main page which returns the requested entries upon submission.  
+                                All of the above query types return a Result List page that provides the <i>A. thaliana</i> members on the top and the <i>O. sativa</i> members on the bottom. The cluster association of the entries is provided by their cluster identifiers (ID) and the cluster sizes are specified by the cluster size links, <i>e.g.</i>: '<u>7 Ath 15 Osa</u>' stands for a cluster with 7 <i>A. thaliana</i> and 15 <i>O. sativa</i> members. The result statistics on the beginning of the page lists the number of loci, gene models and clusters returned by a query. To restrict a query to a protein family of interest, users can simply click on the organism distribution links (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF05637">7 Ath &nbsp; 8 Osa</a>'). This actions sends the correct query syntax back to the main page which returns the requested entries upon submission.  
                                 </dd>
 
                                 <p>

@@ -43,7 +43,7 @@ public class DefaultQueryWideView implements QueryWideView
      */
     public void printButtons(java.io.PrintWriter out, int hid, int pos, int end, int rpp) 
     {
-        out.println("<FORM METHOD='POST' ACTION='DispatchServlet'>");
+        out.println("<FORM METHOD='GET' ACTION='DispatchServlet'>");
         out.println("<INPUT type=hidden name='hid' value='"+hid+"'>");
         out.println("<INPUT type=hidden name='script'>");
         

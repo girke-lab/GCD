@@ -184,8 +184,8 @@ public class BlastRecord implements Record
             return new HashMap();
         
         String query="SELECT * " +
-        "   FROM unknowns.blast_summary_mv " +
-        "   WHERE "+Common.buildIdListCondition("key_id",ids)+
+        "   FROM unknowns.blast_summary_view " +
+        "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
         "   ORDER BY purpose, "+sortCol+" "+sortDir;
                 
         List data=null;

@@ -37,9 +37,11 @@ public class DisplayKeysScript implements Script
     }
     private void printData(PrintWriter out,List data)
     {        
+        out.println("<PRE>");
         for(Iterator i=data.iterator();i.hasNext();)
             for(Iterator j=((List)i.next()).iterator();j.hasNext();)
                 out.println(j.next());
+        out.println("</PRE>");
         out.flush();
     }
     private List getData(List ids)

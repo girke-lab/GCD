@@ -102,7 +102,7 @@ public class ClusterRecord implements Record
         
        String query="SELECT * "+                 
         "   FROM unknowns.cluster_info_and_counts_mv " +        
-        "   WHERE "+Common.buildIdListCondition("key_id",ids)+
+        "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
         
         List data=null;

@@ -84,9 +84,9 @@ public class ExternalUnknownRecord implements Record
     {
         if(ids==null || ids.size()==0)
             return new HashMap();
-        String query="SELECT key_id,is_unknown,source "+                 
+        String query="SELECT accession_id,is_unknown,source "+                 
         "   FROM unknowns.external_unknowns " +        
-        "   WHERE "+Common.buildIdListCondition("key_id",ids)+
+        "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
         
         List data=null;

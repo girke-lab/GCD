@@ -49,8 +49,13 @@ public class PfamOptionsBean
             if(n.startsWith("noHit"))
                 out.println("<li>"+n+"</li>");
             else
+            {
+                int j=n.indexOf('.');
+                if(j!=-1)
+                    n=n.substring(0,j);
                 out.println("<li><a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+
-                        n.substring(0,n.indexOf('.'))+"'>"+n+"</a></li>");
+                        n+"'>"+n+"</a></li>");
+            }
         }              
     }
     public void printDomainSearchLinks(Writer w)
@@ -67,7 +72,7 @@ public class PfamOptionsBean
         
                 
         fields.add(new Integer(2));
-        ops.add(new Integer(6));
+        ops.add(new Integer(2));
         bools.add(new Integer(0));
         
         domainSearch.setDatabase("common");

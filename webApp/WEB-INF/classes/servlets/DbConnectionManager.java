@@ -94,6 +94,11 @@ public class DbConnectionManager
         }catch(Exception e){            
             log.warn("failed to connect to khoran database: "+e.getMessage());
         }
+        try{         
+            connections.put("khoran_test",new DbConnection("jdbc:postgresql://bioinfo.ucr.edu/khoran_test","servlet","512256")); //connect to postgres            
+        }catch(Exception e){            
+            log.warn("failed to connect to khoran_test database: "+e.getMessage());
+        }
         
     }
 }

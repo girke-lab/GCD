@@ -66,7 +66,7 @@ public class QueryPageServlet extends HttpServlet
         }
         log.info("done disconnecting databases");
     }    
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response,boolean wasPost)
         throws ServletException, java.io.IOException
     {
         HttpSession session = request.getSession(true);
@@ -136,9 +136,14 @@ public class QueryPageServlet extends HttpServlet
         dv.setData(qi.getSortCol(),qi.getDbs(),hid);
         dv.setSortDirection((String)qi.getObject("sortDirection"));
         
-        Map generalStor=(Map)qi.getObject("general_storage");
-        ResultPage page=new ResultPage(dv, s, pos, hid, rpp,generalStor); 
-        page.dipslayPage(out);
+        if(wasPost)
+            response.sendRedirect("QueryPageServlet?hid="+hid);
+        else
+        {
+            Map generalStor=(Map)qi.getObject("general_storage");
+            ResultPage page=new ResultPage(dv, s, pos, hid, rpp,generalStor); 
+            page.dipslayPage(out);
+        }
                         
         out.println("</body>");
         out.println("</html>");
@@ -337,7 +342,7 @@ public class QueryPageServlet extends HttpServlet
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, java.io.IOException {
-        processRequest(request, response);
+        processRequest(request, response,false);
     }
     
     /** Handles the HTTP <code>POST</code> method.
@@ -346,7 +351,7 @@ public class QueryPageServlet extends HttpServlet
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, java.io.IOException {
-        processRequest(request, response);
+        processRequest(request, response,true);
     }
     
     /** Returns a short description of the servlet.

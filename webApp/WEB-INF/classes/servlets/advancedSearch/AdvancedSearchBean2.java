@@ -186,6 +186,7 @@ public class AdvancedSearchBean2
     private void processCommands(HttpServletRequest request)
     {        
         String action=request.getParameter("action");
+        log.debug("epi="+request.getParameter("epi"));
         if(action==null)
         {
             log.warn("no action given");
@@ -200,7 +201,8 @@ public class AdvancedSearchBean2
             removeExpression(Integer.parseInt(row));
         }else if(action.equals("add_exp")){ 
             String row=request.getParameter("row");
-            String endParIndx=request.getParameter("end_par_indx");
+            String endParIndx=request.getParameter("epi");
+            log.debug("adding expression, row="+row+", end_par_indx="+endParIndx);
             if(row==null || row.equals(""))
                 addExpression();
             else if(endParIndx!=null && !endParIndx.equals(""))
@@ -209,7 +211,7 @@ public class AdvancedSearchBean2
             doQuery(); 
         }else if(action.equals("add_sub_exp")){
             String row=request.getParameter("row");                
-            String endParIndx=request.getParameter("end_par_indx");
+            String endParIndx=request.getParameter("epi");
             if(row==null || row.equals("") || endParIndx==null || endParIndx.equals(""))
                 return;                        
             addSubExp(Integer.parseInt(row),Integer.parseInt(endParIndx)); 

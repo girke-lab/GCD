@@ -111,7 +111,7 @@ public class Common {
     }
     public static void printForm(PrintWriter out,int hid)
     {
-        out.println("\n<FORM method=post name='form1' action='QueryPageServlet'>\n"+  //SequenceServlet
+        out.println("\n<FORM method=get name='form1' action='QueryPageServlet'>\n"+  //SequenceServlet
             "<INPUT type=hidden name='hid' value='"+hid+"'>"+
             "<INPUT type=hidden name='displayType' value='modelView'>"+                        
             "<TABLE align='center' border='0'>\n"+

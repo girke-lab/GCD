@@ -29,8 +29,8 @@ public class SearchTreeManager
     
     /** Creates a new instance of SearchTreeManager */
     public SearchTreeManager(String filename)
-    {
-        //this.filename=filename;
+    {        
+        log.debug("filename="+filename);
         queries=new Properties();
         URL temp=null;
         try{
@@ -40,7 +40,12 @@ public class SearchTreeManager
             //we really want a URL to this file, but must use only the directory
             //above beause the file might not exist yet, but we still want at least
             //a url to its future directory.
-            temp=new URL("file://"+temp.getPath()+filename);
+            log.debug("temp="+temp);
+            String seperator="/";
+            if(temp.toString().endsWith("/"))
+                seperator="";
+            temp=new URL("file://"+temp.getPath()+seperator+filename);
+            log.debug("new temp="+temp);
         }catch(Exception e){
             log.warn("could not find file "+path+filename+": "+e);  
             file=null;

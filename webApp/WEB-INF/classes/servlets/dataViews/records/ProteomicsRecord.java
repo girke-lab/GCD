@@ -91,7 +91,7 @@ public class ProteomicsRecord implements Record
             return new HashMap();
         String query="SELECT * "+                 
         "   FROM unknowns.proteomics_stats " +        
-        "   WHERE "+Common.buildIdListCondition("key_id",ids);
+        "   WHERE "+Common.buildIdListCondition("accession_id",ids);
         
         List data=null;
         try{            

@@ -41,7 +41,7 @@ public class Unknowns2DataView implements DataView
     public Unknowns2DataView()
     {
         sortDir="asc"; //default sort direction
-        dbc=DbConnectionManager.getConnection("khoran");
+        dbc=DbConnectionManager.getConnection("khoran_test");
         if(dbc==null)
             log.error("could not get db connection to khoran");
     }        

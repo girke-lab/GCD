@@ -33,7 +33,9 @@ public class DbConnection
     DataSource dataSource=null;
     GenericObjectPool connectionPool=null;
     private String hostname="";
-    static Logger log=Logger.getLogger(DbConnection.class);    
+    private String userName, password,connectionURI;
+    static Logger log=Logger.getLogger(DbConnection.class);  
+    private static final int MAX_RETRIES=2;
         
     
     /**
@@ -112,10 +114,13 @@ public class DbConnection
      * @param password user password
      * @throws java.lang.Exception thrown if connection fails
      */
-    public void connect(String connectURI,String name,String password)  throws Exception 
+    public void connect(String connectURI,String name,String pass)  throws Exception 
     {        
-        log.setLevel(org.apache.log4j.Level.WARN);
-        log.setLevel(org.apache.log4j.Level.INFO);
+        userName=name;
+        password=pass;
+        connectionURI=connectURI;
+        //log.setLevel(org.apache.log4j.Level.WARN);
+        log.setLevel(org.apache.log4j.Level.DEBUG);
         
         if(dataSource!=null)
             return;
@@ -192,9 +197,18 @@ public class DbConnection
      * @throws java.sql.SQLException thrown if query fails
      * @return a List of Lists of Strings
      */
-    public List sendQuery(String q) throws SQLException 
+    public List sendQuery(String q) throws SQLException
     {
-        long startTime=0;
+        return sendQuery(q,0,null);
+    }    
+    private List sendQuery(String q,int retryCount,SQLException origEx) throws SQLException 
+    {
+        log.debug("retryCount="+retryCount);
+        if(retryCount >= MAX_RETRIES)
+            throw origEx;            
+        long startTime=0;        
+        SQLException queryEx=null;
+        
         if(log.isInfoEnabled())
         {
             startTime=System.currentTimeMillis();
@@ -215,14 +229,27 @@ public class DbConnection
             stmt=conn.createStatement();       
             rs=stmt.executeQuery(q);                    
             l=reformat(rs);
-        }catch(SQLException e){
+        }catch(SQLException e){            
             //some how we should check for a java.net.SocketException here, and 
-            //reset all the connections if we find one.  
+            //reset all the connections if we find one.             
+            log.error("error message: "+e.getMessage());
             log.error("error code: "+e.getErrorCode());
             log.error("sql state:  "+e.getSQLState());
             log.error("embedded error: "+e.getNextException());
+            log.error("conn.isClosed() ? "+conn.isClosed());
             
-            throw e;
+//            if(e.getMessage().indexOf("java.net.SocketException")!=-1) //found a socket exception
+//            {// reconnect pool
+//                
+//                close();
+//                try{
+//                    connect(connectionURI,userName,password);                
+//                }catch(Exception ex){
+//                    log.error("could not reconnect after catching a SocketException: "+ex);
+//                }
+//            }
+            
+            queryEx=e;
         }finally{ //make sure the connection if closed if an error occurs, or the pool empties.            
             if(rs!=null)
                 rs.close();
@@ -230,6 +257,22 @@ public class DbConnection
                 stmt.close();
             if(conn!=null)
                 conn.close();
+        }
+        log.debug("queryEx="+queryEx);
+        if(queryEx!=null)
+        { //do the retry outside try block to make sure finally block runs first
+            log.warn("retying query");
+            log.debug("closing pool");
+            close(); //closes entire pool
+            try{
+                log.debug("reconnecting..");
+                connect(connectionURI,userName,password);                
+                log.debug("connected)");
+            }catch(Exception ex){
+                log.error("could not reconnect while retrying query: "+ex);
+            }
+            log.debug("resending query..");
+            l=sendQuery(q,++retryCount,queryEx);
         }
         if(log.isInfoEnabled())
             log.info(l.size()+" records in "+((System.currentTimeMillis()-startTime)/1000.0)+" seconds");

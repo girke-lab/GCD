@@ -163,13 +163,15 @@ public class HtmlVisitor implements QueryTreeVisitor
             printSpaces(depth);
             out.println(")</td>");
             out.println("<td align='right'>");
-            out.println("<input type=submit name='add_exp' value='add'" +
-                    " onClick=\"row.value='"+(fieldId-1)+"';action.value='add_exp';" +
-                    " end_par_indx.value='"+endParIndx+"';submit()\">");
+            out.println("<input type=submit name='add_exp' value='add'" + 
+                    " onClick=\" action.value='add_exp'; " +
+                    " epi.value='"+endParIndx+"';" +
+                    " row.value='"+(fieldId-1)+"';" +
+                    " submit();\">");
             out.println("</td><td>");
             out.println("<input type=submit name='add_sub_exp' value='add sub expression' " +
                     " onClick=\"row.value='"+(fieldId-1)+"';action.value='add_sub_exp';" +
-                    " end_par_indx.value='"+endParIndx+"';submit()\">");
+                    " epi.value='"+endParIndx+"';submit();\">");
             out.println("</tr>");
             hasSubAdd=true;
             endParIndx++;
@@ -204,11 +206,11 @@ public class HtmlVisitor implements QueryTreeVisitor
         fieldId=0;
         startParIndx=endParIndx=0;
         
-        out.println("\n<form method='post'  >");
+        out.println("\n<form method='get' name='search_form'  >");
         out.println("<table border='0' align='center' bgcolor='"+Common.dataColor+"'>");
         out.println("<input type=hidden name='row'>");
-        out.println("<input type=hidden name='action'");
-        out.println("<input type=hidden name='end_par_indx'");
+        out.println("<input type=hidden name='action'>");
+        out.println("<input type=hidden name='epi'>");
         
         if(dbs!=null && dbs.length > 1)
         {

@@ -31,20 +31,22 @@
                 <TR>
                     <TD  align='center'>
                         
-                        <font color='#FF0000'>News:</font> Version 3 rice gene IDs and interactive tree viewer implemented.
+                        <!--<font color='#FF0000'>News:</font> Version 3 rice gene IDs and interactive tree view implemented.-->
                         &nbsp<P>
                         GCD is a database for genome-wide sequence <BR> family mining in Arabidopsis and rice.
                         <P>
                         <A href='about.jsp#search'>
                             How to Search GCD</A>
+                        <P>
+                        <A href='about.jsp#limitations'>
+                            Limitations of Data Sets </A>
                     </TD>                    
                 </TR>
                 <TR>
                     <TD align='center'>
                         <% if(errMessage!=null && !errMessage.equals("")){ %>
                             <font color='#FF0000' size=+1><%=errMessage%></font>
-                        <%}%>
-                                
+                        <%}%>                                
                     </TD>
                 </TR>
                 <TR >
@@ -94,13 +96,7 @@
                                
                     </TD>
                 </TR>   
-                <tr>
-                    <td colspan='1'>
-                        &nbsp<p>
-                        Browser specific behavior of GCD: Internet Explorer requires 'page refreshing'
-                        to view the content of a previous page.
-                    </td>
-                </tr>
+                
             </TABLE> 
             <P>      
 	</FORM>

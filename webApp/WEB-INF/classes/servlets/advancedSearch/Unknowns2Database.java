@@ -74,9 +74,9 @@ public class Unknowns2Database extends DefaultSearchableDatabase
             new Field("Description",db+"unknown_keys.description"),
             new Field("Number of ests",db+"unknown_keys.est_count",Integer.class),
                         
-            new Field("Similarity Searches (best per db)",""),                        
+            new Field("Blast/Pfam Searches (best per db)",""),                        
             new Field(space+"database",db+"blast_summary_view.db_name",             
-                        new String[]{"swp","pfam"}),
+                        new String[]{"swp","pfam","rice","yeast","human/rat/mouse"}),
             new Field(space+"method",db+"blast_summary_view.method",
                         new String[]{"BLASTP","hmmPfam"}),
             new Field(space+"Blast target accession",db+"blast_summary_view.target_accessicd" +

@@ -111,7 +111,7 @@ public class UnknownRecord implements Record
     
     public static Map getData(DbConnection dbc, List ids)
     {
-        return getData(dbc,ids,"key","ASC");
+        return getData(dbc,ids,"accession","ASC");
     }    
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
@@ -134,10 +134,17 @@ public class UnknownRecord implements Record
         //load the unknown records
         if(!sortCol.startsWith("unknowns.unknown_keys."))
             sortCol="key";
-        String query="SELECT 1,unknowns.unknown_keys.* " +
-        "   FROM unknowns.unknown_keys " +
-        "   WHERE "+Common.buildIdListCondition("key_id",ids)+ 
-        "   ORDER BY "+sortCol+" "+sortDir;
+        String query="SELECT 1, unknown_data.accession_id, a.accession, a.description " +
+                "               unknown_data.est_count, unknown_data.mfu, unknown_data.ccu " +
+                "               unknown_data.bpu "+
+                "   FROM unknowns.unknown_data JOIN general.accessions as a USING(accession_id) "+
+                "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
+                "   ORDER BY "+sortCol+" "+sortDir;
+                
+//                "SELECT 1,unknowns.unknown_keys.* " +
+//        "   FROM unknowns.unknown_keys " +
+//        "   WHERE "+Common.buildIdListCondition("key_id",ids)+ 
+//        "   ORDER BY "+sortCol+" "+sortDir;
         
         List data=null;
         try{
