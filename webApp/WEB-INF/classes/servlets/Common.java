@@ -3,7 +3,7 @@
  *
  * Created on March 13, 2003, 4:11 PM
  */
-
+package servlets;
 /**
  *
  * @author  khoran
@@ -153,7 +153,7 @@ public class Common {
             "-->\n"+
             "</script>\n");
     }
-    public static void printHeader(PrintWriter out)
+    public static void printHeader(Writer out)
     {   //print the CEPCEB header on the top of every page        
         String header=""+ 
         "<table width='100%' border='0' cellspacing='0' cellpadding='0'>"+
@@ -180,9 +180,13 @@ public class Common {
         //"        <b>Cluster Statistics</b></a></font></div></td>"+
         "        <img src='images/clusterStats.jpg' width='100' height='25' border='0'></a></font></div></td>"+
         "</tr>"+
-        "</table><p>";
-        out.println("<BODY bgcolor='#fefefe' text='#000000' link='#006699' vlink='#003366'>");  
-        out.println(header);
+        "</table><p>";        
+        try{
+            out.write("<BODY bgcolor='#fefefe' text='#000000' link='#006699' vlink='#003366'>");  
+            out.write(header);
+        }catch(Exception e){  
+            System.out.println("io error: "+e.getMessage());
+        }
     }
     public static void printHeaderOld(PrintWriter out)
     {   //print the CEPCEB header on the top of every page

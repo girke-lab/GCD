@@ -3,13 +3,13 @@
  *
  * Created on March 3, 2004, 12:50 PM
  */
-
+package servlets;
 /**
  *
  * @author  khoran
  */
-import java.util.*;
-public class ClusterIDSearch implements Search {
+import java.util.*; 
+public class ClusterIDSearch implements Search { 
     
     List input,keysFound;
     int limit;

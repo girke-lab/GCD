@@ -5,7 +5,7 @@
  */
 
 //package databaseWeb;
-
+package servlets;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.net.*;

@@ -8,6 +8,7 @@
  *
  * @author  khoran
  */
+package servlets;
 import java.util.List;
 
 public interface Search 
