@@ -154,7 +154,7 @@ function MM_nbGroup(event, grpName) { //v6.0
 </tr>
 </table>
 -->
-<jsp:useBean id='common' class='Common' scope='application'/>
+<jsp:useBean id='common' class='servlets.Common' scope='application'/>
 <% common.printHeader(out); %>
 
 	<FORM NAME='form1' METHOD=POST ACTION='/databaseWeb/QueryPageServlet'  target='rd' >   

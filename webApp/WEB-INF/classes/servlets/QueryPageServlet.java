@@ -312,7 +312,7 @@ public class QueryPageServlet extends HttpServlet
             return;
 //        out.println("<TABLE border='0' width='100%'>");
         out.println("\t<TR bgcolor='"+colors[0]+"'><TH>Clustering</TH><TH>Name</TH><TH>ID</TH><TH>Size</TH><TH>Members</TH><TH>Alignment</TH><TH>Tree</TH></TR>");
-        String clusterType,blast="BLASTCLUST", hmm="Domain Compare";
+        String clusterType,blast="BLASTCLUST", hmm="Domain Composition";
         for(Iterator i=set.iterator();i.hasNext();)
         {//one row per set
              out.println("\t<TR bgcolor='"+colors[1]+"'>");
