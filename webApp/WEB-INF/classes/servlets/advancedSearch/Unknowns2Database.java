@@ -20,6 +20,8 @@ import javax.servlet.http.*;
 import javax.servlet.ServletContext;
 import java.io.*;
 import servlets.dataViews.*;
+import servlets.advancedSearch.queryTree.*;
+import servlets.advancedSearch.visitors.*;
 
 public class Unknowns2Database implements SearchableDatabase
 {
@@ -30,6 +32,7 @@ public class Unknowns2Database implements SearchableDatabase
     private final static int rpp=25;
     
     private int unaryBoundry; //seperates unary and binary ops in operators array
+    private String rootTableName;
     private static DbConnection dbc=null;  //need a connection to a different database
     private static Logger log=Logger.getLogger(Unknowns2Database.class);
     private static SearchStateManager ssm=new SearchStateManager("Unknown2Database.sss");
@@ -56,10 +59,17 @@ public class Unknowns2Database implements SearchableDatabase
     {
         List results;
         try{
-            results=dbc.sendQuery(buildQuery(state));
+            Query queryTree=buildQueryTree(state);
+            SqlVisitor sv=new SqlVisitor();            
+            String sql=sv.getSql(queryTree);
+            log.debug("sql="+sql);
+            if(true)
+                return;
+            results=dbc.sendQuery(sql);
+            //results=dbc.sendQuery(buildQuery(state));
         }catch(Exception e){
             log.error("could not send query: "+e.getMessage());            
-            //e.printStackTrace();
+            e.printStackTrace();
             return;
         }        
         //then figure out how to pass this info to QueryPageServlet via post.
@@ -88,7 +98,35 @@ public class Unknowns2Database implements SearchableDatabase
             e.printStackTrace();
         }
     }
-          
+    public Query buildQueryTree(SearchState state)
+    {
+        List fields=new LinkedList();
+        Set tables=new HashSet();
+        Integer limit;
+        DbField orderField;
+        Order order;
+        Expression condition;
+        Query query;
+
+                 //make sure we have a valid sort field
+        if(getFields()[state.getSortField()].dbName.length()==0)
+            state.setSortField(0);
+        
+        limit=Integer.decode(state.getLimit());
+        
+        orderField=new DbField(getFields()[state.getSortField()].dbName, String.class);
+        order=new Order(orderField,"ASC");
+        
+        fields.add("unknowns.unknown_keys.key_id");
+        fields.add(orderField.getName());
+        
+        //add tables to from clause and create condition
+        condition=buildCondition(state,tables);
+        
+        query=new Query(condition,fields,new LinkedList(tables),order,limit);
+        log.debug("query="+query);
+        return query;
+    }
     public String[] getBooleans() 
     {
         return booleans;
@@ -107,7 +145,122 @@ public class Unknowns2Database implements SearchableDatabase
     }
     //////////////////////////////////////////////////
     
+    /**method for building trees. 
+     * Tables should be an empty set to which the from tables are added.
+     * 
+     */
+    private Expression buildCondition(SearchState state,Set tables)
+    {
+        
+        int fieldCount=state.getSelectedFields().size();
+        int fid,oid,bid; //field,operator, and boolean ids
+        String value,tableName;
+        Expression joins=null,restrictedValues=null;
+        
+        
+        for(int i=0;i<fieldCount;i++)
+        {
+            fid=state.getSelectedField(i).intValue();
+            oid=state.getSelectedOp(i).intValue();
+            bid=state.getSelectedBool(i).intValue();
+            value=state.getValue(i);
+            
+            tableName=getTableName(getFields()[fid].dbName);
+            if(tableName.equals(""))
+                continue; //skip title fields.
+            
+            //add join conditions
+            joins=updateJoin(joins,tableName,tables);            
+            
+            //add regular condition
+            Operation op;
+            DbField field=new DbField(getFields()[fid].dbName,getFields()[fid].type);
+            
+            if(isUnaryOp(oid))
+                op=new Operation(getOperators()[oid],field,Operation.LEFT);
+            else
+            {
+                LiteralValue lv=getLiteralValue(getFields()[fid],value);
+                op=new Operation(getOperators()[oid],field,lv);
+            }
+            
+            if(restrictedValues==null)
+                restrictedValues=op;
+            else
+                restrictedValues=new Operation(getBooleans()[bid],op,restrictedValues);
+        }
+        //make sure we add the table we're sorting by.
+        joins=updateJoin(joins,getTableName(getFields()[state.getSortField()].dbName),tables);
+        
+        //log.debug("joins conditions: "+joins);
+        //log.debug("restricted values: "+restrictedValues);
+        
+        if(joins==null)
+            return restrictedValues;
+        if(restrictedValues==null) //this should never happen
+            return joins;        
+        return new Operation("and",joins,restrictedValues);        
+    }
+    private Expression updateJoin(Expression currentJoins,String tableName,Set tables)
+    {
+        DbField root_key=new DbField(rootTableName+".key_id",Integer.class);
+        Expression newJoins=currentJoins;
+        //see if we have already added this table
+        if(!tables.contains(tableName))
+        { //then add table to set, and add join condition
+            tables.add(tableName);
+            if(!tableName.equals(rootTableName))
+            {//no need to join root table to itself.
+                Operation op;
+                DbField table_key=new DbField(tableName+".key_id",Integer.class);                
+
+                op=new Operation("=",root_key,table_key);
+                if(currentJoins==null)
+                    newJoins=op;
+                else
+                    newJoins=new Operation("and",op,currentJoins);
+            }
+        }
+        return newJoins;
+    }
+    private LiteralValue getLiteralValue(Field f,String v)
+    {
+        if(f.type==String.class)
+            return new StringLiteralValue(v);
+        else if(f.type==Integer.class)
+            return new IntLiteralValue(Integer.valueOf(v));
+        else if(f.type==Float.class)
+            return new FloatLiteralValue(Float.valueOf(v));
+        else if(f.type==Boolean.class)                  
+            return new BooleanLiteralValue(Common.getBoolean(v));
+        else if(f.type==List.class)
+        {
+            List l=new LinkedList();
+            StringTokenizer tok=new StringTokenizer(v);
+            while(tok.hasMoreTokens())
+                l.add(tok.nextToken()); 
+            return new ListLiteralValue(l);
+        }            
+        else
+            log.error("unknown type: "+f.type.getName());
+        return null;
+    }
+    private String getTableName(String str)
+    {//str should be in form 'schema.table.column', so this function
+        //cuts off the column to get the schema qualified table name.
+        int i=str.lastIndexOf('.');
+        if(i==-1)
+            return str;
+        return str.substring(0,i);
+    }
     
+    
+    
+    
+    
+    //////////////////////////////////////////////////
+    ///    old query building methods
+    ///////////////////////////////////////////////////
     private String buildQuery(SearchState state)
     {
         String joinConditions,userConditions,fieldList,order;
@@ -258,13 +411,19 @@ public class Unknowns2Database implements SearchableDatabase
         
         return conditions.toString();
     }
+    /////////////////////////////////////////////////////////
+    
+    
+    
     private boolean isUnaryOp(int opId)
     {
         return opId >= unaryBoundry;
     }
     private void defineOptions()
-    {                
-        String db="unknowns.";
+    {   
+        rootTableName="unknowns.unknown_keys";
+        
+        String db="unknowns.";        
         String space=" &nbsp&nbsp ";
         //as long as we only use fields from tables that have a 'key_id' column,
         //we don't need any special cases in the query building code.
@@ -289,7 +448,7 @@ public class Unknowns2Database implements SearchableDatabase
             "cdon"),
             new Field(space+"Blast target description",db+"blast_summary_view.target_description"),    
             new Field(space+"best e_value",db+"blast_summary_view.e_value",Float.class),       
-            new Field(space+"score",db+"blast_results.score"),
+            new Field(space+"score",db+"blast_summary_view.score"),
             new Field(space+"identities",db+"blast_summary_view.identities"),            
             
             new Field("GO",""),
@@ -319,7 +478,9 @@ public class Unknowns2Database implements SearchableDatabase
 //new Field(space+"",""),
         operators=new String[]{"=","!=","<",">","<=",">=",
                 "ILIKE","NOT ILIKE","is NULL","is not NULL"};
-        unaryBoundry=9;
+        unaryBoundry=8; //index of first unary op.
         booleans=new String[]{"and","or"};                
     }
+
+ 
 }

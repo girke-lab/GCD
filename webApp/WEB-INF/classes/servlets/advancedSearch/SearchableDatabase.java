@@ -51,6 +51,8 @@ public interface SearchableDatabase
      */
     public void displayResults(SearchState state, ServletContext context,
             HttpServletRequest request, HttpServletResponse response);
+    
+    public servlets.advancedSearch.queryTree.Query buildQueryTree(SearchState state);
     /**
      * returns a SearchStateManager for manages searchStates for this database.
      * @return a SearchStateManager

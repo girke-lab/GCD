@@ -106,6 +106,11 @@ public class CommonDatabase implements SearchableDatabase
         query.append(" LIMIT "+state.getLimit());
         return query.toString();
     }
+    public servlets.advancedSearch.queryTree.Query buildQueryTree(SearchState state)
+    {
+        return null;
+    }
+
     private void defineOptions()
     {                
         fields=new Field[]{ new Field("Loci Id", "sequences.primary_key"), 

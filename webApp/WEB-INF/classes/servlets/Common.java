@@ -320,4 +320,9 @@ public class Common {
         out.append(")");
         return out.toString();
     }
+    public static boolean getBoolean(String str)
+    {
+        return str.compareToIgnoreCase("true")==0 || str.compareToIgnoreCase("yes")==0 ||
+                str.compareToIgnoreCase("t")==0|| str.equals("1");
+    }
 }

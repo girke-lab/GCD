@@ -90,7 +90,11 @@ public class UnknownsDatabase implements SearchableDatabase
         query.append(" LIMIT "+state.getLimit());
         return query.toString();
     }
-    
+    public servlets.advancedSearch.queryTree.Query buildQueryTree(SearchState state)
+    {
+        return null;
+    }
+
     public String[] getBooleans() 
     {
         return booleans;
