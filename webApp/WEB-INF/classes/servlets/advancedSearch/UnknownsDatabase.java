@@ -118,7 +118,7 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
     void defineOptions()
     {                
         rootTableName="unknowns";
-        primaryKey="At_key";
+        primaryKey="unknown_id";
         defaultColumn="At_key";
                 
         String[] printNames=new String[]{
@@ -154,36 +154,36 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
             "Treatments"
         };
         String[] dbNames=new String[]{
-            "At_Key ",
-            "Description ",
-            "Unknown_Method_TIGR ",
-            "Unknown_Method_SWP_BLAST ",
-            "Unknown_Method_GO_MFU_OR_CCU_OR_BPU ",
-            "Unknown_Method_GO_MFU ",
-            "Unknown_Method_InterPro ",
-            "Unknown_Method_Pfam ",
-            "Citosky_Small_List ",
-            "SALK_tDNA_Insertion ",
-            "EST_avail ",
-            "avail ",
-            "flcDNA_TIGR_XML_avail ",
-            "Nottingham_Chips_3x_90 ",
-            "Rice_Orth_Evalue ",
-            "HumanRatMouse_Orth_Evalue ",
-            "S_cerevisiae_Evalue ",
-            "Gene_Family_Size_35_50_70_perc_ident ",
-            "Pet_Gene_from ",
-            "Targeting_Ipsort ",
-            "Targeting_Predotar ",
-            "Targeting_Targetp ",
-            "Membr_dom_Hmmtop ",
-            "Membr_dom_Thumbup ",
-            "Membr_dom_TMHMM ",
-            "Focus_list_of_grant ",
-            "Selected_by ",
-            "Multiple_selects ",
-            "Occurrence_in_treaments",
-            "treat"
+            rootTableName+".At_Key",
+            rootTableName+".Description",
+            rootTableName+".Unknown_Method_TIGR",
+            rootTableName+".Unknown_Method_SWP_BLAST",
+            rootTableName+".Unknown_Method_GO_MFU_OR_CCU_OR_BPU",
+            rootTableName+".Unknown_Method_GO_MFU",
+            rootTableName+".Unknown_Method_InterPro",
+            rootTableName+".Unknown_Method_Pfam",
+            rootTableName+".Citosky_Small_List",
+            rootTableName+".SALK_tDNA_Insertion",
+            rootTableName+".EST_avail",
+            rootTableName+".avail",
+            rootTableName+".flcDNA_TIGR_XML_avail",
+            rootTableName+".Nottingham_Chips_3x_90",
+            rootTableName+".Rice_Orth_Evalue",
+            rootTableName+".HumanRatMouse_Orth_Evalue",
+            rootTableName+".S_cerevisiae_Evalue",
+            rootTableName+".Gene_Family_Size_35_50_70_perc_ident",
+            rootTableName+".Pet_Gene_from",
+            rootTableName+".Targeting_Ipsort",
+            rootTableName+".Targeting_Predotar",
+            rootTableName+".Targeting_Targetp",
+            rootTableName+".Membr_dom_Hmmtop",
+            rootTableName+".Membr_dom_Thumbup",
+            rootTableName+".Membr_dom_TMHMM",
+            rootTableName+".Focus_list_of_grant",
+            rootTableName+".Selected_by",
+            rootTableName+".Multiple_selects",
+            "treats.Occurrence_in_treaments",
+            "treats.treat"
         };
         fields=new Field[dbNames.length];
         for(int i=0;i<fields.length;i++)

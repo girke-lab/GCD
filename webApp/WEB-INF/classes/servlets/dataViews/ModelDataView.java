@@ -54,8 +54,9 @@ public class ModelDataView implements DataView
         printFasta(out,data,mqi.fieldNums,mqi.length,mqi.format);              
     }    
     public void printHeader(java.io.PrintWriter out) 
-    {
+    {        
         Common.printHeader(out);        
+        out.println("<p>");
         Common.printForm(out,hid);
     }    
     public void printStats(java.io.PrintWriter out) 

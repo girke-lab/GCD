@@ -79,7 +79,7 @@ public class ChrPlotScript  implements Script
         }
         condition.append(")");
         
-        query="SELECT s.primary_key FROM sequences as s WHERE "+condition;
+        query="SELECT s.primary_key FROM sequence_view as s WHERE "+condition;
         //query+=" LIMIT "+Common.SCRIPT_LIMIT;
         return Common.sendQuery(query);
     }

@@ -218,6 +218,10 @@ public class DbConnection
         }catch(SQLException e){
             //some how we should check for a java.net.SocketException here, and 
             //reset all the connections if we find one.  
+            log.error("error code: "+e.getErrorCode());
+            log.error("sql state:  "+e.getSQLState());
+            log.error("embedded error: "+e.getNextException());
+            
             throw e;
         }finally{ //make sure the connection if closed if an error occurs, or the pool empties.            
             if(rs!=null)

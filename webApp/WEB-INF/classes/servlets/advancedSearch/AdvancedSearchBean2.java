@@ -66,13 +66,14 @@ public class AdvancedSearchBean2
     */
     public void setDatabase(String name)
     {
+        log.debug("setting database to "+name);
         currentState=new SearchState();
         currentState.setDatabase(name);
         
         if(name==null)
             setDatabase(defaultDb);
-        else if(name.equals("common"))
-            db=new CommonDatabase();
+//        else if(name.equals("common"))
+//            db=new CommonDatabase();
         else if(name.equals("unknowns"))
             db=new UnknownsDatabase();
         else if(name.equals("unknowns2"))
@@ -91,6 +92,10 @@ public class AdvancedSearchBean2
     }
     public void drawSearchForm(JspWriter out)
     {
+        drawSearchForm(out,new String[]{});
+    }
+    public void drawSearchForm(JspWriter out,String[] dbs)
+    {
         log.debug("rendering form");
         log.debug("using database: "+db.getClass());
         if(currentQuery==null)
@@ -106,6 +111,8 @@ public class AdvancedSearchBean2
             log.debug("got query tree ok");
         log.debug("tree: "+currentQuery);
         HtmlVisitor hv=new HtmlVisitor(new PrintWriter(out),db);
+        hv.setDatabases(dbs, currentState.getDatabase());
+        
         log.debug("drawing form");
         currentQuery.accept(hv); //renders the html
         log.debug("done rendering");
@@ -121,6 +128,7 @@ public class AdvancedSearchBean2
         }
         
     }
+    //public void draw
     
     /**
      * read in data from jsp page

@@ -135,10 +135,10 @@ public class TreeViewScript implements Script
                         Common.quit(new PrintWriter(out),"no tree found for "+clusterId);
                         return;
                     }
-                    dos.writeBytes(dnd+"\n");
+                    dos.writeBytes(URLEncoder.encode(dnd+"\n","UTF-8"));
                 } 
                 //log.debug("writing: "+row.get(1)+"\t"+row.get(1)+"\tblue\t\t"+link+row.get(1)+"\n");
-                dos.writeBytes(row.get(1)+"\t"+row.get(1)+"\tblue\t\t"+link+row.get(1)+"\n");
+                dos.writeBytes(URLEncoder.encode(row.get(1)+"\t"+row.get(1)+"\tblue\t\t"+link+row.get(1)+"\n","UTF-8"));
                 lastMethod=(String)row.get(0);
             }            
             dos.writeBytes("&action=machine_upload");

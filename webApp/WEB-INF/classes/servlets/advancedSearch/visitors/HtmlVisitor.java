@@ -25,6 +25,8 @@ public class HtmlVisitor implements QueryTreeVisitor
      private static Logger log=Logger.getLogger(HtmlVisitor.class);
      private PrintWriter out;
      private SearchableDatabase db;
+     private String[] dbs=null;
+     private String currentDatabase;
      private int lastFieldUsedIndex,depth,fieldId;
      private boolean wasJoinExpression,printParinths,hasSubAdd;
      
@@ -36,6 +38,12 @@ public class HtmlVisitor implements QueryTreeVisitor
         printParinths=true;
         hasSubAdd=false;
     }
+    public void setDatabases(String dbs[],String db)
+    {
+        if(dbs.length > 1)
+            this.dbs=dbs;
+        currentDatabase=db;
+    } 
 
     public void visit(servlets.advancedSearch.queryTree.DbField n)
     {        
@@ -46,8 +54,10 @@ public class HtmlVisitor implements QueryTreeVisitor
         for(int i=0;i<fields.length;i++)
         {
             out.println("<option value='"+i+"'");
-            if(n.getName().equals(fields[i].dbName))
+            //log.debug("comparing tree name "+n.getName()+" to Field name "+fields[i].dbName+".");
+            if(n.getName().equalsIgnoreCase(fields[i].dbName))
             {
+                //log.debug("match found");
                 out.println(" selected ");
                 lastFieldUsedIndex=i;
             }
@@ -178,10 +188,24 @@ public class HtmlVisitor implements QueryTreeVisitor
         depth=0;
         fieldId=0;
         
-        out.println("\n<form method='post' action='as2.jsp' >");
+        out.println("\n<form method='post'  >");
         out.println("<table border='0' align='center' bgcolor='"+Common.dataColor+"'>");
         out.println("<input type=hidden name='row'>");
         out.println("<input type=hidden name='action'");
+        if(dbs!=null && dbs.length > 1)
+        {
+            out.println("<tr><td colspan='2'>Database: ");
+            out.println("<select name='database' " +
+                    "onChange=\"action.value='reset';submit()\">");
+            for(int i=0;i<dbs.length;i++)
+            {
+                out.println("<option ");
+                if(dbs[i].equals(currentDatabase))
+                    out.println(" selected ");
+                out.println(" >"+dbs[i]+"</option>");
+            }            
+            out.println("</select></td><tr>");
+        }
         
         //print condition
         n.getCondition().accept(this);

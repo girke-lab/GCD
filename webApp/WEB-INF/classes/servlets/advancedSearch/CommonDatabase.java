@@ -17,7 +17,7 @@ import javax.servlet.http.*;
 import javax.servlet.*;
 import org.apache.log4j.Logger;
 
-public class CommonDatabase implements SearchableDatabase
+public class CommonDatabase
 {
     public Field[] fields;
     public String[] operators;
@@ -150,7 +150,7 @@ public class CommonDatabase implements SearchableDatabase
         
         mRequest.getParameterMap().put("searchType","seq_model");
         mRequest.getParameterMap().put("limit", state.getLimit());
-        mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName);         
+        mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName.replaceAll("sequences","sequence_view"));         
                 
         if(getFields()[state.getSortField()].dbName.startsWith("cluster_info"))
             mRequest.getParameterMap().put("displayType","clusterView");

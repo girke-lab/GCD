@@ -36,6 +36,7 @@
                          To download entire datasets, please use our 
                         <A href='ftp://138.23.191.152/pub/'> FTP site.</A>
 -->
+                        <font color='#FF0000'>News:</font> Version 3 rice annotation and interactive tree viewer implemetned.
                         &nbsp<P>
                         GCD is a database for genome-wide sequence <BR> family mining in Arabidopsis and rice.
                         <P>

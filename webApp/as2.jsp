@@ -12,8 +12,8 @@
             bean.setDatabase("unknowns2");
             bean.initPage(application,request,response);
             bean.setPrintAmdinControls(true);
-            
-            bean.drawSearchForm(out);
+                        
+            bean.drawSearchForm(out,new String[]{"unknowns","unknowns2"});
         %>
         <h4> Usage: </h4>
         <p>

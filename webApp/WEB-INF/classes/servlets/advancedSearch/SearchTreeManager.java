@@ -47,6 +47,11 @@ public class SearchTreeManager
     public Query getSearchState(String name)
     {
         String sql=queries.getProperty(name+".sql");
+        if(sql==null)
+        {
+            log.error("no entry found for "+name+".sql");
+            return null;
+        }
         String limitStr=queries.getProperty(name+".limit");
         Integer limit=new Integer(100000);
         if(limitStr!=null)

@@ -33,7 +33,7 @@ public class SeqDataView implements DataView
                       GO_COL=4,     FILENAME_COL=5,
                       SIZE_COL=6,   NAME_COL=7,
                       A_SIZE_COL=8, R_SIZE_COL=9,
-                      METH_COL=10;
+                      METH_COL=10,  V3_KEY=11;
     
     String dataColor="D3D3D3",titleColor="AAAAAA";
     private static Logger log=Logger.getLogger(SeqDataView.class);
@@ -53,8 +53,10 @@ public class SeqDataView implements DataView
         this.seq_ids=ids;
         loadData(); //update data to reflect new id numbers
     }
-    public void printHeader(java.io.PrintWriter out) {
+    public void printHeader(java.io.PrintWriter out) 
+    {
         Common.printHeader(out);        
+        out.println("<p>");
         Common.printForm(out,hid);    
     }   
     public void printData(java.io.PrintWriter out) 
@@ -148,7 +150,7 @@ public class SeqDataView implements DataView
                 if(primary_key!=null) //first is null
                     records.add(sr);                
                 primary_key=(String)row.get(P_KEY_COL);
-                sr=new SeqRecord(primary_key,(String)row.get(DESC_COL),(String)row.get(GENOME_COL));                
+                sr=new SeqRecord(primary_key,(String)row.get(DESC_COL),(String)row.get(GENOME_COL),(String)row.get(V3_KEY));                
             }
             sr.addModel((String)row.get(MODEL_COL));                
             if(row.get(GO_COL)!=null)
@@ -191,7 +193,7 @@ public class SeqDataView implements DataView
         List rs=null;
         int count=0;
 
-        conditions.append("sequences.seq_id in (");
+        conditions.append("sequence_view.seq_id in (");
         for(Iterator it=input.iterator();it.hasNext();)
         {
             conditions.append((String)it.next());
@@ -206,27 +208,27 @@ public class SeqDataView implements DataView
     {
         StringBuffer query=new StringBuffer();
         
-        query.append("SELECT sequences.genome, sequences.primary_key,sequences.description,models.model_accession," +
-                    " go.go, cluster_info.filename,cluster_info.size,cluster_info.name,cluster_info.arab_count,cluster_info.rice_count,cluster_info.method "+
-                "FROM sequences LEFT JOIN models USING (seq_id) LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequences.seq_id=go.seq_id)"+
-                //clusters, cluster_info, sequences LEFT JOIN go USING (seq_id) "+
+        query.append("SELECT sequence_view.genome, sequence_view.primary_key,sequence_view.description,models.model_accession," +
+                    " go.go, cluster_info.filename,cluster_info.size,cluster_info.name,cluster_info.arab_count,cluster_info.rice_count,cluster_info.method,sequence_view.v3Key "+
+                "FROM sequence_view LEFT JOIN models USING (seq_id) LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequence_view.seq_id=go.seq_id)"+
+                //clusters, cluster_info, sequence_view LEFT JOIN go USING (seq_id) "+
                 "WHERE  ");
         
                 
         query.append("  (");
         for(int i=0;i<DBs.length;i++)
         {
-            query.append("sequences.genome='"+Common.dbRealNames[DBs[i]]+"' ");
+            query.append("sequence_view.genome='"+Common.dbRealNames[DBs[i]]+"' ");
             if(i+1 < DBs.length)
                 query.append(" or ");
         }
         
         query.append(") AND ( "+conditions+" ) ");
-        query.append("ORDER BY sequences.genome,");
+        query.append("ORDER BY sequence_view.genome,");
         if(order!=null && order != "")
             query.append(order+", ");
-        //query.append(" sequences.primary_key,clusters.model_id, go.go,cluster_info.filename ");        
-        query.append(" sequences.primary_key,cluster_info.filename, go.go ");        
+        //query.append(" sequence_view.primary_key,clusters.model_id, go.go,cluster_info.filename ");        
+        query.append(" sequence_view.primary_key,cluster_info.filename, go.go ");        
         log.info("sequence view query: "+query);
         return query.toString();
     }
@@ -282,7 +284,7 @@ public class SeqDataView implements DataView
     class SeqRecord
     {
         Collection goNumbers,clusters,models;
-        String key,desc,genome;        
+        String key,desc,genome,v3Key;        
         private final String align="left";
         
         public SeqRecord()
@@ -292,11 +294,12 @@ public class SeqDataView implements DataView
             clusters=new TreeSet();
             models=new HashSet();
         }
-        public SeqRecord(String key,String desc,String genome)
+        public SeqRecord(String key,String desc,String genome,String v3)
         {
             this.key=key;
             this.desc=desc;
             this.genome=genome;
+            this.v3Key=v3;
             goNumbers=new HashSet();
             //clusters=new LinkedHashSet(); //keeps order
             clusters=new TreeSet();
@@ -354,9 +357,12 @@ public class SeqDataView implements DataView
         }
                 
         public void printRecord(PrintWriter out)
-        {
+        {            
             out.println("<TR bgcolor='"+titleColor+"'><TH align='"+align+"'>Key</TH><TH colspan='6' align='"+align+"'>Description</TH></TR>");
-            out.println("<TR><TD><A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+key+"'>"+key+"</A></TD>");
+            out.println("<TR><TD><A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+key+"'>"+key+"</A>");
+            if(v3Key!=null)
+                out.println("&nbsp&nbsp v3: <A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+v3Key+"'>"+v3Key+"</a>");
+            out.println("</TD>");
             out.println("<TD colspan='6'>"+desc+"</TD></TR>");        
 
             out.println("<TR><TH>Links</TH><TD colspan='6' nowrap> ");
@@ -462,7 +468,7 @@ public class SeqDataView implements DataView
                  out.println("<a href='http://www.arabidopsis.org/servlets/TairObject?type=locus&name="+key+"'>TAIR</a>&nbsp&nbsp");
                  out.println("<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+ key+"'>MIPS</a>&nbsp&nbsp");
              }
-             out.println("<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+ "ORF_infopage.cgi?db="+db+"&orf="+key+"'>TIGR</a>&nbsp&nbsp");
+             out.println("<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+ "ORF_infopage.cgi?db="+db+"&orf="+(v3Key==null?key:v3Key)+"'>TIGR</a>&nbsp&nbsp");
              out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/geneview.pl?accession="+key+"'>GeneStructure*</a>&nbsp&nbsp");
              //expression link goes here
              if(g==Common.arab)

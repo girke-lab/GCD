@@ -85,7 +85,7 @@ public class GoSlimCountsScript implements Script
         }
         condition.append(")");
         
-        query="SELECT s.primary_key,go.go FROM sequences as s LEFT JOIN go USING(seq_id) " +
+        query="SELECT s.primary_key,go.go FROM sequence_view as s LEFT JOIN go USING(seq_id) " +
             "WHERE "+condition;
         log.info("goSlimCounts query: "+query);
         return Common.sendQuery(query);

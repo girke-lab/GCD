@@ -79,7 +79,7 @@ public class MultigeneScript  implements Script
         }
         condition.append(")");
         
-        query="SELECT s.primary_key FROM sequences as s WHERE "+condition;
+        query="SELECT s.primary_key FROM sequence_view as s WHERE "+condition;
         query+=" LIMIT "+Common.SCRIPT_LIMIT;
         log.info("DisplayKeys.pl query: "+query);
         return Common.sendQuery(query);

@@ -298,6 +298,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
     }
     private Expression updateJoin(Expression currentJoins,String tableName,Set tables)
     {
+        log.debug("updateding join, tablename="+tableName+", existing tables:"+tables);
         DbField root_key=new DbField(rootTableName+"."+primaryKey,Integer.class);
         Expression newJoins=currentJoins;
         //see if we have already added this table
@@ -343,6 +344,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
     private String getTableName(String str)
     {//str should be in form 'schema.table.column', so this function
         //cuts off the column to get the schema qualified table name.
+        log.debug("getting table name from "+str);
         int i=str.lastIndexOf('.');
         if(i==-1)
             return str;
