@@ -16,6 +16,8 @@ import java.io.*;
 import servlets.Common;
 import org.apache.log4j.Logger;
 import servlets.ResultPage;
+import servlets.dataViews.queryWideViews.*; 
+import servlets.search.Search;
 
 public class ClusterDataView implements DataView 
 {   
@@ -58,10 +60,18 @@ public class ClusterDataView implements DataView
     {
         this.seq_ids=ids;                
     }
-     public boolean hasFeature(int f) 
-     {
-         return f==ResultPage.STATS;
-     }   
+   
+    public QueryWideView getQueryWideView() 
+    {
+        return new DefaultQueryWideView(){
+            public void printStats(PrintWriter out,Search search)
+            {
+                Common.printStatsTable(out,"Total Query", new String[]{"Clusters"},
+                    new Object[]{new Integer(search.getResults().size())});
+            }
+            public void printButtons(PrintWriter out, int hid,int pos,int size,int rpp){}            
+        };
+    }   
     
     private void printCounts(PrintWriter out,List data)
     {
@@ -167,8 +177,9 @@ public class ClusterDataView implements DataView
     }          
      
      public void printStats(java.io.PrintWriter out) {
-         Common.printPageStats(out, 0,0, seq_ids.size());
+         Common.printStatsTable(out,"On This Page", new String[]{"Clusters"},new Object[]{new Integer(seq_ids.size())});         
      }
+     
      
       
      

@@ -15,6 +15,7 @@ import java.util.*;
 import java.io.*;
 import servlets.Common;
 import servlets.ResultPage;
+import servlets.dataViews.queryWideViews.*; 
 import org.apache.log4j.Logger;
 
 public class SeqDataView implements DataView 
@@ -65,11 +66,11 @@ public class SeqDataView implements DataView
             loadData();
         printCounts(out,records);
     }    
-    public boolean hasFeature(int f) 
-    {
-        return f==ResultPage.BUTTONS || f==ResultPage.STATS;
-    }   
     
+    public QueryWideView getQueryWideView() 
+    {
+        return new DefaultQueryWideView();
+    }  
 ///////////////////////////////////////////////////////////////////////
     private void loadData()
     {
@@ -89,8 +90,8 @@ public class SeqDataView implements DataView
             modelCount+=sr.getModelCount();  
             temp.addAll(sr.getClusters());
         }
-
-        Common.printPageStats(out, records.size(), modelCount, temp.size());
+        Common.printStatsTable(out,"On This Page", new String[]{"Loci","Models","Clusters"},
+            new Object[]{new Integer(records.size()),new Integer(modelCount),new Integer(temp.size())});          
     }
     private List parseData(List data)
     {
@@ -188,6 +189,7 @@ public class SeqDataView implements DataView
         log.info("sequence view query: "+query);
         return query.toString();
     }
+    
     
    
     

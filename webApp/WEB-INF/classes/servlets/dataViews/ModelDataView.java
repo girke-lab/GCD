@@ -13,6 +13,7 @@ package servlets.dataViews;
 
 import servlets.*;
 import servlets.dataViews.DataView;
+import servlets.dataViews.queryWideViews.*; 
 import java.util.*;
 import javax.servlet.http.*;
 import java.io.*;
@@ -61,7 +62,8 @@ public class ModelDataView implements DataView
     {
         if(data==null)
             loadData();
-        Common.printPageStats(out, seq_ids.size(),data.size(),-1);
+        Common.printStatsTable(out,"On This Page", new String[]{"Loci","Models"},
+            new Object[]{new Integer(seq_ids.size()),new Integer(data.size())});        
     }    
     public void setData(String sortCol, int[] dbList, int hid) 
     {        
@@ -82,12 +84,16 @@ public class ModelDataView implements DataView
         this.seq_ids=ids;   
         loadData();
     }
-    public boolean hasFeature(int f)
+   
+    public QueryWideView getQueryWideView() 
     {
-        return f==ResultPage.BUTTONS ||
-               (f==ResultPage.ALL && mqi.format==ALL_FASTA) ||
-               f==ResultPage.STATS ;
-    }
+        return new DefaultQueryWideView(){
+            public boolean printAllData(){
+                return mqi.format==ALL_FASTA;
+            }
+        };
+    }     
+     
 /////////////////////////////////////////////////////////////////////////////
 //                              Private  Methods                 
 /////////////////////////////////////////////////////////////////////////////
@@ -307,7 +313,7 @@ public class ModelDataView implements DataView
         printNames[8]="5`UTR";printNames[9]="Protein";        
     }
      
-     
+    
      
     class ModelQueryInfo implements java.io.Serializable
     {

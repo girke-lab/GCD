@@ -51,48 +51,7 @@ public class Common {
             log.error("query error: "+e.getMessage());         
         }
         return rs;
-    }
-    
-    public static List sendQuery2(String q)
-    {
-        Connection conn;
-        try{
-            String url="jdbc:postgresql://138.23.191.152/common";
-            Class.forName("org.postgresql.Driver").newInstance();
-
-            //String url="jdbc:mysql://138.23.191.152/common_test";
-            //Class.forName("org.gjt.mm.mysql.Driver").newInstance();
-            //q=q.toLowerCase();
-            conn=DriverManager.getConnection(url,"servlet","512256");
-        }catch(SQLException e){
-            log.error("could not coneect to database: "+e.getMessage());
-            return null;
-        }catch(Exception e){
-            log.error("unknown connection error: "+e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-
-        ArrayList data=new ArrayList();
-        try{
-            Statement stmt=conn.createStatement();
-//            log.error("Common: query="+q);
-            ResultSet rs=stmt.executeQuery(q);
-            while(rs.next())
-            {
-                ArrayList row=new ArrayList();
-                for(int i=0;i<rs.getMetaData().getColumnCount();i++)
-                    row.add(rs.getString(i+1));
-                data.add(row);                
-            }
-            conn.close();
-        }catch(SQLException e){
-            log.error("query errory: "+e.getMessage());
-            return new ArrayList();
-        }
-        return data;
-    }
-
+    }       
     
     public static void printList(PrintWriter out,List list)
     {
@@ -138,29 +97,7 @@ public class Common {
         }
         return out+"]";            
     }
-    public static void blastLinks(PrintWriter out,int currentDB,int hid)
-    {   //inputKey is a list of keys only, no words
-        //print links to blastp page and tblastn page
-        StringBuffer URLprefix=new StringBuffer();
-        URLprefix.append(" <A href='/databaseWeb/blastPage?hid="+hid+"&");
-        out.println("<TABLE width='50%' align='center'><TR>");
-
-        if(currentDB==arab)
-        {//if using the arab database, send links to arab blast files
-            URLprefix.append("db="+arab+"&");
-            out.println("<TD>"+URLprefix+"file=summary'>Blast Summary</A></TD>");
-            out.println("<TD>"+URLprefix+"file=riceCvsArabP'>tBlastn file</A></TD>");     
-            out.println("<TD>"+URLprefix+"file=ricePvsArabP'>Blastp file</A></TD>");
-        }
-        else if(currentDB==rice)
-        {//otherwise use rice blast files
-            URLprefix.append("db="+rice+"&");
-            out.println("<TD>"+URLprefix+"file=summary'>Blast Summary</A></TD>");
-            out.println("<TD>"+URLprefix+"file=ArabCvsRiceP'>tBlastn file</A></TD>");     
-            out.println("<TD>"+URLprefix+"file=ArabPvsRiceP'>Blastp file</A></TD>");
-        }
-        out.println("</TR></TABLE>");
-    }
+   
     public static void printForm(PrintWriter out,int hid)
     {
         out.println("\n<FORM method=post name='form1' action='QueryPageServlet'>\n"+  //SequenceServlet
@@ -262,45 +199,62 @@ public class Common {
         out.println("</body></html>");
         out.close();
     }
-    public static void printTotals(PrintWriter out,Search s,String view)
+//    public static void printTotals(PrintWriter out,Search s,String view)
+//    {
+//        out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
+//        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>Total Query</th></tr>");
+//        out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
+//        out.println("<tr>");
+//        if(view.equals("clusterView"))
+//        {
+//            out.println("<td>&nbsp</td><td>&nbsp</td>");
+//            out.println("<td>"+s.getResults().size()+"</td>");
+//        }
+//        else
+//        {
+//            out.println("<td>"+s.getResults().size()+"</td>");
+//            if(s.getStats()!=null && s.getStats().size()==2)
+//            {
+//                out.println("<td>"+s.getStats().get(0)+"</td>");
+//                out.println("<td>"+s.getStats().get(1)+"</td>");
+//            }
+//            else
+//                out.println("<td>&nbsp</td><td>&nbsp</td>");
+//        }
+//        out.println("</tr></table>");
+//    }
+//    public static void printPageStats(PrintWriter out,int keys,int models,int clusters)
+//    {
+//        out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
+//        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>On This Page</th></tr>");
+//        out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
+//        out.println("<tr>");
+//        // use -1 to signal that a value should not be printed.
+//        if(keys >= 0) out.println("<td>"+keys+"</td>");
+//            else out.println("<td>&nbsp</td>");
+//        if(models >= 0) out.println("<td>"+models+"</td>");
+//            else out.println("<td>&nbsp</td>");
+//        if(clusters >= 0) out.println("<td>"+clusters+"</td>");
+//            else out.println("<td>&nbsp</td>");
+//        out.println("</tr></table>");
+//        
+//    }
+    public static void printStatsTable(PrintWriter out,String title,String[] subTitles,Object[] values)
     {
-        out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
-        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>Total Query</th></tr>");
-        out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
-        out.println("<tr>");
-        if(view.equals("clusterView"))
+        out.println("<table border='1' cellspacing='0' bgcolor='"+Common.dataColor+"'>");
+        out.println("<tr  bgcolor='"+Common.titleColor+"'><th colspan='"+subTitles.length+"'>"+title+"</th></tr>");
+        out.println("<tr  bgcolor='"+Common.titleColor+"'>");
+        for(int i=0;i<subTitles.length;i++)
+            out.println("<th>"+subTitles[i]+"</th>");
+        out.println("</tr><tr>");
+        for(int i=0;i<values.length;i++)
         {
-            out.println("<td>&nbsp</td><td>&nbsp</td>");
-            out.println("<td>"+s.getResults().size()+"</td>");
-        }
-        else
-        {
-            out.println("<td>"+s.getResults().size()+"</td>");
-            if(s.getStats()!=null && s.getStats().size()==2)
-            {
-                out.println("<td>"+s.getStats().get(0)+"</td>");
-                out.println("<td>"+s.getStats().get(1)+"</td>");
-            }
+            if(values[i]!=null)
+                out.println("<td>"+values[i]+"</td>");
             else
-                out.println("<td>&nbsp</td><td>&nbsp</td>");
+                out.println("<td>&nbsp</td>");
         }
-        out.println("</tr></table>");
-    }
-    public static void printPageStats(PrintWriter out,int keys,int models,int clusters)
-    {
-        out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
-        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>On This Page</th></tr>");
-        out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
-        out.println("<tr>");
-        // use -1 to signal that a value should not be printed.
-        if(keys >= 0) out.println("<td>"+keys+"</td>");
-            else out.println("<td>&nbsp</td>");
-        if(models >= 0) out.println("<td>"+models+"</td>");
-            else out.println("<td>&nbsp</td>");
-        if(clusters >= 0) out.println("<td>"+clusters+"</td>");
-            else out.println("<td>&nbsp</td>");
-        out.println("</tr></table>");
-        
+        out.println("</tr></table>");        
     }
     public static void printButtons(PrintWriter out, int hid,int pos,int end, int rpp)
     {

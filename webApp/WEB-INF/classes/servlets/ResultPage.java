@@ -17,18 +17,24 @@ import servlets.dataViews.*;
 import servlets.search.*;
 import javax.servlet.http.*;
 
+/**
+ * Uses a {@link DataView} object to print a result page.
+ */
 public class ResultPage 
 {
     DataView dv;
     Search search;
-    int hid,rpp,pos;
-    HttpServletRequest request;
+    int hid,rpp,pos;    
+       
     
-    
-    //available features
-    public static final int BUTTONS=0, ALL=1,STATS=2;
-    
-    /** Creates a new instance of ResultPage */
+    /**
+     * Creates a new instance of ResultPage
+     * @param dv the dataView object to print
+     * @param s search object to get id list from
+     * @param pos current position in id list
+     * @param hid history id
+     * @param rpp records per page
+     */
     public ResultPage(DataView dv,Search s,int pos, int hid, int rpp)    
     {
         this.dv=dv;
@@ -38,21 +44,25 @@ public class ResultPage
         this.pos=pos;
     }
     
+    /**
+     * Calls the various methods of {@link DataView} and {@link QueryWideView} to
+     * print the result page.  Also prints the paging controls and the list of keys
+     * not found at the end of the page.
+     * @param out where to print html
+     */    
     public void dipslayPage(PrintWriter out)
     {
         int[] positions=new int[search.getDbCount()];
         for(int i=0;i<positions.length;i++)
             positions[i]=search.getDbStartPos(i);
-        
-        
+                
         dv.printHeader(out);
         printControls(out);
         printGotoLinks(out, Common.dbPrintNames, positions);
-        if(dv.hasFeature(BUTTONS))
-            Common.printButtons(out,hid,pos,search.getResults().size(),rpp); 
-            
+        dv.getQueryWideView().printButtons(out, hid, pos, search.getResults().size(), rpp);
+                    
         List ids=search.getResults();
-        if(dv.hasFeature(ALL))
+        if(dv.getQueryWideView().printAllData())
             dv.setIds(ids);
         else
         {
@@ -61,33 +71,16 @@ public class ResultPage
         }
         
         out.println("<table cellspacing='0' cellpadding='0'><tr><td>");
-        if(dv.hasFeature(STATS))
-            printTotals(out);   
+        dv.getQueryWideView().printStats(out,search);            
         out.println("</td><td>");
         dv.printStats(out);
         out.println("</td></tr></table>");
         
         dv.printData(out);
-
         
         printMismatches(out,search.notFound());
     }
-    private void printTotals(PrintWriter out)
-    {
-        out.println("<table border='1' cellspacing='0' bgcolor='"+Common.dataColor+"'>");
-        out.println("<tr  bgcolor='"+Common.titleColor+"'><th colspan='3'>Total Query</th></tr>");
-        out.println("<tr  bgcolor='"+Common.titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
-        out.println("<tr>");
-        out.println("<td>"+search.getResults().size()+"</td>");
-        if(search.getStats()!=null && search.getStats().size()==2)
-        {
-            out.println("<td>"+search.getStats().get(0)+"</td>");
-            out.println("<td>"+search.getStats().get(1)+"</td>");
-        }
-        else
-            out.println("<td>&nbsp</td><td>&nbsp</td>");
-        out.println("</tr></table>");
-    }
+    
     private void printMismatches(PrintWriter out,List keys)
     {
         if(keys.size()==0) //don't print anything if there are no missing keys

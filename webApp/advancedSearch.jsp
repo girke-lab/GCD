@@ -4,7 +4,7 @@
 <head><title>Advanced Search</title></head>
 <body>
 
-<jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='session'/>
+<jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='application'/>
 <jsp:useBean id='common' class='servlets.Common' />
 <%      
         common.printHeader(out);
@@ -116,6 +116,11 @@
         <tr>            
             <td colspan='4' align='center'>
                 <input type=submit name='search' value='Search'>
+            </td>
+        </tr>
+        <tr>
+            <td colspan='4'>
+                <%= bean.printStoreOptions() %>
             </td>
         </tr>
     </table>

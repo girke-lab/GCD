@@ -14,6 +14,8 @@ package servlets.dataViews;
 import java.util.*;
 import java.io.*;
 import servlets.*;
+import servlets.dataViews.queryWideViews.*; 
+import servlets.search.Search;
 import org.apache.log4j.Logger;
 
 public class UnknownsDataView implements DataView
@@ -24,7 +26,7 @@ public class UnknownsDataView implements DataView
     int[] dbNums;
     String tempPath;
     DbConnection dbc=null;
-    static Logger log=Logger.getLogger(UnknownsDataView.class);
+    static Logger log=Logger.getLogger(UnknownsDataView.class);   
     
     /** Creates a new instance of UnknownsDataView */
     public UnknownsDataView() 
@@ -45,20 +47,19 @@ public class UnknownsDataView implements DataView
     {
         List data=getData();
         printData(out,data);
+        out.println("</td></tr></table></font></body></html>");
     }
     
     public void printHeader(java.io.PrintWriter out)
     {
-        out.println("<h1 align='center' >Unknowns</h1>");
+        printUnknownHeader(out);
+        //out.println("<h1 align='left' >Unknowns</h1>");
     }
     
     public void printStats(java.io.PrintWriter out) 
     {
-        out.println("<table cellspacing='0'  border='1' bgcolor='"+Common.dataColor+"'>");
-        out.println("<tr><th bgcolor='"+Common.titleColor+"'>On This Page</th></tr>");
-        out.println("<tr><th bgcolor='"+Common.titleColor+"'>Records</th></tr>");
-        out.println("<tr><td align='center'>"+seq_ids.size()+"</td></tr>");
-        out.println("</table>");        
+        Common.printStatsTable(out, "On This Page", new String[]{"Records found"},
+            new Object[]{new Integer(seq_ids.size())});
     }
     
     public void setData(String sortCol, int[] dbList, int hid) 
@@ -71,12 +72,41 @@ public class UnknownsDataView implements DataView
     {
          this.seq_ids=ids;   
     }
-    public boolean hasFeature(int f) 
+   
+    public QueryWideView getQueryWideView() 
     {
-        return false;
-    }    
+        return new DefaultQueryWideView(){
+            public void printStats(PrintWriter out,Search search)
+            {
+                Common.printStatsTable(out,"Total Query",new String[]{"Records found"},
+                    new Object[]{new Integer(search.getResults().size())});
+            }
+            public void printButtons(PrintWriter out, int hid,int pos,int size,int rpp)
+            {}
+        };
+    }   
     ////////////////////////////////////////////////////////////////
-    
+    private void printUnknownHeader(PrintWriter out)
+    {
+        out.println(
+        "  <font face='sans-serif, Arial, Helvetica, Geneva'>"+
+        "  <img alt='Unknown Database' src='images/unknownspace3.png'>"+
+        "  <table>"+
+        "  <tr>"+
+        "  <td valign='top' bgcolor='#F0F8FF'' width=180 nowrap ><font SIZE=-1>"+
+        "  <a href='./index.html'><li>Project</a></li>"+
+        "  <a href='./descriptors.html'><li>Unknown Descriptors</a></li>"+
+        "  <a href='./retrieval.html'><li>Search Options</a></li>"+
+        "  <a href='./interaction.html'><li>Protein Interaction</a></li>"+
+        "  <a href='./KO_cDNA.html'><li>KO & cDNA Results</a></li>"+
+        "  <a href='./profiling.html'><li>Chip Profiling</a></li>"+
+        "  <a href='./tools.html'><li>Technical Tools</a></li>"+
+        "  <a href='./external.html'><li>External Resources</a></li>"+
+        "  <a href='./downloads.html'><li>Downloads</a></li>"+
+        "  </font></td>"+
+        "  <td>&nbsp;&nbsp;&nbsp;</td>"+
+        "  <td valign='top'' width=600> ");
+    }
     private void printData(PrintWriter out,List data)
     {
          String titleColor="AAAAAA", dataColor="D3D3D3";
@@ -168,8 +198,6 @@ public class UnknownsDataView implements DataView
         log.info("query is: "+query);
         return query;
     }
-  
-    
     
     String[] printNames=new String[]{
             "At Key" ,

@@ -110,43 +110,12 @@ public class QueryPageServlet extends HttpServlet
             Common.quit(out, "position "+pos+" is out of bounds");
             return;
         }
-        
-        
+                
         dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);
         dv.setData(qi.getSortCol(),qi.getDbs(),hid);
-        ResultPage page=new ResultPage(dv, s, pos, hid, rpp);
+        ResultPage page=new ResultPage(dv, s, pos, hid, rpp); 
         page.dipslayPage(out);
-        
-        
-        
-//        
-//        int end=pos+rpp > s.getResults().size()? s.getResults().size() : pos+rpp;
-//        if(allFasta)
-//            returnedKeys=s.getResults();
-//        else
-//            returnedKeys=s.getResults().subList(pos,end);
-//        
-//        dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);                
-//        dv.setData(returnedKeys, qi.getSortCol(),qi.getDbs(),hid); //rpp is redundent here
-//        
-//        //print page
-//        dv.printHeader(out); //prints form for  seq servlet
-//        //Common.printPageControls(out,rpp, pos, s.getResults().size(),s.getDbStartPos(Common.rice),hid); 
-//        out.println("Keys entered: "+qi.getInputCount()+"<br>");        
-//        
-//        out.println("<table cellspacing='0' cellpadding='0'><tr><td>");
-//        Common.printTotals(out,s,qi.getDisplayType()); 
-//        out.println("</td><td>");
-//        dv.printStats(out);
-//        out.println("</td></tr></table>");
-//        
-//        printPageControls(out,qi,hid);
-//        if(!qi.getDisplayType().equals("clusterView"))
-//            Common.printButtons(out,hid,pos,s.getResults().size(),rpp); 
-//
-//        dv.printData(out);
-//                
-//        printMismatches(out, s.notFound());
+                        
         out.println("</body>");
         out.println("</html>");
 
@@ -244,51 +213,7 @@ public class QueryPageServlet extends HttpServlet
             qi.setObject("rpp", new Integer(50));            
         }
         return qi;
-    }
- 
-    private void printPageControls(PrintWriter out,QueryInfo qi,int hid)
-    {
-        String action="QueryPageServlet?hid="+hid;        
-        int pos=qi.getCurrentPos();
-        int rpp=((Integer)qi.getObject("rpp")).intValue();
-        int end=qi.getSearch().getResults().size();
-        int c=2;
-        if(pos-rpp >=0 ) c++;
-        if(pos+rpp < end) c++;
-        
-        out.println("<table align='left' border='0'>");
-//        out.println("<tr><th colspan='"+c+"'>Page Switch</th>" +
-//            "<th colspan='"+qi.getDbs().length+"'>Go to: </th></tr>");
-        out.println("<tr>");        
-        out.println("<td><a href='"+action+"&pos=0'>Start</a></td>");
-        if(pos-rpp >= 0)        
-            out.println("<td><a href='"+action+"&pos="+(pos-rpp)+"'>Previous</a></td>");
-        if(pos+rpp < end)
-            out.println("<td><a href='"+action+"&pos="+(pos+rpp)+"'>Next</a></td>");        
-        out.println("<td><a href='"+action+"&pos="+(end-(end%rpp))+"'>End</a></td>");
-  
-        if(!qi.getDisplayType().equals("clusterView"))
-        {
-            out.println("<td>&nbsp&nbsp&nbsp&nbsp Go to: </td>");
-            for(int i=0;i<qi.getDbs().length;i++)        
-                out.println("<td><a href='"+action+"&pos="+qi.getSearch().getDbStartPos(qi.getDbs()[i])+"'>" +
-                    Common.dbPrintNames[qi.getDbs()[i]]+"</a></td>");
-        }
-        out.println("</tr>");
-        out.println("</table><p><br>");
-    }
-    private void printMismatches(PrintWriter out,List keys)
-    {
-        if(keys.size()==0) //don't print anything if there are no missing keys
-            return;
-        out.println("Keys not returned:");
-        for(int i=0;i<keys.size();i++)
-        {
-            if(i!=0)
-                out.println(", ");
-            out.println(keys.get(i));
-        }
-    }            
+    }   
     
     ///////////////////////////////////////////////////////////////////////////////////////////
    

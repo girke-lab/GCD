@@ -14,6 +14,7 @@ package servlets.dataViews;
 import java.util.*;
 import java.io.*;
 import servlets.Common;
+import servlets.dataViews.queryWideViews.*;
 
 public class GeneralDataView implements DataView
 {
@@ -383,9 +384,11 @@ public class GeneralDataView implements DataView
         this.seq_ids=ids;
     }
     
-    public boolean hasFeature(int f) {
-        return false;
-    }
+    public servlets.dataViews.queryWideViews.QueryWideView getQueryWideView() 
+    {
+        return new DefaultQueryWideView();
+    }    
+   
     
     class ClusterSet {
         public String clusterNum, size,name;

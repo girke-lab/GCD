@@ -30,6 +30,7 @@ public class UnknownsDatabase implements SearchableDatabase
     private int unaryBoundry; //seperates unary and binary ops in operators array
     private static DbConnection dbc=null;  //need a connection to a different database
     private static Logger log=Logger.getLogger(UnknownsDatabase.class);
+    private static SearchStateManager ssm=new SearchStateManager("UnknownDatabase.sss");
     
     /** Creates a new instance of UnknownsDatabase */
     public UnknownsDatabase() 
@@ -179,8 +180,7 @@ public class UnknownsDatabase implements SearchableDatabase
             fields[i]=new Field(printNames[i],dbNames[i]);
         
         operators=new String[]{"=","!=","<",">","<=",">=",
-                Common.ILIKE,"NOT "+Common.ILIKE,
-                "is NULL","is not NULL"};
+                "LIKE","NOT LIKE","is NULL","is not NULL"};
         unaryBoundry=9;
         booleans=new String[]{"and","or"};        
     }
@@ -236,14 +236,18 @@ public class UnknownsDatabase implements SearchableDatabase
 
         mRequest.getParameterMap().put("inputKey",inputStr.toString());
         
-        try{
-            
+        try{            
             context.getRequestDispatcher("/QueryPageServlet").forward(mRequest, response);    
         }catch(Exception e){
             log.error("could not forward to QueryPageServlet: "+e.getMessage());
             e.printStackTrace();
         }
         
+    }
+    
+    public SearchStateManager getSearchManager() 
+    {
+        return ssm;
     }
     
 }

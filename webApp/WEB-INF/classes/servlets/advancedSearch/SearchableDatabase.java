@@ -27,4 +27,5 @@ public interface SearchableDatabase
     
     public void displayResults(SearchState state, ServletContext context,
             HttpServletRequest request, HttpServletResponse response);
+    public SearchStateManager getSearchManager();
 }

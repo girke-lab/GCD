@@ -14,7 +14,7 @@ package servlets.advancedSearch;
 import java.util.*;
 import servlets.Common;
 
-public class SearchState 
+public class SearchState implements java.io.Serializable
 {
     List selectedFields;
     List selectedOps;
@@ -25,6 +25,7 @@ public class SearchState
     
     String limit;
     int sortField;
+    String description;
     
     /** Creates a new instance of SearchState */
     public SearchState()
@@ -36,6 +37,9 @@ public class SearchState
         endParinths=new ArrayList();
         values=new ArrayList();
     }
+    
+    
+    
     
     public void setSelectedFields(List l)
     {
@@ -159,5 +163,19 @@ public class SearchState
     public int getSortField()
     {
         return sortField;
+    }       
+    
+    public void setDescription(String d)
+    {
+        description=d;
+    }
+    public String getDescription()
+    {
+        return description;
+    }
+    
+    public String toString()
+    {
+        return description;
     }
 }

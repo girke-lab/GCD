@@ -24,6 +24,7 @@ public class CommonDatabase implements SearchableDatabase
     public String[] booleans;  
     
     private static Logger log=Logger.getLogger(CommonDatabase.class);
+    private static SearchStateManager ssm=new SearchStateManager("CommonDatabase.sss");
     
     /** Creates a new instance of CommonDatabase */
     public CommonDatabase() 
@@ -162,6 +163,11 @@ public class CommonDatabase implements SearchableDatabase
             e.printStackTrace();
         }
         
+    }
+    
+    public SearchStateManager getSearchManager() 
+    {
+        return ssm;
     }
     
 }

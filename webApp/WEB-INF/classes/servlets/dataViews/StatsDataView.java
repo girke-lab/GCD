@@ -13,6 +13,8 @@ package servlets.dataViews;
 
 import servlets.DbConnection;
 import org.apache.log4j.Logger;
+import servlets.dataViews.queryWideViews.*;
+import servlets.search.Search;
 
 public class StatsDataView implements DataView
 {
@@ -36,10 +38,14 @@ public class StatsDataView implements DataView
     }
     
     public void setIds(java.util.List ids) {
-    }
+    }        
     
-    public boolean hasFeature(int f) {
-        return false;
+    public QueryWideView getQueryWideView()
+    {
+       return new DefaultQueryWideView(){
+            public void printStats(java.io.PrintWriter out,Search search){}
+            public void printButtons(java.io.PrintWriter out, int hid,int pos,int size,int rpp){}            
+        };
     }
     
 }

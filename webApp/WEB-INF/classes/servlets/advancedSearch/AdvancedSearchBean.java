@@ -29,8 +29,10 @@ public class AdvancedSearchBean {
     ServletRequest request=null;
     ServletResponse response=null;
     
-    public SearchState currentState;
-    public SearchableDatabase db;
+    public SearchState currentState=null;
+    public SearchableDatabase db=null;
+    
+    private int selectedSearchState;
     
     private static Logger log=Logger.getLogger(AdvancedSearchBean.class);
     
@@ -40,8 +42,11 @@ public class AdvancedSearchBean {
         db=new CommonDatabase();        
     }
     public void setDatabase(String name)
-    {
+    {        //this is not storing state properly!!
         currentState=new SearchState();
+        if(db!=null)
+            return;
+        
         if(name.equals("common"))
             db=new CommonDatabase();
         else if(name.equals("unknowns"))
@@ -65,7 +70,7 @@ public class AdvancedSearchBean {
         else
             currentState.setSortField(Integer.parseInt(temp));
                 
-        currentState.setLimit(request.getParameter("limit"));
+        currentState.setLimit(request.getParameter("limit"));              
         
         processCommands(request);
     }
@@ -128,17 +133,54 @@ public class AdvancedSearchBean {
         request=rq;
         response=rs;
     }
-    
+    public String printStoreOptions()
+    {
+        StringBuffer out=new StringBuffer();
+        out.append("<table align='center'>\n");
+        out.append("<tr><th>Load Query</th><th>Store Query</th></tr>\n");
+        out.append("<tr><td>");
+        out.append(printStoredQueries());
+        out.append("</td><td>\n");
+        out.append(printSaveOptions());
+        out.append("</td></tr></table>");
+        return out.toString();
+    }
+    public String printStoredQueries()
+    {
+        StringBuffer out=new StringBuffer();
+        Collection c=db.getSearchManager().getSearchStateList();
+        int count=0;
+        log.debug("selected="+selectedSearchState);
+        out.append("<SELECT name='stored_query'>\n");
+        for(Iterator i=c.iterator();i.hasNext();count++)          
+        {
+            out.append("<OPTION value='"+count+"'");
+            if(count==selectedSearchState)
+                out.append(" selected ");
+            out.append(">"+i.next()+"\n");
+        }
+        out.append("</SELECT>\n");
+        out.append("<INPUT type=submit name='load_query' value='Load Query'>\n");
+        return out.toString();
+    }
+    public String printSaveOptions()
+    {
+        StringBuffer out=new StringBuffer();
+        //out.append("<h4>Save query: </h4>\n");
+        out.append("Description: <INPUT name='description'>\n ");
+        out.append("<INPUT type=submit name='store_query' value='Store Query'");
+        return out.toString();
+    }
 //////////////////// PRIVATE METHODS  ////////////////////////////////////    
     private void processCommands(HttpServletRequest request)
-    {
+    {        
         if(request.getParameter("remove") != null){
             String row=request.getParameter("row");    
             if(row==null)
                 return;            
             removeExpression(Integer.decode(row));
         }else if(request.getParameter("search") != null){
-            doQuery();
+            doQuery(); 
         }else if(request.getParameter("add_sub_exp") != null){
             //add parith at this location
             addSubExp(); //add current index to startPars
@@ -146,8 +188,28 @@ public class AdvancedSearchBean {
             endSubExp(); //add current index to endPars
         }else if(request.getParameter("add_exp") != null){
             //nothing to do
-        }else if(request.getParameter("action") !=null)
+        }else if(request.getParameter("load_query")!=null){
+            log.debug("loading query");
+            try{
+               selectedSearchState=Integer.parseInt(request.getParameter("stored_query"));               
+            }catch(Exception e){ 
+               selectedSearchState=0; 
+            }
+            if(selectedSearchState >=0 && 
+               selectedSearchState < db.getSearchManager().getSearchStateList().size())
+                currentState=db.getSearchManager().getSearchState(selectedSearchState);
             lastWasRemove=true;
+        }else if(request.getParameter("store_query")!=null){
+            log.debug("storing query");
+            String desc=request.getParameter("description");
+            if(desc!=null){                
+                currentState.setDescription(desc);
+                db.getSearchManager().addSearchState(currentState);
+            }
+            lastWasRemove=true;
+        }else if(request.getParameter("action") !=null){ //this should always be the last case
+            lastWasRemove=true;
+        }
         
     }
     private void removeExpression(Integer row)
