@@ -37,12 +37,16 @@ public class SeqDataView implements DataView
     public SeqDataView() {
     }
     
-    public void setData(java.util.List ids, String sortCol, int[] dbList, int hid) 
-    {
-        this.seq_ids=ids;        
+    public void setData(String sortCol, int[] dbList, int hid) 
+    {            
         this.sortCol=sortCol;
         this.hid=hid;
         this.dbNums=dbList;
+    }
+    public void setIds(java.util.List ids) 
+    {
+        this.seq_ids=ids;
+        loadData(); //update data to reflect new id numbers
     }
     public void printHeader(java.io.PrintWriter out) {
         Common.printForm(out,hid);    
@@ -59,7 +63,9 @@ public class SeqDataView implements DataView
             loadData();
         printCounts(out,records);
     }    
-    
+    public boolean hasFeature(int f) 
+    {
+    }   
     
 ///////////////////////////////////////////////////////////////////////
     private void loadData()
@@ -179,6 +185,11 @@ public class SeqDataView implements DataView
         log.info("sequence view query: "+query);
         return query.toString();
     }
+    
+    public boolean hasFeature(int f) {
+    }    
+    
+    
 //////////////////////////////////////////////////////////////////////
     //  Classes 
 //////////////////////////////////////////////////////////////////////    

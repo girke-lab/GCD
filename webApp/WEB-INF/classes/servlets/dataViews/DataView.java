@@ -25,7 +25,9 @@ public interface DataView
      * @param dbList list of genome ids
      * @param hid history id
      */    
-    void setData(java.util.List ids,String sortCol,int[] dbList,int hid);
+    void setData(String sortCol,int[] dbList,int hid);
+    
+    void setIds(java.util.List ids);
     
     /**
      * Should print just the data. This method will be called last.
@@ -45,4 +47,6 @@ public interface DataView
      * @param out used for output
      */    
     void printStats(java.io.PrintWriter out);
+    
+    boolean hasFeature(int f);
 } 

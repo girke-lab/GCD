@@ -37,7 +37,7 @@ public class GeneralDataView implements DataView
         printSummary(out, data, findGoNumbers(seq_ids), findClusterNumbers(seq_ids), dbNums, hid);
     }
     
-    public void setData(java.util.List ids, String sortCol, int[] dbList, int hid) 
+    public void setData(String sortCol, int[] dbList, int hid) 
     {
         this.seq_ids=ids;
         this.sortCol=sortCol;
@@ -378,6 +378,12 @@ public class GeneralDataView implements DataView
     
     public void printStats(java.io.PrintWriter out) {
     }    
+    
+    public void setIds(java.util.List ids) {
+    }
+    
+    public boolean hasFeature(int f) {
+    }
     
     class ClusterSet {
         public String clusterNum, size,name;

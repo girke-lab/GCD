@@ -23,7 +23,7 @@ public class StatsDataView implements DataView
     }
     
     public void printData(java.io.PrintWriter out) {
-        out.println(DbConnection.getStats());
+        //out.println(DbConnection.getStats());
     }
     
     public void printHeader(java.io.PrintWriter out) {
@@ -32,7 +32,13 @@ public class StatsDataView implements DataView
     public void printStats(java.io.PrintWriter out) {
     }
     
-    public void setData(java.util.List ids, String sortCol, int[] dbList, int hid) {
+    public void setData(String sortCol, int[] dbList, int hid) {
+    }
+    
+    public void setIds(java.util.List ids) {
+    }
+    
+    public boolean hasFeature(int f) {
     }
     
 }

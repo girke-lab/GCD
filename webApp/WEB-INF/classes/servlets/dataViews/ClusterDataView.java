@@ -46,12 +46,15 @@ public class ClusterDataView implements DataView
         printSummary(out,data,dbNums,hid);
     }
     
-    public void setData(java.util.List ids, String sortCol, int[] dbList, int hid) 
-    {//this class expexts cluster_id numbers as input
-        this.seq_ids=ids;        
+    public void setData(String sortCol, int[] dbList, int hid) 
+    {//this class expexts cluster_id numbers as input    
         this.sortCol=sortCol;
         this.hid=hid;
         this.dbNums=dbList;
+    }
+    public void setIds(java.util.List ids) 
+    {
+        this.seq_ids=ids;                
     }
     private void printCounts(PrintWriter out,List data)
     {
@@ -159,5 +162,9 @@ public class ClusterDataView implements DataView
      public void printStats(java.io.PrintWriter out) {
          Common.printPageStats(out, 0,0, seq_ids.size());
      }
+     
+     public boolean hasFeature(int f) {
+     }     
+     
      
 }

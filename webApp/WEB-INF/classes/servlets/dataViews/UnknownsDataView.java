@@ -12,7 +12,7 @@ package servlets.dataViews;
  */
 
 import java.util.*;
-import java.io.PrintWriter;
+import java.io.*;
 import servlets.*;
 import org.apache.log4j.Logger;
 
@@ -22,17 +22,25 @@ public class UnknownsDataView implements DataView
     int hid;
     String sortCol;
     int[] dbNums;
+    String tempPath;
     DbConnection dbc=null;
     static Logger log=Logger.getLogger(UnknownsDataView.class);
     
     /** Creates a new instance of UnknownsDataView */
     public UnknownsDataView() 
     {
+        tempPath="";
         dbc=DbConnectionManager.getConnection("unknowns");
         if(dbc==null)
             log.error("could not get db connection to unknowns");
     }
-    
+    public UnknownsDataView(String tempPath) 
+    {
+        this.tempPath=tempPath;
+        dbc=DbConnectionManager.getConnection("unknowns");
+        if(dbc==null)
+            log.error("could not get db connection to unknowns");
+    }
     public void printData(java.io.PrintWriter out) 
     {
         List data=getData();
@@ -49,12 +57,15 @@ public class UnknownsDataView implements DataView
         out.println(seq_ids.size()+" records found");
     }
     
-    public void setData(java.util.List ids, String sortCol, int[] dbList, int hid) 
-    {
-        this.seq_ids=ids;
+    public void setData(String sortCol, int[] dbList, int hid) 
+    {    
         this.hid=hid;
         this.sortCol=sortCol;
         this.dbNums=dbList;
+    }
+    public void setIds(java.util.List ids) 
+    {
+         this.seq_ids=ids;   
     }
     
     ////////////////////////////////////////////////////////////////
@@ -63,16 +74,30 @@ public class UnknownsDataView implements DataView
     {
          String titleColor="AAAAAA", dataColor="D3D3D3";
          String lastId="";
+         StringBuffer fileOutput=new StringBuffer(1000);
+         File tempFile=null;
          if(data==null)
              return;
-         
+         try{
+            log.debug("temp dir in dataview is "+tempPath);
+            tempFile=File.createTempFile("results",".csv",new File(tempPath)); 
+            TempFileCleaner.getInstance().addFile(tempFile);
+         }catch(IOException e){
+             log.warn("could not create temp file: "+e.getMessage());
+         }
+         if(tempFile!=null)
+            out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>");
          out.println("<TABLE border='1' cellspacing='0' cellpadding='0' bgcolor='"+dataColor+"'>");
          out.println("<TR bgcolor='"+titleColor+"'>");
-         out.print("<th>Unknown_id</th>");
+         out.print("<th>Unknown_id</th>");         
          for(int i=0;i<printNames.length;i++) //print titles
+         {
              out.print("<th>"+printNames[i]+"</th>");
+             fileOutput.append(printNames[i]+", ");
+         }
          //out.println("<th colspan='5'>"+printNames[printNames.length-1]+"</th>");
          out.println("</TR><tr>");
+         fileOutput.append("\n");
          for(Iterator i=data.iterator();i.hasNext();)
          {
             List row=(List)i.next();
@@ -80,10 +105,12 @@ public class UnknownsDataView implements DataView
             {               
                 //then just print the last element
                 out.println(" &nbsp&nbsp&nbsp "+row.get(row.size()-1));
+                fileOutput.append(row.get(row.size()-1)+", ");
             }
             else{ //new record
                 lastId=(String)row.get(0);
                 out.println("</td></tr><tr>");
+                fileOutput.append("\n");
                 for(Iterator j=row.iterator();j.hasNext();)
                 {
                     String t=(String)j.next();
@@ -93,10 +120,19 @@ public class UnknownsDataView implements DataView
                         out.print("<td>"+t);             
                     if(j.hasNext()) //don't print last td, so we can put more treatments in cell
                         out.println("</td>");
+                    
+                    fileOutput.append(t+", ");
                 }
             }            
          }
          out.println("</td></tr></TABLE>");
+         fileOutput.append("\n");
+         try{
+            if(tempFile!=null)
+                new FileOutputStream(tempFile).write(fileOutput.toString().getBytes());
+         }catch(Exception e){
+             log.warn("could not write to tempfile "+tempFile.getPath()+": "+e.getMessage());
+         }
     }
     
     private List getData()
@@ -125,6 +161,9 @@ public class UnknownsDataView implements DataView
         log.info("query is: "+query);
         return query;
     }
+  
+    public boolean hasFeature(int f) {
+    }    
     
     String[] printNames=new String[]{
             "At Key" ,

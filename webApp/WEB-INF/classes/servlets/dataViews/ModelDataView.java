@@ -63,9 +63,8 @@ public class ModelDataView implements DataView
             loadData();
         Common.printPageStats(out, seq_ids.size(),data.size(),-1);
     }    
-    public void setData(java.util.List ids, String sortCol, int[] dbList, int hid) 
-    {
-        this.seq_ids=ids;
+    public void setData(String sortCol, int[] dbList, int hid) 
+    {        
         this.sortCol=sortCol;
         this.dbs=dbList;
         this.hid=hid;
@@ -77,6 +76,11 @@ public class ModelDataView implements DataView
         mqi=getOptions(mqi_temp);        
         qi.setObject("ModelQueryInfo",mqi);
         defineNames();
+    }    
+    public void setIds(java.util.List ids) 
+    {
+        this.seq_ids=ids;   
+        loadData();
     }
     
 /////////////////////////////////////////////////////////////////////////////
@@ -297,6 +301,9 @@ public class ModelDataView implements DataView
         printNames[4]="Promoter 1500";printNames[5]="3`UTR";printNames[6]="Intergenic";printNames[7]="CDS";
         printNames[8]="5`UTR";printNames[9]="Protein";        
     }
+     
+     
+     
     class ModelQueryInfo implements java.io.Serializable
     {
         public int[] fieldNums=new int[fieldCount];       
