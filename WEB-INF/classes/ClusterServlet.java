@@ -38,10 +38,10 @@ public class ClusterServlet extends HttpServlet {
     {
         HttpSession session=request.getSession(false); //a session must already exist
         response.setContentType("text/html");
-        java.io.PrintWriter out = response.getWriter();
+//        java.io.PrintWriter out = response.getWriter();
         if(session==null)
         {
-            out.println("no session");
+//            out.println("no session");
             return;
         }
         
@@ -55,40 +55,41 @@ public class ClusterServlet extends HttpServlet {
         
         if(cid==null || cid=="")
         {
-            out.println("No data");
+ //           out.println("No data");
             return;
         }            
 ////////////////////////////////////////////////////////////////////////////////
-        out.println("<html>");
-        out.println("<head>");
-        out.println("<title>Clusters</title>");
-        Common.javaScript(out);
-        out.println("</head>");
-        out.println("<BODY bgcolor=\"#FFFFFF\" text=\"#000000\" link=\"#000000\" vlink=\"#000000\" alink=\"#000000\">");     
-        Common.printHeader(out);
-        Common.navLinks(out);
+   //     out.println("<html>");
+   //     out.println("<head>");
+   //     out.println("<title>Clusters</title>");
+   //     Common.javaScript(out);
+   //     out.println("</head>");
+   //     out.println("<BODY bgcolor=\"#FFFFFF\" text=\"#000000\" link=\"#000000\" vlink=\"#000000\" alink=\"#000000\">");     
+   //     Common.printHeader(out);
+   //     Common.navLinks(out);
 ////////////////////////////////////////////////////////////////////////////////         
         for(int i=0;i<1  /*qi.dbsLength*/  ;i++)
         {//temporarily use only arab because rice query is still emtpy
             data=getClusters(cid,qi.dbNums[i]);
-	    dispatcher=getServletContext().getRequestDispatcher(getQuerURL(data));
+     //       Common.printList(out,data);
+	    dispatcher=getServletContext().getRequestDispatcher(getQueryURL(data));
 	    if(dispatcher==null){
-	    	out.println("no dispatcher");
+//	    	out.println("no dispatcher");
 		return;
 	    }
 	    dispatcher.forward(request,response);
-            printClusters(out,data);
+            //printClusters(out,data);
         }        
-        out.println("</body>");
-        out.println("</html>");
-        out.close();
+//        out.println("</body>");
+//        out.println("</html>");
+//        out.close();
     }
     
     private List getClusters(String clusterID, int currentDB)
     {
         return Common.sendQuery(clusterQuery(clusterID,currentDB),3);
     }
-    private String getQuerURL(List data)
+    private String getQueryURL(List data)
     {
 	StringBuffer queryURL=new StringBuffer();
 	queryURL.append("/index.jsp?limit=0&input=");
@@ -122,12 +123,16 @@ public class ClusterServlet extends HttpServlet {
     private String clusterQuery(String id,int currentDB)
     {
         String query="";
-        if(currentDB==arab)
-            query=new String("Select Clusters.ClusterNum,Clusters.Atnum,"+
-                "TIGR_Data.Description FROM TIGR_Data LEFT JOIN Clusters "+
-                "USING (Atnum) WHERE Clusters.ClusterNum='"+id+"'");
-        else if(currentDB==rice)
-            ;
+        query=new String("SELECT Clusters.Cluster_id, Sequences.Primary_Key, Sequences.Description "+
+                         "FROM Sequences, Clusters "+
+                         "WHERE Sequences.Seq_id=Clusters.Seq_id AND Clusters.Cluster_id='"+id+"'");
+        
+//        if(currentDB==arab)
+//            query=new String("Select Clusters.ClusterNum,Clusters.Atnum,"+
+//                "TIGR_Data.Description FROM TIGR_Data LEFT JOIN Clusters "+
+//                "USING (Atnum) WHERE Clusters.ClusterNum='"+id+"'");
+//        else if(currentDB==rice)
+//            ;
         System.out.println("Cluster query is "+query);
         return query;            
     }

@@ -98,7 +98,7 @@ function MM_nbGroup(event, grpName) { //v6.0
         if(input==null)
             input=new String("");
         if(limit==null)
-            limit=new String("5");
+            limit=new String("50");
     %>   
   
 <table width="800" border="0" cellspacing="0" cellpadding="0">
@@ -128,7 +128,6 @@ function MM_nbGroup(event, grpName) { //v6.0
 
  
 	<FORM NAME="form1" METHOD=POST ACTION="/databaseWeb/QueryPageServlet"  target="rd" >   
-<!--            <INPUT type=hidden name='dbs' value='0'> -->
             <TABLE width='70%' align='center' border='0'>
 	    	<TR>
 		    <TD colspan='2' align='center'>

@@ -105,10 +105,8 @@ public class SequenceServlet extends HttpServlet
             keySet=qi.getKeySet(i); //keySet will be a list of Seq_id numbers, not Accession numbers
 //            keySet=(ArrayList)keys.get(i);
             main=searchByKey(keySet,qi.limit,qi.dbNums[i],fieldNums,fieldsLength);
-            Common.blastLinks(out,qi.dbNums[i],hid);
+            //Common.blastLinks(out,qi.dbNums[i],hid);
             printFasta(out,main,qi.dbNums[i],fieldNums,length,format);            
-//            Common.printList(out,main);
-            
         }
         exit(out);    
     }
@@ -125,7 +123,7 @@ public class SequenceServlet extends HttpServlet
         StringBuffer conditions=new StringBuffer();
         StringBuffer feildCombo=new StringBuffer();            
         List rs=null;
-        int fieldCount=2; //we add id and description, and maybe Id2
+        int fieldCount=3; //we add id and description, and maybe Id2
         int count=0; //used to limit number of keys actually sent to database
         
         currentDB=0;//we no longer need to distiguish between databases, so just use 0
@@ -133,6 +131,7 @@ public class SequenceServlet extends HttpServlet
         //always add the key field, then, if we have the rice DB, add the second key field
         //then append the description field
         feildCombo.append(fullNames[currentDB][0]);
+        feildCombo.append(", "+fullNames[currentDB][1]);
 //        if(currentDB==rice)
 //        {
 //            feildCombo.append(", "+fullNames[currentDB][1]);
@@ -168,6 +167,7 @@ public class SequenceServlet extends HttpServlet
         if(rs==null || rs.size()==0)
             return;
         int fieldsLength=((ArrayList)rs.get(0)).size();
+        currentDB=0; //don't distigiush between databases anymore
         try{
             out.println("<FORM METHOD='POST' ACTION='http://138.23.191.152/blast/blastSearch.cgi'>");
             out.println("<INPUT type='submit' value='Blast it'><BR>");
@@ -176,7 +176,11 @@ public class SequenceServlet extends HttpServlet
             for(ListIterator l=rs.listIterator();l.hasNext();)
             {
                 List row=(ArrayList)l.next();
-                key=(String)row.get(0);
+                key=(String)row.get(0); //accession number
+                key2=(String)row.get(1); //model accession number
+                desc=(String)row.get(2); //description
+                start=3;
+/*
                 if(currentDB==rice)
                 {
                     key2=(String)row.get(1);
@@ -189,14 +193,15 @@ public class SequenceServlet extends HttpServlet
                     desc=(String)row.get(1);
                     start=2;
                 }
+ */
                 if(currentDB==arab)
                     standard.append("\t<TR bgcolor='"+colors[0]+"'><TH>Links</TH>"+
-                        "<TD><a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+key.substring(0,key.length()-2)+
+                        "<TD><a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+key+
                         "'>MIPS</a>&nbsp&nbsp"+
                         "<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+
-                        "ORF_infopage.cgi?db=ath1&orf="+key.substring(0,key.length()-2)+"'>TIGR</a></TD></TR>");      
-                standard.append("\t<TR bgcolor='"+colors[0]+"'><TH align='left'>Id 1</TH><TD>"+key+"</TD></TR>"+
-                    "\t<TR bgcolor='"+colors[1]+"'><TH align='left'>Id 2</TH><TD>"+key2+"</TD></TR>"+
+                        "ORF_infopage.cgi?db=ath1&orf="+key+"'>TIGR</a></TD></TR>");      
+                standard.append("\t<TR bgcolor='"+colors[0]+"'><TH align='left'>Accession</TH><TD>"+key+"</TD></TR>"+
+                    "\t<TR bgcolor='"+colors[1]+"'><TH align='left'>Model Accession</TH><TD>"+key2+"</TD></TR>"+
                     "\t<TR bgcolor='"+colors[2]+"'><TH align='left'>Description</TH><TD>"+desc+"</TD></TR>\n");
 
                 int index=0;                
@@ -204,7 +209,7 @@ public class SequenceServlet extends HttpServlet
                 {   
                     data=(String)row.get(f);      
                     if(fullNames[currentDB][currentFeildNums[index]].length()==0)
-                        index++; //3UTR and 5UTR are empyt, so skip them 
+                        index++; //3UTR and 5UTR are empty, so skip them 
                     if(data==null || data.compareTo("")==0 )//|| currentFeildNums[index]==3)
                     {
                         index++;
@@ -214,16 +219,25 @@ public class SequenceServlet extends HttpServlet
                     fastaOutput.append(record.toString());
                     record.setLength(0);
                     
-                    if(currentFeildNums[index]==9)   //trim output feilds to length
-                        record.append(data.toUpperCase()+"\n");
-                    else if(length > 0 && length < data.length())
-                        record.append(data.substring(0,length).toUpperCase()+"\n");
+                    if(currentFeildNums[index]==4) //deal with the promoter
+                        if(data.length() > 3000) //only trim if it is greater than 3000
+                            data=data.substring(0,3000).toUpperCase(); //trim the intergenic to 3000 
+                    else if(currentFeildNums[index]==3) //dont uppercase the TU
+                        ; //dont change data at all                    
+                    else if(currentFeildNums[index]==9)//dont trim the protein  
+                        data=data.toUpperCase();
+                        //record.append(data.toUpperCase()+"\n");
+                    else if(length > 0 && length < data.length())  //trim output feilds to length
+                        data=data.substring(0,length).toUpperCase();
+                        //record.append(data.substring(0,length).toUpperCase()+"\n");
                     else if(length < 0 && (-1*length) < data.length())
                         //length is negative, so adding it to data.lenth moves back from the end
-                        record.append(data.substring(data.length()+length,data.length()).toUpperCase()+"\n");
+                        data=data.substring(data.length()+length,data.length()).toUpperCase();
+                        //record.append(data.substring(data.length()+length,data.length()).toUpperCase()+"\n");
                     else //length==0
-                        record.append(data.toUpperCase()+"\n");
-                    
+                        data=data.toUpperCase();
+                        //record.append(data.toUpperCase()+"\n");
+                    record.append(data+"\n");
                     standard.append("\t<TR bgcolor='"+colors[currentFeildNums[index]]+"'>"+
                         "<TH align='left'>"+printNames[currentFeildNums[index]]+"</TH>"+
                         "<TD>"+record.toString()+"</TD></TR>\n");
@@ -249,8 +263,8 @@ public class SequenceServlet extends HttpServlet
     private String buildGeneralStatement(String feilds, String conditions,int limit,int currentDB)
     {
         StringBuffer general=new StringBuffer();
-        general.append("SELECT "+feilds+" FROM Id_Associations LEFT JOIN Sequences "+
-                       "USING(Seq_id) LEFT JOIN Models USING(Seq_id) WHERE "+conditions+
+        general.append("SELECT "+feilds+" FROM Sequences "+
+                       " LEFT JOIN Models USING(Seq_id) WHERE "+conditions+
                        " ORDER BY "+fullNames[0][0]);
 //        if(currentDB==arab)  //ID is a global varibale used to kill the query at a later time
 //            general.append("/*"+ID+"*/SELECT "+feilds+" FROM TIGR_Data WHERE "+conditions+" ORDER BY Atnum");
@@ -290,7 +304,7 @@ public class SequenceServlet extends HttpServlet
 //        fullNames[1][3]="Rice.Rice_Data.TU";fullNames[1][4]="Rice.Rice_Data.Promoter";fullNames[1][5]="";
 //        fullNames[1][6]="Rice.Rice_Data.Intergenic";fullNames[1][7]="Rice.Rice_Data.CDS";fullNames[1][8]="";
 //        fullNames[1][9]="Rice.Rice_Data.Protein";
-        fullNames[0][0]="Id_Associations.Accession";fullNames[0][1]="Id_Associations.OS_id";fullNames[0][2]="Sequences.Description";
+        fullNames[0][0]="Sequences.Primary_Key";fullNames[0][1]="Models.Model_accession";fullNames[0][2]="Sequences.Description";
         fullNames[0][3]="Models.TU";fullNames[0][4]="Sequences.Intergenic";fullNames[0][5]="Models.3UTR";
         fullNames[0][6]="Sequences.Intergenic";fullNames[0][7]="Models.CDS";fullNames[0][8]="Models.5UTR";
         fullNames[0][9]="Models.Protein";

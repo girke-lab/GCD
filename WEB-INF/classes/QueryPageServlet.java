@@ -121,12 +121,12 @@ public class QueryPageServlet extends HttpServlet
                 main=searchByKey(inputKeys,limit,dbNums[i]);
                 keysNotFound=findMismatches(inputKeys, main,dbNums[i]);
             }
-            Common.printList(out,main);
+            //Common.printList(out,main);
             returnedKeys=getKeysReturned(main); //gets the actual keys returned by the DB
-             //these shoule be Seq_id numbers, not accession numbers.
+             //these should be Seq_id numbers, not accession numbers.
             qi.addKeySet(returnedKeys);
             
-            Common.blastLinks(out,dbNums[i],hid);
+            //Common.blastLinks(out,dbNums[i],hid);
             printSummary(out,main,dbNums[i],hid);
             if(keysNotFound!=null)
                 printMismatches(out,keysNotFound);
@@ -173,7 +173,7 @@ public class QueryPageServlet extends HttpServlet
         }
         
 //        conditions.append(" limit "+limit);//set max number of records to return
-        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),3);
+        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),4);
 //        for(int i=0;i<rs.size();i++)  //restructure rs from an  array of array of keys                                    
 //            rs.set(i,(String)((ArrayList)rs.get(i)).get(0));//to just an array of keys.
         return rs;
@@ -184,7 +184,7 @@ public class QueryPageServlet extends HttpServlet
         ListIterator in=input.listIterator();
         StringBuffer conditions=new StringBuffer();
         List rs=null;
-        int count=0,fieldCount=3;
+        int count=0,fieldCount=4;
 //        if(db==rice) fieldCount=3;
         while(in.hasNext() && count++ < limit) //build condtions
             conditions.append(likeExpression((String)in.next(),db));
@@ -205,11 +205,22 @@ public class QueryPageServlet extends HttpServlet
         colors[1]=new String("26F5CC"); //00cc00
         out.println("<TABLE align='center' border='0'>");
 	for(Iterator i=data.iterator();i.hasNext();)
-	    keyList.append("accession[]="+((ArrayList)i.next()).get(0)+"&");
-	out.println("<a href='http://bioinfo.ucr.edu/projects/generic/multigene.xphp?"+keyList+"'>All Gene Strucures</a>");
+	    keyList.append("accession="+((ArrayList)i.next()).get(0)+"&");        
+	out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/multigene.pl?"+keyList+"'>All Gene Strucures</a>");
         while(li.hasNext())
         {
             row=(ArrayList)li.next();
+            
+            //do this for both databases now
+            key=(String)row.get(0);
+            clusterNum=(String)row.get(3);
+            out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Links</TH>");
+            printArabLinks(out,key,clusterNum,hid);
+            out.println("</TR>");
+
+            out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Key</TH>");
+            out.println("<TD>"+row.get(0)+"</TD></TR>");
+/*            
             if(currentDB==arab)
             {
                 key=(String)row.get(0);
@@ -231,11 +242,12 @@ public class QueryPageServlet extends HttpServlet
                 out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Id 2</TH>");
                 out.println("<TD>"+row.get(1)+"</TD></TR>");
             }                
+ */
             out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Description</TH>");
-            if(currentDB==arab)
+//            if(currentDB==arab)
                 out.println("<TD>"+row.get(1)+"</TD></TR>");
-            else if(currentDB==rice)
-                out.println("<TD>"+row.get(2)+"</TD></TR>");
+//            else if(currentDB==rice)
+//                out.println("<TD>"+row.get(2)+"</TD></TR>");
             out.println("<TR><TD colspan='2'>&nbsp</TD></TR>");
             
         }
@@ -333,7 +345,7 @@ public class QueryPageServlet extends HttpServlet
     {//this should no longer be used
         String desc=null;
         desc=new String("SELECT "+fullNames[0]+" FROM Id_Associations LEFT JOIN "+
-                        "Sequences USING(Seq_id) WHERE ");
+                        "Sequences USING(Seq_id)  WHERE ");
         
         if(currentDB==arab)
             desc+=" Genome='arab' and ";
@@ -355,15 +367,16 @@ public class QueryPageServlet extends HttpServlet
     {
         StringBuffer general=new StringBuffer();
                                 //Accession                               //description
-        general.append("SELECT Sequences.Primary_Key, "+fullNames[1]+",Sequences.Seq_id FROM Id_Associations LEFT JOIN "+
-                        "Sequences USING(Seq_id) WHERE ");
+        general.append("SELECT DISTINCT Sequences.Primary_Key, "+fullNames[1]+",Sequences.Seq_id, Clusters.Cluster_id "+
+                       "FROM Id_Associations, Sequences, Clusters "+
+                       "WHERE Sequences.Seq_id=Id_Associations.Seq_id AND Sequences.Seq_id=Clusters.Seq_id AND ");                        
         
         if(currentDB==arab)
             general.append(" Genome='arab' and ");
         else if(currentDB==rice)
             general.append(" Genome='rice' and ");        
         
-        general.append(conditions+" ORDER BY "+fullNames[0]);
+        general.append("( "+conditions+" ) ORDER BY "+fullNames[0]);
         /*
         if(currentDB==arab)  //ID is a global varibale used to kill the query at a later time
             general.append("SELECT TIGR_Data.Atnum,TIGR_Data.Description, Clusters.ClusterNum"+
