@@ -74,12 +74,6 @@ public class Unknowns2Database extends DefaultSearchableDatabase
             new Field("At key",db+"unknown_keys.key",List.class),
             new Field("Description",db+"unknown_keys.description"),
             new Field("Number of ests",db+"unknown_keys.est_count",Integer.class),
-            new Field("Molecular function unknown?",db+"unknown_keys.mfu",
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field("Cellular component unknown?",db+"unknown_keys.ccu",
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field("Biological process unknown?",db+"unknown_keys.bpu",
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
                         
             new Field("Similarity Searches (best per db)",""),                        
             new Field(space+"database",db+"blast_summary_view.db_name",             
@@ -94,10 +88,17 @@ public class Unknowns2Database extends DefaultSearchableDatabase
             new Field(space+"identities",db+"blast_summary_view.identities"),            
             
             new Field("GO",""),
-            new Field(space+"number",db+"go_view.go_number"),
+            new Field(space+"number",db+"go_view.go_number",List.class),
             new Field(space+"description",db+"go_view.text"),
             new Field(space+"function",db+"go_view.function",
                         new String[]{"process","component","function"}),
+            new Field(space+"Molecular function unknown?",db+"unknown_keys.mfu",
+                        Boolean.class,new String[]{"TRUE","FALSE"}),
+            new Field(space+"Cellular component unknown?",db+"unknown_keys.ccu",
+                        Boolean.class,new String[]{"TRUE","FALSE"}),
+            new Field(space+"Biological process unknown?",db+"unknown_keys.bpu",
+                        Boolean.class,new String[]{"TRUE","FALSE"}),
+                    
                         
             new Field("Clusters",""),
             new Field(space+"Score Threshold",db+"cluster_info_and_counts_view.cutoff",Integer.class,

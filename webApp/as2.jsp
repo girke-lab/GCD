@@ -13,7 +13,7 @@
             bean.initPage(application,request,response);
             bean.setPrintAmdinControls(true);
                         
-            bean.drawSearchForm(out,new String[]{"unknowns","unknowns2"});
+            bean.drawSearchForm(out,new String[]{"common","unknowns","unknowns2"});
         %>
         <h4> Usage: </h4>
         <p>

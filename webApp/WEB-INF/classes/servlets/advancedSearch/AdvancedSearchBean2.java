@@ -72,8 +72,8 @@ public class AdvancedSearchBean2
         
         if(name==null)
             setDatabase(defaultDb);
-//        else if(name.equals("common"))
-//            db=new CommonDatabase();
+        else if(name.equals("common"))
+            db=new CommonDatabase();
         else if(name.equals("unknowns"))
             db=new UnknownsDatabase();
         else if(name.equals("unknowns2"))

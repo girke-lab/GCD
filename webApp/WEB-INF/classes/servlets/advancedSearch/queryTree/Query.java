@@ -79,4 +79,14 @@ public class Query extends QueryTreeNode
     { 
         v.visit(this);
     }
+
+    public void setFields(List fields)
+    {
+        this.fields = fields;
+    }  
+
+    public void setOrder(Order order)
+    {
+        this.order = order;
+    }
 }

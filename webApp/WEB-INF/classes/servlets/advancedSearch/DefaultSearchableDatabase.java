@@ -196,8 +196,14 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         expSet=buildExpression(state,tables);
         
         //make sure we add the table we're sorting by.
-        expSet.setJoins(updateJoin(expSet.getJoins(),getTableName(getFields()[state.getSortField()].dbName),tables));
-                
+        Expression j=expSet.getJoins();
+        j=updateJoin(j,getTableName(getFields()[state.getSortField()].dbName),tables);                    
+        
+        //add any user joins.
+        for(Iterator i=additionalJoins().iterator();i.hasNext();)
+            j=updateJoin(j,(String)i.next(),tables);
+        expSet.setJoins(j);    
+        
         if(expSet.getJoins()==null)
             condition= expSet.getRestrictedValues();
         else if(expSet.getRestrictedValues()==null) //this should never happen
@@ -212,6 +218,14 @@ public class DefaultSearchableDatabase implements SearchableDatabase
             condition=new Operation("=",new DbField(rootTableName+"."+defaultColumn,String.class),
                     new StringLiteralValue(""));
         return condition;
+    }
+    /**
+      this method exists for subclasses to override so they can
+      easily add additional tables to select from.
+    */
+    protected List additionalJoins()
+    { 
+        return new ArrayList(0);
     }
     private ExpressionSet buildExpression(SearchState state,Set tables)
     {
