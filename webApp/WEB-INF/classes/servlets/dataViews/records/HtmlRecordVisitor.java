@@ -80,40 +80,17 @@ public class HtmlRecordVisitor implements RecordVisitor
         
         for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
         {
-            o=i.next();
-            if(o==null)
-                log.debug("o is null");
-            rg=(RecordGroup)o;
-            //rg=(RecordGroup)i.next();
+//            o=i.next();
+//            if(o==null)
+//                log.debug("o is null");
+//            rg=(RecordGroup)o;
+            rg=(RecordGroup)i.next();
             out.write("<tr><td colspan='5'><TablE bgcolor='"+Common.dataColor+"' width='100%'" +
                 " border='1' cellspacing='0' cellpadding='0'>\n");
             rg.printRecords(out,this); 
             out.write("</TablE></td></tr>\n");
         }
-        out.write("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>\n");
-                
-//        Record rec;
-//        Collection list;
-//        boolean firstRecord;
-//        
-//        for(Iterator i=ur.subRecords.values().iterator();i.hasNext();) 
-//        {            
-//            list=(Collection)i.next();
-//            if(list==null) continue;
-//            firstRecord=true;
-//            
-//            for(Iterator j=list.iterator();j.hasNext();)
-//            {
-//                rec=(Record)j.next();
-//                if(firstRecord){
-//                    rec.printHeader(out,this);
-//                    firstRecord=false;
-//                }
-//                rec.printRecord(out,this);
-//                if(!j.hasNext()) //this is the last record
-//                    rec.printFooter(out,this);
-//            }            
-//        }        
+        out.write("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>\n");                
     }
     public void printFooter(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {        

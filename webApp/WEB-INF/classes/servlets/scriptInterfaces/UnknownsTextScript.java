@@ -16,15 +16,8 @@ import java.util.*;
 import java.io.*;
 import org.apache.log4j.Logger;
 import servlets.*;
-import servlets.dataViews.records.GoRecord;
-import servlets.dataViews.records.BlastRecord;
-import servlets.dataViews.records.TextRecordVisitor;
-import servlets.dataViews.records.ProteomicsRecord;
-import servlets.dataViews.records.UnknownRecord;
-import servlets.dataViews.records.ExternalUnknownRecord;
-import servlets.dataViews.records.Record;
-import servlets.dataViews.records.RecordVisitor;
-import servlets.dataViews.records.ClusterRecord;
+import servlets.dataViews.records.*;
+
 
 public class UnknownsTextScript implements Script
 {
@@ -46,47 +39,36 @@ public class UnknownsTextScript implements Script
     
     private Collection getRecords(List ids)
     { //method 2, multiple queries
-        Map records,t;
-        Map[] subRecordMaps=new Map[]{
-            GoRecord.getData(dbc,ids),
-            BlastRecord.getData(dbc,ids),            
-            ProteomicsRecord.getData(dbc,ids),
-            ClusterRecord.getData(dbc,ids),
-            ExternalUnknownRecord.getData(dbc,ids)
-        };
-        //these names must appear in the same order as the subRecordMaps array
-        String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters","externals"};
         
-        records=UnknownRecord.getData(dbc,ids); 
-        
-        for(Iterator i=records.entrySet().iterator();i.hasNext();)
-        {            
-            Map.Entry set=(Map.Entry)i.next();         
-            for(int j=0;j<subRecordMaps.length;j++)
-                ((UnknownRecord)set.getValue()).setSubRecord(names[j], subRecordMaps[j].get(set.getKey())); 
-        }        
-        return records.values();
+        Map records=UnknownRecord.getData(dbc,ids);
+        return records.values();                        
     }
     
-    private void writeTempFile(java.io.OutputStream out, Collection data)
-    {                //TODO: this needs to work with RecordGroups.
+    private void writeTempFile(java.io.OutputStream os, Collection data)
+    {               
         RecordVisitor visitor=new TextRecordVisitor();
-        PrintWriter fw;
+        PrintWriter out;        
+        
         try{
-            fw=new PrintWriter(out);            
-            //print title row
-            Record rec;
-            boolean isFirst=true;
+            out=new PrintWriter(os);            
+            
             for(Iterator i=data.iterator();i.hasNext();)
-            {
-                rec=(Record)i.next();
-                if(isFirst){
-                    rec.printHeader(fw, visitor);
-                    isFirst=false;
-                }
-                rec.printRecord(fw,visitor);
-            }                        
-            fw.close();
+                ((RecordGroup)i.next()).printRecords(out,visitor);  
+
+            
+//            //print title row
+//            Record rec;
+//            boolean isFirst=true;
+//            for(Iterator i=data.iterator();i.hasNext();)
+//            {
+//                rec=(Record)i.next();
+//                if(isFirst){
+//                    rec.printHeader(fw, visitor);
+//                    isFirst=false;
+//                }
+//                rec.printRecord(fw,visitor);
+//            }                        
+            out.close();
         }catch(IOException e){
             log.error("could not write output: "+e.getMessage());
         }       

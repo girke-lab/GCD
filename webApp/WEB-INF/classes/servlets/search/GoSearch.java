@@ -64,7 +64,7 @@ public class GoSearch extends AbstractSearch
                   "WHERE sequences.seq_id=go.seq_id AND ";
         id+="("+conditions+")";
         id+=" limit "+limit;
-        log.info("IdSearch query: "+id);   
+        log.info("GoSearch query: "+id);   
         return id;
     }
     private String buildStatsStatement(String conditions,int[] dbs)

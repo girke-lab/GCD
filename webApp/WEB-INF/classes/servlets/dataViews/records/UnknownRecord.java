@@ -169,44 +169,19 @@ public class UnknownRecord implements Record
             for(int j=0;j<subRecordMaps.length;j++)
             {
                 o=subRecordMaps[j].get(""+ur.key_id);
-                if(o==null)
-                {
-                    log.debug("could not find key "+ur.key_id+" for dataset "+names[j]);
-                    log.debug(" in list "+subRecordMaps[j].keySet());
-                }
+//                if(o==null)
+//                {
+//                    log.debug("could not find key "+ur.key_id+" for dataset "+names[j]);
+//                    log.debug(" in list "+subRecordMaps[j].keySet());
+//                }
 
                 if(o==null)
                     o=new RecordGroup();                    
                 
-                ur.setSubRecord(names[j],o);
-                
-                
-                //ur.setSubRecord(names[j], subRecordMaps[j].get(""+ur.key_id));
+                ur.setSubRecord(names[j],o);               
             }
         }
         log.debug("all done with UnknownRecords");
-        return unknownRecords;
-        
-        
-//        for(Iterator i=records.entrySet().iterator();i.hasNext();)
-//        {            
-//            Map.Entry set=(Map.Entry)i.next();
-//         //   log.debug("working on key "+set.getKey());
-//            for(int j=0;j<subRecordMaps.length;j++)
-//                ((UnknownRecord)set.getValue()).setSubRecord(names[j], subRecordMaps[j].get(set.getKey()));
-//        }        
-        
-        
-         
-          
-        
-//        List row;
-//        Map output=new LinkedHashMap(); //need to maintain order here
-//        for(Iterator i=data.iterator();i.hasNext();)
-//        {
-//            row=(List)i.next();            
-//            output.put(row.get(0),new UnknownRecord(row.subList(1,7)));
-//        }
-//        return output;
+        return unknownRecords;                
     }          
 }

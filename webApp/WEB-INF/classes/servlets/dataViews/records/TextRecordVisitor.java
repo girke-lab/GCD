@@ -44,12 +44,17 @@ public class TextRecordVisitor implements RecordVisitor
     public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {
         out.write("key,description,");   
-        Collection list;        
+        RecordGroup list;        
         for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
         {
-            list=(Collection)i.next();
-            if(list != null && list.size() > 0)
-                ((Record)list.iterator().next()).printHeader(out,this);                
+            list=(RecordGroup)i.next();
+            if(list != null )
+            {
+                Iterator j=list.iterator();
+                if(j.hasNext())
+                    ((Record)j.next()).printHeader(out,this);
+            }
+                //((Record)list.iterator().next()).printHeader(out,this);                
         }        
     }
     
@@ -66,10 +71,10 @@ public class TextRecordVisitor implements RecordVisitor
     public void printRecord(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {        
         out.write("\n"+ur.key+",\""+ur.description+"\",");
-        Collection list;
+        RecordGroup list;
         for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
         {
-            list=(Collection)i.next(); //each collection is from a different table
+            list=(RecordGroup)i.next(); //each collection is from a different table
             if(list==null)
                 continue;
             for(Iterator j=list.iterator();j.hasNext();)

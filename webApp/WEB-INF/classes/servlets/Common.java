@@ -25,7 +25,7 @@ public class Common {
     public final static int SCRIPT_LIMIT=500;
     public final static int MAX_QUERY_KEYS=10000; //max number of keys to list in a query
     
-    //the caselss compare keyword is ILIKE in postgres, but LIKE in mysql
+    //the caseless compare keyword is ILIKE in postgres, but LIKE in mysql
     public final static String ILIKE="ILIKE";
                             
 //    private static DbConnection dbc=null;

@@ -33,7 +33,7 @@ public class Unknowns2DataView implements DataView
     String sortCol,sortDir;
     int[] dbNums;        
     DbConnection dbc=null;    
-    File tempDir=null;
+    
     
     private static Logger log=Logger.getLogger(Unknowns2DataView.class);    
     
@@ -45,19 +45,7 @@ public class Unknowns2DataView implements DataView
         if(dbc==null)
             log.error("could not get db connection to khoran");
     }        
-    /**
-     * Constructor that also takes path to a temp director, for putting temp files
-     * in.
-     * @param tempPath path to temp directory.
-     */
-    public Unknowns2DataView(String tempPath)
-    {
-        sortDir="asc"; //default sort direction
-        dbc=DbConnectionManager.getConnection("khoran");
-        if(dbc==null)
-            log.error("could not get db connection to khoran");
-        tempDir=new File(tempPath);
-    }        
+    
     
     /**
      * prints page.
@@ -165,13 +153,7 @@ public class Unknowns2DataView implements DataView
         RecordVisitor visitor=new HtmlRecordVisitor();
         try{
             for(Iterator i=data.iterator();i.hasNext();)
-                ((RecordGroup)i.next()).printRecords(out,visitor);
-//            {            
-//                rec=(Record)i.next();
-//                rec.printHeader(out,visitor);
-//                rec.printRecord(out,visitor);
-//                rec.printFooter(out,visitor);                
-//            }            
+                ((RecordGroup)i.next()).printRecords(out,visitor);  
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());
         }

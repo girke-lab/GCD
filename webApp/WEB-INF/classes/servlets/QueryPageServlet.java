@@ -25,6 +25,7 @@ public class QueryPageServlet extends HttpServlet
 {    
 
     private static Logger log; 
+    private static Properties searches=null,dataViews=null;
     
     public void init(ServletConfig config) throws ServletException
     {       
@@ -33,12 +34,23 @@ public class QueryPageServlet extends HttpServlet
         //setup logger
         Properties props=new Properties();
         try{        
-            props.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("log4j.properties"));
+            //props.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("log4j.properties"));
+            props.load(this.getClass().getResourceAsStream("log4j.properties"));
             PropertyConfigurator.configure(props);
         }catch(IOException e){
             System.err.println("could not configure logger");
         }
         log=Logger.getLogger(QueryPageServlet.class);
+        
+        try{
+            searches=new Properties();
+            searches.load(this.getClass().getResourceAsStream("searches.properties"));
+            
+            dataViews=new Properties();
+            dataViews.load(this.getClass().getResourceAsStream("dataViews.properties"));
+        }catch(IOException e){
+            log.error("could not load properites: "+e.getMessage());
+        }
     }    
     public void destroy()
     {     
@@ -134,20 +146,36 @@ public class QueryPageServlet extends HttpServlet
     {                
         if(displayType!=null)
         {
-            if(displayType.equals("clusterView"))
-                return new ClusterDataView();
-            else if(displayType.equals("seqView"))
+            //one special case
+            if(displayType.equals("unknownsView"))
+                return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));   
+            
+            
+            String dataViewClass=dataViews.getProperty(displayType);
+            if(dataViewClass==null)
                 return new SeqDataView();
-            else if(displayType.equals("modelView"))
-                return new ModelDataView(request);
-            else if(displayType.equals("statsView"))
-                return new StatsDataView();
-            else if(displayType.equals("unknownsView"))
-                return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));
-            else if(displayType.equals("unknowns2View"))
-                return new Unknowns2DataView(this.getServletContext().getRealPath("/temp"));
-            else if(displayType.equals("blastView"))
-                return new BlastDataView();
+            DataView dv=null;
+            try{
+                dv=(DataView)Class.forName(dataViewClass).newInstance();
+            }catch(Exception e){
+                log.error("could not create class "+dataViewClass);
+                return new SeqDataView();
+            }
+            return dv;
+//            if(displayType.equals("clusterView"))
+//                return new ClusterDataView();
+//            else if(displayType.equals("seqView"))
+//                return new SeqDataView();
+//            else if(displayType.equals("modelView"))
+//                return new ModelDataView(request);
+//            else if(displayType.equals("statsView"))
+//                return new StatsDataView();
+//            else if(displayType.equals("unknownsView"))
+//                return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));
+//            else if(displayType.equals("unknowns2View"))
+//                return new Unknowns2DataView(this.getServletContext().getRealPath("/temp"));
+//            else if(displayType.equals("blastView"))
+//                return new BlastDataView();
         }
         else if(sortCol!=null)
         {
@@ -156,36 +184,52 @@ public class QueryPageServlet extends HttpServlet
             else if(sortCol.startsWith("cluster_info"))
                 return new ClusterDataView();
         }
-        return new SeqDataView();        
+        return new SeqDataView();
     }
     private Search getSearchObj(String type) 
     {           
         if(type==null)
             return new IdSearch();
-        else if(type.equals("Description"))
-            return new DescriptionSearch();
-        else if(type.equals("Id"))
-            return new IdSearch();
-        else if(type.equals("Cluster Id"))
-            return new ClusterIDSearch();
-        else if(type.equals("Cluster Name"))
-            return new ClusterNameSearch();
-        else if(type.equals("GO Number"))
-            return new GoSearch();
-        else if(type.equals("seq_id"))
-            return new SeqIdSearch();
-        else if(type.equals("query"))
-            return new QuerySearch();
-        else if(type.equals("query_comp"))
-            return new QueryCompSearch();
-        else if(type.equals("unknownClusterId"))
-            return new UnknownClusterIdSearch(); 
-        else if(type.equals("blast"))
-            return new BlastSearch();
-        else if(type.equals("seq_model"))
-            return new SeqModelSearch();
         else
-            return new IdSearch();   //default to id search
+        {
+            type=type.replaceAll(" ","_");
+            String searchClass=searches.getProperty(type);
+            if(searchClass==null)
+                return new IdSearch();
+            Search s=null;
+            try{
+                s=(Search)Class.forName(searchClass).newInstance();
+            }catch(Exception e){
+                log.error("could not create class "+searchClass);
+                return new IdSearch();
+            }
+            return s;
+        }
+        
+//        else if(type.equals("Description"))
+//            return new DescriptionSearch();
+//        else if(type.equals("Id"))
+//            return new IdSearch();
+//        else if(type.equals("Cluster Id"))
+//            return new ClusterIDSearch();
+//        else if(type.equals("Cluster Name"))
+//            return new ClusterNameSearch();
+//        else if(type.equals("GO Number"))
+//            return new GoSearch();
+//        else if(type.equals("seq_id"))
+//            return new SeqIdSearch();
+//        else if(type.equals("query"))
+//            return new QuerySearch();
+//        else if(type.equals("query_comp"))
+//            return new QueryCompSearch();
+//        else if(type.equals("unknownClusterId"))
+//            return new UnknownClusterIdSearch(); 
+//        else if(type.equals("blast"))
+//            return new BlastSearch();
+//        else if(type.equals("seq_model"))
+//            return new SeqModelSearch();
+//        else
+//            return new IdSearch();   //default to id search
     }   
     
     /**
