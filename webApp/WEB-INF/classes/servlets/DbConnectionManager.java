@@ -90,7 +90,7 @@ public class DbConnectionManager
         }
         try{
             Class.forName("org.postgresql.Driver").newInstance();
-            connections.put("khoran",new DbConnection("jdbc:postgresql://bioinfo.ucr.edu/khoran_loading","servlet","512256")); //connect to postgres            
+                connections.put("khoran",new DbConnection("jdbc:postgresql://bioinfo.ucr.edu/khoran_loading","servlet","512256")); //connect to postgres            
         }catch(Exception e){            
             log.warn("failed to connect to khoran database: "+e.getMessage());
         }

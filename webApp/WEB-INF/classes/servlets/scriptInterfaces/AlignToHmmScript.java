@@ -16,6 +16,7 @@ import java.io.*;
 import java.net.*;
 import org.apache.log4j.Logger;
 import servlets.Common;
+import servlets.querySets.*;
 
 public class AlignToHmmScript implements Script
 {
@@ -78,22 +79,8 @@ public class AlignToHmmScript implements Script
         }
     }
     private List getData(List ids)
-    {
-        StringBuffer condition=new StringBuffer();
-        String query;
-        
-        condition.append(" s.seq_id in (");
-        for(Iterator i=ids.iterator();i.hasNext();)
-        {
-            condition.append(i.next());
-            if(i.hasNext())
-                condition.append(",");
-        }
-        condition.append(")");
-        
-        query="SELECT m.model_accession,m.protein FROM sequences as s LEFT JOIN models as m USING(seq_id) " +
-            "WHERE "+condition+" ORDER BY m.model_accession LIMIT "+LIMIT;
-        log.info("AligntToHmm query: "+query);
+    {        
+        String query=QuerySetProvider.getScriptQuerySet().getAlignToHmmQuery(ids,LIMIT);
         return Common.sendQuery(query);
     }
 }

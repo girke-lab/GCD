@@ -15,6 +15,7 @@ import java.util.*;
 import servlets.Common;
 import java.io.*;
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 public class GoSlimCountsScript implements Script 
 {
@@ -73,22 +74,7 @@ public class GoSlimCountsScript implements Script
     }
     private List getData(List ids)
     {
-        StringBuffer condition=new StringBuffer();
-        String query;
-        
-        condition.append(" s.seq_id in (");
-        for(Iterator i=ids.iterator();i.hasNext();)
-        {
-            condition.append(i.next());
-            if(i.hasNext())
-                condition.append(",");
-        }
-        condition.append(")");
-        
-        query="SELECT s.primary_key,go.go FROM sequence_view as s LEFT JOIN go USING(seq_id) " +
-            "WHERE "+condition;
-        log.info("goSlimCounts query: "+query);
-        return Common.sendQuery(query);
+        return Common.sendQuery(QuerySetProvider.getScriptQuerySet().getGoSlimCountsQuery(ids));
     }
     
     public String getContentType() {

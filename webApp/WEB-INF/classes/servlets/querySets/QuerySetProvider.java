@@ -27,6 +27,7 @@ public class QuerySetProvider
     private DataViewQuerySet dataViewSet=null;
     private RecordQuerySet recordSet=null;
     private DatabaseQuerySet dbSet=null;
+    private ScriptQuerySet scriptSet=null;
     
     public static void setDataViewQuerySet(DataViewQuerySet dvqs)
     {        
@@ -63,6 +64,16 @@ public class QuerySetProvider
     {
         return getProvider().dbSet;
     }
+    
+    public static void setScriptQuerySet(ScriptQuerySet sqs)
+    {
+        getProvider().scriptSet=sqs;
+    }
+    public static ScriptQuerySet getScriptQuerySet()
+    {
+        return getProvider().scriptSet;
+    }
+////////////////////////////////////////////////////////////////////////////////    
     /** Creates a new instance of QuerySetProvider */
     private QuerySetProvider()
     {

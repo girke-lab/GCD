@@ -212,13 +212,17 @@ public class DbConnection
         if(log.isInfoEnabled())
         {
             startTime=System.currentTimeMillis();
-            StackTraceElement[] stes=new Exception("").getStackTrace();
-            if(stes.length > 1)
-            {
-                String className=stes[1].getClassName();
-                log.info("query from "+className.substring(className.lastIndexOf('.')==-1?0:className.lastIndexOf('.')+1)+
-                    ":"+stes[1].getMethodName()+": "+q);            
-            }                
+            String source=getTraceSummary(4);
+            log.info("query from "+source+": "+q);
+            
+            
+//            StackTraceElement[] stes=new Exception("").getStackTrace();
+//            if(stes.length > 1)
+//            {
+//                String className=stes[1].getClassName();
+//                log.info("query from "+className.substring(className.lastIndexOf('.')==-1?0:className.lastIndexOf('.')+1)+
+//                    ":"+stes[1].getMethodName()+": "+q);            
+//            }                
         }
         List l=null;
         Connection conn=null;
@@ -346,4 +350,23 @@ public class DbConnection
         }
         return list;
     }    
+    private String getTraceSummary(int depth)
+    {
+        StringBuffer source=new StringBuffer();
+        String className;
+        StackTraceElement[] stes=new Exception("").getStackTrace();
+        int j=-1;        
+        
+        for(int i=3;i<=depth && i<stes.length;i++)
+        {//skip call to this function, and call to whoever called this.
+            className=stes[i].getClassName();
+            j=className.lastIndexOf('.');
+            if(j!=-1)
+                className=className.substring(j+1);
+            source.append(className+"."+stes[i].getMethodName());
+            if(i+1<=depth && i+1<stes.length) //see if this is last iteration
+                source.append(", ");            
+        }
+        return source.toString();
+    }
 }

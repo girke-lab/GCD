@@ -17,6 +17,7 @@ import servlets.*;
 import java.net.*;
 import java.io.*;
 import javax.servlet.http.*;
+import servlets.querySets.*;
 
 public class TreeViewScript implements Script
 {
@@ -52,11 +53,8 @@ public class TreeViewScript implements Script
             Common.quit(new PrintWriter(out), "no cluster id given");
             return;
         }
-        String query="SELECT ci.method,m.model_accession "+
-                     "FROM models as m, clusters as c, cluster_info as ci "+
-                     "WHERE m.model_id=c.model_id AND c.cluster_id=ci.cluster_Id "+
-                     "      AND ci.filename='"+clusterId+"'";                     
-        List keys=Common.sendQuery(query);
+        
+        List keys=Common.sendQuery(QuerySetProvider.getScriptQuerySet().getTreeViewQuery(clusterId));
         
         if(keys==null)
             return;

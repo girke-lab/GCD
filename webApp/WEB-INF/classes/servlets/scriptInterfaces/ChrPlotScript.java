@@ -16,6 +16,7 @@ import java.util.*;
 import servlets.Common;
 import java.io.*;
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 public class ChrPlotScript  implements Script 
 {
@@ -33,7 +34,7 @@ public class ChrPlotScript  implements Script
     public void run(java.io.OutputStream out, java.util.List ids) 
     {    
         List data=getData(ids);
-        log.debug("got data: "+data);
+        //log.debug("got data: "+data);
         if(data==null)
             return;
         printData(out,data);
@@ -67,21 +68,7 @@ public class ChrPlotScript  implements Script
     }
     private List getData(List ids)
     {
-        StringBuffer condition=new StringBuffer();
-        String query;
-        
-        condition.append(" s.seq_id in (");
-        for(Iterator i=ids.iterator();i.hasNext();)
-        {
-            condition.append(i.next());
-            if(i.hasNext())
-                condition.append(",");
-        }
-        condition.append(")");
-        
-        query="SELECT s.primary_key FROM sequence_view as s WHERE "+condition;
-        //query+=" LIMIT "+Common.SCRIPT_LIMIT;
-        return Common.sendQuery(query);
+        return Common.sendQuery(QuerySetProvider.getScriptQuerySet().getChrPlotQuery(ids));
     }
     
     public String getContentType() {         

@@ -16,6 +16,7 @@ import java.util.*;
 import servlets.Common;
 import java.io.*;
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 public class MultigeneScript  implements Script 
 {
@@ -66,23 +67,8 @@ public class MultigeneScript  implements Script
     }
     
     private List getData(List ids)
-    {
-        StringBuffer condition=new StringBuffer();
-        String query;
-        
-        condition.append(" s.seq_id in (");
-        for(Iterator i=ids.iterator();i.hasNext();)
-        {
-            condition.append(i.next());
-            if(i.hasNext())
-                condition.append(",");
-        }
-        condition.append(")");
-        
-        query="SELECT s.primary_key FROM sequence_view as s WHERE "+condition;
-        query+=" LIMIT "+Common.SCRIPT_LIMIT;
-        log.info("DisplayKeys.pl query: "+query);
-        return Common.sendQuery(query);
+    {       
+        return Common.sendQuery(QuerySetProvider.getScriptQuerySet().getMultigeneQuery(ids,Common.SCRIPT_LIMIT));
     }
     
     public String getContentType() {
