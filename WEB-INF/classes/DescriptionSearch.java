@@ -14,13 +14,13 @@ public class DescriptionSearch implements Search
 
     List input;
     int limit;
-    int db;
+    int[] db;
     
     /** Creates a new instance of DescriptionSearch */
     public DescriptionSearch() 
     {
     }
-    public void init(List data, int limit, int dbID)
+    public void init(List data, int limit, int[] dbID)
     {
         this.input=data;
         this.limit=limit;
@@ -60,15 +60,19 @@ public class DescriptionSearch implements Search
             al.add(((ArrayList)i.next()).get(0));
         return al;
     }
-    private String buildIdStatement(String conditions, int limit,int currentDB)
+    private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
         String id="SELECT DISTINCT Sequences.Seq_id from Sequences "+
-                  "WHERE ";
-        if(currentDB==Common.arab)
-            id+=" Genome='arab' and ";
-        else if(currentDB==Common.rice)
-            id+=" Genome='rice' and ";
-        id+="("+conditions+")";
+                  "WHERE (";
+        
+        for(int i=0;i<DBs.length;i++)
+        {
+            id+=" Genome='"+Common.dbRealNames[DBs[i]]+"' ";
+            if(i < DBs.length-1)//not last iteration of loop
+                id+=" or ";
+        }
+        
+        id+=") and ("+conditions+")";
         id+=" limit "+limit;
         System.out.println("Description query: "+id);   
         return id;

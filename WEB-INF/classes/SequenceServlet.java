@@ -74,10 +74,6 @@ public class SequenceServlet extends HttpServlet
         int fieldsLength=0;
         int length,format;
         
-//        List keys=(ArrayList)session.getAttribute("keys");
-//        int[] dbNums=(int[])session.getAttribute("dbs");        
-//        int dbNumsLength=((Integer)session.getAttribute("dbsLength")).intValue();
-//        int limit=((Integer)session.getAttribute("limit")).intValue();
         
         //get the list of feilds from the web page
         String[] temp1=request.getParameterValues("fields");//all fields                
@@ -99,18 +95,17 @@ public class SequenceServlet extends HttpServlet
         
         ///////////////////////  main /////////////////////////////////////////////////////////
         List keySet,main;
-        for(int i=0;i<qi.dbsLength;i++)
-        {
-            System.out.println("i="+i);
-            out.println("<P><H3 align='center'>"+dbPrintNames[qi.dbNums[i]]+" search results:</H3>");
-            keySet=qi.getKeySet(i); //keySet will be a list of Seq_id numbers, not Accession numbers
-//            keySet=(ArrayList)keys.get(i);
-            main=searchByKey(keySet,qi.limit,qi.dbNums[i],fieldNums,fieldsLength);
+//        for(int i=0;i<qi.dbsLength;i++)
+//        {
+//            System.out.println("i="+i);
+//            out.println("<P><H3 align='center'>"+dbPrintNames[qi.dbNums[i]]+" search results:</H3>");
+            keySet=qi.getKeySet(0); //keySet will be a list of Seq_id numbers, not Accession numbers
+            main=searchByKey(keySet,qi.limit,qi.dbNums[0],fieldNums,fieldsLength);
             //Common.printList(out,main);
             //Common.blastLinks(out,qi.dbNums[i],hid);
             out.println("Models found: "+main.size());
-            printFasta(out,main,qi.dbNums[i],fieldNums,length,format);            
-        }
+            printFasta(out,main,qi.dbNums[0],fieldNums,length,format);            
+//        }
         exit(out);    
     }
 
@@ -126,21 +121,14 @@ public class SequenceServlet extends HttpServlet
         StringBuffer conditions=new StringBuffer();
         StringBuffer feildCombo=new StringBuffer();            
         List rs=null;
-        int fieldCount=3; //we add id and description, and maybe Id2
+        int fieldCount=3; //we add accession, model, and description
         int count=0; //used to limit number of keys actually sent to database
         
         currentDB=0;//we no longer need to distiguish between databases, so just use 0
         
-        //always add the key field, then, if we have the rice DB, add the second key field
-        //then append the description field
-        feildCombo.append(fullNames[currentDB][0]);
-        feildCombo.append(", "+fullNames[currentDB][1]);
-//        if(currentDB==rice)
-//        {
-//            feildCombo.append(", "+fullNames[currentDB][1]);
-//            fieldCount++;
-//        }
-        feildCombo.append(", "+fullNames[currentDB][2]);
+        feildCombo.append(fullNames[currentDB][0]);  //accession
+        feildCombo.append(", "+fullNames[currentDB][1]); //model number
+        feildCombo.append(", "+fullNames[currentDB][2]); //description
         for(int i=0;i<fieldsLength;i++)
             if(fullNames[currentDB][fields[i]].length()!=0)
             {
@@ -148,6 +136,8 @@ public class SequenceServlet extends HttpServlet
                 fieldCount++;
             }
 
+        feildCombo.append(", Genome"); //always query genome so we know where to put titles
+        fieldCount++;
         //StringTokenizer in=new StringTokenizer(inputKey);
         ListIterator in=keys.listIterator();
         while(in.hasNext() && count++ < limit)            
@@ -168,17 +158,18 @@ public class SequenceServlet extends HttpServlet
         StringBuffer temp=new StringBuffer();
         String key,key2,desc,data, tigrDb="ath1";
         int start;
+        int lastDB=-1;
         if(rs==null || rs.size()==0)
             return;
-        if(currentDB==rice)
-            tigrDb="osa1";
-        int fieldsLength=((ArrayList)rs.get(0)).size();
+        
+        int fieldsLength=((ArrayList)rs.get(0)).size()-1; //last entry is genome data, don't print it.
         currentDB=0; //don't distigiush between databases anymore
         try{
 //            out.println("<FORM METHOD='POST' ACTION='http://138.23.191.152/blast/blastSearch.cgi'>");
 //            out.println("<INPUT type='submit' value='Blast it'><BR>");
             System.out.println("size of rs is "+((ArrayList)rs.get(0)).size());
             standard.append("<TABLE align='center'>");
+            
             for(ListIterator l=rs.listIterator();l.hasNext();)
             {
                 List row=(ArrayList)l.next();
@@ -186,6 +177,16 @@ public class SequenceServlet extends HttpServlet
                 key2=(String)row.get(1); //model accession number
                 desc=(String)row.get(2); //description
                 start=3;
+                
+                currentDB=Common.getDBid((String)row.get(row.size()-1)); //genome is always last entry
+                if(lastDB!=currentDB)//db has now changed to a new db
+                {
+                    tigrDb="ath1";
+                    if(currentDB==rice) 
+                        tigrDb="osa1";
+                    standard.append("<TR><TH colspan='2'><H2 align='left'>"+dbPrintNames[currentDB]+" search results:</H2></TH></TR>");
+                }
+                lastDB=currentDB;
   
                 int index=0;                
                 for(int f=start;f<fieldsLength;f++)
@@ -267,7 +268,7 @@ public class SequenceServlet extends HttpServlet
         StringBuffer general=new StringBuffer();
         general.append("SELECT "+feilds+" FROM Sequences "+
                        " LEFT JOIN Models USING(Seq_id) WHERE "+conditions+
-                       " ORDER BY "+fullNames[0][0]);
+                       " ORDER BY Genome, "+fullNames[0][0]);
 //        if(currentDB==arab)  //ID is a global varibale used to kill the query at a later time
 //            general.append("/*"+ID+"*/SELECT "+feilds+" FROM TIGR_Data WHERE "+conditions+" ORDER BY Atnum");
 //        else if(currentDB==rice)

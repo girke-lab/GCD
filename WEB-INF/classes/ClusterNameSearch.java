@@ -13,14 +13,14 @@ public class ClusterNameSearch implements Search {
     
     List input;
     int limit;
-    int db;
+    int[] db;
     
     /** Creates a new instance of ClusterNameSearch */
     public ClusterNameSearch() 
     {
     }
     
-    public void init(List data, int limit, int dbID)
+    public void init(List data, int limit, int[] dbID)
     {
         this.input=data;
         this.limit=limit;
@@ -59,7 +59,7 @@ public class ClusterNameSearch implements Search {
             al.add(((ArrayList)i.next()).get(0));
         return al;
     }
-     private String buildIdStatement(String conditions, int limit,int currentDB)
+    private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
         String id="SELECT DISTINCT Seq_id from Cluster_Counts LEFT JOIN Clusters USING(Cluster_id) "+
                   "WHERE ";       
@@ -69,10 +69,10 @@ public class ClusterNameSearch implements Search {
         return id;
     }
    
-     public List notFound()
-     {
-         return new ArrayList();
-     }
+    public List notFound()
+    {
+        return new ArrayList();
+    }
      
      
 }

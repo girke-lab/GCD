@@ -15,13 +15,13 @@ public class IdSearch implements Search {
     List input;
     ArrayList keysFound; //list of the keys found, of the same type of the query key.
     int limit;
-    int db;
+    int[] db;
     
     /** Creates a new instance of IdSearch */
     public IdSearch() 
     {
     }
-    public void init(List data, int limit, int dbID)
+    public void init(List data, int limit, int[] dbID)
     {
         this.input=data;
         this.limit=limit;
@@ -52,15 +52,19 @@ public class IdSearch implements Search {
         return al;
 
     }
-    private String buildIdStatement(String conditions, int limit,int currentDB)
+    private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
         String id="SELECT DISTINCT Sequences.Seq_id, Accession from Sequences LEFT JOIN Id_Associations USING(Seq_id) "+
-                  "WHERE ";
-        if(currentDB==Common.arab)
-            id+=" Genome='arab' and ";
-        else if(currentDB==Common.rice)
-            id+=" Genome='rice' and ";
-        id+="("+conditions+")";
+                  "WHERE (";
+
+        for(int i=0;i<DBs.length;i++)
+        {
+            id+=" Genome='"+Common.dbRealNames[DBs[i]]+"' ";
+            if(i < DBs.length-1)//not last iteration of loop
+                id+=" or ";
+        }
+        
+        id+=") and ("+conditions+")";
         id+=" limit "+limit;
         System.out.println("IdSearch query: "+id);   
         return id;

@@ -44,8 +44,8 @@ public class QueryPageServlet extends HttpServlet
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         
-        int[] dbNums=new int[dbCount];
-        int dbNumsLength,limit,hid; //hid is history id      
+        int[] dbNums;//=new int[dbCount];
+        int limit,hid; //hid is history id      
         List inputKeys;
         /////////////////////////  get input  //////////////////////////////////////////////////
         String input=request.getParameter("inputKey"); //actual input from form feild
@@ -59,12 +59,11 @@ public class QueryPageServlet extends HttpServlet
         }catch(NumberFormatException nfe){
             limit=10; //default limit
         }try{//test dbNums for valid input and conver text to numbers   // DBfeilds
+            dbNums=new int[dbTemp.length];
             for(int i=0;i<dbTemp.length;i++)
-                dbNums[i]=Integer.parseInt(dbTemp[i]);
-            dbNumsLength=dbTemp.length;
+                dbNums[i]=Integer.parseInt(dbTemp[i]);            
         }catch(Exception e){
-            dbNums[0]=0;    dbNums[1]=1;
-            dbNumsLength=2;
+            dbNums=new int[]{0,1};              
         }
         if(input==null || input.length()==0)
         {
@@ -90,7 +89,7 @@ public class QueryPageServlet extends HttpServlet
         }
         hid=((Integer)session.getAttribute("hid")).intValue();
         session.setAttribute("hid",new Integer(hid+1));
-        QueryInfo qi=new QueryInfo(dbNums,dbNumsLength,limit);
+        QueryInfo qi=new QueryInfo(dbNums,dbNums.length,limit);
         ((ArrayList)session.getAttribute("history")).add(qi);
         
 
@@ -109,25 +108,23 @@ public class QueryPageServlet extends HttpServlet
         List returnedKeys;
         HashMap goNumbers=null;
         Search s=null;
-        for(int i=0;i<dbNumsLength;i++)
-        {
-            out.println("<P><H3 align='center'>"+dbPrintNames[dbNums[i]]+" search results</H3>");
             
-            s=getSearchObj(searchType);
-            s.init(inputKeys,limit, dbNums[i]);
-            returnedKeys=s.getResults();
-            
-             //these should be Seq_id numbers, not accession numbers.
-            qi.addKeySet(returnedKeys); //store this key set in the session variable
-            
-            goNumbers=findGoNumbers(returnedKeys);
-              
-            main=getData(returnedKeys,limit,dbNums[i]);
-            //Common.blastLinks(out,dbNums[i],hid);
-            printCounts(out,inputKeys.size(), main);
-            printMismatches(out,s.notFound());
-            printSummary(out,main,goNumbers,dbNums[i],hid);            
-        }
+        //search all databases simultaniously
+        s=getSearchObj(searchType);
+        s.init(inputKeys,limit, dbNums); 
+        returnedKeys=s.getResults();
+
+         //these should be Seq_id numbers, not accession numbers.
+        qi.addKeySet(returnedKeys); //store this key set in the session variable
+
+        goNumbers=findGoNumbers(returnedKeys);
+
+        main=getData(returnedKeys,limit,dbNums);
+        //Common.blastLinks(out,dbNums[i],hid);
+        printCounts(out,inputKeys.size(), main);
+        printMismatches(out,s.notFound());
+        printSummary(out,main,goNumbers,dbNums,hid);            
+        
         out.println("</body>");
         out.println("</html>");
 
@@ -196,7 +193,7 @@ public class QueryPageServlet extends HttpServlet
             System.out.println(gos.size()+" elements in go");
         return gos;
     }
-    private List getData(List input, int limit, int db)
+    private List getData(List input, int limit, int[] db)
     { 
         StringBuffer conditions=new StringBuffer();
         List rs=null;
@@ -206,10 +203,10 @@ public class QueryPageServlet extends HttpServlet
             conditions.append(Seq_idExpression((String)it.next())); 
         conditions.append("0=1");
 
-        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),6);
+        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),7);
         return rs;
     }
-    private void printSummary(PrintWriter out,List data,HashMap goNumbers,int currentDB,int hid)
+    private void printSummary(PrintWriter out,List data,HashMap goNumbers,int[] DBs,int hid)
     {
         ListIterator li=data.listIterator();
         List row;
@@ -240,11 +237,17 @@ public class QueryPageServlet extends HttpServlet
   
         
         out.println("<TABLE align='center' border='0'>");
+        int lastDB=-1,currentDB;
         while(li.hasNext())
         {
             row=(ArrayList)li.next();
             
-            //do this for both databases now
+            currentDB=Common.getDBid((String)row.get(6)); 
+            if(currentDB!=lastDB)//we have changed databases, so print the title of the new db
+                out.println("<TR><TH colspan='2'><H3 align='center'>"+dbPrintNames[currentDB]+" search results</H3></TH></TR>");
+            lastDB=currentDB; //update lastDB
+            
+            
             key=(String)row.get(0);
             if(row.get(3)!=null && row.get(2)!=null)
             {
@@ -305,6 +308,7 @@ public class QueryPageServlet extends HttpServlet
                 
 
     }
+   
     private void printMismatches(PrintWriter out,List keys)
     {
         if(keys.size()==0) //don't print anything if there are no missing keys
@@ -317,90 +321,24 @@ public class QueryPageServlet extends HttpServlet
             out.println(keys.get(i));
         }
     }            
-    private List findMismatches(List inputKey, List main,int currentDB)
-    {
-        List mismatches=new ArrayList();
-        ListIterator inputs=inputKey.listIterator();
-        int index=0;
-        String input, result1=null,result2=null;
-        int loopCount=0,length;
-        length=main.size();
-        if(length==0)
-        {//no keys at all were found, so add everything to the mismatch list
-            while(inputs.hasNext())
-            {
-                input=(String)inputs.next();
-                if((currentDB==arab && input.startsWith("At")) ||
-                   (currentDB==rice && !input.startsWith("At")) )
-                    mismatches.add(inputs.next());
-            }
-            return mismatches;
-        }        
-        while(inputs.hasNext())
-        {
-            loopCount=0;
-            input=(String)inputs.next();
-            if(currentDB==arab && !input.startsWith("At"))//don't report rice keys as missing
-                continue;
-            if(currentDB==rice && input.startsWith("At"))//skip arab keys for rice db
-                continue;                
-
-//            System.out.println("start: comparing "+input+" with "+result1+" on loop "+loopCount);
-//            System.out.println("length="+length);
-            do
-            {//search through all of reslts to find input, and loop the restuls list
-                if(loopCount >=length)
-                {//we searched the whole list but did not find any match
-                    mismatches.add(input);
-                    break;
-                }
-                loopCount++;
-                result1=(String)((ArrayList)main.get(index%length)).get(0);
-                if(currentDB==rice)
-                    result2=(String)((ArrayList)main.get(index%length)).get(1);                
-                index++;
-//                System.out.println("inside: comparing "+input+" with "+result1+" on loop "+loopCount);
-            }while(!result1.toLowerCase().startsWith(input.toLowerCase()) &&
-                   !(currentDB==rice && result2.toLowerCase().startsWith(input.toLowerCase()) ));
-//            System.out.println("end2: comparing "+input+" with "+result1+" on loop "+loopCount);
-        }
-        
-//        System.out.print("mismatched keys: ");
-//        for(Iterator i=mismatches.iterator();i.hasNext();)
-//            System.out.print(i.next()+",");
-//        System.out.println("");
-        return mismatches;
-    }            
     ////////////////////////////  Query stuff    ////////////////////////////////////////////////
     
-
-  
-   
-    private String buildKeyStatement(String conditions,int limit, int currentDB)
+    private String buildKeyStatement(String conditions,int limit, int[] DBs)
     {
         StringBuffer general=new StringBuffer();
                                         
-        general.append("SELECT DISTINCT Primary_Key, Description, Clusters.Cluster_id, Size, Sequences.Seq_id, count(Models.Model_id) "+
+        general.append("SELECT DISTINCT Primary_Key, Description, Clusters.Cluster_id, Size, Sequences.Seq_id, count(Models.Model_id),Genome "+
                        "FROM Sequences LEFT JOIN Models USING(Seq_id) LEFT JOIN Clusters USING(Model_id) LEFT JOIN Cluster_Counts USING(Cluster_id)  "+                                             
-                       "WHERE ");
+                       "WHERE ( ");
         
-        if(currentDB==arab)
-            general.append(" Genome='arab' and ");
-        else if(currentDB==rice)
-            general.append(" Genome='rice' and ");        
+        for(int i=0;i<DBs.length;i++)
+        {
+            general.append(" Genome='"+Common.dbRealNames[DBs[i]]+"' ");
+            if(i < DBs.length-1)//not last iteration of loop
+                general.append(" or ");
+        }
         
-        general.append("( "+conditions+" ) GROUP BY Seq_id ORDER BY Primary_Key");
-        /*
-        if(currentDB==arab)  //ID is a global varibale used to kill the query at a later time
-            general.append("SELECT TIGR_Data.Atnum,TIGR_Data.Description, Clusters.ClusterNum"+
-                " FROM TIGR_Data LEFT JOIN Clusters on TIGR_Data.Atnum=Clusters.Atnum"+
-		" WHERE "+conditions+" ORDER BY Atnum");
-        else if(currentDB==rice)
-            general.append("SELECT Rice.Rice_Data.Id1, Rice.Rice_Data.Id2,Rice.Rice_Data.Description"+
-                " FROM Rice.Rice_Data WHERE "+conditions+" ORDER BY Id1");
-        else
-            System.err.println("invalid DB name in buildGeneralStatement");
-        */
+        general.append(") and ( "+conditions+" ) GROUP BY Seq_id ORDER BY Genome,Primary_Key");
         general.append(" limit "+limit);
         System.out.println("general Query: "+general);
         return general.toString();
@@ -437,9 +375,7 @@ public class QueryPageServlet extends HttpServlet
         //names for databases
         dbPrintNames=new String[dbCount];
         dbPrintNames[0]="Arabidopsis"; dbPrintNames[1]="Rice";
-        //actual database names
-        dbRealNames=new String[dbCount];
-        dbRealNames[0]="Cis_Regul"; dbRealNames[1]="Rice";
+        
     }
     
     ///////////////////////////////////////////////////////////////////////////////////////////

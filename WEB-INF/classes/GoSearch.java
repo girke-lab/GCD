@@ -13,14 +13,14 @@ public class GoSearch implements Search
 {
     List input,keysFound;
     int limit;
-    int db;
+    int[] db;
     
     /** Creates a new instance of GoSearch */
     public GoSearch() 
     {
     }
     
-    public void init(List data, int limit, int dbID)
+    public void init(List data, int limit, int[] dbID)
     {
         this.input=data;
         this.limit=limit;
@@ -51,7 +51,7 @@ public class GoSearch implements Search
         return al;
     }
     
-    private String buildIdStatement(String conditions, int limit,int currentDB)
+    private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
         String id="SELECT DISTINCT Seq_id,Go.Go from Go "+
                   "WHERE ";

@@ -13,14 +13,14 @@ public class ClusterIDSearch implements Search {
     
     List input,keysFound;
     int limit;
-    int db;
+    int[] db;
 
     /** Creates a new instance of ClusterIDSearch */
     public ClusterIDSearch() 
     {
     }
 
-    public void init(List data, int limit, int dbID)
+    public void init(List data, int limit, int[] dbID)
     {
         this.input=data;
         this.limit=limit;
@@ -52,15 +52,18 @@ public class ClusterIDSearch implements Search {
 
     }
     
-    private String buildClusterStatement(String conditions, int limit, int currentDB)
+    private String buildClusterStatement(String conditions, int limit, int[] DBs)
     {
         String q="SELECT Sequences.Seq_id, Clusters.Cluster_id from Sequences LEFT JOIN Clusters USING(Seq_id) "+
-                 "WHERE ";
-        if(currentDB==Common.arab)
-            q+=" Genome='arab' and ";
-        else if(currentDB==Common.rice)
-            q+=" Genome='rice' and ";
-        q+="("+conditions+")";
+                 "WHERE (";
+        for(int i=0;i<DBs.length;i++)
+        {
+            q+=" Genome='"+Common.dbRealNames[DBs[i]]+"' ";
+            if(i < DBs.length-1)//not last iteration of loop
+                q+=" or ";
+        }
+        
+        q+=") and ("+conditions+")";
         System.out.println("ClusterID query is:"+q);
         
         return q;

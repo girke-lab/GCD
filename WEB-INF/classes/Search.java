@@ -13,7 +13,7 @@ import java.util.List;
 public interface Search 
 {
     //initialize the search object with the data
-    void init(List data,int limit,int dbID);
+    void init(List data,int limit,int[] dbID);
     
     //perform the query and return the results
     List getResults();    //results should always be Seq_id numbers.

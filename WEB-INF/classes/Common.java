@@ -12,6 +12,9 @@ import java.util.*;
 import java.io.*;
 public class Common {
     final static int arab=0, rice=1;
+    //actual database names
+    final static String[] dbRealNames=new String[]{"arab","rice"};
+    
     /** Creates a new instance of Common */
     public Common() {
     }
@@ -151,6 +154,14 @@ public class Common {
         //out.println("<TD><A href='http://faculty.ucr.edu/~tgirke'>Home</A></TD>");
         //out.println("<TD><A href='http://138.23.191.152:/blast/blast.html'>UCR Blast Page</A></TD>");
         //out.println("</TR></TABLE>");
+    }
+    public static int getDBid(String name)
+    {//takes a Genome string from database and reutrn an integer id number for it
+        if(name.equals("arab"))
+            return arab;
+        if(name.equals("rice"))
+            return rice;
+        return -1;
     }
     
 }
