@@ -23,14 +23,14 @@ public class Selector1 implements GoSelector
     {
         this.dag=dag;
         d=new Debug();
-        d.setPrintLevel(2);
+//        d.setPrintLevel(2);
     }
     
     public int getGoNumber(int[] goNumbers) 
     {/* RULES:
       *     1) choose most specific go term.  
       *         a. choose the go number with the highest depth
-      *         b. if several share the same depth, ?
+      *         b. if several share the same depth, ? just take the first one
       */
      
         if(goNumbers.length==0)
@@ -45,7 +45,10 @@ public class Selector1 implements GoSelector
         {
             gn=dag.find(goNumbers[i]);
             if(gn==null)
-                continue; //this should only occur on sample tests
+            {
+                d.print(-1,"node "+goNumbers[i]+" was not found");//this should only occur on sample tests                
+                continue;
+            }
             d.print(2,goNumbers[i]+", depth="+gn.getMaxDepth()+", text="+gn.getText());
             if(gn.getMaxDepth() > maxDepth)
             {

@@ -51,6 +51,11 @@ public class GoNode implements Serializable
     }
     public boolean isChildOf(GoNode gn)
     {
+        if(gn==null)
+        {
+            d.print(-1,"null value in isChildOf() in node "+goNumber);
+            return false;
+        }
         for(Iterator i=parents.iterator();i.hasNext();)
         {
             ParentLink pl=(ParentLink)i.next();
@@ -84,10 +89,12 @@ public class GoNode implements Serializable
         StringBuffer out=new StringBuffer();
         out.append( in+"Node{\n"+in+"   GO:"+goNumber+"\n"+
                     in+"   text: "+text+"\n"+
-                    in+"   maxDepth="+maxDepth+"\n"+                    
-                    in+"   parent count: "+parents.size()+"\n"+
-                    in+"   child count: "+children.size()+"\n"+
-                    in+"}\n");
+                    in+"   maxDepth="+maxDepth+"\n"+   
+                    in+"   child count: "+children.size()+"\n");
+        if(parents!=null)  //when loading from a serialized version, parents can be null.
+            out.append( in+"   parent count: "+parents.size()+"\n");
+        out.append( in+"}\n");
+        
         for(Iterator i=children.iterator();i.hasNext();)
             out.append(((GoNode)i.next()).toString(in+"   "));
         return out.toString();

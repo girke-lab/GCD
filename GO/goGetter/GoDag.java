@@ -24,6 +24,7 @@ public class GoDag implements Serializable
 {
     private GoNode root; //first node in GO DAG.
     private HashMap index;     
+    private int subNode;
     private transient HashMap tempMap; //temp storage used while loading the data
     private transient Pattern goPattern;
     private transient Debug d;
@@ -35,30 +36,42 @@ public class GoDag implements Serializable
         index=new HashMap();        
         d=new Debug();
         d.setPrintLevel(0);
+        subNode=-1; //no sub node given
         buildDag(xmlFilename);         
     }
-    public GoDag(GoDag dg,int subNode)
-    {//build a new dag as a sub dag of the given dag, staring at the given node
+    public GoDag(String xmlFilename,int subNode) 
+    {//open and parse the xml file
         goPattern=Pattern.compile(".*GO:(\\d{7})");
         index=new HashMap();        
         d=new Debug();
         d.setPrintLevel(0);
-        
-        //first find this node
-        //TODO:  this will return a reference from the dg dag.  We should
-        //make a copy of it, or have find return a copy, so that we don't end
-        //up with two seperate dag objects with links between them.
-        GoNode gn=dg.find(subNode);
-        root=gn; //set new root node
-        if(gn==null)
-        {
-            index=null;
-            return;
-        }//else we have a valid node
-        
-        addToSubDag(gn,dg);
-        
+        this.subNode=subNode;
+        buildDag(xmlFilename);         
     }
+
+    //this is bad.
+//    public GoDag(GoDag dg,int subNode)
+//    {//build a new dag as a sub dag of the given dag, staring at the given node
+//        goPattern=Pattern.compile(".*GO:(\\d{7})");
+//        index=new HashMap();        
+//        d=new Debug();
+//        d.setPrintLevel(0);
+//        
+//        //first find this node
+//        //TODO:  this will return a reference from the dg dag.  We should
+//        //make a copy of it, or have find return a copy, so that we don't end
+//        //up with two seperate dag objects with links between them.
+//        GoNode gn=dg.find(subNode);
+//        root=gn; //set new root node
+//        if(gn==null)
+//        {
+//            index=null;
+//            return;
+//        }//else we have a valid node
+//        
+//        addToSubDag(gn,dg);
+//        
+//    }
     
     public GoNode find(int goNumber)
     {//return a copy of the node        
@@ -92,14 +105,9 @@ public class GoDag implements Serializable
     }
     public String toString()
     {
+        if(root==null)
+            return "null root";
         return root.toString();
-    }
-    public GoDag getSubDag(int goNum)
-    { //return a dag that consists of just this node and all its children.
-        //problem: some child may have a parent outside this sub dag.
-        
-        
-        return null;
     }
 //////////////////////////////////////////////////////////    
     private void buildDag(String file)
@@ -146,8 +154,8 @@ public class GoDag implements Serializable
             if(index.containsKey(new Integer(getGo(t.getAccession()))))
                 continue;
             
-            GoNode gn=buildNode(t);
-                            
+            //this will build a GoNode and add it to the index
+            buildNode(t);                            
         }        
     }
     private GoNode buildNode(Term t)
@@ -191,17 +199,28 @@ public class GoDag implements Serializable
                 else
                     parentNode=buildNode(term);
             }
-                
-            parentNode.addChild(gn);
-            d.print(2,"\t adding parent to "+goNum+": "+parentNode);
-            //set parentNode as a parent of this node                    
-            gn.addParent(new ParentLink(parentNode, relation, parentNode.getMaxDepth()+1));                            
+            
+            //once we have the parent node of this node, we need to see if it is part of the correct
+            //subtree.  If parentNode.isChildOf(subNode), then we add a link, other wise, we don't            
+            GoNode subGoNode=(GoNode)index.get(new Integer(subNode));            
+            if(subNode==-1 || subNode==goNum || parentNode==subGoNode || 
+                (subGoNode!=null && parentNode.isChildOf(subGoNode)))
+            {           
+                parentNode.addChild(gn);
+                d.print(2,"\t adding parent to "+goNum+": "+parentNode);
+                //set parentNode as a parent of this node                    
+                gn.addParent(new ParentLink(parentNode, relation, parentNode.getMaxDepth()+1));                            
+            }
         }                          
         
-        if(!gn.hasParent())
+        if(t.getPartOfOrIsA()==null || ((List)t.getPartOfOrIsA()).size()==0)//no parent links given
             root=gn; 
-        d.print("adding "+gn.getGoNumber()+" to index");
-        index.put(new Integer(goNum), gn);        
+        
+        if(gn.hasParent() || gn==root)
+        {
+            d.print("adding "+gn.getGoNumber()+" to index");
+            index.put(new Integer(goNum), gn);        
+        }
         return gn;
     }
     private void addToSubDag(GoNode gn,GoDag dg)
@@ -212,7 +231,7 @@ public class GoDag implements Serializable
         for(Iterator i=gn.parents.iterator();i.hasNext();)
         {
             ParentLink pl=(ParentLink)i.next();
-            if(!pl.getLink().isChildOf(root))
+            if(!pl.getLink().isChildOf(root)) 
                 gn.parents.remove(pl);
         }
         

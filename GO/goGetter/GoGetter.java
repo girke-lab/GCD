@@ -21,6 +21,7 @@ public class GoGetter
     Connection con;
     Debug d;
     
+    
     /** Creates a new instance of SelectGo */
     public GoGetter() 
     {
@@ -30,85 +31,103 @@ public class GoGetter
     }
     
     /**
+     *input: if -x is specified, a xml file should be given, if -d is specified, a serielized GoDag file
+     *should be given.  The rest of the input needed is read from the mySql database
+     *output: output is written directly to the mySql database.
+     *
      * @param args the command line arguments
      */
     public static void main(String[] args) 
     {
-       /* input: xmlfile to build the DAG with, and a list of keys to select Go numbers for.
-                 *OR, we could just connect directly to the db and read the key and go numbers directly
-                 *
-                 *output: a list of keys associated with just one GO number. OR, store the go number in another
-                 *table.
-                 *
-                 *We take in a list of At numbers, each of which has a list of GO numbers associated with it.  
-                 *For each At number, we use the GoSelector to select on of these GO numbers.
-                 */
+                        
+        // khoran.debugPrint.Debug.setPrintStatus(false);  //turn debug printing on or off
+        
+        /////////////////  process input  ////////////////////////////////////        
         if(args.length!=2)
         {
-            System.out.println("USAGE: GoGetter {-x go xml file} | {-d GoDag serial file}");
+            System.out.println("USAGE: GoGetter {-x go_xml_file} | {-d GoDag_serial_file}");
             return;
         }
-        //khoran.debugPrint.Debug.setPrintStatus(false);  //turn debug printing on or off
         GoDag dag=null;
         if(args[0].equals("-x"))
         {
-            dag=new GoDag(args[1]);
-            System.out.print("writing dag...");
-                        
-            try{
-                ObjectOutputStream oos=new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(args[1]+".goDag")));
-                oos.writeObject(dag);        
-                oos.close();
-            }catch(IOException e){
-                System.out.println("error writing dag: "+e.getMessage());
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            
-            System.out.println("done writing dag.");
+            dag=new GoDag(args[1],3674);  //molecular function is GO:0003674                 
+            GoDag.store(args[1]+".goDag",dag);            
         }
         else if(args[0].equals("-d"))
-        {               
-            try{
-                ObjectInputStream ois=new ObjectInputStream(new FileInputStream(args[1]));        
-                dag=(GoDag)ois.readObject();
-            }catch(IOException e){
-                System.out.println("error loading dag: "+e.getMessage());
-            }catch(ClassNotFoundException e){
-                System.out.println("could not find a GoDag object in "+args[1]+": "+e.getMessage());
-            }
-        }
+            dag=GoDag.load(args[1]);
         else
         {
             System.out.println("invalid switch: "+args[0]);
             System.exit(0);
         }
+        
         if(dag==null)
         {
             System.out.println("error: could not build dag");
             System.exit(0);
         }
+        ///////////////////////////////////////////////////////////////////////////////////        
+//        System.out.println("Dag:\n"+dag);
         
-        //System.out.println("Dag:\n"+dag);
+        GoGetter work=new GoGetter();
+         
+        System.out.println("setting unique go numbers for each key");
+        work.findUniqueGoNumbers(dag);        
         
+        System.out.println("setting cluster names");
+        work.findClusterNmaes(dag);
+        
+        System.out.println("done");
+        
+    }
+    public void findUniqueGoNumbers(GoDag dag)
+    {//assign a unique go number to each At number
         
         GoSelector selector=new Selector1(dag); //assign an instance of a GoSelector
-        GoGetter work=new GoGetter();
         
-        //input structure should be a list of AtNumbers.
-        ArrayList inputData=work.getInput();        
+        //input structure should be a list of GoGroups
+        ArrayList inputData=getInput("SELECT Seq_id,Go from Go order by Seq_id",
+                                     "SELECT count(Seq_id) from Go group by Seq_id");        
         for(Iterator i=inputData.iterator();i.hasNext();)
         {
-            AtNumber at=((AtNumber)i.next());
+            GoGroup at=((GoGroup)i.next());
             at.selectedGO=selector.getGoNumber(at.goNums);
             at.text=dag.find(at.selectedGO).getText();            
         }
         
-        //work.storeOutput(inputData); //write data back to db or file or whatever
-         
+//        storeOutput(inputData); //write data back to db or file or whatever
+        
     }
-    public ArrayList getInput()
+    public void findClusterNmaes(GoDag dag)
+    {//assign a name to each cluster
+        //1) read in sets of go numbers for each cluster.
+        // 2) pick most common go number
+        // 3) grab its text and write to the database, in the Cluster_Counts table.
+
+        GoSelector selector=new MostCommonSelector();
+        ArrayList inputData=getInput("SELECT Cluster_id, Go_Number FROM Clusters "+
+                                       "LEFT JOIN Sequences USING(Seq_id) WHERE "+
+                                       "Go_Number LIKE \"GO:%\" and Genome=\"arab\" ORDER BY Cluster_id",
+                                     "SELECT count(Cluster_id) FROM Clusters "+
+                                       "LEFT JOIN Sequences USING(Seq_id) WHERE "+
+                                       "Go_Number LIKE \"GO:%\" and Genome=\"arab\" GROUP BY Cluster_id");//return an array of GoGroups
+        for(Iterator i=inputData.iterator();i.hasNext();)
+        {
+            GoGroup gg=(GoGroup)i.next();
+            gg.selectedGO=selector.getGoNumber(gg.goNums);
+            gg.text=dag.find(gg.selectedGO).getText();
+        }
+        
+        storeClusterNames(inputData);
+        
+    }
+    public ArrayList getInput(String dataQuery, String countQuery)
     {
+        /*dataQuery should return an id column, and a go number column.
+         *           countQuery should return one column which contains the size of each
+         *           group of id numbers in the dataQuery.
+         */
         Statement stmt1,stmt2;
         ResultSet dataRS,countsRS;
         ArrayList ats=new ArrayList();
@@ -117,14 +136,11 @@ public class GoGetter
             stmt1=con.createStatement();
             stmt2=con.createStatement();
 
-            //get seq_id, go number from Go table, order by Seq_id
-            dataRS=stmt1.executeQuery("SELECT Seq_id,Go from Go order by Seq_id");
-            //get the size of each group of go numbers
-            countsRS=stmt2.executeQuery("SELECT count(Seq_id) from Go group by Seq_id"); 
-
+            dataRS=stmt1.executeQuery(dataQuery);
+            countsRS=stmt2.executeQuery(countQuery); 
 
             while(countsRS.next()) //there will be one count entry for each group of go numbers
-            {//create AtNumbers
+            {//create GoGroups
                 int size=countsRS.getInt(1);//get size of this group
                 d.print("size="+size);
                 int id=-1;
@@ -138,9 +154,11 @@ public class GoGetter
                     d.print("found set: id="+id+", go="+gos[i]);
                 }
 
-                AtNumber a=new AtNumber(id, gos);
+                GoGroup a=new GoGroup(id, gos);
                 ats.add(a);            
             }
+            stmt1.close();
+            stmt2.close();
         }catch(SQLException e){
             System.out.println("sql error: "+e.getMessage());
         }
@@ -148,10 +166,55 @@ public class GoGetter
     }
     public void storeOutput(ArrayList data)
     {
-        System.out.println("output: "+data);
+
+        try{
+            con.setAutoCommit(false);
+            Statement stmt1=con.createStatement();        
+            GoGroup gg;
+
+            for(Iterator i=data.iterator();i.hasNext();)
+            {
+                gg=(GoGroup)i.next();                        
+                String goNum=buildGo(gg.selectedGO);
+                stmt1.executeUpdate("UPDATE Sequences SET Go_Number=\""+goNum+"\" WHERE Seq_id="+gg.SeqId);
+            }
+            con.commit();
+            con.setAutoCommit(true);        
+            stmt1.close();
+        }catch(SQLException e){
+            System.out.println("sql error: "+e.getMessage());
+        }
+        
+    }    
+    public void storeClusterNames(ArrayList data)
+    {
+        try{
+            con.setAutoCommit(false);
+            Statement stmt1=con.createStatement();        
+            GoGroup gg;
+
+            for(Iterator i=data.iterator();i.hasNext();)
+            {
+                gg=(GoGroup)i.next();       
+                stmt1.executeUpdate("UPDATE Cluster_Counts SET Name=\""+gg.text+"\" WHERE Cluster_id="+gg.SeqId);
+            }
+            con.commit();
+            con.setAutoCommit(true);        
+            stmt1.close();
+        }catch(SQLException e){
+            System.out.println("sql error: "+e.getMessage());
+        }
+        
     }
 ///////////////////////////////////////////
-    
+    private String buildGo(int go)
+    {//add GO: to front of number and padd to 7 digits.        
+        String number=Integer.toString(go);
+        int padding=7-number.length();
+        for(int i=0;i<padding;i++)
+            number="0"+number; //put a zero in front of it
+        return "GO:"+number;                
+    }
     private void connect(String DB)
     {        
         //open a connnection with the database server
@@ -168,22 +231,22 @@ public class GoGetter
     }
 }
 
-class AtNumber
+class GoGroup
 {
-    public int atId;
+    public int SeqId;
     public int[] goNums;
     public int selectedGO;
     public String text;
     
-    public AtNumber(int id,int[] g)
+    public GoGroup(int id,int[] g)
     {
-        atId=id;
+        SeqId=id;
         goNums=g;
     }
     public String toString()
     {
         StringBuffer out=new StringBuffer();
-        out.append(atId);
+        out.append(SeqId);
         
 //        out.append(" goNums=");
 //        for(int i=0;i<goNums.length;i++)
