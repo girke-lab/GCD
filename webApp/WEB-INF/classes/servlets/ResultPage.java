@@ -53,6 +53,9 @@ public class ResultPage
     public void dipslayPage(PrintWriter out)
     {
         int[] positions=new int[search.getDbCount()];
+        //this does not actually work becuase we need dbNums[] here to
+        //figure out with database we have.
+        //But since we only have two databases, it doesn't really matter.
         for(int i=0;i<positions.length;i++)
             positions[i]=search.getDbStartPos(i);
                 
@@ -114,7 +117,7 @@ public class ResultPage
     
     private void printGotoLinks(PrintWriter out,Object[] names,int[] positions)
     {  //print a link for each entry in names that jumps to the corresponding position
-        if(names.length==0 || positions.length==0){
+        if(names.length==0 || positions.length==0 || positions.length!=names.length){
             out.println("<br><p>");
             return;
         }

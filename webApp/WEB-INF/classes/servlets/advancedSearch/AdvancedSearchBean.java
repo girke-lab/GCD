@@ -38,7 +38,7 @@ public class AdvancedSearchBean {
     
     public AdvancedSearchBean()
     {                
-        log.debug("createing new bean");
+        log.debug("createing new bean");        
     }
     public void setDatabase(String name)
     {        //this is not storing state properly!!
@@ -202,15 +202,12 @@ public class AdvancedSearchBean {
             endSubExp(); //add current index to endPars
         }else if(request.getParameter("add_exp") != null){
             //nothing to do
-        }else if(request.getParameter("load_query")!=null){
-            log.debug("loading query");
-            
+        }else if(request.getParameter("load_query")!=null){            
             if(selectedSearchState >=0 && 
                selectedSearchState < db.getSearchManager().getSearchStateList().size())
                 currentState=db.getSearchManager().getSearchState(selectedSearchState);
             lastWasRemove=true;
         }else if(request.getParameter("store_query")!=null){
-            log.debug("storing query");
             String desc=request.getParameter("description");
             if(desc!=null){                
                 currentState.setDescription(desc);
@@ -261,12 +258,9 @@ public class AdvancedSearchBean {
         db.displayResults(currentState, servletContext,(HttpServletRequest)request,(HttpServletResponse)response);
         
         if(true)
-            return;
+            return;                
         
-        
-        
-        String query=db.buildQuery(currentState);  
-                        
+        String query=db.buildQuery(currentState);                          
         
         log.info("query is: "+query);
         List results=db.sendQuery(query);
