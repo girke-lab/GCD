@@ -26,7 +26,8 @@ public class Unknowns2Database implements SearchableDatabase
     public Field[] fields;
     public String[] operators;
     public String[] booleans; 
-   
+    
+    private final static int rpp=25;
     
     private int unaryBoundry; //seperates unary and binary ops in operators array
     private static DbConnection dbc=null;  //need a connection to a different database
@@ -60,8 +61,7 @@ public class Unknowns2Database implements SearchableDatabase
             log.error("could not send query: "+e.getMessage());
             //e.printStackTrace();
             return;
-        }
-        
+        }        
         //then figure out how to pass this info to QueryPageServlet via post.
         //set the parameters needed by QueryPageServlet
         
@@ -70,7 +70,8 @@ public class Unknowns2Database implements SearchableDatabase
         
         mRequest.getParameterMap().put("searchType","seq_id");
         mRequest.getParameterMap().put("limit", state.getLimit());
-        mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName);         
+        mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName);  
+        mRequest.getParameterMap().put("rpp",new Integer(rpp).toString());
                 
         mRequest.getParameterMap().put("displayType","unknowns2View");
         
@@ -115,38 +116,16 @@ public class Unknowns2Database implements SearchableDatabase
                 
         fieldList="unknowns.unknown_keys.key_id ";
         order=getFields()[state.getSortField()].dbName;
-        //build join
-        int fid;
-        Set tables=new HashSet();
-        
-        tables.add("unknowns.unknown_keys"); //make sure root table is always added
-        //sort field must be added to keep postgres from adding an unconstrained join
-        tables.add(order.substring(0,order.lastIndexOf('.'))); 
-        
-        boolean seq_gosAdded=false,blast_dbAdded=false;
-        for(Iterator i=state.getSelectedFields().iterator();i.hasNext();)
-        {
-            fid=((Integer)i.next()).intValue();
-            if(getFields()[fid].dbName.equals("")) //this is just a title field
-                continue;
-            if(getFields()[fid].dbName.startsWith("go.") && !seq_gosAdded)
-            {
-                tables.add("go.seq_gos");
-                seq_gosAdded=true;
-            }            
-            else if(getFields()[fid].dbName.startsWith("unknowns.blast_databases") && !blast_dbAdded)
-            {
-                tables.add("unknowns.blast_resutls");
-                blast_dbAdded=true;
-            }
-            tables.add(getFields()[fid].dbName.substring(0,getFields()[fid].dbName.lastIndexOf('.')));
-        }
+
+        //build from clause        
+        Set tables=buildTableSet(state,order);        
         for(Iterator i=tables.iterator();i.hasNext();)
         {
             join.append(i.next());
             if(i.hasNext())
                 join.append(",");
         }
+        //build conditions related to the join
         joinConditions=buildJoinConditions(tables);
         //build condition
         userConditions=buildConditions(state);
@@ -162,15 +141,41 @@ public class Unknowns2Database implements SearchableDatabase
                     query.append(" AND ");
                 query.append("("+userConditions+")");
             }                            
-        }
-        //sort by key_id to minimize partial key sets due to the limit value cutting off
-        //the end of the query.
-        query.append(" ORDER BY unknowns.unknown_keys.key_id, "+order);
+        }        
+        query.append(" ORDER BY "+order);
         query.append(" LIMIT "+state.getLimit());
         
         log.info("unknowns2 query: "+query);
         return query.toString();
     }    
+    private Set buildTableSet(SearchState state,String order)
+    {
+        Set tables=new HashSet();
+        
+        tables.add("unknowns.unknown_keys"); //make sure root table is always added
+        //sort field must be added to keep postgres from adding an unconstrained join
+        tables.add(order.substring(0,order.lastIndexOf('.'))); 
+        int fid;
+        boolean seq_gosAdded=false,blast_dbAdded=false;
+        for(Iterator i=state.getSelectedFields().iterator();i.hasNext();)
+        {
+            fid=((Integer)i.next()).intValue();
+            if(getFields()[fid].dbName.equals("")) //this is just a title field
+                continue;
+            if(getFields()[fid].dbName.startsWith("go.") && !seq_gosAdded)
+            {
+                tables.add("go.seq_gos");
+                seq_gosAdded=true;
+            }            
+            else if(getFields()[fid].dbName.startsWith("unknowns.blast_databases") && !blast_dbAdded)
+            {
+                tables.add("unknowns.blast_results");
+                blast_dbAdded=true;
+            }
+            tables.add(getFields()[fid].dbName.substring(0,getFields()[fid].dbName.lastIndexOf('.')));
+        }
+        return tables;
+    }
     private String buildJoinConditions(Set tables)
     {
         StringBuffer conditions=new StringBuffer();
@@ -184,7 +189,7 @@ public class Unknowns2Database implements SearchableDatabase
             table=(String)i.next();
                         
             if(table.equals("unknowns.blast_databases"))
-                conditions.append("unknowns.blast_results.blast_db_id=unknowns.blast_databases=blast_db_id");
+                conditions.append("unknowns.blast_results.blast_db_id=unknowns.blast_databases.blast_db_id");
             else if(table.startsWith("unknowns."))
                 conditions.append(rootTable+".key_id="+table+".key_id");
             else if(table.equals(goRootTable))
@@ -244,6 +249,9 @@ public class Unknowns2Database implements SearchableDatabase
     {                
         String db="unknowns.";
         String space=" &nbsp&nbsp ";
+        //as long as we only use fields from tables that have a 'key_id' column,
+        //we don't need any special cases in the query building code.
+        
         fields=new Field[]{
             new Field("At key",db+"unknown_keys.key"),
             new Field("Description",db+"unknown_keys.description"),
@@ -254,24 +262,36 @@ public class Unknowns2Database implements SearchableDatabase
                         Boolean.class,new String[]{"TRUE","FALSE"}),
             new Field("Biological process unknown?",db+"unknown_keys.bpu",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
+                        
             new Field("Blast data",""),            
             new Field(space+"blast database",db+"blast_databases.db_name",  
-                        new String[]{"uniprot_sprot.fasta"}),
+                        new String[]{"uniprot","hmmPfam"}),
             new Field(space+"Blast target accession",db+"blast_results.target_accession"),
             new Field(space+"Blast target description",db+"blast_results.target_description"),
             new Field(space+"e-value",db+"blast_results.e_value",Float.class),
             new Field(space+"score",db+"blast_results.score"),
-            new Field(space+"identities",db+"blast_results.identities"),
-            //new Field("length",db+"blast_results.length",Integer.class),
-            //new Field("positives",db+"blast_results.positives"),
-            //new Field("gaps",db+"blast_results.gaps"),
+            new Field(space+"identities",db+"blast_results.identities"),            
+            
             new Field("GO",""),
             new Field(space+"GO number","go.go_numbers.go_number"),
             new Field(space+"GO description","go.go_numbers.function"),
             new Field(space+"GO function","go.go_numbers.text",
-                        new String[]{"process","component","function"})
+                        new String[]{"process","component","function"}),
+                        
+            new Field("Clusters",""),
+            new Field(space+"Score Threshold",db+"cluster_counts_view.cutoff",Integer.class,
+                        new String[]{"35","50","70"}),
+            new Field(space+"Size",db+"cluster_counts_view.size",Integer.class),
+            
+            new Field("Proteomic Stats",""),            
+            new Field(space+"Molecular Weight",db+"proteomics_stats.mol_weight"),
+            new Field(space+"Isoelectric Point",db+"proteomics_stats.ip"),
+            new Field(space+"Charge",db+"proteomics_stats.charge"),
+            new Field(space+"Probability of expression in inclusion bodies",db+"proteomics_stats.prob_in_body"),
+            new Field(space+"Probability is negative",db+"proteomics_stats.prob_is_neg",
+                        Boolean.class,new String[]{"TRUE","FALSE"})
         };
-                       
+//new Field(space+"",""),
         operators=new String[]{"=","!=","<",">","<=",">=",
                 "ILIKE","NOT ILIKE","is NULL","is not NULL"};
         unaryBoundry=9;

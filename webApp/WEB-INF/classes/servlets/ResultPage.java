@@ -83,6 +83,9 @@ public class ResultPage
         dv.getQueryWideView().printGeneral(out, search,"",storage);        
         dv.printData(out);
         
+        printControls(out);
+        printGotoLinks(out, Common.dbPrintNames, positions);
+
         printMismatches(out,search.notFound());
     }
     

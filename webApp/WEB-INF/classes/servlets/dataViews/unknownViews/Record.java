@@ -14,5 +14,5 @@ public interface Record
 {
         public void printHeader(java.io.Writer out,RecordVisitor visitor) throws java.io.IOException;
         public void printRecord(java.io.Writer out,RecordVisitor visitor) throws java.io.IOException;
-        
+        public void printFooter(java.io.Writer out,RecordVisitor visitor) throws java.io.IOException;
 }

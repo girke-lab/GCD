@@ -60,13 +60,15 @@ public class GoRecord implements Record
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printHeader(out,this);
-        //out.write("<tr bgcolor='"+Common.titleColor+"'><th>Go Number</th><th>Description</th><th>Function</th></tr>\n");
     }
     
     public void printRecord(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printRecord(out,this);
-        //out.write("<tr><td>"+go_number+"</td><td>"+text+"</td><td>"+function+"</td></tr>\n");
     }
        
+    public void printFooter(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
+    {
+    }
+    
 }

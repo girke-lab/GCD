@@ -13,9 +13,11 @@ package servlets.dataViews.unknownViews;
 
 import java.io.*;
 import java.util.*;
+import org.apache.log4j.Logger;
 
 public class TextRecordVisitor implements RecordVisitor
 {
+    public static Logger log=Logger.getLogger(TextRecordVisitor.class);
     
     /** Creates a new instance of TextRecordVisitor */
     public TextRecordVisitor()
@@ -24,12 +26,14 @@ public class TextRecordVisitor implements RecordVisitor
     
     public void printHeader(java.io.Writer out, GoRecord gr) throws java.io.IOException
     {
-        out.write("go_number,text,function,");
+        //out.write("go_number,text,function,");
+        out.write("go data,");
     }
     
     public void printHeader(java.io.Writer out, BlastRecord br) throws java.io.IOException
     {
-        out.write("target,score,evalue,dbname,");
+        //out.write("target,score,evalue,dbname,");
+        out.write("blast data,");
     }
     
     public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
@@ -48,27 +52,55 @@ public class TextRecordVisitor implements RecordVisitor
     
     public void printRecord(java.io.Writer out, GoRecord gr) throws java.io.IOException
     {
-        out.write(gr.go_number+","+gr.text+","+gr.function+",");
+        out.write(gr.go_number+"\\\""+gr.text+"\"\\"+gr.function+"\\");
     }
     
     public void printRecord(java.io.Writer out, BlastRecord br) throws java.io.IOException
     {
-        out.write(br.target+","+br.score+","+br.evalue+","+br.dbname+",");
+        out.write(br.target+"\\"+br.score+"\\"+br.evalue+"\\"+br.dbname+"\\");
     }
     
     public void printRecord(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
-    {
-        out.write("\n"+ur.key+","+ur.description+",");
+    {        
+        out.write("\n"+ur.key+",\""+ur.description+"\",");
         Collection list;
         for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
         {
-            list=(Collection)i.next();
+            list=(Collection)i.next(); //each collection is from a different table
             if(list==null)
                 continue;
             for(Iterator j=list.iterator();j.hasNext();)
                 ((Record)j.next()).printRecord(out,this);     
+            if(i.hasNext()) ///data from each table goes in one column
+                out.write(",");
         }
             
     }
+    public void printFooter(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
+    {
+    }
+     
+    public void printHeader(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException
+    {
+        out.write("Proteomics data");
+    }
+    public void printRecord(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException
+    {
+        out.write(pr.mol_weight+"\\"+pr.ip+"\\"+pr.charge+"\\"+pr.prob+"\\"+pr.prob_is_neg+"\\");
+    }
+    
+    public void printHeader(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
+    {
+        out.write("Cluster data");
+    }
+    public void printRecord(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
+    {
+        out.write(cr.size+"\\"+cr.cutoff+"\\");
+    }                  
+    public void printFooter(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
+    {
+    }
+    
+   
     
 }

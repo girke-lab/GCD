@@ -25,14 +25,15 @@ public class Unknowns2DataView implements DataView
     int hid;
     String sortCol,sortDir;
     int[] dbNums;        
-    DbConnection dbc=null;
-    Collection records=null;
+    DbConnection dbc=null;    
     File tempDir=null;
     
     private static Logger log=Logger.getLogger(Unknowns2DataView.class);    
     private final FieldRange unknown_key=new FieldRange(0,6),
-                             blast_results=new FieldRange(6,15),
-                             go_numbers=new FieldRange(15,18);
+                             blast_results=new FieldRange(6,16),
+                             go_numbers=new FieldRange(16,19),
+                             clusters=new FieldRange(19,21),
+                             proteomics=new FieldRange(21,26);
     
     /** Creates a new instance of Unknowns2DataView */
     public Unknowns2DataView()
@@ -55,10 +56,8 @@ public class Unknowns2DataView implements DataView
     }        
     
     public void printData(java.io.PrintWriter out)
-    {        
-        if(records==null)
-            loadData();
-        printData(out,records);
+    {                
+        printData(out,parseData(getData(seq_ids)));
         out.println("</td></table>"); //close page level table
     }
     
@@ -105,18 +104,22 @@ public class Unknowns2DataView implements DataView
             {
                 File tempFile=(File)storage.get("unknowns2.tempfile");
                 if(tempFile==null)
-                { //create temp file for entire query.            
-                    log.debug("generating a new temp file");
-                    List temp=seq_ids; //bakup old id list
-                    setIds(search.getResults());
-                    if(records==null)
-                        loadData();
-                    tempFile=writeTempFile(records);
+                { //create temp file for entire query.                                
+                    log.debug("generating a new temp file");                                         
+                    try{            
+                        tempFile=File.createTempFile("results",".csv",tempDir);             
+                    }catch(IOException e){
+                         log.warn("could not create temp file: "+e.getMessage());
+                    }
                     storage.put("unknowns2.tempfile", tempFile);
-                    seq_ids=temp;
+                    
+                    Thread genTempFile=new GenTempFile(tempFile,search.getResults());                    
+                    genTempFile.start(); //gen file in background
+                    
                 }
                 if(tempFile!=null) //make sure tempFile is still not null
-                    out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>");
+                    out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>" +
+                    "(this file may not contain any data for several minutes, while the data is retrieved)");
                 else
                     log.warn("could not create csv file");
                 
@@ -125,20 +128,14 @@ public class Unknowns2DataView implements DataView
     }
   //////////////////////////////////////////////////////////////////////////////
   ///////////// Private methods  ////////////////////////////////////
-    private void loadData()
-    {
-        if(seq_ids.size()==0)
-            records=new ArrayList();
-        else
-            records=parseData(getData());
-    }
+
     private Collection parseData(List raw_data)
     {  //recivies unformatted data from database
         List row;
         UnknownRecord rec;
         BlastRecord br;
         //Set records=new HashSet();
-        Map records=new HashMap();        
+        Map records=new LinkedHashMap();        
         log.debug("parsing "+raw_data.size()+" rows");
         
         for(Iterator i=raw_data.iterator();i.hasNext();)
@@ -151,10 +148,12 @@ public class Unknowns2DataView implements DataView
                 rec=new UnknownRecord(row.subList(unknown_key.s,unknown_key.e));            
                 records.put(row.get(0),rec);
             }            
+            rec.addSubRecord("go_numbers",new GoRecord(row.subList(go_numbers.s,go_numbers.e))); 
             rec.addSubRecord("blast_results",new BlastRecord(row.subList(blast_results.s,blast_results.e))); 
-            rec.addSubRecord("go_numbers",new GoRecord(row.subList(go_numbers.s,go_numbers.e)));            
+            rec.addSubRecord("proteomics",new ProteomicsRecord(row.subList(proteomics.s,proteomics.e)));
+            rec.addSubRecord("clusters",new ClusterRecord(row.subList(clusters.s,clusters.e)));
         }
-        return records.values();
+        return records.values(); //this is  a list of Record objects
     }
     private void printData(PrintWriter out,Collection data)
     {    //recieves a list of Records        
@@ -170,7 +169,7 @@ public class Unknowns2DataView implements DataView
                 rec=(Record)i.next();
                 rec.printHeader(out,visitor);
                 rec.printRecord(out,visitor);
-                out.println("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>");
+                rec.printFooter(out,visitor);                
             }            
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());
@@ -178,18 +177,13 @@ public class Unknowns2DataView implements DataView
         
         out.println("</TABLE>");
     }
-    private File writeTempFile(Collection data)
+    private void writeTempFile(File tempFile,Collection data)
     { //returns the temp file written to.
-        File tempFile=null;        
-        FileWriter fw;
-        try{            
-            tempFile=File.createTempFile("results",".csv",tempDir);             
-        }catch(IOException e){
-             log.warn("could not create temp file: "+e.getMessage());
-        }
+        
         if(tempFile==null)
-            return null;
+            return;
         RecordVisitor visitor=new TextRecordVisitor();
+        FileWriter fw;
         try{
             fw=new FileWriter(tempFile);
             //print title row
@@ -204,13 +198,12 @@ public class Unknowns2DataView implements DataView
                 }
                 rec.printRecord(fw,visitor);
             }                        
-            
+            fw.close();
         }catch(IOException e){
             log.error("could not write to temp file "+tempFile.getPath()+": "+e.getMessage());
-        }
-        return tempFile;
+        }       
     }
-    private List getData()
+    private List getData(List seq_ids)
     {
         StringBuffer conditions=new StringBuffer();
         conditions.append("unknowns.unknown_keys.key_id in (");
@@ -226,52 +219,58 @@ public class Unknowns2DataView implements DataView
         }catch(Exception e){
             log.error("could not send query: "+e.getMessage());
         }
-        return null;
+        return new ArrayList(); //prevents some null pointer problems
     }
     private String buildQuery(String conditions)
     {
-//        String query="SELECT unknowns.unknown_keys.*,unknowns.blast_results.*,go.go_numbers.* "+
-//            " FROM unknowns.unknown_keys, unknowns.blast_results,go.go_numbers,go.seq_gos "+
-//            " WHERE unknowns.unknown_keys.key_id=unknowns.blast_results.key_id "+
-//                " AND substring(unknowns.unknown_keys.key from 1 for 9)=go.seq_gos.accession " +
-//                " AND go.seq_gos.go_id=go.go_numbers.go_id "+
-//                " AND ("+conditions+")"+
-//            " ORDER BY "+sortCol+" "+sortDir;
+
         
 //        unknowns.unknown_keys.*,unknowns.blast_results.* unknowns.blast_databases.db_name," +
 //                            "go.go_numbers.* "+
         
         
         String[] tables=new String[]{"unknowns.unknown_keys","unknowns.blast_results",
-                                     "unknowns.blast_databases","go.go_numbers"};
+                                     "unknowns.blast_databases","go.go_numbers","go.seq_gos",
+                                     "unknowns.cluster_counts_view","unknowns.proteomics_stats"};
         String[][] fields=new String[][]{
             {"key","description","est_count","mfu","ccu","bpu"},        //[0-6)
             {"target_accession","target_description","e_value","score","identities","length","positives","gaps"}, //[6-14)
-            {"db_name"}, //[14,15)
-            {"go_number","function","text"} //[15-18)
+            {"db_name,link"}, //[14,16)
+            {"go_number","function","text"}, //[16-19)
+            {}, //no fields for seq_gos
+            {"size","cutoff"},  //[19,21)
+            {"mol_weight","ip","charge","prob_in_body","prob_is_neg"} //[21,26)
         };
         StringBuffer fieldList=new StringBuffer();
+        StringBuffer tableList=new StringBuffer();
+        
         for(int i=0;i<tables.length;i++)
+        {
+            tableList.append(tables[i]+",");
             for(int j=0;j<fields[i].length;j++)
-                fieldList.append(tables[i]+"."+fields[i][j]+",");
-        fieldList.deleteCharAt(fieldList.length()-1); //cut off last ','
-        String query="SELECT "+fieldList+
-            " FROM unknowns.unknown_keys, unknowns.blast_results,go.go_numbers,go.seq_gos," +
-                " unknowns.blast_databases, "+
-                "(select distinct on (br.key_id)  br.blast_id,br.key_id " +
-                 "from unknowns.blast_results as br, " +
-                    "(select key_id,min(e_value) as e_value " +
-                     "from unknowns.blast_results " +
-                     "group by key_id) as mins " +
-                 "where br.key_id=mins.key_id and br.e_value=mins.e_value " +
-                 "order by br.key_id) as min_blast_ids " +
-            " WHERE       unknowns.unknown_keys.key_id=unknowns.blast_results.key_id " +
-            "        AND substring(unknowns.unknown_keys.key from 1 for 9)=go.seq_gos.accession " +
-            "        AND go.seq_gos.go_id=go.go_numbers.go_id " +
-            "        AND unknowns.unknown_keys.key_id=min_blast_ids.key_id " +
-            "        AND min_blast_ids.blast_id=unknowns.blast_results.blast_id " +
-            "        AND unknowns.blast_results.blast_db_id=unknowns.blast_databases.blast_db_id "+
-            "        AND ("+conditions+")"+
+                fieldList.append(tables[i]+"."+fields[i][j]+",");            
+        }
+        fieldList.deleteCharAt(fieldList.length()-1); //cut off last ','                     
+        tableList.deleteCharAt(tableList.length()-1);
+        
+        String query="SELECT "+fieldList+"\n"+
+            " FROM " +tableList+
+                ", (select distinct on (br.key_id,br.e_value)  br.blast_id,br.key_id \n" +
+                 "from unknowns.blast_results as br, \n" +
+                    "(select key_id,min(e_value) as e_value \n" +
+                     "from unknowns.blast_results \n" +
+                     "group by blast_db_id,key_id) as mins \n" +
+                 "where br.key_id=mins.key_id and br.e_value=mins.e_value \n" +
+                 "order by br.key_id) as min_blast_ids \n" +
+            " WHERE       unknowns.unknown_keys.key_id=unknowns.blast_results.key_id \n" +
+            "        AND substring(unknowns.unknown_keys.key from 1 for 9)=go.seq_gos.accession \n" +
+            "        AND go.seq_gos.go_id=go.go_numbers.go_id \n" +
+            "        AND unknowns.unknown_keys.key_id=min_blast_ids.key_id \n" +
+            "        AND min_blast_ids.blast_id=unknowns.blast_results.blast_id \n" +
+            "        AND unknowns.blast_results.blast_db_id=unknowns.blast_databases.blast_db_id \n"+
+            "        AND unknowns.unknown_keys.key_id=unknowns.cluster_counts_view.key_id \n"+
+            "        AND unknowns.unknown_keys.key_id=unknowns.proteomics_stats.key_id \n"+
+            "        AND ("+conditions+")\n"+
             " ORDER BY "+sortCol+" "+sortDir;
 
                
@@ -308,6 +307,20 @@ public class Unknowns2DataView implements DataView
         {
             this.s=s;
             this.e=e;
+        }
+    }
+    
+    class GenTempFile extends Thread
+    {                        
+        File temp;
+        List ids;
+        public GenTempFile(File t,List l)
+        {
+            temp=t;
+            ids=l;
+        }
+        public void run(){ //since this queries all data, it will be slow, so run it in the background
+            writeTempFile(temp,parseData(getData(ids)));        
         }
     }
 }

@@ -8,14 +8,12 @@
 <jsp:useBean id='common' class='servlets.Common' />
 <%      
         //common.printHeader(out);        
-        bean.setDefaultDatabase("unknowns2");
+        bean.setDefaultDatabase("unknowns");
         bean.setContext(application,request,response);
         bean.loadValues(request); //get entered values for fields, opts, bools , etc ...
 %>
 
-<p><p> 
-
-
+<p><p>  k
 <font face="sans-serif, Arial, Helvetica, Geneva">
 <img alt="Unknown Database" src="images/unknownspace3.png">		
 <table>

@@ -31,7 +31,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printHeader(java.io.Writer out, BlastRecord br) throws java.io.IOException
     {
         out.write("<tr bgcolor='"+Common.titleColor+"'><th>Target Key</th><th>E-value</th>" +
-                    "<th>Score</th><th>Database</th></tr>\n");
+                    "<th>Score</th><th>DB/Method</th></tr>\n");
     }
     
     public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
@@ -41,15 +41,17 @@ public class HtmlRecordVisitor implements RecordVisitor
     
     public void printRecord(java.io.Writer out, GoRecord gr) throws java.io.IOException
     {
-         out.write("<tr><td>"+gr.go_number+"</td><td>"+gr.text+"</td><td>"+gr.function+"</td></tr>\n");
+         String link="http://www.godatabase.org/cgi-bin/go.cgi?" +
+            "depth=0&advanced_query=&search_constraint=terms&query="+gr.go_number+"&action=replace_tree";
+         out.write("<tr><td><a href='"+link+"'>"+gr.go_number+"</a></td><td>"+gr.text+"</td><td>"+gr.function+"</td></tr>\n");
     }
     
     public void printRecord(java.io.Writer out, BlastRecord br) throws java.io.IOException
     {
-         out.write("<tr><td>"+br.target+"</td><td>"+br.evalue+"</td><td>"+br.score+"</td>" +
+        
+         out.write("<tr><td><a href='"+br.link+"'>"+br.target+"</a></td><td>"+br.evalue+"</td><td>"+br.score+"</td>" +
                     "<td>"+br.dbname+"</td></tr>\n");
-    }
-    
+    }    
     public void printRecord(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {
         out.write("<tr><td><a href='http://www.arabidopsis.org/servlets/TairObject?type=locus&name="+
@@ -80,9 +82,65 @@ public class HtmlRecordVisitor implements RecordVisitor
                     firstRecord=false;
                 }
                 rec.printRecord(out,this);
+                if(!j.hasNext()) //this is the last record
+                    rec.printFooter(out,this);
             }            
-            out.write("</td></tr></TablE>\n");
+            out.write("</TablE></td></tr>\n");
         }        
     }
+    public void printFooter(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
+    {
+        out.write("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>\n");
+    }
+    
+    public void printHeader(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException
+    {
+        String prob="Probability";
+        if(pr.prob_is_neg)
+            prob="Improbability";
+        out.write("<tr bgcolor='"+Common.titleColor+"'><th>MW</th><th>IP</th><th>Charge</th><th>"+prob+"</th></tr>\n");
+    }      
+    public void printRecord(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException
+    {
+        out.write("<tr><td>"+pr.mol_weight+"</td><td>"+pr.ip+"</td><td>"+pr.charge+"</td><td>"+pr.prob+"</td></tr>\n");
+    }
+    
+    public void printHeader(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
+    {
+        out.write("<tr bgcolor='"+Common.titleColor+"'><th>Cluster Size(Cutoff value)</th></tr>\n");
+        out.write("<tr><td>"); //all records go in one row
+    }    
+    public void printRecord(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
+    {
+        out.write(cr.size+"("+cr.cutoff+") &nbsp&nbsp&nbsp ");
+        if(cr.showClusterCentricView)
+        { //print the list of keys that are in this cluster
+            int colNum=3;
+            int length=cr.keys.size();
+            int keysPerCol=(int)(length/colNum);
+            
+            out.write("</td></tr>"); //end the cluster(cutoff) row
+            out.write("<tr><td colspan='5'><table bgcolor='"+Common.dataColor+"' width='100%'" +
+                " border='1' cellspacing='0' cellpadding='0'>\n");
+            out.write("<tr  bgcolor='"+Common.titleColor+"'><th colspan='"+colNum+"'>Cluster Members</th></tr>");
+            for(int i=0;i<length;i++)
+            {
+                out.write("<tr>");
+                for(int c=0;i<colNum;c++)
+                    if(i+c*keysPerCol < length)
+                        out.write("<td>"+cr.keys.get(i+c*keysPerCol)+"</td>");
+                    else
+                        out.write("<td>&nbsp</td>");
+                out.write("</tr>");
+            }
+            out.write("</table></td></tr><tr><td>"); //set up another row for future cluster(cutoff) entries
+        }
+    }    
+    public void printFooter(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
+    {
+        out.write("</td></tr>"); //end the last cluster(cutoff) row
+    }
+    
+   
     
 }
