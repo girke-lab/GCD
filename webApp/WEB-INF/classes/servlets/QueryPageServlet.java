@@ -173,7 +173,7 @@ public class QueryPageServlet extends HttpServlet
         StringBuffer conditions=new StringBuffer();
         System.out.println("data="+data);
         for(Iterator i=data.iterator();i.hasNext();)
-            conditions.append("Seq_id="+(String)i.next()+" OR ");
+            conditions.append("go.Seq_id="+(String)i.next()+" OR ");
         conditions.append("0=1");
 
         System.out.println("sending goNumbers query: "+buildGoStatement(conditions.toString()));
@@ -378,7 +378,7 @@ public class QueryPageServlet extends HttpServlet
 
          //here we want an array of go numbers
          StringBuffer querys=new StringBuffer();
-         ArrayList gos=(ArrayList)goNumbers.get(Seq_id);
+         ArrayList gos=(ArrayList)goNumbers.get(key);
          if(gos!=null) //gos may be null if this Seq_id does not have any GO numbers
            for(Iterator i=gos.iterator();i.hasNext();)
                  querys.append("query="+((String)i.next()).replaceFirst(":","%3A")+"&"); //the : must be encoded
@@ -420,8 +420,20 @@ public class QueryPageServlet extends HttpServlet
             for(Iterator j=((ArrayList)entry.getValue()).iterator();j.hasNext();)            
                 out.println("<INPUT type=hidden name='go_numbers' value='"+entry.getKey()+"_"+j.next()+"'/>\n");
         }
+        for(Iterator i=data.iterator();i.hasNext();)
+        {
+            String key=(String)((List)i.next()).get(0);
+            boolean match=false;
+            for(Iterator j=goNumbers.keySet().iterator();j.hasNext();)
+            {
+                String goKey=(String)j.next();
+                if(key.equals(goKey))
+                    match=true;                    
+            }            
+            if(!match)
+                out.println("<INPUT type=hidden name='missing_keys' value='"+key+"'/>\n");
+        }        
         out.println("<INPUT type=hidden name='total_seq_count' value='"+data.size()+"'/>\n");
-        out.println("<INPUT type=hidden name='used_seq_count' value='"+goNumbers.size()+"'/>\n");
         out.println("</FORM></TD></TR></TABLE>\n");
 
    
@@ -464,7 +476,9 @@ public class QueryPageServlet extends HttpServlet
     }
     private String buildGoStatement(String conditions)
     {
-        return "SELECT Seq_id, Go from Go WHERE "+conditions;
+        //return "SELECT Seq_id, Go from Go WHERE "+conditions;
+        return "SELECT primary_key, Go FROM sequences, go "+
+               "WHERE sequences.seq_id=go.seq_id AND ("+conditions+")";
     }
     private String buildClusterStatement(String conditions)
     {

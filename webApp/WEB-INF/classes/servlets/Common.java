@@ -159,25 +159,20 @@ public class Common {
         "<table width='100%' border='0' cellspacing='0' cellpadding='0'>"+
         "<tr bgcolor='AAAAAA'><td colspan='3'>&nbsp</td></tr>"+
         "<tr>"+
-        //"<td width='210' rowspan='2'><a href='http://www.cepceb.ucr.edu/' target='_blank'><img src='images/cepceb.jpg' alt='cepceb' width='210' height='90' border='0'></a></td>"+
-        //"<td width='210' rowspan='2' bgcolor='AAAAAA'>&nbsp</td>"+
-        "<td width='590' align='center' colspan='3' bgcolor='AAAAAA' ><h1>Genome Cluster Database</h1></td>"+
+        "   <td align='center' colspan='3' bgcolor='AAAAAA' ><h1>Genome Cluster Database</h1></td>"+
         "</tr>"+
         "<tr>"+
-        "    <td height='29' valign='top' colspan='3' bgcolor='AAAAAA'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.cepceb.ucr.edu/' target='_blank'>"+
-        "       Center for Plant Cell Biology at UC Riverside</a></font></div></td>"+
+        "    <td align='center' colspan='3' bgcolor='AAAAAA'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.cepceb.ucr.edu/' target='_blank'>"+
+        "       Center for Plant Cell Biology at UC Riverside</a></font></td>"+
         "</tr>"+
         "<tr bgcolor='AAAAAA'><td colspan='3'>&nbsp</td></tr>"+
-        "<tr><td>&nbsp</td></tr>"+
+        "<tr colspan='3'><td>&nbsp</td></tr>"+
         "<tr>"+        
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>"+
-        //"        <b>About this Database</b></a></font></div></td>"+
         "        <img src='images/aboutDB.jpg' width='100' height='25' border='0'></a></font></div></td>"+
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>"+
-        //"        <b>Cluster Table</b></a></font></div></td>"+
         "        <img src='images/clusterTable.jpg' width='100' height='25' border='0'></a></font></div></td>"+
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>"+
-        //"        <b>Cluster Statistics</b></a></font></div></td>"+
         "        <img src='images/clusterStats.jpg' width='100' height='25' border='0'></a></font></div></td>"+
         "</tr>"+
         "</table><p>";        
