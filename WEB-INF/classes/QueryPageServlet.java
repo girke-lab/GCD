@@ -281,7 +281,8 @@ public class QueryPageServlet extends HttpServlet
          else if(currentDB==rice)
              db="osa1";
     	 out.println("\t\t<TD>");
-    	 out.println("<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+ key+"'>MIPS</a>&nbsp&nbsp");                 
+         if(currentDB==arab)
+            out.println("<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+ key+"'>MIPS</a>&nbsp&nbsp");                 
          out.println("<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+ "ORF_infopage.cgi?db="+db+"&orf="+key+"'>TIGR</a>&nbsp&nbsp");
          if(size!="")
             out.println("<a href='/databaseWeb/ClusterServlet?hid="+hid+"&clusterID="+clusterNum+"'>Cl "+clusterNum+"("+size+")</a>&nbsp&nbsp");
@@ -293,8 +294,9 @@ public class QueryPageServlet extends HttpServlet
 	 out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/geneview.pl?accession="+key+"'>GeneStructure*</a>&nbsp&nbsp");
 	 out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?PF'>PFAM</a>&nbsp&nbsp");
 	 //expression link goes here
-	 out.println("<a href='http://signal.salk.edu/cgi-bin/tdnaexpress?GENE="+key+"&FUNCTION=&JOB=HITT&DNA=&INTERVAL=10'>KO</a>&nbsp&nbsp");
-	 out.println("<a href='http://www.geneontology.org/doc/index.shtml#downloads'>GO</a>&nbsp&nbsp");
+         if(currentDB==arab)
+            out.println("<a href='http://signal.salk.edu/cgi-bin/tdnaexpress?GENE="+key+"&FUNCTION=&JOB=HITT&DNA=&INTERVAL=10'>KO</a>&nbsp&nbsp");
+         out.println("<a href='http://www.geneontology.org/doc/index.shtml#downloads'>GO</a>&nbsp&nbsp");
          //does this link work for rice?
 	 out.println("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");
 	 out.println("\t\t</TD>");
