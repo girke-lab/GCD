@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
  * Stores all information needed to store a query. Can also be serialized for
  * persistant storage (See {@link SearchStateManager }).
  */
-public class SearchState implements java.io.Serializable,StorableSearch
+public class SearchState implements java.io.Serializable
 {
     
     public static final long serialVersionUID = new Long("-1226915453818595933").longValue();
