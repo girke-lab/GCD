@@ -12,7 +12,7 @@ import java.util.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
-
+import org.apache.log4j.Logger;
 import javax.servlet.jsp.JspWriter;
 
 /**
@@ -42,6 +42,8 @@ public class AdvancedSearchBean {
     ServletContext servletContext=null;
     ServletRequest request=null;
     ServletResponse response=null;
+    
+    private static Logger log=Logger.getLogger(AdvancedSearchBean.class);
     
     public AdvancedSearchBean()
     {
@@ -167,8 +169,8 @@ public class AdvancedSearchBean {
         values.remove(row.intValue());
         selectedBools.remove(row.intValue());
         
-//        System.out.println("removing "+row);
-//        System.out.println("start: "+startParinths+", end: "+endParinths);
+//        log.debug("removing "+row);
+//        log.debug("start: "+startParinths+", end: "+endParinths);
         for(int i=0;i<startParinths.size();i++)
             if(((Integer)startParinths.get(i)).intValue() > row.intValue())
                 startParinths.set(i, new Integer(((Integer)startParinths.get(i)).intValue()-1));
@@ -176,7 +178,7 @@ public class AdvancedSearchBean {
             if(((Integer)endParinths.get(i)).intValue() >= row.intValue())
                 endParinths.set(i, new Integer(((Integer)endParinths.get(i)).intValue()-1));
            
-//        System.out.println("2start: "+startParinths+", end: "+endParinths);
+//        log.debug("2start: "+startParinths+", end: "+endParinths);
         
         lastWasRemove=true;
     }
@@ -184,18 +186,22 @@ public class AdvancedSearchBean {
     { //put all the conditions together to build a query
         if(servletContext==null)
         {
-            System.out.println("could not get servlet context");
+            log.error("could not get servlet context");
             return;
         }
         StringBuffer query=new StringBuffer();
-        if(fields[sortField].dbName.startsWith("cluster_info"))
-            query.append("SELECT DISTINCT cluster_info.cluster_id ");
-        else
-            query.append("SELECT DISTINCT sequences.seq_id ");
-        query.append(", "+fields[sortField].dbName+",sequences.genome ");
-        query.append("FROM  sequences LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequences.seq_id=go.seq_id) ");
-        query.append("WHERE ");
-        query.append(" (");
+        String fieldList, order, join;
+        
+        if(fields[sortField].dbName.startsWith("cluster_info")){
+            fieldList=" cluster_info.cluster_id, "+fields[sortField].dbName;
+            order=fields[sortField].dbName;
+        }else{
+            fieldList=" sequences.seq_id, "+fields[sortField].dbName+",sequences.genome ";
+            order=" sequences.genome, "+fields[sortField].dbName; 
+        }
+        join=" sequences LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequences.seq_id=go.seq_id) ";
+                
+        query.append("SELECT DISTINCT "+fieldList+" FROM "+join+" WHERE (");                
         
         int sp=0,ep=0;
         int fid,oid;
@@ -237,9 +243,9 @@ public class AdvancedSearchBean {
             
         }
         query.append(") ");
-        query.append("ORDER BY sequences.genome, "+fields[sortField].dbName+" ");
-        query.append("LIMIT "+limit);
-        System.out.println("query is: "+query);
+        query.append(" ORDER BY "+order);
+        query.append(" LIMIT "+limit);
+        log.info("query is: "+query);
         List results=Common.sendQuery(query.toString());
         //then figure out how to pass this info to QueryPageServlet via post.
         //set the parameters needed by QueryPageServlet
@@ -265,7 +271,7 @@ public class AdvancedSearchBean {
         try{
             servletContext.getRequestDispatcher("/QueryPageServlet").forward(mRequest, response);    
         }catch(Exception e){
-            System.out.println("could not forward to QueryPageServlet: "+e.getMessage());
+            log.error("could not forward to QueryPageServlet: "+e.getMessage());
             e.printStackTrace();
         }
     }

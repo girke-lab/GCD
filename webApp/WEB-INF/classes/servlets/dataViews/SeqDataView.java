@@ -14,6 +14,7 @@ package servlets.dataViews;
 import java.util.*;
 import java.io.*;
 import servlets.Common;
+import org.apache.log4j.Logger;
 
 public class SeqDataView implements DataView 
 {
@@ -30,6 +31,7 @@ public class SeqDataView implements DataView
                       A_SIZE_COL=8, R_SIZE_COL=9;
     
     String dataColor="D3D3D3",titleColor="AAAAAA";
+    private static Logger log=Logger.getLogger(SeqDataView.class);
     
     /** Creates a new instance of SeqDataView */
     public SeqDataView() {
@@ -50,6 +52,7 @@ public class SeqDataView implements DataView
         if(records==null)
             loadData();
         printSummary(out,records);
+        out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");
     }
     public void printStats(java.io.PrintWriter out) {
         if(records==null)
@@ -173,7 +176,7 @@ public class SeqDataView implements DataView
         if(order!=null && order != "")
             query.append(order+", ");
         query.append(" sequences.primary_key,clusters.model_id, go.go,cluster_info.filename ");        
-        System.out.println("sequence view query: "+query);
+        log.info("sequence view query: "+query);
         return query.toString();
     }
 //////////////////////////////////////////////////////////////////////
@@ -333,7 +336,9 @@ public class SeqDataView implements DataView
                      while(tok.hasMoreTokens())
                      {
                          String n=tok.nextToken();                     
-                         out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+n.substring(0,n.indexOf('.'))+"'>"+n+"</a>");
+                         out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+n.substring(0,n.indexOf('.'))+"'" +
+//                            "onmouseover=\"return escape('"+n+"')\""+   // used for tool tips
+                            ">"+n+"</a>");
                          if(tok.hasMoreTokens())
                              out.println("_");
                      }                 

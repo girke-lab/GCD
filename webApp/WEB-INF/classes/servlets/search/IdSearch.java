@@ -48,8 +48,7 @@ public class IdSearch extends AbstractSearch
             }
             al.add(t.get(0));
             keysFound.add(t.get(1));
-        }
-        System.out.println("al="+al);
+        }        
         data=al;
         if(data.size() > Common.MAX_QUERY_KEYS) 
             stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);        
@@ -82,7 +81,7 @@ public class IdSearch extends AbstractSearch
         id+=") and ("+conditions+")";
         id+=" order by genome";
         id+=" limit "+limit;
-        System.out.println("IdSearch query: "+id);   
+        log.info("IdSearch query: "+id);   
         return id;
     }
     private String buildStatsStatement(String conditions,int[] dbs)
@@ -102,7 +101,7 @@ public class IdSearch extends AbstractSearch
         "        (select count(distinct c.cluster_id) from sequences as s, clusters as c, id_associations as a" +
         "        where s.seq_id=c.seq_id and s.seq_id=a.seq_id and "+conditions+" ) as t2";       
                 
-        System.out.println("IdSearch stats query: "+query);
+        log.info("IdSearch stats query: "+query);
         return query;
     }
     public List notFound()
@@ -114,8 +113,7 @@ public class IdSearch extends AbstractSearch
             el=(String)i.next();
             if(!el.matches(".*%.*")) //don't add wildcard entries
                 temp.add(el);
-        }
-        System.out.println("temp="+temp);
+        }        
         temp.removeAll(keysFound);
         return temp;        
     }

@@ -65,7 +65,7 @@ public class ClusterNameSearch extends AbstractSearch
         }                
         data=al;        
         if(data.size() > Common.MAX_QUERY_KEYS) {
-            System.out.println(data.size()+" keys, using local stats query.");
+            log.debug(data.size()+" keys, using local stats query.");
             stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
         }
     }
@@ -86,7 +86,7 @@ public class ClusterNameSearch extends AbstractSearch
                 "(select count(distinct c2.cluster_id) from sequences as s, clusters as c, clusters as c2, cluster_info" +
                 " where s.seq_id=c.seq_id and s.seq_id=c2.seq_id and c.cluster_id=cluster_info.cluster_id and "+conditions+" ) as t2";
                 
-        System.out.println("Cluster name stats query: "+query);
+        log.info("Cluster name stats query: "+query);
         return query;
     }
     private String buildIdStatement(String conditions, int limit,int[] DBs)
@@ -105,7 +105,7 @@ public class ClusterNameSearch extends AbstractSearch
         id+=") AND "+conditions;
         id+=" order by genome";
         id+=" limit "+limit;
-        System.out.println("ClusterNameSearch query: "+id);
+        log.info("ClusterNameSearch query: "+id);
         return id;
     }
 }

@@ -70,7 +70,7 @@ public class ClusterIDSearch extends AbstractSearch
         q+=") and ("+conditions+")";
         q+=" order by Genome ";
         q+=" limit "+limit;
-        System.out.println("ClusterID query is:"+q);
+        log.info("ClusterID query is:"+q);
 
         return q;
     }
@@ -91,7 +91,7 @@ public class ClusterIDSearch extends AbstractSearch
                 "(select count(distinct c2.cluster_id) from sequences as s, clusters as c, clusters as c2, cluster_info" +
                 " where s.seq_id=c.seq_id and s.seq_id=c2.seq_id and c.cluster_id=cluster_info.cluster_id and "+conditions+" ) as t2";
                 
-        System.out.println("ClusterID stats query: "+query);
+        log.info("ClusterID stats query: "+query);
         return query;
     }
     public List notFound() 
@@ -103,8 +103,7 @@ public class ClusterIDSearch extends AbstractSearch
             el=(String)i.next();
             if(!el.matches(".*%.*")) //don't add wildcard entries
                 temp.add(el);
-        }
-        System.out.println("temp="+temp);
+        }        
         temp.removeAll(keysFound);
         return temp;        
     }                 

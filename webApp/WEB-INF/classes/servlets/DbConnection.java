@@ -35,7 +35,7 @@ public class DbConnection
     /** Creates a new instance of DbConnection */
     public DbConnection() throws Exception
     {
-        connect("jdbc:postgresql://138.23.191.152/common","servlet","512256");
+        connect("jdbc:postgresql://138.23.191.152/common","servlet","");
         hostname="localhost";
         
     }
@@ -97,7 +97,7 @@ public class DbConnection
     }
     public List sendQuery(String q) throws SQLException 
     {
-        log.info("sending query "+q);
+        //log.info("sending query "+q);
         Connection conn=dataSource.getConnection();
         Statement stmt=conn.createStatement();        
         ResultSet rs=stmt.executeQuery(q);        
@@ -123,7 +123,7 @@ public class DbConnection
 //    }
     public List sendPreparedQuery(String sql, String[] values) throws SQLException
     {
-        log.info("sending query "+sql);
+        //log.info("sending query "+sql);
         Connection conn=dataSource.getConnection();
         PreparedStatement pstmt=conn.prepareStatement(sql);        
         if(values!=null)
@@ -155,7 +155,7 @@ public class DbConnection
                        t==Types.VARCHAR || t==Types.VARBINARY)
                         if(rs.getBytes(i)==null)
                         {
-                            log.warn("getByes null for column "+i);
+                            //log.warn("getBytes null for column "+i);
                             row.add(null);
                         }
                         else

@@ -62,7 +62,7 @@ public class GoSearch extends AbstractSearch
                   "WHERE sequences.seq_id=go.seq_id AND ";
         id+="("+conditions+")";
         id+=" limit "+limit;
-        System.out.println("IdSearch query: "+id);   
+        log.info("IdSearch query: "+id);   
         return id;
     }
     private String buildStatsStatement(String conditions,int[] dbs)
@@ -76,7 +76,7 @@ public class GoSearch extends AbstractSearch
         "        (select count(distinct c.cluster_id) from sequences as s, clusters as c, go" +
         "        where s.seq_id=c.seq_id and s.seq_id=go.seq_id and "+conditions+" ) as t2";       
                 
-        System.out.println("GoSearch stats query: "+query);
+        log.info("GoSearch stats query: "+query);
         return query;
     }
     public List notFound()
@@ -88,8 +88,7 @@ public class GoSearch extends AbstractSearch
             el=(String)i.next();
             if(!el.matches(".*%.*")) //don't add wildcard entries
                 temp.add(el);
-        }
-        System.out.println("temp="+temp);
+        }        
         temp.removeAll(keysFound);
         return temp;        
     }

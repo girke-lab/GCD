@@ -93,7 +93,7 @@ public class DescriptionSearch extends AbstractSearch
         id+=") and ("+conditions+")";
         id+=" order by Genome ";
         id+=" limit "+limit;
-        System.out.println("Description query: "+id);   
+        log.info("Description query: "+id);   
         return id;
     }        
     private String buildStatsStatement(String conditions,int[] dbs)
@@ -113,7 +113,7 @@ public class DescriptionSearch extends AbstractSearch
                 "(select count(distinct c.cluster_id) from sequences , clusters as c" +
                 " where sequences.seq_id=c.seq_id and "+conditions+" ) as t2 ";
                 
-        System.out.println("Description stats query: "+query);
+        log.info("Description stats query: "+query);
         return query;
     }
 }

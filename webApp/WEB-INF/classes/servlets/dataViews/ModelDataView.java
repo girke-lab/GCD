@@ -17,6 +17,7 @@ import servlets.dataViews.DataView;
 import java.util.*;
 import javax.servlet.http.*;
 import java.io.*;
+import org.apache.log4j.Logger;
 
 public class ModelDataView implements DataView
 {
@@ -37,6 +38,7 @@ public class ModelDataView implements DataView
     
     String[] fullNames;//names to use in querys
     String[] printNames;//names to print on screen    
+    private static Logger log=Logger.getLogger(ModelDataView.class);
     
     /** Creates a new instance of ModelDataView */
     public ModelDataView(HttpServletRequest request)
@@ -264,7 +266,7 @@ public class ModelDataView implements DataView
             else if(format==FASTA || format==ALL_FASTA)
                 out.println("<PRE>"+fastaOutput.toString()+"</PRE>");
         }catch(NullPointerException npe){
-            System.out.println("null pointer in fasta: "+npe.getMessage());
+            log.error("null pointer in fasta: "+npe.getMessage());
             npe.printStackTrace();
         }
     }
@@ -275,7 +277,7 @@ public class ModelDataView implements DataView
         general.append("SELECT "+feilds+" FROM Sequences "+
                        " LEFT JOIN Models USING(Seq_id) WHERE "+conditions+
                        " ORDER BY Genome, "+fullNames[0]+","+fullNames[1]);
-        System.out.println("general Query: "+general);
+        log.info("general Query: "+general);
         return general.toString();
     }    
     

@@ -12,9 +12,11 @@ package servlets.dataViews;
  */
 
 import servlets.DbConnection;
+import org.apache.log4j.Logger;
 
 public class StatsDataView implements DataView
 {
+    private static Logger log=Logger.getLogger(StatsDataView.class);
     
     /** Creates a new instance of StatsDataView */
     public StatsDataView() {

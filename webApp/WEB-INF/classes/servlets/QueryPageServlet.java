@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 import java.sql.*;
+import org.apache.log4j.Logger;
 
 import servlets.search.*;
 import servlets.dataViews.*;
@@ -26,7 +27,8 @@ public class QueryPageServlet extends HttpServlet
     final int arab=0,rice=1; //database names
     
     long ID=0;//id number used to identify query
-       
+    private static Logger log=Logger.getLogger(QueryPageServlet.class);
+    
     public void init(ServletConfig config) throws ServletException
     {
         super.init(config);       
@@ -120,15 +122,16 @@ public class QueryPageServlet extends HttpServlet
         dv.printHeader(out); //prints form for  seq servlet
         //Common.printPageControls(out,rpp, pos, s.getResults().size(),s.getDbStartPos(Common.rice),hid); 
         out.println("Keys entered: "+qi.getInputCount()+"<br>");        
-
+        
         out.println("<table cellspacing='0' cellpadding='0'><tr><td>");
-        Common.printTotals(out,s);
+        Common.printTotals(out,s,qi.getDisplayType()); 
         out.println("</td><td>");
         dv.printStats(out);
         out.println("</td></tr></table>");
         
         printPageControls(out,qi,hid);
-        Common.printButtons(out,hid,pos,s.getResults().size(),rpp); 
+        if(!qi.getDisplayType().equals("clusterView"))
+            Common.printButtons(out,hid,pos,s.getResults().size(),rpp); 
 
         dv.printData(out);
                 
@@ -251,10 +254,13 @@ public class QueryPageServlet extends HttpServlet
             out.println("<td><a href='"+action+"&pos="+(pos+rpp)+"'>Next</a></td>");        
         out.println("<td><a href='"+action+"&pos="+(end-(end%rpp))+"'>End</a></td>");
   
-        out.println("<td>&nbsp&nbsp&nbsp&nbsp Go to: </td>");
-        for(int i=0;i<qi.getDbs().length;i++)        
-            out.println("<td><a href='"+action+"&pos="+qi.getSearch().getDbStartPos(qi.getDbs()[i])+"'>" +
-                Common.dbPrintNames[qi.getDbs()[i]]+"</a></td>");
+        if(!qi.getDisplayType().equals("clusterView"))
+        {
+            out.println("<td>&nbsp&nbsp&nbsp&nbsp Go to: </td>");
+            for(int i=0;i<qi.getDbs().length;i++)        
+                out.println("<td><a href='"+action+"&pos="+qi.getSearch().getDbStartPos(qi.getDbs()[i])+"'>" +
+                    Common.dbPrintNames[qi.getDbs()[i]]+"</a></td>");
+        }
         out.println("</tr>");
         out.println("</table><p><br>");
     }

@@ -14,6 +14,7 @@ package servlets.dataViews;
 import java.util.*;
 import java.io.*;
 import servlets.Common;
+import org.apache.log4j.Logger;
 
 public class ClusterDataView implements DataView 
 {   
@@ -27,6 +28,7 @@ public class ClusterDataView implements DataView
                       ARAB_SIZE_COL=2,  RICE_SIZE_COL=3,
                       SIZE_COL=4;
     private final int PFAM=0,BLAST=1;
+    private static Logger log=Logger.getLogger(ClusterDataView.class);
     
     /** Creates a new instance of ClusterDataView       */
     public ClusterDataView() {
@@ -35,6 +37,7 @@ public class ClusterDataView implements DataView
     
     public void printHeader(java.io.PrintWriter out) 
     {
+        out.println("<h1 align='center'>Cluster View</h1>");
     }
     public void printData(java.io.PrintWriter out) 
     {
@@ -52,7 +55,7 @@ public class ClusterDataView implements DataView
     }
     private void printCounts(PrintWriter out,List data)
     {
-        out.println("clusters found: "+data.size()+"<br>");
+        //out.println("clusters found on this page: "+data.size()+"<br>");
     }
     private void printSummary(PrintWriter out, List data, int[] dbNums, int hid)
     {
@@ -61,8 +64,7 @@ public class ClusterDataView implements DataView
         out.println("<TABLE width='100%' align='center' border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
         for(Iterator i=data.iterator();i.hasNext();)
         {
-            List row=(List)i.next();
-            //System.out.println(row);
+            List row=(List)i.next();            
             
             clusterType=((String)row.get(CLUSTER_ID_COL)).startsWith("PF")? PFAM:BLAST;
                         
@@ -150,11 +152,12 @@ public class ClusterDataView implements DataView
         query.append(" ("+conditions+" )");
                 
         query.append("ORDER BY "+order);        
-        System.out.println("cluster view query: "+query);
+        log.info("cluster view query: "+query);
         return query.toString();        
     }          
      
      public void printStats(java.io.PrintWriter out) {
+         Common.printPageStats(out, 0,0, seq_ids.size());
      }
      
 }

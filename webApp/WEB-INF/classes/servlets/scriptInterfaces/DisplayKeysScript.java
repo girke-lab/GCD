@@ -15,10 +15,11 @@ import java.net.*;
 import java.util.*;
 import servlets.Common;
 import java.io.*;
+import org.apache.log4j.Logger;
 
 public class DisplayKeysScript implements Script 
 {
-   
+   private static Logger log=Logger.getLogger(DisplayKeysScript.class);
     
     /** Creates a new instance of DisplayKeysScript */
     public DisplayKeysScript() 
@@ -29,7 +30,7 @@ public class DisplayKeysScript implements Script
     public void run(java.io.OutputStream out, java.util.List ids) 
     {
         List data=getData(ids);
-        //System.out.println("got data: "+data);
+        log.debug("got data: "+data);
         if(data==null)
             return;
         printData(new PrintWriter(out),data);
@@ -56,7 +57,7 @@ public class DisplayKeysScript implements Script
         condition.append(")");
         
         query="SELECT s.primary_key FROM sequences as s WHERE "+condition;
-        System.out.println("DisplayKeys.pl query: "+query);
+        log.info("DisplayKeys.pl query: "+query);
         return Common.sendQuery(query);
     }
     

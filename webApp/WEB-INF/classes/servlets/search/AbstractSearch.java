@@ -14,6 +14,7 @@ package servlets.search;
 import servlets.search.Search;
 import servlets.Common;
 import java.util.*;
+import org.apache.log4j.Logger;
 
 public abstract class AbstractSearch implements Search, java.io.Serializable
 {
@@ -21,6 +22,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     int limit;
     int[] db;
     int[] dbStartPositions;  //index of firs occurance of each database in dataset
+    protected static Logger log=Logger.getLogger(AbstractSearch.class);
     
     public int getDbStartPos(int i) {
          if(i < 0 || i > dbStartPositions.length)
@@ -55,6 +57,10 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
             loadData(); //make sure we have some data.
         if(stats!=null)
             return stats;
+        if(data.size() > Common.MAX_QUERY_KEYS){
+            stats=new ArrayList();
+            return stats;
+        }
         String conditions=buildCondition();
         String query="SELECT t1.count as model_count, t2.count as cluster_count" +
         " FROM" +
@@ -63,7 +69,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
         "        (select count(distinct c.cluster_id) from sequences as s, clusters as c" +
         "        where s.seq_id=c.seq_id and "+conditions+" ) as t2";       
                 
-        System.out.println("AbstactSearch stats query: "+query);
+        log.info("AbstactSearch stats query: "+query);
         stats=(List)Common.sendQuery(query).get(0);
         return stats;
     }

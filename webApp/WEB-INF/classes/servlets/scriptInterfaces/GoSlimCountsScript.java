@@ -14,10 +14,12 @@ import java.net.*;
 import java.util.*;
 import servlets.Common;
 import java.io.*;
+import org.apache.log4j.Logger;
 
 public class GoSlimCountsScript implements Script 
 {
      URL url;
+    private static Logger log=Logger.getLogger(GoSlimCountsScript.class);
     
     /** Creates a new instance of GoSlimCountsScript */
     public GoSlimCountsScript() 
@@ -30,7 +32,7 @@ public class GoSlimCountsScript implements Script
     public void run(java.io.OutputStream out, java.util.List ids) 
     {    
         List data=getData(ids);
-        //System.out.println("got data: "+data);
+        log.debug("got data: "+data);
         if(data==null)
             return;
         printData(new PrintWriter(out),data);
@@ -85,7 +87,7 @@ public class GoSlimCountsScript implements Script
         
         query="SELECT s.primary_key,go.go FROM sequences as s LEFT JOIN go USING(seq_id) " +
             "WHERE "+condition;
-        System.out.println("goSlimCounts query: "+query);
+        log.info("goSlimCounts query: "+query);
         return Common.sendQuery(query);
     }
     

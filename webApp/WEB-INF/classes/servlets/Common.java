@@ -12,7 +12,7 @@ import java.util.*;
 import java.io.*;
 import java.sql.*;
 import servlets.search.Search;
-
+import org.apache.log4j.Logger;
 
 public class Common {
     public final static int arab=0, rice=1;    
@@ -29,7 +29,7 @@ public class Common {
     public final static String ILIKE="ILIKE";
                             
     private static DbConnection dbc=null;
-    
+    private static Logger log=Logger.getLogger(Common.class);
     /** Creates a new instance of Common */
     public Common() {
     }
@@ -41,9 +41,9 @@ public class Common {
             if(dbc==null)
                 dbc=new DbConnection(); //use default connection
             rs=dbc.sendQuery(q);        
-            //System.out.println("Stats: "+dbc.getStats());
+            log.info("Stats: "+dbc.getStats());
         }catch(Exception e){
-            System.out.println("query error: "+e.getMessage());         
+            log.error("query error: "+e.getMessage());         
         }
         return rs;
     }
@@ -60,10 +60,10 @@ public class Common {
             //q=q.toLowerCase();
             conn=DriverManager.getConnection(url,"servlet","512256");
         }catch(SQLException e){
-            System.out.println("could not coneect to database: "+e.getMessage());
+            log.error("could not coneect to database: "+e.getMessage());
             return null;
         }catch(Exception e){
-            System.out.println("unknown connection error: "+e.getMessage());
+            log.error("unknown connection error: "+e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -71,7 +71,7 @@ public class Common {
         ArrayList data=new ArrayList();
         try{
             Statement stmt=conn.createStatement();
-//            System.out.println("Common: query="+q);
+//            log.error("Common: query="+q);
             ResultSet rs=stmt.executeQuery(q);
             while(rs.next())
             {
@@ -82,7 +82,7 @@ public class Common {
             }
             conn.close();
         }catch(SQLException e){
-            System.out.println("query errory: "+e.getMessage());
+            log.error("query errory: "+e.getMessage());
             return new ArrayList();
         }
         return data;
@@ -191,34 +191,41 @@ public class Common {
    
     public static void printHeader(Writer out)
     {   //print the CEPCEB header on the top of every page        
+        int cs=1,space=10;;
         String header=""+ 
         "<table width='100%' border='0' cellspacing='0' cellpadding='0'>"+
-        "<tr bgcolor='AAAAAA'><td colspan='4'>&nbsp</td></tr>"+
+        "<tr bgcolor='AAAAAA'><td colspan='"+cs+"'>&nbsp</td></tr>"+
         "<tr>"+
-        "   <td align='center' colspan='4' bgcolor='AAAAAA' ><h1>Genome Cluster Database</h1></td>"+
+        "   <td align='center' colspan='"+cs+"' bgcolor='AAAAAA' ><h1>Genome Cluster Database</h1></td>"+
         "</tr>"+
         "<tr>"+
-        "    <td align='center' colspan='4' bgcolor='AAAAAA'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.cepceb.ucr.edu/' target='_blank'>"+
+        "    <td align='center' colspan='"+cs+"' bgcolor='AAAAAA'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.cepceb.ucr.edu/' target='_blank'>"+
         "       Center for Plant Cell Biology at UC Riverside</a></font></td>"+
         "</tr>"+
-        "<tr bgcolor='AAAAAA'><td colspan='4'>&nbsp</td></tr>"+
-        "<tr><td colspan='4'>&nbsp</td></tr>"+
-        "<tr>"+        
+        "<tr bgcolor='AAAAAA'><td colspan='"+cs+"'>&nbsp</td></tr>"+
+        "<tr><td colspan='"+cs+"'>&nbsp</td></tr>"+
+        "<tr><table align='center' cellspacing='0' cellpadding='0'><tr>"+        
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='index.jsp'>"+
         "        <img src='images/search.jpg' width='100' height='25' border='0'></a></font></div></td>"+
+        "    <td><img src='images/spacer.jpg' width='"+space+"' height='25' border='0'></td>"+
+        "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='advancedSearch.jsp'>"+
+        "        <img src='images/advSearchLong.jpg' width='150' height='25' border='0'></a></font></div></td>"+
+        "    <td><img src='images/spacer.jpg' width='"+space+"' height='25' border='0'></td>"+
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>"+
         "        <img src='images/aboutDB.jpg' width='100' height='25' border='0'></a></font></div></td>"+
+        "    <td><img src='images/spacer.jpg' width='"+space+"' height='25' border='0'></td>"+
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>"+
         "        <img src='images/clusterTable.jpg' width='100' height='25' border='0'></a></font></div></td>"+
+        "    <td><img src='images/spacer.jpg' width='"+space+"' height='25' border='0'></td>"+
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>"+
         "        <img src='images/clusterStats.jpg' width='100' height='25' border='0'></a></font></div></td>"+
-        "</tr>"+
+        "</tr></table></tr>"+
         "</table><p>";        
         try{
             out.write("<BODY bgcolor='#fefefe' text='#000000' link='#006699' vlink='#003366'>");  
             out.write(header);
         }catch(Exception e){  
-            System.out.println("io error: "+e.getMessage());
+            log.error("io error: "+e.getMessage());
         }
     }
     public static void printHeaderOld(PrintWriter out)
@@ -266,20 +273,28 @@ public class Common {
         out.println("</body></html>");
         out.close();
     }
-    public static void printTotals(PrintWriter out,Search s)
+    public static void printTotals(PrintWriter out,Search s,String view)
     {
         out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
         out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>Total Query</th></tr>");
         out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
         out.println("<tr>");
-        out.println("<td>"+s.getResults().size()+"</td>");
-        if(s.getStats()!=null && s.getStats().size()==2)
+        if(view.equals("clusterView"))
         {
-            out.println("<td>"+s.getStats().get(0)+"</td>");
-            out.println("<td>"+s.getStats().get(1)+"</td>");
+            out.println("<td>&nbsp</td><td>&nbsp</td>");
+            out.println("<td>"+s.getResults().size()+"</td>");
         }
         else
-            out.println("<td>&nbsp</td><td>&nbsp</td>");
+        {
+            out.println("<td>"+s.getResults().size()+"</td>");
+            if(s.getStats()!=null && s.getStats().size()==2)
+            {
+                out.println("<td>"+s.getStats().get(0)+"</td>");
+                out.println("<td>"+s.getStats().get(1)+"</td>");
+            }
+            else
+                out.println("<td>&nbsp</td><td>&nbsp</td>");
+        }
         out.println("</tr></table>");
     }
     public static void printPageStats(PrintWriter out,int keys,int models,int clusters)
@@ -290,8 +305,11 @@ public class Common {
         out.println("<tr>");
         // use -1 to signal that a value should not be printed.
         if(keys >= 0) out.println("<td>"+keys+"</td>");
+            else out.println("<td>&nbsp</td>");
         if(models >= 0) out.println("<td>"+models+"</td>");
+            else out.println("<td>&nbsp</td>");
         if(clusters >= 0) out.println("<td>"+clusters+"</td>");
+            else out.println("<td>&nbsp</td>");
         out.println("</tr></table>");
         
     }

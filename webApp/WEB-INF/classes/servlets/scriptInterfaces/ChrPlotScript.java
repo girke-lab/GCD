@@ -15,10 +15,12 @@ import java.net.*;
 import java.util.*;
 import servlets.Common;
 import java.io.*;
+import org.apache.log4j.Logger;
 
 public class ChrPlotScript  implements Script 
 {
      URL url;
+    private static Logger log=Logger.getLogger(ChrPlotScript.class);
     
     /** Creates a new instance of ChrPlotScript */
     public ChrPlotScript() 
@@ -31,7 +33,7 @@ public class ChrPlotScript  implements Script
     public void run(java.io.OutputStream out, java.util.List ids) 
     {    
         List data=getData(ids);
-        //System.out.println("got data: "+data);
+        log.debug("got data: "+data);
         if(data==null)
             return;
         printData(out,data);
@@ -79,7 +81,7 @@ public class ChrPlotScript  implements Script
         
         query="SELECT s.primary_key FROM sequences as s WHERE "+condition;
         query+=" LIMIT "+Common.SCRIPT_LIMIT;
-        System.out.println("DisplayKeys.pl query: "+query);
+        log.info("DisplayKeys.pl query: "+query);
         return Common.sendQuery(query);
     }
     

@@ -12,7 +12,7 @@ import java.util.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
-
+import org.apache.log4j.Logger;
 import servlets.scriptInterfaces.*;
 
 /**
@@ -21,7 +21,7 @@ import servlets.scriptInterfaces.*;
  * @version
  */
 public class DispatchServlet extends HttpServlet {
-    
+    private static Logger log=Logger.getLogger(DispatchServlet.class);
     /** Initializes the servlet.
      */
     public void init(ServletConfig config) throws ServletException {
