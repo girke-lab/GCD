@@ -34,7 +34,7 @@ public class AdvancedSearchBean2
     
     SearchState currentState;
     SearchableDatabase db;
-    String selectedSearchState;
+    String selectedQueryName;
     boolean printAdminControls=false;
     String defaultDb;
     Query currentQuery=null;
@@ -111,6 +111,7 @@ public class AdvancedSearchBean2
         log.debug("done rendering");
         
         try{
+            out.println("<p>");
             out.println(printStoreOptions());
             SqlVisitor sv=new SqlVisitor();
             out.println("<p><h4>Sql</h4><p>");
@@ -146,9 +147,9 @@ public class AdvancedSearchBean2
                 
         currentState.setLimit(request.getParameter("limit"));    
         
-        selectedSearchState=request.getParameter("stored_query");               
-        if(selectedSearchState==null && db.getSearchManager().getSearchStateList().size() > 0)
-            selectedSearchState=(String)db.getSearchManager().getSearchStateList().iterator().next();
+        selectedQueryName=request.getParameter("stored_query");               
+        if(selectedQueryName==null && db.getSearchManager().getSearchStateList().size() > 0)
+            selectedQueryName=(String)db.getSearchManager().getSearchStateList().iterator().next();
     }
     
     private void processCommands(HttpServletRequest request)
@@ -179,11 +180,11 @@ public class AdvancedSearchBean2
         }else if(action.equals("end_sub_exp")){
             endSubExp(); //add current index to endPars
         }else if(action.equals("load_query")){ 
-            log.debug("loading query: "+selectedSearchState);
-            currentQuery=db.getSearchManager().getSearchState(selectedSearchState);
-//            if(selectedSearchState >=0 && 
-//               selectedSearchState < db.getSearchManager().getSearchStateList().size())
-//                currentState=db.getSearchManager().getSearchState(selectedSearchState); 
+            log.debug("loading query: "+selectedQueryName);
+            currentQuery=db.getSearchManager().getSearchState(selectedQueryName);
+//            if(selectedQueryName >=0 && 
+//               selectedQueryName < db.getSearchManager().getSearchStateList().size())
+//                currentState=db.getSearchManager().getSearchState(selectedQueryName); 
         }else if(action.equals("store_query")){
             String desc=request.getParameter("description");
             if(desc!=null){          
@@ -194,16 +195,16 @@ public class AdvancedSearchBean2
             }
         }else if(action.equals("update_query")){
             currentQuery=db.buildQueryTree(currentState);
-            db.getSearchManager().setSearchState(selectedSearchState, currentQuery);
+            db.getSearchManager().setSearchState(selectedQueryName, currentQuery);
             String desc=request.getParameter("description");
             if(desc!=null)
-                db.getSearchManager().setDescription(selectedSearchState,desc);
+                db.getSearchManager().setDescription(selectedQueryName,desc);
             
-//            SearchState ss=db.getSearchManager().getSearchState(selectedSearchState);
+//            SearchState ss=db.getSearchManager().getSearchState(selectedQueryName);
 //            currentState.setDescription(ss.getDescription());
-//            db.getSearchManager().setSearchState(selectedSearchState, currentState);
+//            db.getSearchManager().setSearchState(selectedQueryName, currentState);
         }else if(action.equals("remove_query")){    
-            db.getSearchManager().removeSearchState(selectedSearchState);
+            db.getSearchManager().removeSearchState(selectedQueryName);
         }else if(action.equals("refresh")){    
         }else if(action.equals("reset")){    
                 log.debug("resetting search state");
@@ -216,6 +217,7 @@ public class AdvancedSearchBean2
     
     private void doQuery()
     {         
+        log.debug("submitting query");
         db.displayResults(currentState, servletContext,request,response);
     }
     private void addExpression()
@@ -295,7 +297,7 @@ public class AdvancedSearchBean2
     {        
         log.debug("printing store options");
         StringBuffer out=new StringBuffer();
-        out.append("<table border='1' align='center'>\n");
+        out.append("<table border='0' align='center' bgcolor='"+Common.dataColor+"'>\n");
         out.append("<tr><th colspan='3'>Stored Queries</th></tr>\n");
         out.append("<tr><td colspan='3'>");
         out.append(printStoredQueries());
@@ -330,7 +332,7 @@ public class AdvancedSearchBean2
         {
             name=(String)i.next();
             out.append("<OPTION value='"+name+"'");
-            if(name.equals(selectedSearchState))
+            if(name.equals(selectedQueryName))
                 out.append(" selected ");
             out.append(">"+stm.getDescription(name)+"\n");
         }
@@ -347,7 +349,7 @@ public class AdvancedSearchBean2
     {
         StringBuffer out=new StringBuffer();
         //out.append("<h4>Save query: </h4>\n");
-        out.append("Description: <INPUT name='description'>\n ");
+        out.append("Description: <INPUT name='description' value='"+db.getSearchManager().getDescription(selectedQueryName)+"'>\n ");
         out.append("<INPUT type=submit name='store_query' value='Store Query' " +
                         " onClick=\"action.value='store_query'; submit()\" >\n");
         return out.toString();

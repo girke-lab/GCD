@@ -72,16 +72,16 @@ public class TreeViewScript implements Script
         String dnd,link,lastMethod=null;            
         //link="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Id&input=";
         link="http://138.23.191.152:8080/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
-        log.debug("number of rows: "+data.size());
-        log.debug("data="+data);
+        //log.debug("number of rows: "+data.size());
+        //log.debug("data="+data);
         try{
             for(Iterator i=data.iterator();i.hasNext();)
             {
                 List row=(List)i.next();
-                log.debug("row="+row);
+          //      log.debug("row="+row);
                 if(lastMethod==null || !lastMethod.equals(row.get(0)))
                 {//new cluster
-                    log.debug("new cluster");
+                    //log.debug("new cluster");
                     //dndData.append("data=3434");                
                     dnd=getDnd(clusterId,(String)row.get(0));
                     dndData.append(dnd+"\n");
@@ -94,7 +94,7 @@ public class TreeViewScript implements Script
             Common.quit(pw, "no dnd file exists for this cluster");
             return;
         }
-        log.debug("dndData="+dndData);
+        //log.debug("dndData="+dndData);
         
         pw.println("<html><head/><body onLoad=\"form1.submit()\">");
         pw.println("<form name='form1' action='"+url+"' method='post' >");

@@ -91,6 +91,7 @@ public class SearchTreeManager
     {
         queries.remove(name+".sql");
         queries.remove(name+".description");
+        queries.remove(name+".limit");
         writeQueries();
     }
    
@@ -101,7 +102,7 @@ public class SearchTreeManager
         do
         {
             key="query_"+Integer.toString((int)(Math.random()*1000));
-        }while(queries.containsKey(key));
+        }while(queries.containsKey(key+".sql"));
         log.debug("key="+key);
         queries.setProperty(key+".sql", new SqlVisitor().getSql(q));
         queries.setProperty(key+".description",description);

@@ -167,29 +167,29 @@ public class Common {
             "	<title>GCD ReadMe</title>" +
             "</head>" +
             "<font face='sans-serif, Arial, Helvetica, Geneva'>" +
-            "	<table  border='4' align='center'>" +
+            "	<table  border='0' align='center'>" +
             "		<tr>" +
-            "			<td nowrap, colspan='11', valign='top', align='center', bgcolor='D3D3D3', width=1000><font SIZE=+4>Genome Cluster Database</font></td>" +
+            "			<td nowrap, colspan='11', valign='top', align='center', width=1000><img src='images/GCD.jpg'/></td>" +
             "		</tr>" +
             "		<tr>" +
-            "			<td nowrap, colspan='11', valign='top', align='center', width=1000><font SIZE=+0>Center for Plant Cell Biology, UC Riverside</font></td>" +
+            "			<td nowrap, colspan='11', valign='top', align='center', width=1000><font SIZE=-1><a href='http://www.cepceb.ucr.edu/'>Center for Plant Cell Biology, UC Riverside</a></font></td>" +
             "		</tr>" +
             "		<tr>" +
-            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='about.jsp'>ReadMe</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='about.jsp'>ReadMe</a>&nbsp;]</font></td>" +
             "   		<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='index.jsp'>Search</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='index.jsp'>Search</a>&nbsp;]</font></td>" +
             "            	<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "                   <td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='advancedSearch.jsp'>Advanced</a>&nbsp;]</font></td>" +
+            "                   <td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='advancedSearch.jsp'>Advanced</a>&nbsp;]</font></td>" +
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>Table</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>Table</a>&nbsp;]</font></td>" +
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>Stats</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>Stats</a>&nbsp;]</font></td>" +
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='ftp.jsp'>FTP</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='ftp.jsp'>FTP</a>&nbsp;]</font></td>" +
             "		</tr>" +           
             "	</table>" +
              (!subTitle.equals("")?
-                "<table border='1' align='center'>    <tr>" +
+                "<table border='0' align='center'>    <tr>" +
                 "               <td nowrap colspan='11' align='center' width=1000><font SIZE=+3>"+subTitle+"</td>"+
                 "           </tr></table>" 
                 : ""  //else don't print the last row

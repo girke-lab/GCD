@@ -65,8 +65,8 @@ public class Unknowns2Database implements SearchableDatabase
             SqlVisitor sv=new SqlVisitor();            
             String sql=sv.getSql(queryTree);
             log.debug("sql="+sql);
-            if(true)
-                return;
+//            if(true)
+//                return;
             results=dbc.sendQuery(sql);
             //results=dbc.sendQuery(buildQuery(state));
         }catch(Exception e){
@@ -558,7 +558,7 @@ public class Unknowns2Database implements SearchableDatabase
         };
 //new Field(space+"",""),
         operators=new String[]{"=","!=","<",">","<=",">=",
-                "ILIKE","NOT ILIKE","is NULL","is not NULL"};
+                "ILIKE","NOT ILIKE","IS NULL","IS NOT NULL"};
         unaryBoundry=8; //index of first unary op.
         booleans=new String[]{"and","or"};                
     }

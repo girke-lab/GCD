@@ -25,7 +25,7 @@ public class Operation extends Expression
     /** Creates a new instance of Operation */
     public Operation(String op,Expression e,int location)
     {
-        operation=op;
+        operation=op.toLowerCase();
         left=null;
         right=null;
         if(location==LEFT)
@@ -37,7 +37,7 @@ public class Operation extends Expression
     }
     public Operation(String op,Expression l,Expression r)
     {
-        operation=op;
+        operation=op.toLowerCase();
         left=l;
         right=r;
     }

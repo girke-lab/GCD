@@ -77,10 +77,11 @@ public class HtmlVisitor implements QueryTreeVisitor
         //and should not be rendered.        
         if(isJoinOperation(n))
         {
+            log.debug("join expression found: \n"+n);
             wasJoinExpression=true;
             return;
         }
-        boolean isBoolOperation=n.getOperation().equals("and") || n.getOperation().equals("or");
+        boolean isBoolOperation=n.getOperation().equalsIgnoreCase("and") || n.getOperation().equalsIgnoreCase("or");
         boolean localPrintParinths= isBoolOperation && printParinths;
                 
         if(localPrintParinths)
@@ -99,12 +100,15 @@ public class HtmlVisitor implements QueryTreeVisitor
         {
             printParinths=(n.getLeft() instanceof Operation 
                     && !((Operation)n.getLeft()).getOperation().equals(n.getOperation()));
+            
             n.getLeft().accept(this); //this will set wasJoinExpression if it was a join expression.
+            //log.debug("wasJoinExpression="+wasJoinExpression);
         }
             
         
         if(isBoolOperation)
         {
+            
             if(!wasJoinExpression)
             {
                 out.println("</tr><tr bgcolor='"+Common.titleColor+"'><td colspan='4'>");
@@ -116,9 +120,9 @@ public class HtmlVisitor implements QueryTreeVisitor
             }           
         }
         else
-        {
-            out.println("<td><select name='ops'>");
-            printOptionList(db.getOperators(),n.getOperation());
+        {            
+            out.println("<td><select name='ops' onChange=\"action.value='refresh'; submit()\">");
+            printOptionList(db.getOperators(),n.getOperation().toUpperCase());
             out.println("</select></td>");         
         }
         
@@ -129,7 +133,7 @@ public class HtmlVisitor implements QueryTreeVisitor
             n.getRight().accept(this);
         }
         if(!isBoolOperation)        
-            out.println("<td><input type=submit name='remove' value='remove'" +
+            out.println("<td align='right'><input type=submit name='remove' value='remove'" +
                 "   onClick=\"row.value='"+fieldId+"';action.value='remove_exp';submit()\"></td>");
         
         out.println("</tr>");        
@@ -175,7 +179,7 @@ public class HtmlVisitor implements QueryTreeVisitor
         fieldId=0;
         
         out.println("\n<form method='post' action='as2.jsp' >");
-        out.println("<table border='1' align='center' gbcolor='"+Common.dataColor+"'>");
+        out.println("<table border='0' align='center' bgcolor='"+Common.dataColor+"'>");
         out.println("<input type=hidden name='row'>");
         out.println("<input type=hidden name='action'");
         
@@ -251,9 +255,11 @@ public class HtmlVisitor implements QueryTreeVisitor
     }
     private void printOptionList(Object[] values,Object value)
     {
+        
         for(int i=0;i<values.length;i++)
         {
             out.println("<option value='"+i+"'");
+            //log.debug("comparing "+values[i]+" to "+value+(values[i].equals(value)?" match":" no match"));
             if(values[i].equals(value))
                 out.println(" selected ");
             out.println(">"+values[i]+"</option>");

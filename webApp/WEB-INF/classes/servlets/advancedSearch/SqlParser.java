@@ -28,7 +28,9 @@ public class SqlParser
     
     public static Query parse(String sql) throws ParseException
     {
-        InputStream is=new ByteArrayInputStream(sql.getBytes());
+        log.debug("input sql: "+sql);
+        //sub like for ilike becuase Zql does not like ilike.
+        InputStream is=new ByteArrayInputStream(sql.toLowerCase().replaceAll("ilike","like").getBytes());
         
         ZqlParser zp=new ZqlParser(is);
         ZStatement statement=zp.readStatement();
@@ -78,6 +80,11 @@ public class SqlParser
         {
             ZExpression zexp=(ZExpression)ze;
             String op=zexp.getOperator();
+            if(op.equalsIgnoreCase("like"))
+            {
+                log.info("subbing 'ILIKE' for operator 'like'");
+                op="ILIKE";
+            }
             
             if(zexp.nbOperands()==0)
                 return null;
@@ -129,14 +136,7 @@ public class SqlParser
             String name="";
             boolean hadSchema=false,hadTable=false;
             
-//            if(zfi.getSchema()!=null && zfi.getTable()!=null && zfi.getColumn()!=null)
-//                name=zfi.getSchema()+"."+zfi.getTable()+"."+zfi.getColumn();
-//            else if(zfi.getTable()!=null && zfi.getColumn()!=null)
-//                name=getTable()+"."+zfi.getColumn();
-//            else if(zfi.getColumn()!=null)
-//                name=zfi.getColumn();
 
-            
             if(zfi.getSchema()!=null)
             {
                 name=zfi.getSchema();
