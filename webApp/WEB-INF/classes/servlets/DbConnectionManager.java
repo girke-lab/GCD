@@ -61,7 +61,12 @@ public class DbConnectionManager
             initMap();
         return (DbConnection)connections.get(name);        
     }
-    
+    public static Collection getConnectionNames()
+    {
+        if(connections==null)
+            return new ArrayList(); //empty list of connections
+        return connections.keySet();
+    }
     /**
      * This method initializes <CODE>connections</CODE> and creates DbConnection 
      * objects for databases: common, unknowns, and khoran

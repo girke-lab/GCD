@@ -7,7 +7,7 @@
         <% common.printHeader(out,"Data Downloads"); %>
         
         <ul>
-            <li><a href='data/clusters'>Cluster data</a></li>
+            <li><a href='data/clusters.txt'>Cluster data</a></li>
             <li><a href='ftp://138.23.191.152/pub/Cluster_data/mul.tgz'>Alignments in mul format</a></li>
             <li><a href='ftp://138.23.191.152/pub/Cluster_data/dnd.tgz'>Trees in dnd format</a></li>
             

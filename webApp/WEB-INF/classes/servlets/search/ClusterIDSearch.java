@@ -38,7 +38,8 @@ public class ClusterIDSearch extends AbstractSearch
         
         seqId_query=buildClusterStatement(conditions.toString(),limit,db);
         rs=Common.sendQuery(seqId_query);
-        ArrayList al=new ArrayList();
+        
+        Set al=new HashSet();
         String lastDb="";
         int c=0;
         for(Iterator i=rs.iterator();i.hasNext();c++)
@@ -51,7 +52,7 @@ public class ClusterIDSearch extends AbstractSearch
             al.add(t.get(0));
             keysFound.add(t.get(1));
         }
-        data=al;
+        data=new ArrayList(al);
 //        if(data.size() > Common.MAX_QUERY_KEYS)         
 //            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
     }

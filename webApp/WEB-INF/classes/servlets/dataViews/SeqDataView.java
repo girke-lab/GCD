@@ -119,8 +119,10 @@ public class SeqDataView implements DataView
             //temp.addAll(sr.getClusters());
         }
         Integer bcl_35Count=new Integer(0),hclCount=new Integer(0);
+        
         if(clusterCounts.get("BLASTCLUST_35")!=null)
             bcl_35Count=new Integer(((Set)clusterCounts.get("BLASTCLUST_35")).size());
+        
         if(clusterCounts.get("Domain Composition")!=null)
             hclCount=new Integer(((Set)clusterCounts.get("Domain Composition")).size());
         
@@ -128,7 +130,6 @@ public class SeqDataView implements DataView
             new String[]{"Loci","Models","Blast_35 Clusters", "HMM Clusters"},
             new Object[]{new Integer(records.size()),new Integer(modelCount),
                 bcl_35Count,hclCount});          
-                
     }
     private List parseData(List data)
     {
@@ -428,69 +429,24 @@ public class SeqDataView implements DataView
                             cs.arab_size+" Ath &nbsp&nbsp "+cs.rice_size+" Osa</a></TD>");
                  if(!cs.size.equals("1") && !cs.method.endsWith("_50") && !cs.method.endsWith("_70"))
                  {
-                     String webBase="http://bioinfo.ucr.edu/";
-                     String csLink="noAlignment.html",tLink="noTree.html";
-                     
-//                     if(cs.method.equals("Domain Composition"))
-//                         type="hmm";
-//                     else
-//                         webBase+="projects/ClusterDB/clusters.d/blastClusters/";                                              
-                     
-                        csLink=webBase+"cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
-                             "&cluster_type="+cs.method+"&file_type=html"; 
-                        tLink=webBase+"cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
-                             "&cluster_type="+cs.method+"&file_type=jpg"; 
+                    String webBase="http://bioinfo.ucr.edu/";
+                    String csLink,tLink;
+                                          
+                    csLink=webBase+"cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
+                         "&cluster_type="+cs.method+"&file_type=html"; 
+                    tLink=webBase+"cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
+                         "&cluster_type="+cs.method+"&file_type=jpg"; 
 
-                     
-//                     int size=Integer.parseInt(cs.size);
-//                     if(size > 2 && size < 1000)
-//                     { //just assume it exists
-//                        csLink=webBase+cs.clusterNum+".html";                        
-//                        tLink=webBase+cs.clusterNum+".jpg";                     
-//                     }
-//                     else if(size > 2)
-//                     { //size is on the edge, so check for existance
-//                        if(urlExists(webBase+cs.clusterNum+".html"))
-//                            csLink=webBase+cs.clusterNum+".html";           
-//                        if(urlExists(webBase+cs.clusterNum+".jpg"))
-//                            tLink=webBase+cs.clusterNum+".jpg";      
-//                     }
-                     //////////////////////////////////////
-//                     try{
-//                        log.debug("testing for "+webBase+offset+cs.clusterNum+".html"); 
-//                        int l=new URL(webBase+offset+cs.clusterNum+".html").openConnection().getContentLength();
-//                        if(l!=-1)
-//                            csLink=webBase+offset+cs.clusterNum+".html";                        
-//                     }catch(IOException e){log.debug(cs.clusterNum+" failed");}
-//                     try{
-//                        log.debug("testing for "+webBase+offset+cs.clusterNum+".jpg");
-//                        int l=new URL(webBase+offset+cs.clusterNum+".jpg").openConnection().getContentLength();
-//                        if(l!=-1)
-//                            tLink=webBase+offset+cs.clusterNum+".jpg";
-//                     }catch(IOException e){log.debug(cs.clusterNum+" failed");}
-                     
-                     out.println("\t\t<TD nowrap>");
-                     out.println("\t\t\t<a href='"+csLink+"'>Consensus shaded</a>&nbsp&nbsp");
-                     out.println("\t\t\t<a href='http://bioinfo.ucr.edu/cgi-bin/domainShader?cid="+cs.clusterNum+"'>Domain shaded</a>");
-                     out.println("\t\t</TD>");
-                     out.println("\t\t<TD><a href='"+tLink+"'>view</a></TD>");
+                    out.println("\t\t<TD nowrap>");
+                    out.println("\t\t\t<a href='"+csLink+"'>Consensus shaded</a>&nbsp&nbsp");
+                    out.println("\t\t\t<a href='http://bioinfo.ucr.edu/cgi-bin/domainShader?cid="+cs.clusterNum+"'>Domain shaded</a>");
+                    out.println("\t\t</TD>");
+                    out.println("\t\t<TD><a href='"+tLink+"'>view</a></TD>");
                  }             
                  else
                      out.println("<TD>&nbsp</TD><TD>&nbsp</TD>");
                  out.println("\t</TR>");
             }
-        }
-        private boolean urlExists(String urlStr)
-        {
-             try{
-                log.debug("testing for "+urlStr);
-                URL url=new URL(urlStr);
-                int l=url.openConnection().getContentLength();
-                return l != -1;
-             }catch(IOException e){
-                 log.debug("failed");
-             }
-             return false;
         }
         private void printLinks(PrintWriter out)    
         {//size is cluster size

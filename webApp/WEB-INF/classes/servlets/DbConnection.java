@@ -31,7 +31,7 @@ import org.apache.commons.dbcp.DriverManagerConnectionFactory;
 public class DbConnection 
 {
     DataSource dataSource=null;
-    ObjectPool connectionPool=null;
+    GenericObjectPool connectionPool=null;
     private String hostname="";
     static Logger log=Logger.getLogger(DbConnection.class);    
         
@@ -124,6 +124,8 @@ public class DbConnection
         ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(connectURI,name,password);
         PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(connectionFactory,connectionPool,null,null,false,true);
         dataSource = new PoolingDataSource(connectionPool);        
+        
+        //connectionPool.setMaxActive(20);
     }
     /**
      * closes all connections.
@@ -133,6 +135,7 @@ public class DbConnection
         try{
             if(connectionPool!=null)
                 connectionPool.close();
+            log.info("connection pool closed");
         }catch(Exception e){}
         dataSource=null;
         connectionPool=null;
@@ -160,6 +163,25 @@ public class DbConnection
     public String getStats()
     {
         return "active: "+connectionPool.getNumActive()+", idle: "+connectionPool.getNumIdle();
+    }
+    public void printStats(PrintWriter out)
+    {
+        out.println("<table border='0' cellpadding='3' cellspacing='0' bgcolor='"+Common.dataColor+"'>");
+        out.println("<tr><th>Max active</th><td>"+connectionPool.getMaxActive()+"</td></tr>");
+        out.println("<tr><th>Currently active</th><td>"+connectionPool.getNumActive()+"</td></tr>");
+        out.println("<tr><th>Max Idle</th><td>"+connectionPool.getMaxIdle()+"</td></tr>");
+        out.println("<tr><th>Currently idle</th><td>"+connectionPool.getNumIdle()+"</td></tr>");
+        out.println("<tr><th>Max idle time</th><td>"+(connectionPool.getMinEvictableIdleTimeMillis()/1000)+"</td></tr>");
+//        out.println("<tr><td></td><td>"+connectionPool.+"</td></tr>");        
+        out.println("</table>");
+    }
+    public int getNumActive()
+    {
+        return connectionPool.getNumActive();
+    }
+    public int getNumIdle()
+    {
+        return connectionPool.getNumIdle();
     }
     /**
      * Used to send a sql query.  The results are copied into an ArrayList, 

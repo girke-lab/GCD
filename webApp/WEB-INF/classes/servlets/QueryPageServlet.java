@@ -41,7 +41,19 @@ public class QueryPageServlet extends HttpServlet
         log=Logger.getLogger(QueryPageServlet.class);
     }    
     public void destroy()
-    {    }    
+    {     
+        log.info("servlet shutting down");
+        Collection names=DbConnectionManager.getConnectionNames();
+        for(Iterator i=names.iterator();i.hasNext();) 
+        {
+            String name=(String)i.next();
+            log.info("closing connection "+name);
+            DbConnection dbc=(DbConnection)DbConnectionManager.getConnection(name);
+            if(dbc!=null)
+                dbc.close();
+        }
+        log.info("done disconnecting databases");
+    }    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, java.io.IOException
     {
@@ -147,8 +159,10 @@ public class QueryPageServlet extends HttpServlet
         return new SeqDataView();        
     }
     private Search getSearchObj(String type) 
-    {                
-        if(type.equals("Description"))
+    {           
+        if(type==null)
+            return new IdSearch();
+        else if(type.equals("Description"))
             return new DescriptionSearch();
         else if(type.equals("Id"))
             return new IdSearch();

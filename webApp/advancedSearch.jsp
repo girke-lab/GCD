@@ -129,11 +129,10 @@
 
 <h4> Usage: </h4>
 <p>
-Most operators work as expected.  The LIKE and NOT LIKE operators can be used
+Most operators work as expected.  The 'ILIKE' and 'NOT ILIKE' operators can be used
 to match patterns.  The symbol '%' will match any number of characters,
 while the '_' will match any one character. These operators should only 
-be used for text fields, spceifically, they will not work on the cluster
-size or arab/rice count fields.
+be used for text fields. Specifically, they will not work on numeric fields.
 <p>
 The sort column will also determine the result view. Sorting by sequence
 attributes will result in a sequence oriented view, while sorting

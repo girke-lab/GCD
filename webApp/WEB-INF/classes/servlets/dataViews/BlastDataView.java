@@ -61,7 +61,10 @@ public class BlastDataView implements DataView
     
     public void printHeader(PrintWriter out)
     {
-        Common.printHeader(out);
+        Common.printHeader(out,"Cross-Species Profile");
+        out.println("<h5 align='center'>BLASTP against " +
+                "<a href='http://www.expasy.uniprot.org/index.shtml'>UniProt</a>" +
+                " (e-value cutoff: 1e-4)</h5>");
     }
     public void printStats(PrintWriter out)
     {
@@ -99,6 +102,18 @@ public class BlastDataView implements DataView
         if(data==null)
             return;
         
+//        Set models=new HashSet();
+//        for(Iterator i=data.iterator();i.hasNext();)        
+//            models.add(((String)((List)i.next()).get(0)).replaceAll("\\.","_"));
+//        
+//        out.println(" Go to: ");
+//        for(Iterator i=models.iterator();i.hasNext();)
+//        {
+//            String model=(String)i.next();
+//            out.println("<a href='#"+model+"'>"+model+"</a>");
+//        }
+        
+        
         out.println("<TABLE border='1' width='100%' cellspacing='0' cellpadding='0' bgcolor='"+Common.dataColor+"'>");
         
         List row;
@@ -107,6 +122,7 @@ public class BlastDataView implements DataView
             row=(List)i.next();
             if(lastKeyId==null || !lastKeyId.equals(row.get(0))) //print title
             {
+                out.println("<a name='"+((String)row.get(0)).replaceAll("\\.","_")+"'></a>"); //add anchor for each model
                 out.println("<tr align='left' bgcolor='"+Common.titleColor+"'><th colspan='7'>"+row.get(0)+"</th></tr>");
                 printTableTitles(out);                
             }
@@ -141,24 +157,15 @@ public class BlastDataView implements DataView
         String query=
             "SELECT query.accession,target.accession,gd.link,target.description, " +
             "   o.name,br.e_value,br.score,br.identities,br.length " +
-            "FROM general.blast_results as br, general.accessions as query, " +
-            "   general.accessions as target LEFT JOIN general.organisms as o USING(organism_id), " +
-            "   general.genome_databases as gd " +
+            "FROM general_part.blast_results as br, general_part.accessions as query, " +
+            "   general_part.accessions as target LEFT JOIN general_part.organisms as o USING(organism_id), " +
+            "   general_part.genome_databases as gd " +
             "WHERE br.query_accession_id=query.accession_id AND " +
             "   br.target_accession_id=target.accession_id AND " +
             "   target.genome_db_id=gd.genome_db_id AND " +
                 Common.buildIdListCondition("br.blast_id",seq_ids)+
             "ORDER BY query.accession, "+sortCol+" "+sortDir;
-
         
-//                    "SELECT key,br.target_accession,bd.link,br.target_description,uo.organism,br.e_value," +
-//                        " br.score,br.identities,br.length " +
-//                     "FROM unknowns.unknown_keys as uk, unknowns.blast_results as br LEFT JOIN" +
-//                     "      unknowns.uniprot_orgs as uo ON (br.target_accession=uo.uniprot_acc), "+
-//                     "      unknowns.blast_databases as bd "+
-//                     "WHERE uk.key_id=br.key_id AND br.blast_db_id=bd.blast_db_id AND  "+
-//                            Common.buildIdListCondition("br.blast_id",seq_ids)+
-//                     " ORDER BY br.key_id, "+sortCol+" "+sortDir;
         try{
             return dbc.sendQuery(query);            
         }catch(java.sql.SQLException e){

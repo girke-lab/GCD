@@ -72,7 +72,7 @@ public class DispatchServlet extends HttpServlet {
         
         QueryInfo qi=(QueryInfo)((List)session.getAttribute("history")).get(hid);
         List ids=getIds(qi.getSearch().getResults(),range);
-//        System.out.println("ids are: "+ids);
+
         if(ids==null){
              response.getWriter().println("no id numbers");            
             return;

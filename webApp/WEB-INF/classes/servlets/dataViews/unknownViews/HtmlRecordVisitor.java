@@ -122,7 +122,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     }    
     public void printRecord(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
-        String page="QueryPageServlet?searchType=unknownClusterId&" +
+        String page="http://138.23.191.152:8080/databaseWeb/QueryPageServlet?searchType=unknownClusterId&" +
                     "displayType=seqView&inputKey="+cr.cluster_id;
         out.write("<a href='"+page+"'>"+cr.size+"("+cr.cutoff+")</a> &nbsp&nbsp&nbsp ");
         if(cr.showClusterCentricView)

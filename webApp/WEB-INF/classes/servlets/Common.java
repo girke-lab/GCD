@@ -43,7 +43,7 @@ public class Common {
             if(dbc==null)
             {
                 dbc=new DbConnection(); //use default connection
-                DbConnectionManager.setConnection("name", dbc);
+                DbConnectionManager.setConnection("common", dbc);
             }
             rs=dbc.sendQuery(q);        
             log.info("Stats: "+dbc.getStats());
@@ -99,7 +99,16 @@ public class Common {
         }
         return out+"]";            
     }
-   
+    public static String printArray(Object[] a)
+    {
+        String out="[";
+        for(int i=0;i<a.length;i++){
+            out+=a[i];
+            if(i+1<a.length)
+                out+=",";
+        }
+        return out+"]";            
+    }
     public static void printForm(PrintWriter out,int hid)
     {
         out.println("\n<FORM method=post name='form1' action='QueryPageServlet'>\n"+  //SequenceServlet
@@ -158,7 +167,7 @@ public class Common {
             "	<title>GCD ReadMe</title>" +
             "</head>" +
             "<font face='sans-serif, Arial, Helvetica, Geneva'>" +
-            "	<table  border='4' >" +
+            "	<table  border='4' align='center'>" +
             "		<tr>" +
             "			<td nowrap, colspan='11', valign='top', align='center', bgcolor='D3D3D3', width=1000><font SIZE=+4>Genome Cluster Database</font></td>" +
             "		</tr>" +
@@ -180,7 +189,7 @@ public class Common {
             "		</tr>" +           
             "	</table>" +
              (!subTitle.equals("")?
-                "<table border='1'>    <tr>" +
+                "<table border='1' align='center'>    <tr>" +
                 "               <td nowrap colspan='11' align='center' width=1000><font SIZE=+3>"+subTitle+"</td>"+
                 "           </tr></table>" 
                 : ""  //else don't print the last row
@@ -273,7 +282,7 @@ public class Common {
     }
 
     public static void printStatsTable(PrintWriter out,String title,String[] subTitles,Object[] values)
-    {
+    {        
         out.println("<table border='1' cellspacing='0' bgcolor='"+Common.dataColor+"'>");
         out.println("<tr  bgcolor='"+Common.titleColor+"'><th colspan='"+subTitles.length+"'>"+title+"</th></tr>");
         out.println("<tr  bgcolor='"+Common.titleColor+"'>");

@@ -31,7 +31,7 @@ public class SeqModelSearch implements Search
     }
 
     public void init(List data, int limit, int[] dbID)
-    {//first element should be index of start of model_id list
+    {
         
         int modelIndex=Integer.parseInt((String)data.get(0));
         

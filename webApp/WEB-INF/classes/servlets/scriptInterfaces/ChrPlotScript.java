@@ -26,7 +26,7 @@ public class ChrPlotScript  implements Script
     public ChrPlotScript() 
     {
         try{
-            url=new URL("http://bioinfo.ucr.edu/cgi-bin/chrplot.pl");        
+            url=new URL("http://bioinfo.ucr.edu/cgi-bin/chrplot2.pl");        
         }catch(MalformedURLException e){e.printStackTrace();}
     }
     
@@ -80,13 +80,12 @@ public class ChrPlotScript  implements Script
         condition.append(")");
         
         query="SELECT s.primary_key FROM sequences as s WHERE "+condition;
-        query+=" LIMIT "+Common.SCRIPT_LIMIT;
-        log.info("DisplayKeys.pl query: "+query);
+        //query+=" LIMIT "+Common.SCRIPT_LIMIT;
         return Common.sendQuery(query);
     }
     
-    public String getContentType() {
-        return "image/png";        
+    public String getContentType() {         
+        return "text/html";    
     }
     
 }

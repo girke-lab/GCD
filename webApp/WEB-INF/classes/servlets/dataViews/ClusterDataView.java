@@ -40,8 +40,7 @@ public class ClusterDataView implements DataView
     
     public void printHeader(java.io.PrintWriter out) 
     {
-        Common.printHeader(out);        
-        out.println("<h1 align='center'>Cluster View</h1>");
+        Common.printHeader(out,"Cluster View");                
     }
     public void printData(java.io.PrintWriter out) 
     {
@@ -107,17 +106,13 @@ public class ClusterDataView implements DataView
             }
             else
                 out.println("<TD>"+row.get(CLUSTER_ID_COL)+"</TD>");
-            out.println("<TD colspan='6'>"+row.get(CLUSTER_NAME_COL)+"</TD>");
+            out.println("<TD colspan='6'>"+(row.get(CLUSTER_NAME_COL)!=null?row.get(CLUSTER_NAME_COL):"&nbsp")+"</TD>");
             out.println("</TR>");
             out.println("<TR bgcolor='"+titleColor+"'><TH>Method</TH><TH nowrap>Total Size</TH>" +
                         "<TH nowrap>Arabidopsis Count</TH><TH nowrap>Rice Count</TH><TH>Memebers</TH>" +
                         "<TH>Alignment</TH><TH>Tree</TH></TR>");
             out.println("<TR>");
             
-//            if(clusterType==PFAM)
-//                out.println("<TD>Domain Composition</TD>");
-//            else
-//                out.println("<TD>BLASTCLUST</TD>");
             
             out.println("<TD>"+row.get(METH_COL)+"</TD>"+
                         "<TD>"+row.get(SIZE_COL)+"</TD>" +
@@ -128,16 +123,24 @@ public class ClusterDataView implements DataView
                   !((String)row.get(METH_COL)).endsWith("_50") && 
                   !((String)row.get(METH_COL)).endsWith("_70"))
             {
-                String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
-                if(clusterType==PFAM)
-                    base+="hmmClusters/";
-                else
-                    base+="blastClusters/";
+//                String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
+//                if(clusterType==PFAM)
+//                    base+="hmmClusters/";
+//                else
+//                    base+="blastClusters/";
+                
+//                csLink=webBase+"cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
+//                         "&cluster_type="+cs.method+"&file_type=html"; 
+                
+                String fileUrl="http://bioinfo.ucr.edu/cgi-bin/getClusterFiles.pl?cid="+row.get(CLUSTER_ID_COL)+
+                        "&cluster_type="+row.get(METH_COL)+"&file_type=";
                 out.println("<TD nowrap>");
-                out.println("<a href='"+base+row.get(CLUSTER_ID_COL)+".html'>Consensus shaded</a>&nbsp&nbsp");
+                //out.println("<a href='"+base+row.get(CLUSTER_ID_COL)+".html'>Consensus shaded</a>&nbsp&nbsp");
+                out.println("<a href='"+fileUrl+"html'>Consensus shaded</a>&nbsp&nbsp");
                 out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/domainShader?cid="+row.get(CLUSTER_ID_COL)+"'>Domain shaded</a>");
                 out.println("</TD>");
-                out.println("<TD><a href='"+base+row.get(CLUSTER_ID_COL)+".jpg'>view</a></TD>");   
+                //out.println("<TD><a href='"+base+row.get(CLUSTER_ID_COL)+".jpg'>view</a></TD>");   
+                out.println("<TD><a href='"+fileUrl+"jpg'>view</a></TD>");   
             }
             else
                 out.println("<td>&nbsp</td><td>&nbsp</td>");

@@ -11,10 +11,11 @@ package servlets.dataViews;
  * @author  khoran
  */
 
-import servlets.DbConnection;
+import servlets.*;
 import org.apache.log4j.Logger;
 import servlets.dataViews.queryWideViews.*;
 import servlets.search.Search;
+import java.util.*;
 
 public class StatsDataView implements DataView
 {
@@ -24,11 +25,29 @@ public class StatsDataView implements DataView
     public StatsDataView() {
     }
     
-    public void printData(java.io.PrintWriter out) {
-        //out.println(DbConnection.getStats());
+    public void printData(java.io.PrintWriter out) { 
+        List dbNames=new LinkedList(DbConnectionManager.getConnectionNames());        
+        Collections.sort(dbNames);
+        DbConnection dbc=null;
+        out.println("<table border='1' cellspacing='0' bgcolor='"+Common.dataColor+"'>");
+        
+        for(Iterator i=dbNames.iterator();i.hasNext();)
+        {
+            String name=(String)i.next();
+            dbc=DbConnectionManager.getConnection(name);
+            if(dbc==null)
+                continue;            
+            out.println("<tr><th bgcolor='"+Common.titleColor+"'>"+name+"</th><tr>");
+            out.println("<tr><td>");
+            dbc.printStats(out);
+            out.println("</td></tr>");                        
+        }
+        out.println("</table>");
     }
     
-    public void printHeader(java.io.PrintWriter out) {
+    public void printHeader(java.io.PrintWriter out) 
+    {
+        out.println("Database Stats");
     }
     
     public void printStats(java.io.PrintWriter out) {
@@ -44,7 +63,8 @@ public class StatsDataView implements DataView
     {
        return new DefaultQueryWideView(){
             public void printStats(java.io.PrintWriter out,Search search){}
-            public void printButtons(java.io.PrintWriter out, int hid,int pos,int size,int rpp){}            
+            public void printButtons(java.io.PrintWriter out, int hid,int pos,int size,int rpp){}    
+            public boolean printAllData(){return true;}
         };
     }
     
