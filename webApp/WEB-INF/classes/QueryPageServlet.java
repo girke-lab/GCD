@@ -312,16 +312,16 @@ public class QueryPageServlet extends HttpServlet
             return;
 //        out.println("<TABLE border='0' width='100%'>");
         out.println("\t<TR bgcolor='"+colors[0]+"'><TH>Clustering</TH><TH>Name</TH><TH>ID</TH><TH>Size</TH><TH>Members</TH><TH>Alignment</TH><TH>Tree</TH></TR>");
-        String clusterType;
+        String clusterType,blast="BLASTCLUST", hmm="Domain Compare";
         for(Iterator i=set.iterator();i.hasNext();)
         {//one row per set
              out.println("\t<TR bgcolor='"+colors[1]+"'>");
              ClusterSet cs=(ClusterSet)i.next();
-             clusterType=cs.clusterNum.matches("PF.*") ? "Domain Cluster" : "Blast Cluster";                          
+             clusterType=cs.clusterNum.matches("PF.*") ? hmm : blast;                          
              out.println("\t\t<TD nowrap>"+clusterType+"</TD>");                                      
              out.println("\t\t<TD>"+cs.name+"</TD>");
              out.println("\t\t<TD>");
-             if(clusterType.equals("Domain Cluster"))
+             if(clusterType.equals(hmm))
              {
                  StringTokenizer tok=new StringTokenizer(cs.clusterNum,"_");
                  while(tok.hasMoreTokens())
@@ -340,7 +340,7 @@ public class QueryPageServlet extends HttpServlet
              if(!cs.size.equals("1"))
              {
                  String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
-                 if(clusterType.equals("Domain Cluster"))
+                 if(clusterType.equals(hmm))
                      base+="hmmClusters/";
                  else
                      base+="blastClusters/";

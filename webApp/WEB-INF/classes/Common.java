@@ -12,6 +12,7 @@ import java.util.*;
 import java.io.*;
 import java.sql.*;
 
+
 public class Common {
     final static int arab=0, rice=1;
     //actual database names
@@ -158,24 +159,28 @@ public class Common {
         "<table width='100%' border='0' cellspacing='0' cellpadding='0'>"+
         "<tr bgcolor='AAAAAA'><td colspan='3'>&nbsp</td></tr>"+
         "<tr>"+
-        "<td width='210' rowspan='2'><a href='http://www.cepceb.ucr.edu/' target='_blank'><img src='images/cepceb.jpg' alt='cepceb' width='210' height='90' border='0'></a></td>"+
-        "<td width='590' align='center' colspan='2'><h1>Genome Cluster Database</h1></td>"+
+        //"<td width='210' rowspan='2'><a href='http://www.cepceb.ucr.edu/' target='_blank'><img src='images/cepceb.jpg' alt='cepceb' width='210' height='90' border='0'></a></td>"+
+        //"<td width='210' rowspan='2' bgcolor='AAAAAA'>&nbsp</td>"+
+        "<td width='590' align='center' colspan='3' bgcolor='AAAAAA' ><h1>Genome Cluster Database</h1></td>"+
         "</tr>"+
         "<tr>"+
-        "    <td height='29' valign='top' colspan='2'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.ucr.edu/' target='_blank'>"+
-        "        UC Riverside</a></font></div></td>"+
+        "    <td height='29' valign='top' colspan='3' bgcolor='AAAAAA'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.cepceb.ucr.edu/' target='_blank'>"+
+        "       Center for Plant Cell Biology at UC Riverside</a></font></div></td>"+
         "</tr>"+
         "<tr bgcolor='AAAAAA'><td colspan='3'>&nbsp</td></tr>"+
         "<tr><td>&nbsp</td></tr>"+
         "<tr>"+        
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>"+
-        "        <b>About this Database</b></a></font></div></td>"+
+        //"        <b>About this Database</b></a></font></div></td>"+
+        "        <img src='images/aboutDB.jpg' width='100' height='25' border='0'></a></font></div></td>"+
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>"+
-        "        <b>Cluster Table</b></a></font></div></td>"+
+        //"        <b>Cluster Table</b></a></font></div></td>"+
+        "        <img src='images/clusterTable.jpg' width='100' height='25' border='0'></a></font></div></td>"+
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>"+
-        "        <b>Cluster Statistics</b></a></font></div></td>"+
+        //"        <b>Cluster Statistics</b></a></font></div></td>"+
+        "        <img src='images/clusterStats.jpg' width='100' height='25' border='0'></a></font></div></td>"+
         "</tr>"+
-        "</table>";
+        "</table><p>";
         out.println("<BODY bgcolor='#fefefe' text='#000000' link='#006699' vlink='#003366'>");  
         out.println(header);
     }

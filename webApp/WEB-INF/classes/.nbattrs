@@ -31,7 +31,15 @@
     <fileobject name="SequenceServlet.java">
         <attr name="class_dependency_javax.servlet.http.HttpServlet" stringvalue="SequenceServlet"/>
     </fileobject>
+    <fileobject name="headerTagHandler.java">
+        <attr name="SourceSync" serialvalue="aced0005737200316f72672e6f70656e6964652e66696c6573797374656d732e4d756c746946696c654f626a65637424566f696456616c7565d9ec9c94d5fd3ca40c0000787077040000000078"/>
+        <attr name="class_dependency_javax.servlet.jsp.tagext.Tag" stringvalue="headerTagHandler"/>
+        <attr name="template" serialvalue="aced0005737200316f72672e6f70656e6964652e66696c6573797374656d732e4d756c746946696c654f626a65637424566f696456616c7565d9ec9c94d5fd3ca40c0000787077040000000078"/>
+    </fileobject>
     <fileobject name="queryThread.java">
         <attr name="class_dependency_java.lang.Thread" serialvalue="aced0005737200316f72672e6f70656e6964652e66696c6573797374656d732e4d756c746946696c654f626a65637424566f696456616c7565d9ec9c94d5fd3ca40c0000787077040000000078"/>
+    </fileobject>
+    <fileobject name="servlets">
+        <attr name="template" serialvalue="aced0005737200316f72672e6f70656e6964652e66696c6573797374656d732e4d756c746946696c654f626a65637424566f696456616c7565d9ec9c94d5fd3ca40c0000787077040000000078"/>
     </fileobject>
 </attributes>

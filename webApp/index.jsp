@@ -130,7 +130,7 @@ function MM_nbGroup(event, grpName) { //v6.0
 </table>
 -->
  
-
+<!--
 <table width='900' border='0' cellspacing='0' cellpadding='0'>
 <tr>
 <td width='210' rowspan='2'><a href='http://www.cepceb.ucr.edu/' target='_blank'><img src='images/cepceb.jpg' alt='cepceb' width='210' height='90' border='0'></a></td>
@@ -153,7 +153,9 @@ function MM_nbGroup(event, grpName) { //v6.0
         <b>Cluster Pies</b></a></font></div></td>
 </tr>
 </table>
-
+-->
+<jsp:useBean id='common' class='Common' scope='application'/>
+<% common.printHeader(out); %>
 
 	<FORM NAME='form1' METHOD=POST ACTION='/databaseWeb/QueryPageServlet'  target='rd' >   
             <TABLE width='70%' align='center' border='0'>
