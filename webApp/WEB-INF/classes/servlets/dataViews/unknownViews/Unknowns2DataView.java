@@ -141,7 +141,7 @@ public class Unknowns2DataView implements DataView
             }
             public void printGeneral(PrintWriter out, Search search, String pos,Map storage)
             {
-                out.println(" &nbsp&nbsp&nbsp <a href='/databaseWeb/DispatchServlet?hid="+hid+
+                out.println(" &nbsp&nbsp&nbsp <a href='/databaseWeb/DispatchServlet.csv?hid="+hid+
                             "&script=unknownsText&range=0-"+search.getResults().size()+
                             "'>download in excel format</a>");
             }

@@ -71,8 +71,8 @@ public class BlastSearch implements Search
         
         String query=
             "SELECT br.blast_id " +
-            "FROM general_part.blast_results as br, general_part.accessions as query, " +
-            "   general_part.accessions as target, general_part.genome_databases as gd " +
+            "FROM general.blast_results as br, general.accessions as query, " +
+            "   general.accessions as target, general.genome_databases as gd " +
             "WHERE gd.db_name='"+blastDb+"' and gd.genome_db_id=target.genome_db_id and " +
             "   query.accession_id=br.query_accession_id AND target.accession_id=br.target_accession_id AND "+
                 Common.buildIdListCondition("query.accession",keys,true);

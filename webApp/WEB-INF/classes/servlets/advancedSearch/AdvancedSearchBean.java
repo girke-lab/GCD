@@ -102,7 +102,8 @@ public class AdvancedSearchBean {
         currentState.setSelectedBools(getIntList(request.getParameterValues("bools")));
         currentState.setStartParinths(getIntList(request.getParameterValues("startPars")));
         currentState.setEndParinths(getIntList(request.getParameterValues("endPars")));
-
+        
+        log.debug("getting values");
         currentState.setValues(getList(request.getParameterValues("values")));
 
         String temp=request.getParameter("sortField");
@@ -340,7 +341,7 @@ public class AdvancedSearchBean {
 //////////////////// PRIVATE METHODS  ////////////////////////////////////    
     private void processCommands(HttpServletRequest request)
     {        
-        String action;
+        String action,bytes;
         if(request.getParameter("remove") != null){
             String row=request.getParameter("row");                
             if(row==null)
@@ -374,7 +375,7 @@ public class AdvancedSearchBean {
             noNewRow=true;
         }else if(request.getParameter("remove_query")!=null){
             db.getSearchManager().removeSearchState(selectedSearchState);
-            noNewRow=true;                    
+            noNewRow=true;                            
         }else if((action=request.getParameter("action")) !=null){ //this should always be the last case
             log.debug("action="+action);
             if(action.equals("refresh"))
@@ -416,6 +417,7 @@ public class AdvancedSearchBean {
             log.error("could not get servlet context");
             return;
         }
+        log.debug("currentState parameters: "+currentState.getParameterString());
         db.displayResults(currentState, servletContext,(HttpServletRequest)request,(HttpServletResponse)response);
     }
 
@@ -440,6 +442,8 @@ public class AdvancedSearchBean {
     }
     private List getList(String[] strings)
     {
+        if(strings==null)
+            log.debug("strings is null");
         if(strings==null)
             return null;
         List strs=new ArrayList();

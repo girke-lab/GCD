@@ -81,7 +81,7 @@ public class ClusterDataView implements DataView
         String titleColor="AAAAAA", dataColor="D3D3D3";
         int clusterType;
         out.println("<TABLE width='100%' align='center' border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
-        for(Iterator i=data.iterator();i.hasNext();)
+        for(Iterator i=data.iterator();i.hasNext();) 
         {
             List row=(List)i.next();            
             
@@ -94,14 +94,15 @@ public class ClusterDataView implements DataView
             if(clusterType==PFAM)
             {
                 out.println("<TD>");
-                 StringTokenizer tok=new StringTokenizer((String)row.get(CLUSTER_ID_COL),"_");
-                 while(tok.hasMoreTokens())
-                 {
-                     String n=tok.nextToken();                     
-                     out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+n.substring(0,n.indexOf('.'))+"'>"+n+"</a>");
-                     if(tok.hasMoreTokens())
-                         out.println("_");
-                 }         
+                out.println("<a href='pfamOptions.jsp?accession="+row.get(CLUSTER_ID_COL)+"'>"+row.get(CLUSTER_ID_COL)+"</a>");                     
+//                 StringTokenizer tok=new StringTokenizer((String)row.get(CLUSTER_ID_COL),"_");
+//                 while(tok.hasMoreTokens())
+//                 {
+//                     String n=tok.nextToken();                     
+//                     out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+n.substring(0,n.indexOf('.'))+"'>"+n+"</a>");
+//                     if(tok.hasMoreTokens())
+//                         out.println("_");
+//                 }         
                  out.println("</TD>");
             }
             else
@@ -151,20 +152,8 @@ public class ClusterDataView implements DataView
        
     private List getData(List input, String order, int[] db)
     {
-        StringBuffer conditions=new StringBuffer();
-        List rs=null;
-        int count=0;
-
-        conditions.append("cluster_info.cluster_id in (");
-        for(Iterator it=input.iterator();it.hasNext();)
-        {
-            conditions.append((String)it.next());
-            if(it.hasNext() )
-                conditions.append(",");
-        }
-        conditions.append(")");
-        rs=Common.sendQuery(buildClusterViewStatement(conditions.toString(),order,db));
-        return rs;
+        return Common.sendQuery(buildClusterViewStatement(
+                Common.buildIdListCondition("cluster_info.cluster_id",input),order,db));        
     }
     
      private String buildClusterViewStatement(String conditions, String order, int[] DBs)

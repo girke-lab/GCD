@@ -305,6 +305,8 @@ public class Common {
     public static String buildIdListCondition(String varName,List ids,boolean quoteIt)
     {
         StringBuffer out=new StringBuffer();
+        if(ids.size()==0)
+            return "0=1"; //since list is empty, return a false statement, while avoiding syntax errors.
         out.append(varName+" in (");
         for(Iterator i=ids.iterator();i.hasNext();)
         {

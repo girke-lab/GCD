@@ -13,6 +13,7 @@ package servlets.advancedSearch;
 
 import java.util.*;
 import servlets.Common;
+import org.apache.log4j.Logger;
 
 /**
  * Stores all information needed to store a query. Can also be serialized for
@@ -22,6 +23,7 @@ public class SearchState implements java.io.Serializable
 {
     
     public static final long serialVersionUID = new Long("-1226915453818595933").longValue();
+    transient private static Logger log=Logger.getLogger(SearchState.class);
     //public static final long serialVersionUID = 2;
     
     List selectedFields;
@@ -49,7 +51,30 @@ public class SearchState implements java.io.Serializable
     }
     
     
-    
+    public String getParameterString()
+    {
+        StringBuffer out=new StringBuffer();
+                
+        out.append("limit="+limit);
+        out.append("&sortField="+sortField);
+        out.append("&database="+database);
+        out.append("&action=refresh"); //keeb page from adding an additional row.
+        
+        String[] listNames=new String[]{"fields","ops","bools",
+                "startPars","endPars","values"};
+        List[] listRefs=new List[]{selectedFields,selectedOps,
+                selectedBools,startParinths,endParinths,values};
+        try{
+            for(int c=0;c<listNames.length;c++)
+                for(Iterator i=((List)listRefs[c]).iterator();i.hasNext();)            
+                    out.append("&"+listNames[c]+"="+
+                            java.net.URLEncoder.encode(i.next().toString(),"ISO-8859-1"));            
+        }catch(java.io.UnsupportedEncodingException e){
+            log.error("could not perform  url encoding: "+e.getMessage());
+            return "";
+        }
+        return out.toString();
+    }
     
     public void setSelectedFields(List l)
     {
@@ -138,7 +163,10 @@ public class SearchState implements java.io.Serializable
     public void setValues(List l)
     {
         if(l==null)
+            System.out.println("values list is null");
+        if(l==null)
             l=new ArrayList();
+        System.out.println("setting values list to : "+l);
         values=l;        
     }
     public List getValues()

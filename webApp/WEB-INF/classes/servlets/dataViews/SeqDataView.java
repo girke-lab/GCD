@@ -384,7 +384,7 @@ public class SeqDataView implements DataView
             if(!hasCluster)
                 return;
             out.println("\t<TR bgcolor='"+titleColor+"'><TH align='"+align+"'>Clustering</TH>" +
-                "<TH align='"+align+"'>Name</TH><TH align='"+align+"'>ID</TH>" +
+                "<TH align='"+align+"'>Cluster Name</TH><TH align='"+align+"'>ID</TH>" +
                 "<TH align='"+align+"'>Size</TH><TH align='"+align+"'>Members</TH>" +
                 "<TH align='"+align+"'>Alignment</TH><TH align='"+align+"'>Tree</TH></TR>");
             
@@ -408,19 +408,21 @@ public class SeqDataView implements DataView
                  
                  if(cs.method.equals("Domain Composition")) //hmm stuff
                  {
-                     StringTokenizer tok=new StringTokenizer(cs.clusterNum,"_");
-                     while(tok.hasMoreTokens())
-                     {
-                         String n=tok.nextToken();                                            
-                         if(n.startsWith("noHit"))
-                             out.println(n);
-                         else
-                            out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+n.substring(0,n.indexOf('.'))+"'" +
-                //                            "onmouseover=\"return escape('"+n+"')\""+   // used for tool tips
-                                ">"+n+"</a>");
-                         if(tok.hasMoreTokens())
-                             out.println("_");
-                     }                 
+                     out.println("<a href='pfamOptions.jsp?accession="+cs.clusterNum+"'>"+cs.clusterNum+"</a>");                     
+                     
+//                     StringTokenizer tok=new StringTokenizer(cs.clusterNum,"_");
+//                     while(tok.hasMoreTokens())
+//                     {
+//                         String n=tok.nextToken();                                            
+//                         if(n.startsWith("noHit"))
+//                             out.println(n);
+//                         else
+//                            out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+n.substring(0,n.indexOf('.'))+"'" +
+//                //                            "onmouseover=\"return escape('"+n+"')\""+   // used for tool tips
+//                                ">"+n+"</a>");
+//                         if(tok.hasMoreTokens())
+//                             out.println("_");
+//                     }                 
                  }else
                      out.println(cs.clusterNum);
                  out.println("\t\t</TD>");
@@ -429,19 +431,14 @@ public class SeqDataView implements DataView
                             cs.arab_size+" Ath &nbsp&nbsp "+cs.rice_size+" Osa</a></TD>");
                  if(!cs.size.equals("1") && !cs.method.endsWith("_50") && !cs.method.endsWith("_70"))
                  {
-                    String webBase="http://bioinfo.ucr.edu/";
-                    String csLink,tLink;
-                                          
-                    csLink=webBase+"cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
-                         "&cluster_type="+cs.method+"&file_type=html"; 
-                    tLink=webBase+"cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
-                         "&cluster_type="+cs.method+"&file_type=jpg"; 
+                    String webBase="http://bioinfo.ucr.edu/cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
+                         "&cluster_type="+cs.method+"&file_type=";
 
                     out.println("\t\t<TD nowrap>");
-                    out.println("\t\t\t<a href='"+csLink+"'>Consensus shaded</a>&nbsp&nbsp");
+                    out.println("\t\t\t<a href='"+webBase+"html'>Consensus shaded</a>&nbsp&nbsp");
                     out.println("\t\t\t<a href='http://bioinfo.ucr.edu/cgi-bin/domainShader?cid="+cs.clusterNum+"'>Domain shaded</a>");
                     out.println("\t\t</TD>");
-                    out.println("\t\t<TD><a href='"+tLink+"'>view</a></TD>");
+                    out.println("\t\t<TD><a href='"+webBase+"jpg'>view</a></TD>");
                  }             
                  else
                      out.println("<TD>&nbsp</TD><TD>&nbsp</TD>");
@@ -485,8 +482,8 @@ public class SeqDataView implements DataView
              StringBuffer modelList=new StringBuffer();
              for(Iterator i=models.iterator();i.hasNext();)
                  modelList.append(i.next()+" ");
-             out.println("<a href='QueryPageServlet?searchType=blast&displayType=blastView&inputKey=uniprot "+modelList+"'>" +
-                         "Cross-Species Profile</a>");
+             out.println("&nbsp&nbsp&nbsp<a href='QueryPageServlet?searchType=blast&displayType=blastView&inputKey=uniprot "+modelList+"'>" +
+                         "<font color='red' >Cross-Species Profile</font></a>");
         }        
     }
 }

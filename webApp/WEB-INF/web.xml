@@ -22,6 +22,10 @@
     <url-pattern>/DispatchServlet</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
+    <servlet-name>DispatchServlet</servlet-name>
+    <url-pattern>/DispatchServlet.csv</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
     <servlet-name>QueryDispatcherServlet</servlet-name>
     <url-pattern>/QueryDispatcherServlet</url-pattern>
   </servlet-mapping>

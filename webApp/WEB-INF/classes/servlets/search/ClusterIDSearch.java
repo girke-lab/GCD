@@ -27,12 +27,15 @@ public class ClusterIDSearch extends AbstractSearch
         List rs=null;
         int count=0;
                 
-        conditions.append("Cluster_Info.filename in (");
+        
+        //conditions.append(Common.buildIdListCondition("Cluster_Info.filename",input,true));
+        
+        conditions.append("(");
         while(in.hasNext() && count++ < limit)
         {
-            conditions.append("'"+in.next()+"'");
+            conditions.append("Cluster_Info.filename ilike '"+in.next()+"'");
             if(in.hasNext() && count < limit)
-                conditions.append(",");
+                conditions.append(" OR ");
         }
         conditions.append(")");
         

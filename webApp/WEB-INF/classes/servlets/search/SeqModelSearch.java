@@ -83,8 +83,7 @@ public class SeqModelSearch implements Search
         List row;
         for(Iterator i=Common.sendQuery(query).iterator();i.hasNext();) 
         {
-            row=(List)i.next();
-            log.debug("row="+row);
+            row=(List)i.next();            
             stats.put(row.get(0),row.get(1));
         }
         return stats;

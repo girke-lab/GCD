@@ -85,7 +85,17 @@ public class UnknownsTextScript implements Script
     }
     public String getContentType()
     {
-        return "text/x-comma-separated-values";
+        /* possabilties
+         *  text/comma-separated-values
+            text/csv
+            application/csv
+            application/excel
+            application/vnd.ms-excel
+            application/vnd.msexcel
+            text/anytext
+         */
+        return "text/csv";
         //return "text/html";
+        //return "text/csv";
     }
 }

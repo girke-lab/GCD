@@ -157,9 +157,9 @@ public class BlastDataView implements DataView
         String query=
             "SELECT query.accession,target.accession,gd.link,target.description, " +
             "   o.name,br.e_value,br.score,br.identities,br.length " +
-            "FROM general_part.blast_results as br, general_part.accessions as query, " +
-            "   general_part.accessions as target LEFT JOIN general_part.organisms as o USING(organism_id), " +
-            "   general_part.genome_databases as gd " +
+            "FROM general.blast_results as br, general.accessions as query, " +
+            "   general.accessions as target LEFT JOIN general.organisms as o USING(organism_id), " +
+            "   general.genome_databases as gd " +
             "WHERE br.query_accession_id=query.accession_id AND " +
             "   br.target_accession_id=target.accession_id AND " +
             "   target.genome_db_id=gd.genome_db_id AND " +
