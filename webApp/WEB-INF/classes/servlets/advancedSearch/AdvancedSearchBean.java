@@ -22,23 +22,7 @@ import servlets.Common;
  * @author  khoran
  * @version
  */
-public class AdvancedSearchBean {
- 
-    
-    
-//    public Field[] fields;
-//    public String[] operators;
-//    public String[] booleans;    
-    
-    //user values
-//    public List selectedFields;
-//    public List selectedOps;
-//    public List selectedBools;
-//    public List values;
-//    public List startParinths;
-//    public List endParinths;
-//    public String limit;
-//    public int sortField;
+public class AdvancedSearchBean {  
     
     boolean lastWasRemove=false;
     ServletContext servletContext=null;
@@ -82,29 +66,6 @@ public class AdvancedSearchBean {
             currentState.setSortField(Integer.parseInt(temp));
                 
         currentState.setLimit(request.getParameter("limit"));
-
-//        selectedFields=getIntList(request.getParameterValues("fields"));
-//        selectedOps=getIntList(request.getParameterValues("ops"));
-//        selectedBools=getIntList(request.getParameterValues("bools"));
-//        values=getList(request.getParameterValues("values"));        
-//        startParinths=getIntList(request.getParameterValues("startPars"));
-//        endParinths=getIntList(request.getParameterValues("endPars"));
-        
-        
-        
-//        if(selectedFields==null)        
-//            selectedFields=new ArrayList();
-//        if(startParinths==null)
-//            startParinths=new ArrayList();
-//        if(endParinths==null)
-//            endParinths=new ArrayList();
-//        if(sortTemp==null)
-//            sortField=2; //default to sort on cluster id
-//        else
-//            sortField=Integer.parseInt(sortTemp);
-//        if(limit==null || limit.equals("0"))
-//            limit=Integer.toString(Common.MAXKEYS);        
-            
         
         processCommands(request);
     }
@@ -217,8 +178,7 @@ public class AdvancedSearchBean {
             return;
         }
         String query=db.buildQuery(currentState);  
-        
-                
+                        
         
         log.info("query is: "+query);
         List results=db.sendQuery(query);
@@ -263,24 +223,7 @@ public class AdvancedSearchBean {
         currentState.getEndParinths().add(new Integer(currentState.getSelectedFields().size()));        
     }
         
-    
-    
-    private void defineOptions()
-    {                
-//        fields=new Field[]{ new Field("Loci Id", "sequences.primary_key"), 
-//                            new Field("Loci Description","sequences.description"),
-//                            new Field("Cluster Id","cluster_info.filename"),
-//                            new Field("Cluster Name","cluster_info.name"),
-//                            new Field("Cluster Type","cluster_info.filename",new String[]{"blast","hmm"}),
-//                            new Field("Cluster Size","cluster_info.size",Integer.class),
-//                            new Field("# arab keys in cluster","cluster_info.arab_count",Integer.class),
-//                            new Field("# rice keys in cluster","cluster_info.rice_count",Integer.class),
-//                            new Field("Database","sequences.Genome",new String[]{"arab","rice"}),
-//                            new Field("GO Number","go.go")
-//        };
-//        operators=new String[]{"=","!=","<",">","<=",">=",Common.ILIKE,"NOT "+Common.ILIKE};
-//        booleans=new String[]{"and","or"};        
-    }
+           
     private List getIntList(String[] strings)
     {
         if(strings==null)

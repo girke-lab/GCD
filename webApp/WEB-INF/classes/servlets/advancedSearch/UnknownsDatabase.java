@@ -14,6 +14,7 @@ package servlets.advancedSearch;
 import java.util.*;
 import servlets.Common;
 import servlets.DbConnection;
+import servlets.DbConnectionManager;
 import org.apache.log4j.Logger;
 
 public class UnknownsDatabase implements SearchableDatabase
@@ -28,10 +29,12 @@ public class UnknownsDatabase implements SearchableDatabase
     /** Creates a new instance of UnknownsDatabase */
     public UnknownsDatabase() 
     {
+        dbc=DbConnectionManager.getConnection("unknowns");
         if(dbc==null)
             try{
                 Class.forName("org.gjt.mm.mysql.Driver").newInstance();
                 dbc=new DbConnection("jdbc:mysql://138.23.191.152/unknowns","servlet","512256");
+                DbConnectionManager.setConnection("unknowns",dbc); 
             }catch(Exception e){
                 log.error("could not connect to database: "+e.getMessage());
             }
@@ -42,7 +45,8 @@ public class UnknownsDatabase implements SearchableDatabase
     {
         StringBuffer query=new StringBuffer();
         
-        query.append("SELECT * FROM unknowns, treats WHERE unknowns.unknown_id=treats.unknown_id AND (");
+        query.append("SELECT DISTINCT unknowns.unknown_id FROM unknowns, treats " +
+                     "WHERE unknowns.unknown_id=treats.unknown_id AND (");
         
         
         int sp=0,ep=0;
@@ -170,7 +174,7 @@ public class UnknownsDatabase implements SearchableDatabase
     }
     
     public String getDestination() {
-        return "";
+        return "UnknownResultsServlet";
     }
     
     public List sendQuery(String query) {

@@ -26,9 +26,9 @@ public class Common {
     public final static int MAX_QUERY_KEYS=10000; //max number of keys to list in a query
     
     //the caselss compare keyword is ILIKE in postgres, but LIKE in mysql
-    public final static String ILIKE="ILIKE";
+    public final static String ILIKE="LIKE";
                             
-    private static DbConnection dbc=null;
+//    private static DbConnection dbc=null;
     private static Logger log=Logger.getLogger(Common.class);
     /** Creates a new instance of Common */
     public Common() {
@@ -37,9 +37,14 @@ public class Common {
     public static List sendQuery(String q)
     {
         List rs=null;
+        DbConnection dbc;
         try{
+            dbc=DbConnectionManager.getConnection("common");
             if(dbc==null)
+            {
                 dbc=new DbConnection(); //use default connection
+                DbConnectionManager.setConnection("name", dbc);
+            }
             rs=dbc.sendQuery(q);        
             log.info("Stats: "+dbc.getStats());
         }catch(Exception e){
