@@ -231,6 +231,12 @@ public class SearchState implements java.io.Serializable
     
     public String toString()
     {
-        return description;
+        return "search state: \n"+
+               "\t fields: "+selectedFields+
+               "\n\t ops: "+selectedOps+
+               "\n\t values: "+values+
+               "\n\t bools: "+selectedBools+
+               "\n\t startParints: "+startParinths+
+               "\n\t end Parinths: "+endParinths;
     }
 }

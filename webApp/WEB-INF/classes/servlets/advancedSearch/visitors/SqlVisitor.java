@@ -13,6 +13,7 @@ package servlets.advancedSearch.visitors;
 
 import java.util.*;
 import servlets.advancedSearch.queryTree.*;
+import servlets.Common;
 import org.apache.log4j.Logger;
 
 public class SqlVisitor implements QueryTreeVisitor
@@ -41,24 +42,7 @@ public class SqlVisitor implements QueryTreeVisitor
         sql.append(n.getName());            
     }
 
-    public void visit(servlets.advancedSearch.queryTree.IntLiteralValue n)
-    {
-        log.debug("visiting "+n.getClass().getName());
-        sql.append(n.getValue());
-    }
-
-    public void visit(servlets.advancedSearch.queryTree.ListLiteralValue n)
-    {
-        log.debug("visiting "+n.getClass().getName());
-        sql.append("(");
-        for(Iterator i=n.getValues().iterator();i.hasNext();)
-        {
-            sql.append(i.next());
-            if(i.hasNext())
-                sql.append(",");
-        }
-        sql.append(")");
-    }
+    
 
     public void visit(servlets.advancedSearch.queryTree.Not n)
     {
@@ -71,6 +55,15 @@ public class SqlVisitor implements QueryTreeVisitor
     public void visit(servlets.advancedSearch.queryTree.Operation n)
     {
         log.debug("visiting "+n.getClass().getName());
+        
+        //check if one of the expressions is a ListLiteralValue
+        //if so, use a differnt function to print this Operation
+        if(((n.getLeft() instanceof ListLiteralValue) || (n.getRight() instanceof ListLiteralValue)) &&
+                !(n.getOperation().equalsIgnoreCase("IN") || n.getOperation().equalsIgnoreCase("NOT IN")))
+        {
+            printListOperation(n);
+            return;
+        }
         
         //store initial value first, as we may change it later
         boolean localPrintParinths=(n.getOperation().equals("and") || 
@@ -144,7 +137,25 @@ public class SqlVisitor implements QueryTreeVisitor
     { //no op
         log.debug("visiting "+n.getClass().getName());
     }
+    
+    public void visit(servlets.advancedSearch.queryTree.IntLiteralValue n)
+    {
+        log.debug("visiting "+n.getClass().getName());
+        sql.append(n.getValue());
+    }
 
+    public void visit(servlets.advancedSearch.queryTree.ListLiteralValue n)
+    {
+        log.debug("visiting "+n.getClass().getName());
+        sql.append("(");
+        for(Iterator i=n.getValues().iterator();i.hasNext();)
+        {
+            sql.append(i.next());
+            if(i.hasNext())
+                sql.append(",");
+        }
+        sql.append(")");
+    }
     public void visit(servlets.advancedSearch.queryTree.StringLiteralValue n)
     {
         log.debug("visiting "+n.getClass().getName());
@@ -163,7 +174,44 @@ public class SqlVisitor implements QueryTreeVisitor
     public void visit(FloatLiteralValue n)
     {
         log.debug("visiting "+n.getClass().getName());        
-        sql.append(n.getValue());
+        sql.append(n.getValue());        
     }
-    
+       ////////////////////////////////////////////////////
+    private void printListOperation(Operation n)
+    { //need one ListLiteralValue, and one DbField
+        
+        log.debug("printing an expanded list operation");
+        ListLiteralValue llv=null;
+        DbField dbf=null;
+        if(n.getLeft() instanceof ListLiteralValue)
+            llv=(ListLiteralValue)n.getLeft();
+        else if(n.getLeft() instanceof DbField)
+            dbf=(DbField)n.getLeft();
+        
+        if(n.getRight() instanceof ListLiteralValue)
+            llv=(ListLiteralValue)n.getRight();
+        else if(n.getRight() instanceof DbField)
+            dbf=(DbField)n.getRight();
+        if(llv==null || dbf==null || n.getOperation().equals("IN") ||
+                n.getOperation().equals("NOT IN"))
+        {
+            log.debug("proper conditions not met, doing nothing");
+            return;
+        }
+        if(llv.getValues().size()==0)
+        {
+            sql.append(dbf.getName()+" "+n.getOperation()+" ''");
+            return;
+        }
+            
+        
+        sql.append("(");
+        for(Iterator i=llv.getValues().iterator();i.hasNext();)
+        {
+            sql.append(dbf.getName()+" "+n.getOperation()+" '"+i.next()+"'");
+            if(i.hasNext())
+                sql.append(" OR ");
+        }
+        sql.append(")");
+    }
 }

@@ -71,9 +71,9 @@ public class Unknowns2Database extends DefaultSearchableDatabase
         //we don't need any special cases in the query building code.
         
         fields=new Field[]{
-            new Field("At key",db+"unknown_keys.key"),
+            new Field("At key",db+"unknown_keys.key",List.class),
             new Field("Description",db+"unknown_keys.description"),
-            new Field("Number of ests",db+"unknown_keys.est_count"),
+            new Field("Number of ests",db+"unknown_keys.est_count",Integer.class),
             new Field("Molecular function unknown?",db+"unknown_keys.mfu",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
             new Field("Cellular component unknown?",db+"unknown_keys.ccu",

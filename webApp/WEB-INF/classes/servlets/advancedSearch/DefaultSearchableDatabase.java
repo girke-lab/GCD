@@ -230,6 +230,8 @@ public class DefaultSearchableDatabase implements SearchableDatabase
                 bid=state.getSelectedBool(index-1).intValue();
             else 
                 bid=-1; //should not be used on first iteration anyway.            
+            if(oid >= getFields()[fid].getValidOps().length)
+                oid=0;
             
             //log.debug("fid="+fid+", oid="+oid+", value="+value+"\n\tbid="+bid);            
             tableName=getTableName(getFields()[fid].dbName);
@@ -273,13 +275,14 @@ public class DefaultSearchableDatabase implements SearchableDatabase
             Operation op;
             DbField field=new DbField(getFields()[fid].dbName,getFields()[fid].type);
             
-            if(isUnaryOp(oid))
-                op=new Operation(getOperators()[oid],field,Operation.LEFT);
-            else
-            {
+//            if(isUnaryOp(oid))
+//                op=new Operation(getOperators()[oid],field,Operation.LEFT);
+//            else
+//            {
                 LiteralValue lv=getLiteralValue(getFields()[fid],value);
-                op=new Operation(getOperators()[oid],field,lv);
-            }                        
+                op=new Operation(getFields()[fid].getValidOps()[oid],field,lv);
+  //              op=new Operation(getOperators()[oid],field,lv);
+//            }                        
             
             //log.debug("new expression is :"+op);
             if(restrictedValues==null)
@@ -324,9 +327,17 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         if(f.type==String.class)
             return new StringLiteralValue(v);
         else if(f.type==Integer.class)
-            return new IntLiteralValue(Integer.valueOf(v));
+            try{
+                return new IntLiteralValue(Integer.valueOf(v));
+            }catch(Exception e){
+                return new IntLiteralValue(0);
+            }            
         else if(f.type==Float.class)
-            return new FloatLiteralValue(Float.valueOf(v));
+            try{
+                return new FloatLiteralValue(Float.valueOf(v));
+            }catch(Exception e){
+                return new FloatLiteralValue(0);
+            }
         else if(f.type==Boolean.class)                  
             return new BooleanLiteralValue(Common.getBoolean(v));
         else if(f.type==List.class)

@@ -355,26 +355,26 @@ public class AdvancedSearchBean {
             endSubExp(); //add current index to endPars
         }else if(request.getParameter("add_exp") != null){
             //nothing to do
-        }else if(request.getParameter("load_query")!=null){            
-            if(selectedSearchState >=0 && 
-               selectedSearchState < db.getSearchManager().getSearchStateList().size())
-                currentState=db.getSearchManager().getSearchState(selectedSearchState);
-            noNewRow=true;
-        }else if(request.getParameter("store_query")!=null){
-            String desc=request.getParameter("description");
-            if(desc!=null){                
-                currentState.setDescription(desc);
-                db.getSearchManager().addSearchState(currentState);
-            }
-            noNewRow=true;
-        }else if(request.getParameter("update_query")!=null){
-            SearchState ss=db.getSearchManager().getSearchState(selectedSearchState);
-            currentState.setDescription(ss.getDescription());
-            db.getSearchManager().setSearchState(selectedSearchState, currentState);
-            noNewRow=true;
-        }else if(request.getParameter("remove_query")!=null){
-            db.getSearchManager().removeSearchState(selectedSearchState);
-            noNewRow=true;                            
+//        }else if(request.getParameter("load_query")!=null){            
+//            if(selectedSearchState >=0 && 
+//               selectedSearchState < db.getSearchManager().getSearchStateList().size())
+//                currentState=db.getSearchManager().getSearchState(selectedSearchState);
+//            noNewRow=true;
+//        }else if(request.getParameter("store_query")!=null){
+//            String desc=request.getParameter("description");
+//            if(desc!=null){                
+//                currentState.setDescription(desc);
+//                db.getSearchManager().addSearchState(currentState);
+//            }
+//            noNewRow=true;
+//        }else if(request.getParameter("update_query")!=null){
+//            SearchState ss=db.getSearchManager().getSearchState(selectedSearchState);
+//            currentState.setDescription(ss.getDescription());
+//            db.getSearchManager().setSearchState(selectedSearchState, currentState);
+//            noNewRow=true;
+//        }else if(request.getParameter("remove_query")!=null){
+//            db.getSearchManager().removeSearchState(selectedSearchState);
+//            noNewRow=true;                            
         }else if((action=request.getParameter("action")) !=null){ //this should always be the last case
             log.debug("action="+action);
             if(action.equals("refresh"))

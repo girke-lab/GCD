@@ -27,7 +27,7 @@ public class HtmlVisitor implements QueryTreeVisitor
      private SearchableDatabase db;
      private String[] dbs=null;
      private String currentDatabase;
-     private int lastFieldUsedIndex,depth,fieldId;
+     private int lastFieldUsedIndex,depth,fieldId,startParIndx,endParIndx;
      private boolean wasJoinExpression,printParinths,hasSubAdd;
      
     /** Creates a new instance of HtmlVisitor */
@@ -100,6 +100,7 @@ public class HtmlVisitor implements QueryTreeVisitor
             printSpaces(depth);
             out.println("(</td></tr>");
             depth++;
+            startParIndx++;
         }        
         
         out.println("<tr>");
@@ -131,7 +132,8 @@ public class HtmlVisitor implements QueryTreeVisitor
         else
         {            
             out.println("<td><select name='ops' onChange=\"action.value='refresh'; submit()\">");
-            printOptionList(db.getOperators(),n.getOperation().toUpperCase());
+            //printOptionList(db.getOperators(),n.getOperation().toUpperCase());
+            printOptionList(db.getFields()[lastFieldUsedIndex].getValidOps(),n.getOperation().toUpperCase());
             out.println("</select></td>");         
         }
         
@@ -157,9 +159,15 @@ public class HtmlVisitor implements QueryTreeVisitor
             out.println(")</td>");
             out.println("<td align='right'>");
             out.println("<input type=submit name='add_exp' value='add'" +
-                    " onClick=\"row.value='"+(fieldId-1)+"';action.value='add_exp';submit()\">");
-            out.println("</td></tr>");
+                    " onClick=\"row.value='"+(fieldId-1)+"';action.value='add_exp';" +
+                    " end_par_indx.value='"+endParIndx+"';submit()\">");
+            out.println("</td><td>");
+            out.println("<input type=submit name='add_sub_exp' value='add sub expression' " +
+                    " onClick=\"row.value='"+(fieldId-1)+"';action.value='add_sub_exp';" +
+                    " end_par_indx.value='"+endParIndx+"';submit()\">");
+            out.println("</tr>");
             hasSubAdd=true;
+            endParIndx++;
         }
         if(!isBoolOperation)
             fieldId++;
@@ -187,11 +195,14 @@ public class HtmlVisitor implements QueryTreeVisitor
         //log.debug("rendering tree: "+n);
         depth=0;
         fieldId=0;
+        startParIndx=endParIndx=0;
         
         out.println("\n<form method='post'  >");
         out.println("<table border='0' align='center' bgcolor='"+Common.dataColor+"'>");
         out.println("<input type=hidden name='row'>");
         out.println("<input type=hidden name='action'");
+        out.println("<input type=hidden name='end_par_indx'");
+        
         if(dbs!=null && dbs.length > 1)
         {
             out.println("<tr><td colspan='2'>Database: ");
@@ -248,7 +259,10 @@ public class HtmlVisitor implements QueryTreeVisitor
     }
     public void visit(servlets.advancedSearch.queryTree.ListLiteralValue n)
     {
-        printLiteral(n.getValues().toString());    
+        StringBuffer values=new StringBuffer();
+        for(Iterator i=n.getValues().iterator();i.hasNext();)
+            values.append(i.next()+" ");
+        printLiteral(values.toString());    
     }
     public void visit(servlets.advancedSearch.queryTree.StringLiteralValue n)
     {

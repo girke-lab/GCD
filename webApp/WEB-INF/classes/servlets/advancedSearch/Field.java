@@ -24,6 +24,8 @@ package servlets.advancedSearch;
  */
 
 import java.util.*;
+import servlets.Common;
+import org.apache.log4j.Logger;
 
  /**
   * This class is used to store information about a searchable field and
@@ -37,6 +39,9 @@ import java.util.*;
          */
         public Class type;
         private Object[] list;
+        private static Map validOps;  //maps types to operations
+        private static Logger log=Logger.getLogger(Field.class);
+        
         /**
          * 
          */
@@ -93,7 +98,33 @@ import java.util.*;
                 output+="</SELECT>";
                 return output;
             }
+            else if(type.equals(List.class))
+            {
+                return "<TEXTAREA name='values' rows='1'>"+currentValue+"</TEXTAREA>";                
+            }
             else //use a text field
                 return "<INPUT type=text name='values' value='"+currentValue+"'>";
+        }
+        public String[] getValidOps()
+        {
+            if(validOps==null)
+                defineValidOps();
+            String[] ops=(String[])validOps.get(type);
+            if(ops!=null)
+                return ops;
+            log.error("no ops known for type "+type);
+            return new String[]{""};
+            
+        }
+        private void defineValidOps()
+        {
+            validOps=new HashMap();
+            
+            validOps.put(String.class, new String[]{"=","!=",Common.ILIKE,"NOT "+Common.ILIKE});
+            validOps.put(Integer.class, new String[]{"<",">","<=",">=","=","!="});
+            validOps.put(Float.class, new String[]{"<",">","<=",">=","=","!="});
+            validOps.put(List.class, new String[]{"IN","NOT IN",Common.ILIKE,"NOT "+Common.ILIKE});
+            validOps.put(Boolean.class, new String[]{"=","!="});
+            
         }
     }

@@ -143,6 +143,7 @@ public class AdvancedSearchBean2
         currentState.setSelectedBools(getIntList(request.getParameterValues("bools")));
         currentState.setStartParinths(getIntList(request.getParameterValues("startPars")));
         currentState.setEndParinths(getIntList(request.getParameterValues("endPars")));
+        log.debug("end pars are: "+currentState.getEndParinths());
         
         log.debug("getting values");
         currentState.setValues(getList(request.getParameterValues("values")));
@@ -174,19 +175,24 @@ public class AdvancedSearchBean2
             String row=request.getParameter("row");                
             if(row==null)
                 return;            
-            removeExpression(Integer.valueOf(row));
+            removeExpression(Integer.parseInt(row));
         }else if(action.equals("add_exp")){ 
             String row=request.getParameter("row");
+            String endParIndx=request.getParameter("end_par_indx");
             if(row==null || row.equals(""))
                 addExpression();
-            else 
-                addExpression(Integer.valueOf(row));
+            else if(endParIndx!=null && !endParIndx.equals(""))
+                addExpression(Integer.parseInt(row),Integer.parseInt(endParIndx));
         }else if(action.equals("search")){
             doQuery(); 
         }else if(action.equals("add_sub_exp")){
-            addSubExp(); //add current index to startPars
-        }else if(action.equals("end_sub_exp")){
-            endSubExp(); //add current index to endPars
+            String row=request.getParameter("row");                
+            String endParIndx=request.getParameter("end_par_indx");
+            if(row==null || row.equals("") || endParIndx==null || endParIndx.equals(""))
+                return;                        
+            addSubExp(Integer.parseInt(row),Integer.parseInt(endParIndx)); 
+//        }else if(action.equals("end_sub_exp")){
+//            endSubExp(); //add current index to endPars
         }else if(action.equals("load_query")){ 
             log.debug("loading query: "+selectedQueryName);
             currentQuery=db.getSearchManager().getSearchState(selectedQueryName);
@@ -234,10 +240,10 @@ public class AdvancedSearchBean2
         currentState.getSelectedOps().add(new Integer(0));
         currentState.getSelectedBools().add(new Integer(0));
     }
-    private void addExpression(Integer r)
+    private void addExpression(int row,int endParIndx)
     {
-        int row=r.intValue();
-        log.debug("adding expression at row "+row);
+        
+        log.debug("adding expression at row "+row+", endParIndx="+endParIndx);
         currentState.getSelectedFields().add(row+1,new Integer(0));
         currentState.getSelectedOps().add(row+1,new Integer(0));
         currentState.getValues().add(row+1,"");
@@ -258,12 +264,31 @@ public class AdvancedSearchBean2
         else
             currentState.getSelectedBools().add(row-1,newBool);
         
+        shiftParinths(endParIndx,row,1);
+        
         log.debug("new bools: "+currentState.getSelectedBools());
         
     }
-    private void removeExpression(Integer r)
+    private void shiftParinths(int startIndx,int threshold,int shiftAmt)
+    { //and parinth with a value greater than threshold gets shiftAmt added to it.
+        
+        log.debug("shifting parinths after field "+threshold+" down by "+shiftAmt+" starting at index "+startIndx);
+        List[] listRefs=new List[]{
+                                   currentState.getEndParinths()};
+        List l;
+        for(int j=0;j<listRefs.length;j++)
+        {
+            l=listRefs[j];
+            log.debug("list before: "+l);
+            for(int i=startIndx;i<l.size();i++)
+                if(((Integer)l.get(i)).intValue() >= threshold)
+                    l.set(i,new Integer(((Integer)l.get(i)).intValue()+shiftAmt));
+            log.debug("list after: "+l);
+        }        
+    }
+    private void removeExpression(int row)
     { //remove entry row from fields, ops, values, and bools
-        int row=r.intValue();
+        
         log.debug("removing expression at row "+row);
         currentState.getSelectedFields().remove(row);
         currentState.getSelectedOps().remove(row);
@@ -288,12 +313,31 @@ public class AdvancedSearchBean2
         
     }
      
-    private void addSubExp()
+    private void addSubExp(int row,int endParIndx)
     { //add the length of fields at the end of startPars
-        log.debug("adding sub expression");
-        currentState.getStartParinths().add(new Integer(currentState.getSelectedFields().size()));              
-        addExpression();
-        currentState.getEndParinths().add(new Integer(currentState.getSelectedFields().size()));                
+        
+        log.debug("adding sub expression at row "+row);
+        log.debug("state="+currentState);
+        //add bool, start par, an expression,a bool,another expression, end par
+        Integer oppositeBool=new Integer(0), middleBool=new Integer(1); //should be set based on previous bools
+        
+        //currentState.getSelectedBools().add(oppositeBool);             
+        //currentState.getStartParinths().add(new Integer(row+1));
+        
+        addExpression(row,endParIndx);
+        addExpression(row+1,endParIndx);
+        currentState.getStartParinths().add(new Integer(row+1));
+        currentState.getEndParinths().add(new Integer(row+2));
+        if(currentState.getSelectedBools().size() > 1)
+        {
+            middleBool=(Integer)currentState.getSelectedBools().get(row-1);
+            oppositeBool=new Integer((middleBool.intValue()+1)%2);
+        }
+        currentState.getSelectedBools().set(row,oppositeBool);
+        currentState.getSelectedBools().set(row+1,middleBool);
+        log.debug("new state="+currentState);
+        
+        //currentState.getEndParinths().add(new Integer(row+2));                
     }
     private void endSubExp()
     { //add the length of fields at end of endPars
