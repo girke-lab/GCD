@@ -21,6 +21,7 @@ public class SequenceServlet extends HttpServlet
     final int STANDARD=0, FASTA=1;
     final int arab=0,rice=1; //database names
     final int MAXKEYS=1000; //maximum number of results that can be returned 
+    final int LINE_SIZE=1000; //number of base pairs to print on a line
                             //per database query
     long ID=0;
     String[][] fullNames;//names to use in querys
@@ -105,7 +106,7 @@ public class SequenceServlet extends HttpServlet
             keySet=qi.getKeySet(i); //keySet will be a list of Seq_id numbers, not Accession numbers
 //            keySet=(ArrayList)keys.get(i);
             main=searchByKey(keySet,qi.limit,qi.dbNums[i],fieldNums,fieldsLength);
-            Common.printList(out,main);
+            //Common.printList(out,main);
             //Common.blastLinks(out,qi.dbNums[i],hid);
             printFasta(out,main,qi.dbNums[i],fieldNums,length,format);            
         }
@@ -201,7 +202,8 @@ public class SequenceServlet extends HttpServlet
                         "'>MIPS</a>&nbsp&nbsp"+
                         "<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+
                         "ORF_infopage.cgi?db=ath1&orf="+key+"'>TIGR</a></TD></TR>");      
-                standard.append("\t<TR bgcolor='"+colors[0]+"'><TH align='left'>Accession</TH><TD>"+key+"</TD></TR>"+
+                standard.append("\t<TR bgcolor='"+colors[0]+"'><TH align='left'>Accession</TH><TD>"+
+                    "<A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?db=all&accession="+key+"'>"+key+"</A></TD></TR>"+
                     "\t<TR bgcolor='"+colors[1]+"'><TH align='left'>Model Accession</TH><TD>"+key2+"</TD></TR>"+
                     "\t<TR bgcolor='"+colors[2]+"'><TH align='left'>Description</TH><TD>"+desc+"</TD></TR>\n");
 
@@ -239,6 +241,13 @@ public class SequenceServlet extends HttpServlet
                     else //length==0
                         data=data.toUpperCase();
                         //record.append(data.toUpperCase()+"\n");
+                    
+                    //insert some spaces into data, so that the text is wrapped
+                    StringBuffer temp=new StringBuffer(data);
+                    for(int j=LINE_SIZE;j<temp.length();j+=LINE_SIZE)
+                        temp.insert(j,' ');
+                    data=temp.toString();
+                    
                     record.append(data+"\n");
                     standard.append("\t<TR bgcolor='"+colors[currentFeildNums[index]]+"'>"+
                         "<TH align='left'>"+printNames[currentFeildNums[index]]+"</TH>"+

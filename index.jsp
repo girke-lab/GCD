@@ -165,7 +165,7 @@ function MM_nbGroup(event, grpName) { //v6.0
                         <INPUT type=checkbox name='dbs' value='0' checked>
                         Arabidopsis
                         <BR>
-                        <INPUT type=checkbox name='dbs' value='1'>
+                        <INPUT type=checkbox name='dbs' value='1' checked>
                         Rice     
                     </TD> 
                 </TR>
@@ -177,6 +177,9 @@ function MM_nbGroup(event, grpName) { //v6.0
                         <INPUT type=radio name="searchType" value="d">
                         Search by description
                         <BR>                
+                        <INPUT type=radio name="searchType" value="c">
+                        Search by cluster number
+                        <BR>
                        
                     </TD>
                     <TD>

@@ -38,10 +38,10 @@ public class ClusterServlet extends HttpServlet {
     {
         HttpSession session=request.getSession(false); //a session must already exist
         response.setContentType("text/html");
-//        java.io.PrintWriter out = response.getWriter();
+        java.io.PrintWriter out = response.getWriter();
         if(session==null)
         {
-//            out.println("no session");
+            out.println("no session");
             return;
         }
         
@@ -123,7 +123,7 @@ public class ClusterServlet extends HttpServlet {
     private String clusterQuery(String id,int currentDB)
     {
         String query="";
-        query=new String("SELECT Clusters.Cluster_id, Sequences.Primary_Key, Sequences.Description "+
+        query=new String("SELECT DISTINCT Clusters.Cluster_id, Sequences.Primary_Key, Sequences.Description "+
                          "FROM Clusters LEFT JOIN Sequences USING(Seq_id) "+
                          //"FROM Sequences, Clusters "+
                          //"WHERE Sequences.Seq_id=Clusters.Seq_id AND Clusters.Cluster_id='"+id+"'");
