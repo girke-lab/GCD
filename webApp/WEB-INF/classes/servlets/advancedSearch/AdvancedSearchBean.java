@@ -140,7 +140,7 @@ public class AdvancedSearchBean {
     }
     public String printStoreOptions()
     {
-        boolean printAdminControls=true;
+        boolean printAdminControls=false;
         StringBuffer out=new StringBuffer();
         out.append("<table align='center'>\n");
         out.append("<tr><th colspan='3'>Stored Queries</th></tr>\n");
