@@ -203,10 +203,17 @@ public class QueryPageServlet extends HttpServlet
         String[] colors=new String[2];
         colors[0]=new String("29F599"); //00aa00
         colors[1]=new String("26F5CC"); //00cc00
-        out.println("<TABLE align='center' border='0'>");
+
+        out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/multigene.pl'>\n");
+        out.println("<INPUT type='submit' value='All Gene Structures'><BR>\n");
 	for(Iterator i=data.iterator();i.hasNext();)
-	    keyList.append("accession="+((ArrayList)i.next()).get(0)+"&");        
-	out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/multigene.pl?"+keyList+"'>All Gene Strucures</a>");
+            out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
+        //	    keyList.append("accession="+((ArrayList)i.next()).get(0)+"&");        
+        out.println("</FORM>");
+  
+        
+        out.println("<TABLE align='center' border='0'>");
+//	out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/multigene.pl?"+keyList+"'>All Gene Strucures</a>");
         while(li.hasNext())
         {
             row=(ArrayList)li.next();

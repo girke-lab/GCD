@@ -170,7 +170,7 @@ public class SequenceServlet extends HttpServlet
         currentDB=0; //don't distigiush between databases anymore
         try{
             out.println("<FORM METHOD='POST' ACTION='http://138.23.191.152/blast/blastSearch.cgi'>");
-            out.println("<INPUT type='submit' value='Blast it'><BR>");
+//            out.println("<INPUT type='submit' value='Blast it'><BR>");
             System.out.println("size of rs is "+((ArrayList)rs.get(0)).size());
             standard.append("<TABLE align='center'>");
             for(ListIterator l=rs.listIterator();l.hasNext();)
@@ -219,9 +219,10 @@ public class SequenceServlet extends HttpServlet
                     fastaOutput.append(record.toString());
                     record.setLength(0);
                     
-                    if(currentFeildNums[index]==4) //deal with the promoter
+                    if(currentFeildNums[index]==4){ //deal with the promoter
                         if(data.length() > 3000) //only trim if it is greater than 3000
                             data=data.substring(0,3000).toUpperCase(); //trim the intergenic to 3000 
+                    }
                     else if(currentFeildNums[index]==3) //dont uppercase the TU
                         ; //dont change data at all                    
                     else if(currentFeildNums[index]==9)//dont trim the protein  

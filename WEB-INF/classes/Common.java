@@ -83,11 +83,11 @@ public class Common {
             "\t\t<TD colspan='2'>Length of Sequence to return: <INPUT name='length' value='' size='5'></TD>\n"+
             "</TR><TR>\n"+
             "\t\t<TD align='center' colspan='3'><INPUT type=checkbox name=format value='1'>fasta format</TD>\n"+            
-            "</TR></TABLE>\n"+
+            "</TR></TABLE>\n"+ 
             "<TABLE align='center' border='0'>\n"+
             "\t<TR>\n"+
             "\t\t<TD><INPUT type=submit value='Sequence Data' onClick='getSequences();'>\n"+
-            "\t\t<TD><INPUT type=submit value='Annotation Data' onClick='getDetails();'>\n"+
+            //"\t\t<TD><INPUT type=submit value='Annotation Data' onClick='getDetails();'>\n"+
             "\t</TR>\n"+            
             "</TABLE>\n"+
             "</FORM>\n");
