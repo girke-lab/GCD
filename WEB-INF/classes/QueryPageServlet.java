@@ -245,7 +245,7 @@ public class QueryPageServlet extends HttpServlet
 	 out.println("<a href='http://bioinfo.ucr.edu/projects/PlantFam/Trees/"+clusterNum+".html'>Trees</a>&nbsp&nbsp");
 	 out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/geneview.pl?accession="+key+"'>GeneStructure*</a>&nbsp&nbsp");
 	 out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?PF'>PFAM</a>&nbsp&nbsp");
-	 //expression link goes here
+	 //expression link goes here or here
 	 out.println("<a href='http://signal.salk.edu/cgi-bin/tdnaexpress?GENE="+key+"&FUNCTION=&JOB=HITT&DNA=&INTERVAL=10'>KO</a>&nbsp&nbsp");
 	 out.println("<a href='http://www.geneontology.org/doc/index.shtml#downloads'>GO</a>&nbsp&nbsp");
 	 out.println("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");
