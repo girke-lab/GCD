@@ -33,7 +33,7 @@ public class AdvancedSearchBean {
     public SearchableDatabase db=null;
     
     private int selectedSearchState;
-    
+    private boolean printAdminControls=false;
     private static Logger log=Logger.getLogger(AdvancedSearchBean.class);
     
     public AdvancedSearchBean()
@@ -139,8 +139,7 @@ public class AdvancedSearchBean {
         response=rs;
     }
     public String printStoreOptions()
-    {
-        boolean printAdminControls=false;
+    {        
         StringBuffer out=new StringBuffer();
         out.append("<table align='center'>\n");
         out.append("<tr><th colspan='3'>Stored Queries</th></tr>\n");
@@ -184,6 +183,10 @@ public class AdvancedSearchBean {
         out.append("Description: <INPUT name='description'>\n ");
         out.append("<INPUT type=submit name='store_query' value='Store Query'");
         return out.toString();
+    }
+    public void adminEnabled(boolean b)
+    {
+        printAdminControls=b;
     }
 //////////////////// PRIVATE METHODS  ////////////////////////////////////    
     private void processCommands(HttpServletRequest request)

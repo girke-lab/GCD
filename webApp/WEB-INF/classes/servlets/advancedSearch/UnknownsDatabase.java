@@ -201,22 +201,6 @@ public class UnknownsDatabase implements SearchableDatabase
     public void displayResults(SearchState state, ServletContext context, HttpServletRequest request, HttpServletResponse response) 
     {
         List results=sendQuery(buildQuery(state));
-//        DataView dv=new UnknownsDataView(); 
-//        PrintWriter out=null;
-//        try{
-//            out=response.getWriter();
-//        }catch(IOException e){
-//            log.error("could not get writer: "+e.getMessage());
-//            return;
-//        }
-//        List id_list=new LinkedList();
-//        for(Iterator i=results.iterator();i.hasNext();)
-//            id_list.add(((List)i.next()).get(0));
-//        
-//        dv.setData(id_list, getFields()[state.getSortField()].dbName, new int[]{},0);
-//        dv.printHeader(out);
-//        dv.printStats(out);
-//        dv.printData(out);
         
         //then figure out how to pass this info to QueryPageServlet via post.
         //set the parameters needed by QueryPageServlet

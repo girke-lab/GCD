@@ -10,7 +10,7 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 import java.sql.*;
-import org.apache.log4j.Logger;
+import org.apache.log4j.*;
 
 import servlets.search.*;
 import servlets.dataViews.*;
@@ -27,17 +27,31 @@ public class QueryPageServlet extends HttpServlet
     final int arab=0,rice=1; //database names
     
     long ID=0;//id number used to identify query
-    private static Logger log=Logger.getLogger(QueryPageServlet.class);
+    private static Logger log; 
     
     public void init(ServletConfig config) throws ServletException
     {
+        System.out.println("inside init");
+        
         super.init(config);       
+        
+        //setup logger
+        Properties props=new Properties();
+        try{
+            System.out.println("initializing logger.");
+            props.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("log4j.properties"));
+            PropertyConfigurator.configure(props);
+        }catch(IOException e){
+            System.err.println("could not configure logger");
+        }
+        log=Logger.getLogger(QueryPageServlet.class);
     }    
     public void destroy()
     {    }    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, java.io.IOException
     {
+        System.out.println("staring processRequest");
         HttpSession session = request.getSession(true);
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
@@ -211,9 +225,12 @@ public class QueryPageServlet extends HttpServlet
      */
     private void getDynamicSettings(QueryInfo qi, HttpServletRequest request)
     {
+        boolean repeatSearch=false;
         String sortCol=request.getParameter("sortCol");
-        if(sortCol!=null)
+        if(sortCol!=null){
             qi.setSortCol(sortCol);
+            repeatSearch=true;
+        }            
         
         String displayType=request.getParameter("displayType");
         if(displayType!=null) //if a display type was given, save it
@@ -227,6 +244,7 @@ public class QueryPageServlet extends HttpServlet
         }
         try{
             qi.setObject("sortDirection",request.getParameter("sortDirection"));
+            repeatSearch=true;
         }catch(Exception e){
             if(qi.getObject("sortDirection")==null)
                 qi.setObject("sortDirection","asc");
@@ -236,7 +254,8 @@ public class QueryPageServlet extends HttpServlet
             if(pos < 0)
                 pos=0;
             qi.setCurrentPos(pos);
-        }catch(Exception e){ }        
+        }catch(Exception e){ }      
+        
     }
     ///////////////////////////////////////////////////////////////////////////////////////////
    
