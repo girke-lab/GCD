@@ -7,7 +7,7 @@
 <jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='page'/>
 <jsp:useBean id='common' class='servlets.Common' />
 <%      
-        common.printHeader(out);
+        common.printHeader(out,"Advanced Search");
         bean.setDefaultDatabase("common");
         bean.setDatabase("common");
         bean.setContext(application,request,response);

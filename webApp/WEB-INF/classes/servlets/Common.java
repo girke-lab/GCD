@@ -135,9 +135,13 @@ public class Common {
    
     public static void printHeader(Writer out)
     {
+        printHeader(out,"");
+    }
+    public static void printHeader(Writer out,String subTitle)
+    {
         String header=
             "<!--GCD_Tool_Bar-->" +
-            "<meta Http-Equiv='Content-Type' content='text/html; charset=UTF-8'><meta Http-Equiv='Cache-Control' Content='no-cache'/><meta Http-Equiv='Pragma' Content='no-cache'/><meta Http-Equiv='Expires' Content='0'/>" +
+            "<meta Http-Equiv='Content-Type' content='text/html'; charset='UTF-8'><meta Http-Equiv='Cache-Control' Content='no-cache'/><meta Http-Equiv='Pragma' Content='no-cache'/><meta Http-Equiv='Expires' Content='0'/>" +
             "<style type='text/css'>	body { color: #000000; font-family: avantgarde, sans-serif; font-size: 11pt} " +
             "	a { color: #006699} " +
             "	a:hover { background-color: #AAAAAA} " +
@@ -154,17 +158,16 @@ public class Common {
             "	<title>GCD ReadMe</title>" +
             "</head>" +
             "<font face='sans-serif, Arial, Helvetica, Geneva'>" +
-            "	<table  border='4' width='100%'>" +
+            "	<table  border='4' >" +
             "		<tr>" +
-            "			<td nowrap, colspan=11, valign='top', align='center', bgcolor='D3D3D3', width=1000><font SIZE=+4>Genome Cluster Database</font></td>" +
+            "			<td nowrap, colspan='11', valign='top', align='center', bgcolor='D3D3D3', width=1000><font SIZE=+4>Genome Cluster Database</font></td>" +
             "		</tr>" +
             "		<tr>" +
-            "			<td nowrap, colspan=11, valign='top', align='center', width=1000><font SIZE=+0>Center for Plant Cell Biology, UC Riverside</font></td>" +
+            "			<td nowrap, colspan='11', valign='top', align='center', width=1000><font SIZE=+0>Center for Plant Cell Biology, UC Riverside</font></td>" +
             "		</tr>" +
             "		<tr>" +
-            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/projects/internal/PlantFam/Readme/about.html'>ReadMe</a>&nbsp;]</font></td>'" +
-            "            			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "                                " +
+            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='about.jsp'>ReadMe</a>&nbsp;]</font></td>" +
+            "   		<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
             "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='index.jsp'>Search</a>&nbsp;]</font></td>" +
             "            	<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
             "                   <td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='advancedSearch.jsp'>Advanced</a>&nbsp;]</font></td>" +
@@ -173,9 +176,15 @@ public class Common {
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
             "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>Stats</a>&nbsp;]</font></td>" +
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='index.jsp'>FTP</a>&nbsp;]</font></td>" +
-            "		</tr>" +
+            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='ftp.jsp'>FTP</a>&nbsp;]</font></td>" +
+            "		</tr>" +           
             "	</table>" +
+             (!subTitle.equals("")?
+                "<table border='1'>    <tr>" +
+                "               <td nowrap colspan='11' align='center' width=1000><font SIZE=+3>"+subTitle+"</td>"+
+                "           </tr></table>" 
+                : ""  //else don't print the last row
+            )+
             "</font>" +
             "<!--GCD_Tool_Bar-->";
         try{
@@ -282,11 +291,18 @@ public class Common {
     }
     public static String buildIdListCondition(String varName,List ids)
     {
+        return buildIdListCondition(varName,ids,false); //default to no quotes.
+    }
+    public static String buildIdListCondition(String varName,List ids,boolean quoteIt)
+    {
         StringBuffer out=new StringBuffer();
         out.append(varName+" in (");
         for(Iterator i=ids.iterator();i.hasNext();)
         {
-            out.append(i.next());
+            if(quoteIt)
+                out.append("'"+i.next()+"'");
+            else
+                out.append(i.next());
             if(i.hasNext())
                 out.append(",");
         }

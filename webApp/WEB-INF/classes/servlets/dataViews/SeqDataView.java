@@ -199,7 +199,7 @@ public class SeqDataView implements DataView
     {
         StringBuffer query=new StringBuffer();
         
-        query.append("SELECT sequences.genome, sequences.primary_key,sequences.description,models.model_id," +
+        query.append("SELECT sequences.genome, sequences.primary_key,sequences.description,models.model_accession," +
                     " go.go, cluster_info.filename,cluster_info.size,cluster_info.name,cluster_info.arab_count,cluster_info.rice_count,cluster_info.method "+
                 "FROM sequences LEFT JOIN models USING (seq_id) LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequences.seq_id=go.seq_id)"+
                 //clusters, cluster_info, sequences LEFT JOIN go USING (seq_id) "+
@@ -422,16 +422,28 @@ public class SeqDataView implements DataView
                             cs.arab_size+" Ath &nbsp&nbsp "+cs.rice_size+" Osa</a></TD>");
                  if(!cs.size.equals("1") && !cs.method.endsWith("_50") && !cs.method.endsWith("_70"))
                  {
-                     String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
+                     String webBase="http://bioinfo.ucr.edu/";
+                     String fileBase="/data/";
+                     String offset,csLink="noAlignment.html",tLink="noTree.html";
+                     
                      if(cs.method.equals("Domain Composition"))
-                         base+="hmmClusters/";
+                         offset="projects/ClusterDB/clusters.d/hmmClusters/";                         
                      else
-                         base+="blastClusters/";
+                         offset="projects/ClusterDB/clusters.d/blastClusters/";
+                         
+                     //log.debug("testing for "+fileBase+offset+cs.clusterNum+".html");
+                     //log.debug("testing for "+fileBase+offset+cs.clusterNum+".jpg");
+                     
+                     if(new File(fileBase+offset+cs.clusterNum+".html").exists())
+                        csLink=webBase+offset+cs.clusterNum+".html";
+                     if(new File(fileBase+offset+cs.clusterNum+".jpg").exists())
+                         tLink=webBase+offset+cs.clusterNum+".jpg";
+                     
                      out.println("\t\t<TD nowrap>");
-                     out.println("\t\t\t<a href='"+base+cs.clusterNum+".html'>Consensus shaded</a>&nbsp&nbsp");
+                     out.println("\t\t\t<a href='"+csLink+"'>Consensus shaded</a>&nbsp&nbsp");
                      out.println("\t\t\t<a href='http://bioinfo.ucr.edu/cgi-bin/domainShader?cid="+cs.clusterNum+"'>Domain shaded</a>");
                      out.println("\t\t</TD>");
-                     out.println("\t\t<TD><a href='"+base+cs.clusterNum+".jpg'>view</a></TD>");
+                     out.println("\t\t<TD><a href='"+tLink+"'>view</a></TD>");
                  }             
                  else
                      out.println("<TD>&nbsp</TD><TD>&nbsp</TD>");
@@ -467,12 +479,16 @@ public class SeqDataView implements DataView
 
              //does this link work for rice? no
              out.println("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");         
-             
-             //link to uniprot blast results
-             out.println("<a href='QueryPageServlet?searchType=blast&displayType=blastView&inputKey=uniprot "+key+"'>" +
-                         "Cross-Species Profile</a>");
+
              if(g==Common.arab)
                 out.println("<a href='http://www.arabidopsis.org:1555/ARA/NEW-IMAGE?type=GENE&object="+key+"'>AraCyc</a>");
+
+             //link to uniprot blast results
+             StringBuffer modelList=new StringBuffer();
+             for(Iterator i=models.iterator();i.hasNext();)
+                 modelList.append(i.next()+" ");
+             out.println("<a href='QueryPageServlet?searchType=blast&displayType=blastView&inputKey=uniprot "+modelList+"'>" +
+                         "Cross-Species Profile</a>");
         }        
     }
 }

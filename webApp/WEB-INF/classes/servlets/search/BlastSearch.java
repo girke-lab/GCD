@@ -58,22 +58,25 @@ public class BlastSearch implements Search
             data=new ArrayList();
             return;
         }
-        StringBuffer condition=new StringBuffer();
-        condition.append(" (");
-        for(Iterator i=keys.iterator();i.hasNext();)
-        {
-            condition.append("query.accession ILIKE '"+i.next()+"%'");
-            if(i.hasNext())
-                condition.append(" OR ");
-        }
-        condition.append(") ");
+        
+//        StringBuffer condition=new StringBuffer();
+//        condition.append(" (");
+//        for(Iterator i=keys.iterator();i.hasNext();)
+//        {
+//            condition.append("query.accession ILIKE '"+i.next()+"%'");
+//            if(i.hasNext())
+//                condition.append(" OR ");
+//        }
+//        condition.append(") ");
+        
         String query=
             "SELECT br.blast_id " +
             "FROM general.blast_results as br, general.accessions as query, " +
             "   general.accessions as target, general.genome_databases as gd " +
             "WHERE gd.db_name='"+blastDb+"' and gd.genome_db_id=target.genome_db_id and " +
             "   query.accession_id=br.query_accession_id AND target.accession_id=br.target_accession_id AND "+
-                condition;
+                Common.buildIdListCondition("query.accession",keys,true);
+                //condition;
                        
         List results=null;
         try{

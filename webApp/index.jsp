@@ -8,7 +8,7 @@
 
 
 </head>
-<body bgcolor="#FFFFFF" leftmargin="1" topmargin="1" marginwidth="1" marginheight="1" onLoad="MM_preloadImages('images/home_down.gif','images/home_over.gif','images/training_down.gif','images/training_over.gif','images/blast_down.gif','images/blast_over.gif','images/gcg_down.gif','images/gcg_over.gif','images/tools_down.gif','images/tools_over.gif','images/database_down.gif','images/database_over.gif','images/bioinfo_down.gif','images/bioinfo_over.gif','images/links_down.gif','images/links_over.gif')">
+<body bgcolor="#FFFFFF" leftmargin="1" topmargin="1" marginwidth="1" marginheight="1" >
 
      <% String input=request.getParameter("input");
         String limit=request.getParameter("limit");
@@ -20,14 +20,14 @@
         if(fieldName==null)
             fieldName="Description";
     %>   
-<
+
 <jsp:useBean id='common' class='servlets.Common' scope='application'/>
-<% common.printHeader(out); %>
+<% common.printHeader(out,"Single or Batch Search"); %>
 
 	<FORM NAME='form1' METHOD=POST ACTION='/databaseWeb/QueryPageServlet'   >   
             <TABLE width='70%' align='center' border='0'>
                 <TR>
-                    <TD colspan='2' align='center'>
+                    <TD  align='center'>
 <!--                        1.Obtain selected sequences for one or many ID numbers.
                         <BR>
                         2.Text search of putative gene function. Booleans may be used: and, or, not.
@@ -36,12 +36,15 @@
                          To download entire datasets, please use our 
                         <A href='ftp://138.23.191.152/pub/'> FTP site.</A>
 -->
-                        <A href='http://bioinfo.ucr.edu/projects/internal/PlantFam/Readme/about.html#search'>
-                            How to Search this Site</A>
+                        &nbsp<P>
+                        GCD is a database for genome-wide sequence <BR> family mining in Arabidopsis and rice.
+                        <P>
+                        <A href='about.jsp#search'>
+                            How to Search GCD</A>
                     </TD>                    
                 </TR>  
                 <TR >
-                    <TD colspan='2' align='center'>
+                    <TD  align='center'>
                         <B>Search string</B>                      
                         <BR>
                         <TEXTAREA NAME="inputKey" cols='40' rows='10'><%=input%></TEXTAREA>                                                                 
@@ -57,7 +60,7 @@
                     </TD> 
                 </TR>
                 <TR>                    
-                    <TD colspan='2' align='center' >
+                    <TD  align='center' >
 
                         Search by
                         <SELECT name='searchType'>
@@ -82,7 +85,7 @@
 
                 </TR>    
                 <TR >                    
-                    <TD colspan='2' align='center'>
+                    <TD  align='center'>
                        <INPUT TYPE=submit value='Submit Query' ><!-- onClick="send();"> -->
                                
                     </TD>
