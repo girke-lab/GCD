@@ -16,6 +16,10 @@ import servlets.Common;
 import servlets.DbConnection;
 import servlets.DbConnectionManager;
 import org.apache.log4j.Logger;
+import javax.servlet.http.*;
+import javax.servlet.ServletContext;
+import java.io.*;
+import servlets.dataViews.*;
 
 public class UnknownsDatabase implements SearchableDatabase
 {
@@ -23,6 +27,7 @@ public class UnknownsDatabase implements SearchableDatabase
     public String[] operators;
     public String[] booleans; 
     
+    private int unaryBoundry; //seperates unary and binary ops in operators array
     private static DbConnection dbc=null;  //need a connection to a different database
     private static Logger log=Logger.getLogger(UnknownsDatabase.class);
     
@@ -45,8 +50,9 @@ public class UnknownsDatabase implements SearchableDatabase
     {
         StringBuffer query=new StringBuffer();
         
-        query.append("SELECT DISTINCT unknowns.unknown_id FROM unknowns, treats " +
-                     "WHERE unknowns.unknown_id=treats.unknown_id AND (");
+        query.append("SELECT DISTINCT unknowns.unknown_id " +
+                     "FROM unknowns LEFT JOIN treats USING(unknown_id) " +
+                     "WHERE (");
         
         
         int sp=0,ep=0;
@@ -62,9 +68,9 @@ public class UnknownsDatabase implements SearchableDatabase
             
             query.append(fields[fid].dbName+" "+operators[oid]+" ");
 
-            if(fields[fid].type.equals(String.class) || fields[fid].type.equals(List.class))
+            if(!isUnaryOp(oid) && fields[fid].type.equals(String.class) || fields[fid].type.equals(List.class))
                 query.append("'"+state.getValue(i)+"'");            
-            else
+            else if(!isUnaryOp(oid))
                 query.append(state.getValue(i));                
             
             query.append(" ");
@@ -98,7 +104,10 @@ public class UnknownsDatabase implements SearchableDatabase
     {
         return operators;
     }
-    
+    private boolean isUnaryOp(int opId)
+    {
+        return opId >= unaryBoundry;
+    }
     private void defineOptions()
     {                
         String[] printNames=new String[]{
@@ -169,7 +178,10 @@ public class UnknownsDatabase implements SearchableDatabase
         for(int i=0;i<fields.length;i++)
             fields[i]=new Field(printNames[i],dbNames[i]);
         
-        operators=new String[]{"=","!=","<",">","<=",">=",Common.ILIKE,"NOT "+Common.ILIKE};
+        operators=new String[]{"=","!=","<",">","<=",">=",
+                Common.ILIKE,"NOT "+Common.ILIKE,
+                "is NULL","is not NULL"};
+        unaryBoundry=9;
         booleans=new String[]{"and","or"};        
     }
     
@@ -184,6 +196,57 @@ public class UnknownsDatabase implements SearchableDatabase
             log.error("could not send query: "+e.getMessage());
         }
         return null;
+    }       
+    
+    public void displayResults(SearchState state, ServletContext context, HttpServletRequest request, HttpServletResponse response) 
+    {
+        List results=sendQuery(buildQuery(state));
+//        DataView dv=new UnknownsDataView(); 
+//        PrintWriter out=null;
+//        try{
+//            out=response.getWriter();
+//        }catch(IOException e){
+//            log.error("could not get writer: "+e.getMessage());
+//            return;
+//        }
+//        List id_list=new LinkedList();
+//        for(Iterator i=results.iterator();i.hasNext();)
+//            id_list.add(((List)i.next()).get(0));
+//        
+//        dv.setData(id_list, getFields()[state.getSortField()].dbName, new int[]{},0);
+//        dv.printHeader(out);
+//        dv.printStats(out);
+//        dv.printData(out);
+        
+        //then figure out how to pass this info to QueryPageServlet via post.
+        //set the parameters needed by QueryPageServlet
+        
+        NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(
+                    (HttpServletRequest)request,new HashMap(),false,"POST");
+        
+        mRequest.getParameterMap().put("searchType","seq_id");
+        mRequest.getParameterMap().put("limit", state.getLimit());
+        mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName);         
+                
+        if(getFields()[state.getSortField()].dbName.startsWith("cluster_info"))
+            mRequest.getParameterMap().put("displayType","clusterView");
+        else
+            mRequest.getParameterMap().put("displayType","seqView");
+        
+        StringBuffer inputStr=new StringBuffer();      
+        for(Iterator i=results.iterator();i.hasNext();)
+            inputStr.append(((List)i.next()).get(0)+" ");       
+
+        mRequest.getParameterMap().put("inputKey",inputStr.toString());
+        
+        try{
+            
+            context.getRequestDispatcher("/UnknownResultsServlet").forward(mRequest, response);    
+        }catch(Exception e){
+            log.error("could not forward to QueryPageServlet: "+e.getMessage());
+            e.printStackTrace();
+        }
+        
     }
     
 }

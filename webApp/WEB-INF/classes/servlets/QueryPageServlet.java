@@ -42,6 +42,7 @@ public class QueryPageServlet extends HttpServlet
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         
+        
         int hid,pos;
         String format=request.getParameter("format");
         boolean allFasta=(format!=null && format.equals("2"));

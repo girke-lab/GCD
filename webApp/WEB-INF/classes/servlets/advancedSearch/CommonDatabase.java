@@ -13,12 +13,17 @@ package servlets.advancedSearch;
 
 import java.util.*;
 import servlets.Common;
+import javax.servlet.http.*;
+import javax.servlet.*;
+import org.apache.log4j.Logger;
 
 public class CommonDatabase implements SearchableDatabase
 {
     public Field[] fields;
     public String[] operators;
     public String[] booleans;  
+    
+    private static Logger log=Logger.getLogger(CommonDatabase.class);
     
     /** Creates a new instance of CommonDatabase */
     public CommonDatabase() 
@@ -122,6 +127,41 @@ public class CommonDatabase implements SearchableDatabase
     
     public List sendQuery(String query) {
         return Common.sendQuery(query);
+    }
+      
+   
+    
+    public void displayResults(SearchState state,ServletContext context, HttpServletRequest request, HttpServletResponse response) {
+          
+        List results=sendQuery(buildQuery(state));
+        if(results==null)
+            results=new ArrayList();
+        NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(
+                    (HttpServletRequest)request,new HashMap(),false,"POST");
+        
+        mRequest.getParameterMap().put("searchType","seq_id");
+        mRequest.getParameterMap().put("limit", state.getLimit());
+        mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName);         
+                
+        if(getFields()[state.getSortField()].dbName.startsWith("cluster_info"))
+            mRequest.getParameterMap().put("displayType","clusterView");
+        else
+            mRequest.getParameterMap().put("displayType","seqView");
+        
+        StringBuffer inputStr=new StringBuffer();      
+        for(Iterator i=results.iterator();i.hasNext();)
+            inputStr.append(((List)i.next()).get(0)+" ");       
+
+        mRequest.getParameterMap().put("inputKey",inputStr.toString());
+        
+        try{
+            
+            context.getRequestDispatcher("/QueryPageServlet").forward(mRequest, response);    
+        }catch(Exception e){
+            log.error("could not forward to QueryPageServlet: "+e.getMessage());
+            e.printStackTrace();
+        }
+        
     }
     
 }

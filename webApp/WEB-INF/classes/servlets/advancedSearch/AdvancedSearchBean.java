@@ -172,11 +172,19 @@ public class AdvancedSearchBean {
     }
     private void doQuery()
     { //put all the conditions together to build a query
+        
         if(servletContext==null)
         {
             log.error("could not get servlet context");
             return;
         }
+        db.displayResults(currentState, servletContext,(HttpServletRequest)request,(HttpServletResponse)response);
+        
+        if(true)
+            return;
+        
+        
+        
         String query=db.buildQuery(currentState);  
                         
         
@@ -185,7 +193,11 @@ public class AdvancedSearchBean {
         //List results=Common.sendQuery(query);
         if(results==null)
             results=new ArrayList(); //let someone else report that their are no results.
-        
+     
+        sendToServlet(results,db.getDestination());
+    }
+    private void sendToServlet(List results,String destination)
+    {        
         //then figure out how to pass this info to QueryPageServlet via post.
         //set the parameters needed by QueryPageServlet
         
@@ -208,7 +220,7 @@ public class AdvancedSearchBean {
         mRequest.getParameterMap().put("inputKey",inputStr.toString());
         
         try{
-            servletContext.getRequestDispatcher("/"+db.getDestination()).forward(mRequest, response);    
+            servletContext.getRequestDispatcher("/"+destination).forward(mRequest, response);    
         }catch(Exception e){
             log.error("could not forward to QueryPageServlet: "+e.getMessage());
             e.printStackTrace();

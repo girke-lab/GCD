@@ -141,7 +141,7 @@ public class SearchState
     public void setLimit(String l)
     {
         if(l==null || l.equals("0"))
-            limit=Integer.toString(Common.MAXKEYS);        
+            limit=Integer.toString(Common.MAX_QUERY_KEYS);        
         else
             limit=l;
     }

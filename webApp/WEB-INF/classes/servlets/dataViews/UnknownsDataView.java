@@ -41,7 +41,7 @@ public class UnknownsDataView implements DataView
     
     public void printHeader(java.io.PrintWriter out)
     {
-        out.println("<h2>Unknowns</h2>");
+        out.println("<h1 align='center' >Unknowns</h1>");
     }
     
     public void printStats(java.io.PrintWriter out) 
@@ -62,21 +62,41 @@ public class UnknownsDataView implements DataView
     private void printData(PrintWriter out,List data)
     {
          String titleColor="AAAAAA", dataColor="D3D3D3";
+         String lastId="";
+         if(data==null)
+             return;
          
-         out.println("<TABLE border='1' cellspaceing='0' cellpadding='0'>");
-         out.println("<TR>");
+         out.println("<TABLE border='1' cellspacing='0' cellpadding='0' bgcolor='"+dataColor+"'>");
+         out.println("<TR bgcolor='"+titleColor+"'>");
+         out.print("<th>Unknown_id</th>");
          for(int i=0;i<printNames.length;i++) //print titles
-             out.println("<th>"+printNames[i]+"</th>");
-         out.println("</TR>");
+             out.print("<th>"+printNames[i]+"</th>");
+         //out.println("<th colspan='5'>"+printNames[printNames.length-1]+"</th>");
+         out.println("</TR><tr>");
          for(Iterator i=data.iterator();i.hasNext();)
          {
             List row=(List)i.next();
-            out.println("<tr>");
-            for(Iterator j=row.iterator();j.hasNext();)
-                out.println("<td>"+j.next()+"</td>");                          
-            out.println("</tr>");
+            if(lastId.equals(row.get(0))) //additional treatment
+            {               
+                //then just print the last element
+                out.println(" &nbsp&nbsp&nbsp "+row.get(row.size()-1));
+            }
+            else{ //new record
+                lastId=(String)row.get(0);
+                out.println("</td></tr><tr>");
+                for(Iterator j=row.iterator();j.hasNext();)
+                {
+                    String t=(String)j.next();
+                    if(t==null || t.equals(""))
+                        out.print("<td>&nbsp");                          
+                    else
+                        out.print("<td>"+t);             
+                    if(j.hasNext()) //don't print last td, so we can put more treatments in cell
+                        out.println("</td>");
+                }
+            }            
          }
-         out.println("</TABLE>");
+         out.println("</td></tr></TABLE>");
     }
     
     private List getData()
@@ -97,9 +117,10 @@ public class UnknownsDataView implements DataView
     }
     private String buildQuery(String conditions)
     {
-        String query="SELECT * FROM unknowns,treats " +
-            " WHERE unknowns.unknown_id=treats.unknown_id AND " +
-            "unknowns.unknown_id in ("+conditions+") ORDER BY "+sortCol;
+        String query="SELECT unknowns.*,treats.treat " +
+            " FROM unknowns LEFT JOIN treats USING(unknown_id) " +
+            " WHERE unknowns.unknown_id in ("+conditions+") " +
+            " ORDER BY "+sortCol+",unknowns.unknown_id";
         
         log.info("query is: "+query);
         return query;
