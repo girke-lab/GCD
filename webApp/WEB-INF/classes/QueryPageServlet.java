@@ -353,7 +353,7 @@ public class QueryPageServlet extends HttpServlet
                  out.println("Blast Cluster</TH><TD>Cluster Id: "+cs.clusterNum+"&nbsp&nbsp");
              out.println("Size: "+cs.size+"&nbsp&nbsp");
              out.println("Name: "+cs.name+"&nbsp&nbsp");
-             out.println("<a href='/databaseWeb/ClusterServlet?hid="+hid+"&clusterID="+cs.clusterNum+"'>Query</a>&nbsp&nbsp");
+             out.println("<a href='/databaseWeb/ClusterServlet?hid="+hid+"&clusterID="+cs.clusterNum+"'>Query Ids</a>&nbsp&nbsp");
              if(!cs.size.equals("1"))
              {
                  String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
@@ -361,8 +361,8 @@ public class QueryPageServlet extends HttpServlet
                      base+="hmmClusters/";
                  else
                      base+="blastClusters/";
-                 out.println("<a href='"+base+cs.clusterNum+".html'>Alignments</a>&nbsp&nbsp");
-                 out.println("<a href='"+base+cs.clusterNum+".jpg'>Trees</a>&nbsp&nbsp");
+                 out.println("<a href='"+base+cs.clusterNum+".html'>Alignment</a>&nbsp&nbsp");
+                 out.println("<a href='"+base+cs.clusterNum+".jpg'>Tree</a>&nbsp&nbsp");
              }
              out.println("</TD></TR>\n");
         }
