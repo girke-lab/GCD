@@ -57,14 +57,16 @@ public class GoRecord implements Record
         return go_number+" "+text;
     }
     
-    public void printHeader(java.io.PrintWriter out)
+    public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
-        out.println("<tr bgcolor='"+Common.titleColor+"'><th>Go Number</th><th>Description</th><th>Function</th></tr>");
+        visitor.printHeader(out,this);
+        //out.write("<tr bgcolor='"+Common.titleColor+"'><th>Go Number</th><th>Description</th><th>Function</th></tr>\n");
     }
     
-    public void printRecord(java.io.PrintWriter out)
+    public void printRecord(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
-        out.println("<tr><td>"+go_number+"</td><td>"+text+"</td><td>"+function+"</td></tr>");
+        visitor.printRecord(out,this);
+        //out.write("<tr><td>"+go_number+"</td><td>"+text+"</td><td>"+function+"</td></tr>\n");
     }
-    
+       
 }

@@ -7,8 +7,8 @@
 <jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='page'/>
 <jsp:useBean id='common' class='servlets.Common' />
 <%      
-        //common.printHeader(out);
-        bean.setDatabase("unknowns2");
+        //common.printHeader(out);        
+        bean.setDefaultDatabase("unknowns2");
         bean.setContext(application,request,response);
         bean.loadValues(request); //get entered values for fields, opts, bools , etc ...
 %>
@@ -20,7 +20,7 @@
 <img alt="Unknown Database" src="images/unknownspace3.png">		
 <table>
 	<tr>
-		<td valign="top", bgcolor="#F0F8FF", width=180><font SIZE=-1>
+		<td valign="top" bgcolor="#F0F8FF" width=180><font SIZE=-1>
 			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/index.html"><li>Project</a></li>
 			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/descriptors.html"><li>Unknown Descriptors</a></li>
 			<a href="http://bioinfo.ucr.edu/projects/internal/Unknowns/external/retrieval.html"><li>Search Options</a></li>
@@ -37,7 +37,17 @@
                         <table border='0' align='center' bgcolor='D3D3D3'>
                         <!-- first print the forms entered so far, then print a new form  window.location.reload()-->
                         <input type=hidden name='row'>
-                        <input type=hidden name='action'>
+                        <input type=hidden name='action'>                        
+                            <tr>
+                                <td colspan='3'>
+                                    Database: 
+                                    <select name='database' onChange="action.value='reset'; submit()">
+                                        <option <%=bean.selectedDb("unknowns")%>>Unknowns (old)</option>
+                                        <option <%=bean.selectedDb("unknowns2")%> >Unknowns (new)</option>
+                                    </select>
+                                </td>
+                            </tr>
+
                         <% int sp=0,ep=0;%>
                         <% int count=bean.getLoopCount(); %>
                         <%for(int j=0;j<count;j++){%>
@@ -139,7 +149,7 @@
                             <tr>
                                 <td colspan='4'>
                                     <%= bean.printStoreOptions() %>
-                                    <a href='/databaseWeb/queryAdmin.jsp'>Admin page</a>
+                                    <a href='/databaseWeb/queryAdmin.jsp?database=<%=bean.currentState.getDatabase()%>'>Admin page</a>
                                 </td>
                             </tr>
                         </table>

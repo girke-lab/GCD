@@ -34,29 +34,41 @@ public class AdvancedSearchBean {
     
     private int selectedSearchState;
     private boolean printAdminControls=false;
+    private String defaultDb;
     private static Logger log=Logger.getLogger(AdvancedSearchBean.class);
     
     public AdvancedSearchBean()
     {                
         //log.debug("createing new bean");        
     }
+    public void setDefaultDatabase(String db)
+    {
+        defaultDb=db;
+    }
     public void setDatabase(String name)
     {        //this is not storing state properly!!
         currentState=new SearchState();
+        currentState.setDatabase(name);
 //        if(db!=null)
 //            return;
         
-        if(name.equals("common"))
+        if(name==null)
+            setDatabase(defaultDb);
+        else if(name.equals("common"))
             db=new CommonDatabase();
         else if(name.equals("unknowns"))
             db=new UnknownsDatabase();
         else if(name.equals("unknowns2"))
             db=new Unknowns2Database();
         else //default to common
-            db=new CommonDatabase();
+            setDatabase(defaultDb);
     }
+   
     public void loadValues(HttpServletRequest request)
     {
+        
+        setDatabase(request.getParameter("database"));
+        
         currentState.setSelectedFields(getIntList(request.getParameterValues("fields")));
         currentState.setSelectedOps(getIntList(request.getParameterValues("ops")));
         currentState.setSelectedBools(getIntList(request.getParameterValues("bools")));
@@ -190,9 +202,14 @@ public class AdvancedSearchBean {
     {
         printAdminControls=b;
     }
+    public String selectedDb(String db)
+    {
+        return "value='"+db+"' "+(db.equals(currentState.getDatabase())? "selected" : "") ;        
+    }
 //////////////////// PRIVATE METHODS  ////////////////////////////////////    
     private void processCommands(HttpServletRequest request)
     {        
+        String action;
         if(request.getParameter("remove") != null){
             String row=request.getParameter("row");    
             if(row==null)
@@ -226,9 +243,18 @@ public class AdvancedSearchBean {
             lastWasRemove=true;
         }else if(request.getParameter("remove_query")!=null){
             db.getSearchManager().removeSearchState(selectedSearchState);
-            lastWasRemove=true;
-        }else if(request.getParameter("action") !=null){ //this should always be the last case
-            lastWasRemove=true;
+            lastWasRemove=true;                    
+        }else if((action=request.getParameter("action")) !=null){ //this should always be the last case
+            log.debug("action="+action);
+            if(action.equals("refresh"))
+                lastWasRemove=true;    
+            else if(action.equals("reset")){
+                log.debug("resetting search state");
+                String db=currentState.getDatabase();
+                currentState=new SearchState();    
+                currentState.setDatabase(db);                
+            }
+            
         }
         
     }
@@ -253,58 +279,15 @@ public class AdvancedSearchBean {
         lastWasRemove=true;
     }
     private void doQuery()
-    { //put all the conditions together to build a query
-        
+    { //put all the conditions together to build a query        
         if(servletContext==null)
         {
             log.error("could not get servlet context");
             return;
         }
         db.displayResults(currentState, servletContext,(HttpServletRequest)request,(HttpServletResponse)response);
-        
-//        if(true)
-//            return;                
-//        
-//        String query=db.buildQuery(currentState);                          
-//        
-//        log.info("query is: "+query);
-//        List results=db.sendQuery(query);
-//        //List results=Common.sendQuery(query);
-//        if(results==null)
-//            results=new ArrayList(); //let someone else report that their are no results.
-//     
-//        sendToServlet(results,db.getDestination());
     }
-    private void sendToServlet(List results,String destination)
-    {        
-        //then figure out how to pass this info to QueryPageServlet via post.
-        //set the parameters needed by QueryPageServlet
-        
-        NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(
-                    (HttpServletRequest)request,new HashMap(),false,"POST");
-        
-        mRequest.getParameterMap().put("searchType","seq_id");
-        mRequest.getParameterMap().put("limit", currentState.getLimit());
-        mRequest.getParameterMap().put("sortCol",db.getFields()[currentState.getSortField()].dbName);         
-                
-        if(db.getFields()[currentState.getSortField()].dbName.startsWith("cluster_info"))
-            mRequest.getParameterMap().put("displayType","clusterView");
-        else
-            mRequest.getParameterMap().put("displayType","seqView");
-        
-        StringBuffer inputStr=new StringBuffer();      
-        for(Iterator i=results.iterator();i.hasNext();)
-            inputStr.append(((List)i.next()).get(0)+" ");       
 
-        mRequest.getParameterMap().put("inputKey",inputStr.toString());
-        
-        try{
-            servletContext.getRequestDispatcher("/"+destination).forward(mRequest, response);    
-        }catch(Exception e){
-            log.error("could not forward to QueryPageServlet: "+e.getMessage());
-            e.printStackTrace();
-        }
-    }
     private void addSubExp()
     { //add the length of fields at the end of startPars
         currentState.getStartParinths().add(new Integer(currentState.getSelectedFields().size()));

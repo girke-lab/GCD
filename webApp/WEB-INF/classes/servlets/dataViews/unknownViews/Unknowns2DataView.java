@@ -27,11 +27,12 @@ public class Unknowns2DataView implements DataView
     int[] dbNums;        
     DbConnection dbc=null;
     Collection records=null;
+    File tempDir=null;
     
     private static Logger log=Logger.getLogger(Unknowns2DataView.class);    
-    private final FieldRange unknown_key=new FieldRange(1,7),
-                             blast_results=new FieldRange(9,17),
-                             go_numbers=new FieldRange(18,21);
+    private final FieldRange unknown_key=new FieldRange(0,6),
+                             blast_results=new FieldRange(6,15),
+                             go_numbers=new FieldRange(15,18);
     
     /** Creates a new instance of Unknowns2DataView */
     public Unknowns2DataView()
@@ -40,6 +41,17 @@ public class Unknowns2DataView implements DataView
         dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection to khoran");
+    }        
+    public Unknowns2DataView(String tempPath)
+    {
+        sortDir="asc"; //default sort direction
+        dbc=DbConnectionManager.getConnection("khoran");
+        if(dbc==null)
+            log.error("could not get db connection to khoran");
+        tempDir=new File(tempPath);
+        TempFileCleaner.getInstance().setDirectory(tempDir);
+        if(!TempFileCleaner.getInstance().isAlive())
+            TempFileCleaner.getInstance().start();
     }        
     
     public void printData(java.io.PrintWriter out)
@@ -89,10 +101,30 @@ public class Unknowns2DataView implements DataView
             public void printButtons(PrintWriter out, int a, int b, int c, int d)
             {                
             }
+            public void printGeneral(PrintWriter out, Search search, String pos,Map storage)
+            {
+                File tempFile=(File)storage.get("unknowns2.tempfile");
+                if(tempFile==null)
+                { //create temp file for entire query.            
+                    log.debug("generating a new temp file");
+                    List temp=seq_ids; //bakup old id list
+                    setIds(search.getResults());
+                    if(records==null)
+                        loadData();
+                    tempFile=writeTempFile(records);
+                    storage.put("unknowns2.tempfile", tempFile);
+                    seq_ids=temp;
+                }
+                if(tempFile!=null) //make sure tempFile is still not null
+                    out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>");
+                else
+                    log.warn("could not create csv file");
+                
+            }
          };
     }
   //////////////////////////////////////////////////////////////////////////////
-    ///////////// Private methods  ////////////////////////////////////
+  ///////////// Private methods  ////////////////////////////////////
     private void loadData()
     {
         if(seq_ids.size()==0)
@@ -131,17 +163,53 @@ public class Unknowns2DataView implements DataView
         out.println("<TABLE bgcolor='"+Common.dataColor+"' width='100%'" +
             " align='center' border='1' cellspacing='0' cellpadding='0'>");
         Record rec;
-        for(Iterator i=data.iterator();i.hasNext();)
-        {
-            rec=(Record)i.next();
-            rec.printHeader(out);
-            rec.printRecord(out);
-            out.println("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>");
-        }            
+        RecordVisitor visitor=new HtmlRecordVisitor();
+        try{
+            for(Iterator i=data.iterator();i.hasNext();)
+            {            
+                rec=(Record)i.next();
+                rec.printHeader(out,visitor);
+                rec.printRecord(out,visitor);
+                out.println("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>");
+            }            
+        }catch(IOException e){
+            log.error("could not print to output: "+e.getMessage());
+        }
         
         out.println("</TABLE>");
     }
-    
+    private File writeTempFile(Collection data)
+    { //returns the temp file written to.
+        File tempFile=null;        
+        FileWriter fw;
+        try{            
+            tempFile=File.createTempFile("results",".csv",tempDir);             
+        }catch(IOException e){
+             log.warn("could not create temp file: "+e.getMessage());
+        }
+        if(tempFile==null)
+            return null;
+        RecordVisitor visitor=new TextRecordVisitor();
+        try{
+            fw=new FileWriter(tempFile);
+            //print title row
+            Record rec;
+            boolean isFirst=true;
+            for(Iterator i=data.iterator();i.hasNext();)
+            {
+                rec=(Record)i.next();
+                if(isFirst){
+                    rec.printHeader(fw, visitor);
+                    isFirst=false;
+                }
+                rec.printRecord(fw,visitor);
+            }                        
+            
+        }catch(IOException e){
+            log.error("could not write to temp file "+tempFile.getPath()+": "+e.getMessage());
+        }
+        return tempFile;
+    }
     private List getData()
     {
         StringBuffer conditions=new StringBuffer();
@@ -162,13 +230,50 @@ public class Unknowns2DataView implements DataView
     }
     private String buildQuery(String conditions)
     {
-        String query="SELECT unknowns.unknown_keys.*,unknowns.blast_results.*,go.go_numbers.* "+
-            " FROM unknowns.unknown_keys, unknowns.blast_results,go.go_numbers,go.seq_gos "+
-            " WHERE unknowns.unknown_keys.key_id=unknowns.blast_results.key_id "+
-                " AND substring(unknowns.unknown_keys.key from 1 for 9)=go.seq_gos.accession " +
-                " AND go.seq_gos.go_id=go.go_numbers.go_id "+
-                " AND ("+conditions+")"+
+//        String query="SELECT unknowns.unknown_keys.*,unknowns.blast_results.*,go.go_numbers.* "+
+//            " FROM unknowns.unknown_keys, unknowns.blast_results,go.go_numbers,go.seq_gos "+
+//            " WHERE unknowns.unknown_keys.key_id=unknowns.blast_results.key_id "+
+//                " AND substring(unknowns.unknown_keys.key from 1 for 9)=go.seq_gos.accession " +
+//                " AND go.seq_gos.go_id=go.go_numbers.go_id "+
+//                " AND ("+conditions+")"+
+//            " ORDER BY "+sortCol+" "+sortDir;
+        
+//        unknowns.unknown_keys.*,unknowns.blast_results.* unknowns.blast_databases.db_name," +
+//                            "go.go_numbers.* "+
+        
+        
+        String[] tables=new String[]{"unknowns.unknown_keys","unknowns.blast_results",
+                                     "unknowns.blast_databases","go.go_numbers"};
+        String[][] fields=new String[][]{
+            {"key","description","est_count","mfu","ccu","bpu"},        //[0-6)
+            {"target_accession","target_description","e_value","score","identities","length","positives","gaps"}, //[6-14)
+            {"db_name"}, //[14,15)
+            {"go_number","function","text"} //[15-18)
+        };
+        StringBuffer fieldList=new StringBuffer();
+        for(int i=0;i<tables.length;i++)
+            for(int j=0;j<fields[i].length;j++)
+                fieldList.append(tables[i]+"."+fields[i][j]+",");
+        fieldList.deleteCharAt(fieldList.length()-1); //cut off last ','
+        String query="SELECT "+fieldList+
+            " FROM unknowns.unknown_keys, unknowns.blast_results,go.go_numbers,go.seq_gos," +
+                " unknowns.blast_databases, "+
+                "(select distinct on (br.key_id)  br.blast_id,br.key_id " +
+                 "from unknowns.blast_results as br, " +
+                    "(select key_id,min(e_value) as e_value " +
+                     "from unknowns.blast_results " +
+                     "group by key_id) as mins " +
+                 "where br.key_id=mins.key_id and br.e_value=mins.e_value " +
+                 "order by br.key_id) as min_blast_ids " +
+            " WHERE       unknowns.unknown_keys.key_id=unknowns.blast_results.key_id " +
+            "        AND substring(unknowns.unknown_keys.key from 1 for 9)=go.seq_gos.accession " +
+            "        AND go.seq_gos.go_id=go.go_numbers.go_id " +
+            "        AND unknowns.unknown_keys.key_id=min_blast_ids.key_id " +
+            "        AND min_blast_ids.blast_id=unknowns.blast_results.blast_id " +
+            "        AND unknowns.blast_results.blast_db_id=unknowns.blast_databases.blast_db_id "+
+            "        AND ("+conditions+")"+
             " ORDER BY "+sortCol+" "+sortDir;
+
                
         log.info("query is: "+query);
         return query;

@@ -142,7 +142,7 @@ public class QueryPageServlet extends HttpServlet
             else if(displayType.equals("unknownsView"))
                 return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));
             else if(displayType.equals("unknowns2View"))
-                return new Unknowns2DataView();
+                return new Unknowns2DataView(this.getServletContext().getRealPath("/temp"));
         }
         else if(sortCol!=null)
         {

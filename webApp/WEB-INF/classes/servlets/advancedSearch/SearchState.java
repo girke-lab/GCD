@@ -16,6 +16,10 @@ import servlets.Common;
 
 public class SearchState implements java.io.Serializable
 {
+    
+    public static final long serialVersionUID = new Long("-1226915453818595933").longValue();
+    //public static final long serialVersionUID = 2;
+    
     List selectedFields;
     List selectedOps;
     List selectedBools;    
@@ -26,6 +30,7 @@ public class SearchState implements java.io.Serializable
     String limit;
     int sortField;
     String description;
+    String database;
     
     /** Creates a new instance of SearchState */
     public SearchState()
@@ -36,6 +41,7 @@ public class SearchState implements java.io.Serializable
         startParinths=new ArrayList();
         endParinths=new ArrayList();
         values=new ArrayList();
+        limit=Integer.toString(Common.MAXKEYS); 
     }
     
     
@@ -145,7 +151,7 @@ public class SearchState implements java.io.Serializable
     public void setLimit(String l)
     {
         if(l==null || l.equals("0"))
-            limit=Integer.toString(Common.MAX_QUERY_KEYS);        
+            limit=Integer.toString(Common.MAXKEYS);        
         else
             limit=l;
     }
@@ -172,6 +178,15 @@ public class SearchState implements java.io.Serializable
     public String getDescription()
     {
         return description;
+    }
+    
+    public void setDatabase(String db)
+    {
+        database=db;        
+    }
+    public String getDatabase()
+    {
+        return database;
     }
     
     public String toString()

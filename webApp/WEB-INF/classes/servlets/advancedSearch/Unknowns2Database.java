@@ -91,18 +91,15 @@ public class Unknowns2Database implements SearchableDatabase
     public String[] getBooleans() 
     {
         return booleans;
-    }
-    
+    }    
     public Field[] getFields() 
     {
         return fields;
-    }
-    
+    }    
     public String[] getOperators() 
     {
         return operators;
-    }
-   
+    }   
     public SearchStateManager getSearchManager()
     {
         return ssm;
@@ -126,7 +123,7 @@ public class Unknowns2Database implements SearchableDatabase
         //sort field must be added to keep postgres from adding an unconstrained join
         tables.add(order.substring(0,order.lastIndexOf('.'))); 
         
-        boolean seq_gosAdded=false;
+        boolean seq_gosAdded=false,blast_dbAdded=false;
         for(Iterator i=state.getSelectedFields().iterator();i.hasNext();)
         {
             fid=((Integer)i.next()).intValue();
@@ -137,6 +134,11 @@ public class Unknowns2Database implements SearchableDatabase
                 tables.add("go.seq_gos");
                 seq_gosAdded=true;
             }            
+            else if(getFields()[fid].dbName.startsWith("unknowns.blast_databases") && !blast_dbAdded)
+            {
+                tables.add("unknowns.blast_resutls");
+                blast_dbAdded=true;
+            }
             tables.add(getFields()[fid].dbName.substring(0,getFields()[fid].dbName.lastIndexOf('.')));
         }
         for(Iterator i=tables.iterator();i.hasNext();)
@@ -161,16 +163,11 @@ public class Unknowns2Database implements SearchableDatabase
                 query.append("("+userConditions+")");
             }                            
         }
-        query.append(" ORDER BY "+order);
+        //sort by key_id to minimize partial key sets due to the limit value cutting off
+        //the end of the query.
+        query.append(" ORDER BY unknowns.unknown_keys.key_id, "+order);
         query.append(" LIMIT "+state.getLimit());
         
-//        query="SELECT DISTINCT "+fieldList+","+order+
-//              " FROM "+join+
-//              " WHERE "+joinConditions+
-//                (joinConditions.equals("") || userConditions.equals("")? "":" AND") +
-//                (userConditions.equals("")? "":" ("+userConditions+")")+
-//              " ORDER BY "+order+
-//              " LIMIT "+state.getLimit();
         log.info("unknowns2 query: "+query);
         return query.toString();
     }    
@@ -186,7 +183,9 @@ public class Unknowns2Database implements SearchableDatabase
         {
             table=(String)i.next();
                         
-            if(table.startsWith("unknowns."))
+            if(table.equals("unknowns.blast_databases"))
+                conditions.append("unknowns.blast_results.blast_db_id=unknowns.blast_databases=blast_db_id");
+            else if(table.startsWith("unknowns."))
                 conditions.append(rootTable+".key_id="+table+".key_id");
             else if(table.equals(goRootTable))
                 conditions.append(rootTable+".key=go.seq_gos.accession");
@@ -219,9 +218,9 @@ public class Unknowns2Database implements SearchableDatabase
                         
             conditions.append(fields[fid].dbName+" "+operators[oid]+" ");
 
-            if(fields[fid].type.equals(String.class))
+            if(!isUnaryOp(oid) && fields[fid].type.equals(String.class))
                 conditions.append("'"+state.getValue(i)+"'");            
-            else
+            else if(!isUnaryOp(oid))
                 conditions.append(state.getValue(i));    
                     
             conditions.append(" ");
@@ -243,7 +242,6 @@ public class Unknowns2Database implements SearchableDatabase
     }
     private void defineOptions()
     {                
-
         String db="unknowns.";
         String space=" &nbsp&nbsp ";
         fields=new Field[]{
@@ -257,9 +255,10 @@ public class Unknowns2Database implements SearchableDatabase
             new Field("Biological process unknown?",db+"unknown_keys.bpu",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
             new Field("Blast data",""),            
-            new Field(space+"blast database",db+"blast_results.blast_type",  
+            new Field(space+"blast database",db+"blast_databases.db_name",  
                         new String[]{"uniprot_sprot.fasta"}),
             new Field(space+"Blast target accession",db+"blast_results.target_accession"),
+            new Field(space+"Blast target description",db+"blast_results.target_description"),
             new Field(space+"e-value",db+"blast_results.e_value",Float.class),
             new Field(space+"score",db+"blast_results.score"),
             new Field(space+"identities",db+"blast_results.identities"),
@@ -272,12 +271,10 @@ public class Unknowns2Database implements SearchableDatabase
             new Field(space+"GO function","go.go_numbers.text",
                         new String[]{"process","component","function"})
         };
-        
-               
+                       
         operators=new String[]{"=","!=","<",">","<=",">=",
                 "ILIKE","NOT ILIKE","is NULL","is not NULL"};
         unaryBoundry=9;
-        booleans=new String[]{"and","or"};        
-        
+        booleans=new String[]{"and","or"};                
     }
 }

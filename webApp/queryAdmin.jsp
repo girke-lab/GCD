@@ -7,8 +7,8 @@
 <jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='page'/>
 <jsp:useBean id='common' class='servlets.Common' />
 <%      
-        //common.printHeader(out);
-        bean.setDatabase("unknowns");
+        //common.printHeader(out);        
+        bean.setDefaultDatabase("unknowns2");
         bean.setContext(application,request,response);
         bean.loadValues(request); //get entered values for fields, opts, bools , etc ...
         bean.adminEnabled(true);
@@ -39,6 +39,16 @@
                         <!-- first print the forms entered so far, then print a new form  window.location.reload()-->
                         <input type=hidden name='row'>
                         <input type=hidden name='action'>
+                        <tr>
+                                <td>
+                                    <select name='database' onChange="action.value='reset'; submit()">
+                                        <option <%=bean.selectedDb("common")%>>Cluster db</option>
+                                        <option <%=bean.selectedDb("unknowns")%>>Unknowns (old)</option>
+                                        <option <%=bean.selectedDb("unknowns2")%> >Unknowns (new)</option>
+                                    </select>
+                                </td>
+                            </tr>
+
                         <% int sp=0,ep=0;%>
                         <% int count=bean.getLoopCount(); %>
                         <%for(int j=0;j<count;j++){%>

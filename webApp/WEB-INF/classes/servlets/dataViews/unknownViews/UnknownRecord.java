@@ -18,11 +18,11 @@ import org.apache.log4j.Logger;
 
 class UnknownRecord implements Record
 {
-    public String key,description;
-    public int estCount;
-    public boolean[] go_unknowns;
+    String key,description;
+    int estCount;
+    boolean[] go_unknowns;
 
-    private Map subRecords=new HashMap();
+    Map subRecords=new HashMap();
     private static Logger log=Logger.getLogger(UnknownRecord.class);
 
     public UnknownRecord(String key, String desc, int estCount, String[] go_unknowns)
@@ -92,42 +92,48 @@ class UnknownRecord implements Record
         return out.toString();
     }
     
-    public void printHeader(java.io.PrintWriter out)
+    public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
-        out.println("<tr bgcolor='"+Common.titleColor+"'><th>Key</th><th>Description</th><th>Molecluar Function Unknown</th>" +
-                    "<th>Cellular Component Unknown</th><th>Biological Process Unknown</th></tr>");
+        visitor.printHeader(out,this);
+        //out.write("<tr bgcolor='"+Common.titleColor+"'><th>Key</th><th>Description</th></tr>\n");
+        //"<th>Molecluar Function Unknown</th>" +"<th>Cellular Component Unknown</th><th>Biological Process Unknown</th></tr>");
     }
     
-    public void printRecord(java.io.PrintWriter out)
+    public void printRecord(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {        
-        out.println("<tr><td>"+key+"</td><td>"+description+"</td>");
-        for(int i=0;i<go_unknowns.length;i++)
-            out.println("<td>"+go_unknowns[i]+"</td>");
-        out.println("</tr>");               
-        
-        Record rec;
-        Collection list;
-        boolean firstRecord;
-        
-        for(Iterator i=subRecords.values().iterator();i.hasNext();)
-        {            
-            list=(Collection)i.next();
-            if(list==null) continue;
-            firstRecord=true;
-            out.println("<tr><td colspan='5'><TablE bgcolor='"+Common.dataColor+"' width='100%'" +
-                " border='1' cellspacing='0' cellpadding='0'>");
-            
-            for(Iterator j=list.iterator();j.hasNext();)
-            {
-                rec=(Record)j.next();
-                if(firstRecord){
-                    rec.printHeader(out);
-                    firstRecord=false;
-                }
-                rec.printRecord(out);
-            }            
-            out.println("</td></tr></TablE>");
-        }        
+        visitor.printRecord(out,this);
+//        out.write("<tr><td><a href='http://www.arabidopsis.org/servlets/TairObject?type=locus&name="+
+//            key.subSequence(0,key.lastIndexOf('.'))+"'>"+key+"</a></td><td>"+description+"</td></tr>\n");
+//        String[] names=new String[]{"mfu","ccu","bpu"};
+//        out.write("<tr><td colspan='2'>\n");
+//        for(int i=0;i<go_unknowns.length;i++)
+//            out.write("<b>"+names[i]+"</b>: "+go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
+//        out.write("</td></tr>\n");               
+//        
+//        Record rec;
+//        Collection list;
+//        boolean firstRecord;
+//        
+//        for(Iterator i=subRecords.values().iterator();i.hasNext();)
+//        {            
+//            list=(Collection)i.next();
+//            if(list==null) continue;
+//            firstRecord=true;
+//            out.write("<tr><td colspan='5'><TablE bgcolor='"+Common.dataColor+"' width='100%'" +
+//                " border='1' cellspacing='0' cellpadding='0'>\n");
+//            
+//            for(Iterator j=list.iterator();j.hasNext();)
+//            {
+//                rec=(Record)j.next();
+//                if(firstRecord){
+//                    rec.printHeader(out);
+//                    firstRecord=false;
+//                }
+//                rec.printRecord(out);
+//            }            
+//            out.write("</td></tr></TablE>\n");
+//        }        
     }
+      
     
 }
