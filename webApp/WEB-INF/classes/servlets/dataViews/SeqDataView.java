@@ -162,7 +162,7 @@ public class SeqDataView implements DataView
                     (String)row.get(METH_COL)));                
         }
         //store last set
-        records.add(sr);
+        records.add(sr);        
         return records;
     }
     private void printSummary(PrintWriter out,List data)
@@ -400,7 +400,7 @@ public class SeqDataView implements DataView
                  //clusterType=cs.clusterNum.matches("PF.*") ? hmm : blast;                          
                  out.println("\t<TR>");
                  out.println("\t\t<TD nowrap>"+cs.method+"</TD>");                                      
-                 if(cs.name=="")
+                 if(cs.name==null || cs.name.equals(""))
                      out.println("\t\t<TD>&nbsp</TD>");
                  else
                     out.println("\t\t<TD>"+cs.name+"</TD>");

@@ -33,7 +33,7 @@ public class UnknownsTextScript implements Script
     }    
 
     public void run(java.io.OutputStream out, java.util.List ids)
-    {
+    {//may have to pass a query here instead of id number is there are too many ids.
         writeTempFile(out,getRecords(ids));
     }
     

@@ -37,7 +37,7 @@ public class SeqModelSearch implements Search
         int modelIndex=Integer.parseInt((String)data.get(0));
         
         //use hashes here to make sure we get uniques sets of numbers
-        Set seq=new HashSet(), models=new HashSet();
+        Set seq=new LinkedHashSet(), models=new LinkedHashSet();
         
         int count=0;
         for(Iterator i=data.iterator();i.hasNext();)

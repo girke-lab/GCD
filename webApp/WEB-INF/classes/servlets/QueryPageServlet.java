@@ -348,12 +348,17 @@ public class QueryPageServlet extends HttpServlet
     
     private void initQuerySets()
     {
-        OrigDataViewQuerySet dvqs=new OrigDataViewQuerySet();
-        SearchQuerySet sqs=new OrigSearchQuerySet();
+        //OrigDataViewQuerySet dvqs=new OrigDataViewQuerySet();
+        //SearchQuerySet sqs=new OrigSearchQuerySet();        
+        
+        DataViewQuerySetV2 dvqs=new DataViewQuerySetV2();
+        SearchQuerySet sqs=new SearchQuerySetV2();        
+
         
         QuerySetProvider.setDataViewQuerySet(dvqs);
         QuerySetProvider.setSearchQuerySet(sqs);
         QuerySetProvider.setRecordQuerySet(dvqs);
+        QuerySetProvider.setDatabaseQuerySet(dvqs);
     }
     ///////////////////////////////////////////////////////////////////////////////////////////
    

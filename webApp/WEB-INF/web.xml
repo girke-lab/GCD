@@ -4,6 +4,7 @@
   <servlet>
     <servlet-name>QueryPageServlet</servlet-name>
     <servlet-class>servlets.QueryPageServlet</servlet-class>
+    <load-on-startup>0</load-on-startup>
   </servlet>
   <servlet>
     <servlet-name>DispatchServlet</servlet-name>
@@ -13,6 +14,7 @@
     <servlet-name>QueryDispatcherServlet</servlet-name>
     <servlet-class>servlets.advancedSearch.QueryDispatcherServlet</servlet-class>
   </servlet>
+  
   <servlet-mapping>
     <servlet-name>QueryPageServlet</servlet-name>
     <url-pattern>/QueryPageServlet</url-pattern>

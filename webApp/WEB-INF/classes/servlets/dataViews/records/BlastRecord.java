@@ -218,7 +218,7 @@ class BlastRecordGroup extends RecordGroup
         
         Map titles=new HashMap();
         titles.put("UD","Unknown Searches");
-        titles.put("orthologs","Orothlog Searches");
+        titles.put("orthologs","Ortholog Searches");
         
         for(Iterator i=records.iterator();i.hasNext();)
         {

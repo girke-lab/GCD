@@ -25,98 +25,14 @@ import servlets.querySets.*;
 
 public class UnknownsDatabase extends DefaultSearchableDatabase
 {
-//    public Field[] fields;
-//    public String[] operators;
-//    public String[] booleans; 
-//    
-//    private int unaryBoundry; //seperates unary and binary ops in operators array
-//    private static DbConnection dbc=null;  //need a connection to a different database
-//    private static Logger log=Logger.getLogger(UnknownsDatabase.class);
-//    private static SearchStateManager ssm=new SearchStateManager("UnknownDatabase.sss");
+
     private static SearchTreeManager stm=new SearchTreeManager("UnknownDatabase.properties");
     
     /** Creates a new instance of UnknownsDatabase */
     public UnknownsDatabase() 
     {
         super(dbc=DbConnectionManager.getConnection("khoran"),stm);
-        
-//        if(dbc==null)
-//            try{
-//                Class.forName("org.gjt.mm.mysql.Driver").newInstance();
-//                dbc=new DbConnection("jdbc:mysql://138.23.191.152/unknowns","servlet","512256");
-//                DbConnectionManager.setConnection("unknowns",dbc); 
-//            }catch(Exception e){
-//                log.error("could not connect to database: "+e.getMessage());
-//            }
-        //defineOptions();
     }
-    
-//    public String buildQuery(SearchState state) 
-//    {
-//        StringBuffer query=new StringBuffer();
-//        
-//        query.append("SELECT DISTINCT unknowns.unknown_id " +
-//                     "FROM unknowns LEFT JOIN treats USING(unknown_id) " +
-//                     "WHERE (");
-//        
-//        
-//        int sp=0,ep=0;
-//        int fid,oid;
-//        for(int i=0;i<state.getSelectedFields().size();i++)
-//        {
-//            if(sp < state.getStartParinths().size() && state.getStartParinth(sp).intValue()==i){
-//                sp++;
-//                query.append("(");
-//            }
-//            fid=state.getSelectedField(i).intValue();
-//            oid=state.getSelectedOp(i).intValue();                        
-//            
-//            query.append(fields[fid].dbName+" "+operators[oid]+" ");
-//
-//            if(!isUnaryOp(oid) && fields[fid].type.equals(String.class) || fields[fid].type.equals(List.class))
-//                query.append("'"+state.getValue(i)+"'");            
-//            else if(!isUnaryOp(oid))
-//                query.append(state.getValue(i));                
-//            
-//            query.append(" ");
-//            
-//            if(ep < state.getEndParinths().size() && state.getEndParinth(ep).intValue()==i){
-//                ep++;
-//                query.append(")");
-//            }
-//
-//            if(i+1 < state.getSelectedFields().size())
-//                query.append(booleans[state.getSelectedBool(i).intValue()]+" ");                        
-//        }
-//        
-//        
-//        query.append(") ORDER BY "+fields[state.getSortField()].dbName);
-//        query.append(" LIMIT "+state.getLimit());
-//        return query.toString();
-//    }
-//    public servlets.advancedSearch.queryTree.Query buildQueryTree(SearchState state)
-//    {
-//        return null;
-//    }
-//
-//    public String[] getBooleans() 
-//    {
-//        return booleans;
-//    }
-//    
-//    public Field[] getFields() 
-//    {
-//        return fields;
-//    }
-//    
-//    public String[] getOperators() 
-//    {
-//        return operators;
-//    }
-//    private boolean isUnaryOp(int opId)
-//    {
-//        return opId >= unaryBoundry;
-//    }
     void defineOptions()
     {                
         rootTableName="old_unknowns.unknowns";
@@ -218,53 +134,4 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
         mRequest.getParameterMap().put("inputKey",inputStr.toString());
         return mRequest;
      }
-//    public String getDestination() {
-//        return "UnknownResultsServlet";
-//    }
-//    
-//    public List sendQuery(String query) {
-//        try{
-//            return dbc.sendQuery(query);
-//        }catch(Exception e){
-//            log.error("could not send query: "+e.getMessage());
-//        }
-//        return null;
-//    }       
-//    
-//    public void displayResults(SearchState state, ServletContext context, HttpServletRequest request, HttpServletResponse response) 
-//    {
-//        List results=sendQuery(buildQuery(state));
-//        
-//        //then figure out how to pass this info to QueryPageServlet via post.
-//        //set the parameters needed by QueryPageServlet
-//        
-//        NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(
-//                    (HttpServletRequest)request,new HashMap(),false,"POST");
-//        
-//        mRequest.getParameterMap().put("searchType","seq_id");
-//        mRequest.getParameterMap().put("limit", state.getLimit());
-//        mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName);         
-//                
-//        mRequest.getParameterMap().put("displayType","unknownsView");
-//        
-//        StringBuffer inputStr=new StringBuffer();      
-//        for(Iterator i=results.iterator();i.hasNext();)
-//            inputStr.append(((List)i.next()).get(0)+" ");       
-//
-//        mRequest.getParameterMap().put("inputKey",inputStr.toString());
-//        
-//        try{            
-//            context.getRequestDispatcher("/QueryPageServlet").forward(mRequest, response);    
-//        }catch(Exception e){
-//            log.error("could not forward to QueryPageServlet: "+e.getMessage());
-//            e.printStackTrace();
-//        }
-//        
-//    }
-//    
-//    public SearchStateManager getSearchManager() 
-//    {
-//        return ssm;
-//    }
-    
 }

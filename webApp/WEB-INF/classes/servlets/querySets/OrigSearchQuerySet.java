@@ -118,7 +118,7 @@ public class OrigSearchQuerySet implements SearchQuerySet
         String query = "SELECT DISTINCT s.Seq_id, s.genome from go AS g, sequences AS s " + 
                 "where g.seq_id = s.seq_id AND ";
         
-        query += "(" + Common.buildLikeCondtion("g.text",input)+ ")";
+        query += "(" + Common.buildLikeCondtion("g.text",input,true)+ ")";
         query += " limit " + limit;
         logQuery(query);
         return query;
@@ -154,44 +154,7 @@ public class OrigSearchQuerySet implements SearchQuerySet
         logQuery(id);
         return id;
     }
-    /*
-    private String buildIdSearchCondition(Collection input,int limit)
-    {
-        StringBuffer conditions=new StringBuffer();
-        Iterator in=input.iterator();
-        int count=0;
-        boolean exactMatch=false;
-        String key;
-        
-        conditions.append("(");
-        while(in.hasNext() && count++ < limit)
-        {
-            key=(String)in.next();
-            if(key.equals("exact"))
-            {
-                exactMatch=true;
-                conditions.insert(0,"a.accession in ");
-                continue;
-            }
-            if(exactMatch)
-            { //exact search is a little faster
-                exactMatch=true;
-                conditions.append("'"+key+"'");
-                if(in.hasNext() && count < limit)
-                    conditions.append(",");
-            }
-            else
-            {
-                conditions.append("a.accession "+Common.ILIKE+" '"+key+"'");
-                if(in.hasNext() && count < limit)
-                    conditions.append(" OR ");
-            }
-        }
-        conditions.append(")");
-        return conditions.toString();
-    }
-    */
-    
+   
     public String getQueryCompSearchQuery(String comp_id, String status)
     {
         String query="SELECT key_id FROM updates.diffs " +

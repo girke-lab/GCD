@@ -40,11 +40,11 @@ public class Common {
         DbConnection dbc;
         try{
             dbc=DbConnectionManager.getConnection("common");
-            if(dbc==null)
-            {
-                dbc=new DbConnection(); //use default connection
-                DbConnectionManager.setConnection("common", dbc);
-            }
+//            if(dbc==null)
+//            {
+//                dbc=new DbConnection(); //use default connection
+//                DbConnectionManager.setConnection("common", dbc);
+//            }
             rs=dbc.sendQuery(q);        
             log.info("Stats: "+dbc.getStats());
         }catch(Exception e){            
@@ -308,11 +308,11 @@ public class Common {
     }
     public static String buildIdListCondition(String varName,Collection ids)
     {
-        return buildIdListCondition(varName,ids,false,Integer.MAX_VALUE); //default to no quotes.
+        return buildIdListCondition(varName,ids,false,-1); //default to no quotes.
     }
         public static String buildIdListCondition(String varName,Collection ids, boolean b)
     {
-        return buildIdListCondition(varName,ids,b,Integer.MAX_VALUE); 
+        return buildIdListCondition(varName,ids,b,-1); 
     }
     public static String buildIdListCondition(String varName,Collection ids,int limit)
     {
@@ -325,13 +325,13 @@ public class Common {
             return "0=1"; //since list is empty, return a false statement, while avoiding syntax errors.
         int count=0;
         out.append(varName+" in (");
-        for(Iterator i=ids.iterator();i.hasNext() && count < limit;count++)
+        for(Iterator i=ids.iterator();i.hasNext() && (limit==-1 || count < limit);count++)
         {
             if(quoteIt)
                 out.append("'"+i.next()+"'");
             else
                 out.append(i.next());
-            if(i.hasNext() && count < limit)
+            if(i.hasNext() && (limit==-1 || count < limit))
                 out.append(",");
         }
         out.append(")");
@@ -339,21 +339,30 @@ public class Common {
     }
     public static String buildLikeCondtion(String varName, Collection ids)
     {
-        return buildLikeCondtion(varName, ids, Integer.MAX_VALUE);// essentially no limit
+        return buildLikeCondtion(varName, ids, -1,false);// no limit
     }            
-    public static String buildLikeCondtion(String varName, Collection ids, int limit)
+    public static String buildLikeCondtion(String varName, Collection ids,int limit)
+    {
+        return buildLikeCondtion(varName, ids, limit,false); 
+    }            
+    public static String buildLikeCondtion(String varName, Collection ids,boolean b)
+    {
+        return buildLikeCondtion(varName, ids, -1,b);// no limit
+    }            
+    public static String buildLikeCondtion(String varName, Collection ids, int limit,boolean addWildcard)
     {
         StringBuffer out=new StringBuffer();
         if(ids.size()==0)
             return "0=1";
         out.append("(");
+        String wildCard=(addWildcard?"%":"");
                 
         //while(in.hasNext() && count++ < limit)
         int count=0;
-        for(Iterator in=ids.iterator();in.hasNext() && count < limit;count++)
+        for(Iterator in=ids.iterator();in.hasNext() && (limit==-1 || count < limit);count++)
         {
-            out.append(varName+" ilike '"+in.next()+"'");
-            if(in.hasNext() && count < limit)
+            out.append(varName+" ilike '"+wildCard+in.next()+wildCard+"'");
+            if(in.hasNext() && (limit==-1 || count < limit))
                 out.append(" OR ");
         }
         out.append(")");

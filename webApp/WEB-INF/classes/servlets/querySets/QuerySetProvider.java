@@ -26,7 +26,7 @@ public class QuerySetProvider
     private SearchQuerySet searchSet=null;
     private DataViewQuerySet dataViewSet=null;
     private RecordQuerySet recordSet=null;
-    private SearchableDatabaseQuerySet dbSet=null;
+    private DatabaseQuerySet dbSet=null;
     
     public static void setDataViewQuerySet(DataViewQuerySet dvqs)
     {        
@@ -55,11 +55,11 @@ public class QuerySetProvider
         return getProvider().recordSet;
     }
     
-    public static void setSearchableDatabaseQuerySet(SearchableDatabaseQuerySet sdqs)
+    public static void setDatabaseQuerySet(DatabaseQuerySet dqs)
     {
-        getProvider().dbSet=sdqs;
+        getProvider().dbSet=dqs;
     }
-    public static SearchableDatabaseQuerySet getSearchableDatabaseQuerySet()
+    public static DatabaseQuerySet getDatabaseQuerySet()
     {
         return getProvider().dbSet;
     }

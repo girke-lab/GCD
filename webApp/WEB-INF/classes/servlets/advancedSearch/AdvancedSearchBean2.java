@@ -23,6 +23,7 @@ import javax.servlet.jsp.JspWriter;
 import servlets.*;
 import servlets.advancedSearch.queryTree.Query;
 import servlets.advancedSearch.visitors.*;
+import servlets.querySets.*;
 
 /**
  * This class is the interface between a jsp webpage, and the classes
@@ -88,15 +89,16 @@ public class AdvancedSearchBean2
         log.debug("setting database to "+name);
         currentState=new SearchState();
         currentState.setDatabase(name);
+        DatabaseQuerySet dqs=QuerySetProvider.getDatabaseQuerySet();
         
         if(name==null)
             setDatabase(defaultDb);
         else if(name.equals("common"))
-            db=new CommonDatabase();
+            db=dqs.getCommonDatabase();            
         else if(name.equals("unknowns"))
-            db=new UnknownsDatabase();
+            db=dqs.getUnknownsDatabase();            
         else if(name.equals("unknowns2"))
-            db=new Unknowns2Database();
+            db=dqs.getUnknowns2Database();
         else //default to common
             setDatabase(defaultDb);
     }

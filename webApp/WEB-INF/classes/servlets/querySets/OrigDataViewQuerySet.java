@@ -14,22 +14,23 @@ package servlets.querySets;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.Common;
+import servlets.advancedSearch.*;
 
-public class OrigDataViewQuerySet implements DataViewQuerySet, RecordQuerySet, SearchableDatabaseQuerySet
+public class OrigDataViewQuerySet implements DataViewQuerySet, RecordQuerySet, DatabaseQuerySet
 {
      private static Logger log=Logger.getLogger(OrigDataViewQuerySet.class);
-     private Properties columnNames=null;
+     //private Properties columnNames=null;
      
     /** Creates a new instance of OrigDataViewQuerySet */
     public OrigDataViewQuerySet()
     {
-        columnNames=new Properties();
-        try{
-            columnNames.load(servlets.QueryPageServlet.class.getResourceAsStream("columnNames.properties"));
-            //log.debug("column names="+columnNames);
-        }catch(Exception e){
-            log.error("could not find or read from columnNames.properties: "+e);
-        }
+//        columnNames=new Properties();
+//        try{
+//            columnNames.load(servlets.QueryPageServlet.class.getResourceAsStream("columnNames.properties"));
+//            //log.debug("column names="+columnNames);
+//        }catch(Exception e){
+//            log.error("could not find or read from columnNames.properties: "+e);
+//        }
     }
     private void logQuery(String q)
     {
@@ -63,7 +64,7 @@ public class OrigDataViewQuerySet implements DataViewQuerySet, RecordQuerySet, S
         query.append(" ("+Common.buildIdListCondition("cluster_info.cluster_id",ids)+" )");
                 
         query.append("ORDER BY "+order);        
-        log.info("cluster view query: "+query);
+        logQuery(query.toString());
         return query.toString();    
     }   
 
@@ -162,7 +163,7 @@ public class OrigDataViewQuerySet implements DataViewQuerySet, RecordQuerySet, S
     {
         if(sortCol==null)
             sortCol="key";
-         String query="SELECT * " +
+         String query="SELECT 1, unknown_keys.* " +
         "   FROM unknowns.unknown_keys " +
         "   WHERE "+Common.buildIdListCondition("key_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
@@ -174,7 +175,7 @@ public class OrigDataViewQuerySet implements DataViewQuerySet, RecordQuerySet, S
     public String getBlastRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
     {
         if(sortCol==null)
-            sortCol="db_name";
+            sortCol="purpose";
         String query="SELECT * " +
         "   FROM unknowns.blast_summary_mv " +
         "   WHERE "+Common.buildIdListCondition("key_id",ids)+
@@ -232,29 +233,42 @@ public class OrigDataViewQuerySet implements DataViewQuerySet, RecordQuerySet, S
     }
 
     //////////////////////////////////////////////////
-    //////////////// SearchbleDatabaseQuerySet methods
+    //////////////// DatabaseQuerySet methods
     //////////////////////////////////////////////////
-    public Map getCommonColumnNames()
+    public servlets.advancedSearch.SearchableDatabase getCommonDatabase()
     {
-        return getSubSet(columnNames,"servlets.advancedSearch.CommonDatabase");
+        return new CommonDatabase();
     }
-    public Map getUnknowns2ColumnNames()
+    public servlets.advancedSearch.SearchableDatabase getUnknowns2Database()
     {
-        return getSubSet(columnNames,"servlets.advancedSearch.Unknowns2Database");
+        return new Unknowns2Database();
     }
-    public Map getUnknownsColumnNames()
+    public servlets.advancedSearch.SearchableDatabase getUnknownsDatabase()
     {
-        return getSubSet(columnNames,"servlets.advancedSearch.UnknownsDatabase");
+        return new UnknownsDatabase();
     }
-    private Map getSubSet(Properties props,String prefix)
-    {
-        Map names=new HashMap();
-        for(Iterator i=props.entrySet().iterator();i.hasNext();)
-        {
-            Map.Entry set=(Map.Entry)i.next();
-            if(((String)set.getKey()).startsWith(prefix))
-                names.put(set.getKey(), set.getValue());
-        }
-        return names;
-    }
+    
+//    public Map getCommonColumnNames()
+//    {
+//        return getSubSet(columnNames,"servlets.advancedSearch.CommonDatabase");
+//    }
+//    public Map getUnknowns2ColumnNames()
+//    {
+//        return getSubSet(columnNames,"servlets.advancedSearch.Unknowns2Database");
+//    }
+//    public Map getUnknownsColumnNames()
+//    {
+//        return getSubSet(columnNames,"servlets.advancedSearch.UnknownsDatabase");
+//    }
+//    private Map getSubSet(Properties props,String prefix)
+//    {
+//        Map names=new HashMap();
+//        for(Iterator i=props.entrySet().iterator();i.hasNext();)
+//        {
+//            Map.Entry set=(Map.Entry)i.next();
+//            if(((String)set.getKey()).startsWith(prefix))
+//                names.put(set.getKey(), set.getValue());
+//        }
+//        return names;
+//    }   
 }

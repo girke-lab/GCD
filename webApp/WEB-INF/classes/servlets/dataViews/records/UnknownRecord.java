@@ -151,7 +151,16 @@ public class UnknownRecord implements Record
         };                
         //this will return a map with one mapping to a RecordGroup (the root)
         unknownRecords=RecordGroup.buildRecordMap(rb,data,1,8);  
+        
+        if(unknownRecords==null)
+            log.debug("unknownRecords is null");
+        else
+            log.debug("unknownRecords="+unknownRecords);
         unknownRG=(RecordGroup)unknownRecords.get("1");
+        if(unknownRG==null)
+            log.debug("unknownRG is null");
+        else 
+            log.debug("unknownRG="+unknownRG);
         
         //these names must appear in the same order as the subRecordMaps array
         String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters","externals"};
@@ -165,11 +174,11 @@ public class UnknownRecord implements Record
             for(int j=0;j<subRecordMaps.length;j++)
             {
                 o=subRecordMaps[j].get(""+ur.key_id);
-//                if(o==null)
-//                {
-//                    log.debug("could not find key "+ur.key_id+" for dataset "+names[j]);
-//                    log.debug(" in list "+subRecordMaps[j].keySet());
-//                }
+                if(o==null)
+                {
+                    log.debug("could not find key "+ur.key_id+" for dataset "+names[j]);
+                    log.debug(" in list "+subRecordMaps[j].keySet());
+                }
 
                 if(o==null)
                     o=new RecordGroup();                    

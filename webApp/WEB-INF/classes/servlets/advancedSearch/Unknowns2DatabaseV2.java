@@ -1,14 +1,14 @@
 /*
- * Unknowns2Database.java
+ * Unknowns2DatabaseV2.java
  *
- * Created on October 7, 2004, 1:44 PM
+ * Created on March 30, 2005, 9:12 AM
  */
 
 package servlets.advancedSearch;
 
 /**
  *
- * @author  khoran
+ * @author khoran
  */
 
 import java.util.*;
@@ -16,15 +16,14 @@ import servlets.Common;
 import servlets.DbConnection;
 import servlets.DbConnectionManager;
 
-
-public class Unknowns2Database extends DefaultSearchableDatabase
-{
-
-    private static SearchTreeManager stm=new SearchTreeManager("Unknown2Database.properties");
+public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
+{       
+ 
+    private static SearchTreeManager stm=new SearchTreeManager("Unknown2DatabaseV2.properties");
     
     /** Creates a new instance of Unknowns2Database */
    
-    public Unknowns2Database()
+    public Unknowns2DatabaseV2()
     {        
         super(DbConnectionManager.getConnection("khoran"),stm);
                 
@@ -43,9 +42,9 @@ public class Unknowns2Database extends DefaultSearchableDatabase
     void defineOptions()
     {   
         log.debug("defining options"); 
-        rootTableName="unknowns.unknown_keys";
-        primaryKey="key_id";
-        defaultColumn="key";
+        rootTableName="general.accessions";
+        primaryKey="accession_id";
+        defaultColumn="accession";
         
         String db="unknowns.";        
         String space=" &nbsp&nbsp ";
@@ -53,9 +52,9 @@ public class Unknowns2Database extends DefaultSearchableDatabase
         //we don't need any special cases in the query building code.
         
         fields=new Field[]{
-            new Field("At key",db+"unknown_keys.key",List.class),
-            new Field("Description",db+"unknown_keys.description"),
-            new Field("Number of ests",db+"unknown_keys.est_count",Integer.class),
+            new Field("At key","general.accessions.accession_id",List.class),
+            new Field("Description","general.accessions.description"),
+            new Field("Number of ests",db+"unknown_data.est_count",Integer.class),
                         
             new Field("Blast/Pfam Searches (best per db)",""),                        
             new Field(space+"database",db+"blast_summary_view.db_name",             
@@ -74,11 +73,11 @@ public class Unknowns2Database extends DefaultSearchableDatabase
             new Field(space+"description",db+"go_view.text"),
             new Field(space+"function",db+"go_view.function",
                         new String[]{"process","component","function"}),
-            new Field(space+"Molecular function unknown?",db+"unknown_keys.mfu",  //15
+            new Field(space+"Molecular function unknown?",db+"unknown_data.mfu",  //15
                         Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field(space+"Cellular component unknown?",db+"unknown_keys.ccu",
+            new Field(space+"Cellular component unknown?",db+"unknown_data.ccu",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field(space+"Biological process unknown?",db+"unknown_keys.bpu",
+            new Field(space+"Biological process unknown?",db+"unknown_data.bpu",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
                     
                         
@@ -111,4 +110,5 @@ public class Unknowns2Database extends DefaultSearchableDatabase
         unaryBoundry=8; //index of first unary op.
         booleans=new String[]{"and","or"};                
     }
+    
 }
