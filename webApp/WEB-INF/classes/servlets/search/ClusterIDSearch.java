@@ -36,7 +36,8 @@ public class ClusterIDSearch extends AbstractSearch
         }
         conditions.append(")");
         
-        rs=Common.sendQuery(buildClusterStatement(conditions.toString(),limit,db));
+        seqId_query=buildClusterStatement(conditions.toString(),limit,db);
+        rs=Common.sendQuery(seqId_query);
         ArrayList al=new ArrayList();
         String lastDb="";
         int c=0;
@@ -51,8 +52,8 @@ public class ClusterIDSearch extends AbstractSearch
             keysFound.add(t.get(1));
         }
         data=al;
-        if(data.size() > Common.MAX_QUERY_KEYS)         
-            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
+//        if(data.size() > Common.MAX_QUERY_KEYS)         
+//            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
     }
     
     private String buildClusterStatement(String conditions, int limit, int[] DBs)
@@ -84,12 +85,13 @@ public class ClusterIDSearch extends AbstractSearch
                 conditions+=" or ";
         }
         conditions+=" )";
-        String query="SELECT t1.count as model_count, t2.count as cluster_count "+
-            "FROM " +
-                "(select count(distinct m.model_id) from sequences as s, models as m, clusters as c, cluster_info" +
-                " where s.seq_id=m.seq_id and s.seq_id=c.seq_id and c.cluster_id=cluster_info.cluster_id and "+conditions+" ) as t1," +
-                "(select count(distinct c2.cluster_id) from sequences as s, clusters as c, clusters as c2, cluster_info" +
-                " where s.seq_id=c.seq_id and s.seq_id=c2.seq_id and c.cluster_id=cluster_info.cluster_id and "+conditions+" ) as t2";
+        String query= //This is a hopeless mess.
+                "select 'models', count(distinct m.model_id) from sequences as s, models as m, clusters as c, cluster_info" +
+                " where s.seq_id=m.seq_id and s.seq_id=c.seq_id and c.cluster_id=cluster_info.cluster_id and "+conditions +
+                " UNION "+
+                "select count(distinct c2.cluster_id) from sequences as s, clusters as c, clusters as c2, cluster_info as ci" +
+                " where s.seq_id=c.seq_id and s.seq_id=c2.seq_id and c.cluster_id=ci.cluster_id and "+conditions+
+                " ";
                 
         log.info("ClusterID stats query: "+query);
         return query;

@@ -83,7 +83,7 @@ public class UnknownClusterIdSearch implements Search
     {
         return seqIdSearch.getDbStartPos(i);
     }
-    public java.util.List getStats()
+    public java.util.Map getStats()
     {
         return seqIdSearch.getStats();
     }

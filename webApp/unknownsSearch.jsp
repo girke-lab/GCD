@@ -45,7 +45,7 @@
                                     </select>
                                 </td>
                                 <td nowrap>
-                                    <a href='statusQueries.jsp'>Status Queries</a>
+                                    <a href='statusQueries.jsp'>Difference Tracking</a>
                                 </td>
                             </tr>
 

@@ -9,7 +9,7 @@
  * @author  khoran
  */
 package servlets.search;
-import java.util.List;
+import java.util.*;
 
 /**
  * This is an interface for objects which search a database based
@@ -76,6 +76,6 @@ public interface Search extends java.io.Serializable
      * If not stats can be found, an empty list should be returned.
      * @return A list with at most 2 elements.
      */    
-    List getStats();
+    Map getStats();
     
 }

@@ -61,9 +61,9 @@ public class QuerySearch implements Search
     {
         return 0;
     }
-    public List getStats()
+    public Map getStats()
     {
-        return new ArrayList();
+        return new HashMap();
     }
     
     private void loadData()

@@ -36,7 +36,9 @@ public class GoSearch extends AbstractSearch
                 conditions.append(",");
         }
         conditions.append(")");
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
+        
+        seqId_query=buildIdStatement(conditions.toString(),limit,db);
+        rs=Common.sendQuery(seqId_query);
 
         ArrayList al=new ArrayList();
         String lastDb="";
@@ -52,8 +54,8 @@ public class GoSearch extends AbstractSearch
             keysFound.add(t.get(1));
         }
         data=al;
-        if(data.size() > Common.MAX_QUERY_KEYS)         
-            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
+        //if(data.size() > Common.MAX_QUERY_KEYS)         
+        //    stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
     }
     
     private String buildIdStatement(String conditions, int limit,int[] DBs)

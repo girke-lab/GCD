@@ -134,6 +134,8 @@ public class QueryPageServlet extends HttpServlet
                 return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));
             else if(displayType.equals("unknowns2View"))
                 return new Unknowns2DataView(this.getServletContext().getRealPath("/temp"));
+            else if(displayType.equals("blastView"))
+                return new BlastDataView();
         }
         else if(sortCol!=null)
         {
@@ -164,6 +166,10 @@ public class QueryPageServlet extends HttpServlet
             return new QueryCompSearch();
         else if(type.equals("unknownClusterId"))
             return new UnknownClusterIdSearch(); 
+        else if(type.equals("blast"))
+            return new BlastSearch();
+        else if(type.equals("seq_model"))
+            return new SeqModelSearch();
         else
             return new IdSearch();   //default to id search
     }   

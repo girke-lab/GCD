@@ -52,7 +52,8 @@ public class DescriptionSearch extends AbstractSearch
                 wasOp=1;
             }    
         }
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
+        seqId_query=buildIdStatement(conditions.toString(),limit,db);
+        rs=Common.sendQuery(seqId_query);
         
         ArrayList al=new ArrayList();
         String lastDb="";
@@ -67,9 +68,19 @@ public class DescriptionSearch extends AbstractSearch
             }            
             al.add(row.get(0));
         }
-        data=al;        
-        if(data.size() > Common.MAX_QUERY_KEYS) 
-            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
+        data=al;     
+        
+        
+//        if(data.size() > Common.MAX_QUERY_KEYS) 
+//        {
+//            stats=new HashMap();
+//            for(Iterator i=Common.sendQuery(buildStatsStatement(conditions.toString(),db)).iterator();
+//                i.hasNext();)
+//            {
+//                row=(List)i.next();
+//                stats.put(row.get(0),row.get(1));
+//            }
+//        }
     }
     private String printList(int[] a)
     {
@@ -108,10 +119,12 @@ public class DescriptionSearch extends AbstractSearch
         conditions+=" )";
         String query="SELECT t1.count as model_count, t2.count as cluster_count "+
             "FROM " +
-                "(select count(distinct m.model_id) from sequences , models as m" +
-                " where sequences.seq_id=m.seq_id and "+conditions+" ) as t1," +
-                "(select count(distinct c.cluster_id) from sequences , clusters as c" +
-                " where sequences.seq_id=c.seq_id and "+conditions+" ) as t2 ";
+                "select 'models', count(distinct m.model_id) from sequences , models as m" +
+                " where sequences.seq_id=m.seq_id and "+conditions +
+                " UNION "+
+                " (select ci.method, count(distinct c.cluster_id) from sequences , clusters as c, cluster_info as ci " +
+                " where sequences.seq_id=c.seq_id and c.cluster_id=ci.cluster_id and "+conditions+
+                " group by ci.method)";
                 
         log.info("Description stats query: "+query);
         return query;

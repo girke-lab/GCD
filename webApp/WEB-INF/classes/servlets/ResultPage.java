@@ -62,8 +62,11 @@ public class ResultPage
             positions[i]=search.getDbStartPos(i);
                 
         dv.printHeader(out);
-        printControls(out);        
-        printGotoLinks(out, Common.dbPrintNames, positions);
+        if(!dv.getQueryWideView().printAllData())
+        {
+            printControls(out);        
+            printGotoLinks(out, Common.dbPrintNames, positions);
+        }
         out.println("<br>");
         dv.getQueryWideView().printButtons(out, hid, pos, search.getResults().size(), rpp);
                     
@@ -85,8 +88,11 @@ public class ResultPage
         dv.getQueryWideView().printGeneral(out, search,"",storage);        
         dv.printData(out);
         
-        printControls(out);
-        printGotoLinks(out, Common.dbPrintNames, positions);
+        if(!dv.getQueryWideView().printAllData())
+        {
+            printControls(out);
+            printGotoLinks(out, Common.dbPrintNames, positions);
+        }
 
         printMismatches(out,search.notFound());
     }

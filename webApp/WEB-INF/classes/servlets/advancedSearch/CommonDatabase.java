@@ -56,10 +56,11 @@ public class CommonDatabase implements SearchableDatabase
             fieldList=" cluster_info.cluster_id, "+fields[state.getSortField()].dbName;
             order=fields[state.getSortField()].dbName;
         }else{
-            fieldList=" sequences.seq_id, "+fields[state.getSortField()].dbName+",sequences.genome ";
+            fieldList=" sequences.seq_id, models.model_id, "+fields[state.getSortField()].dbName+",sequences.genome ";
             order=" sequences.genome, "+fields[state.getSortField()].dbName; 
         }
-        join=" sequences LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequences.seq_id=go.seq_id) ";
+        join=" sequences LEFT JOIN models USING(seq_id) LEFT JOIN clusters USING (model_id) " +
+                "LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequences.seq_id=go.seq_id) ";
                 
         query.append("SELECT DISTINCT "+fieldList+" FROM "+join+" WHERE (");                
         
@@ -142,7 +143,7 @@ public class CommonDatabase implements SearchableDatabase
         NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(
                     (HttpServletRequest)request,new HashMap(),false,"POST");
         
-        mRequest.getParameterMap().put("searchType","seq_id");
+        mRequest.getParameterMap().put("searchType","seq_model");
         mRequest.getParameterMap().put("limit", state.getLimit());
         mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName);         
                 
@@ -152,8 +153,12 @@ public class CommonDatabase implements SearchableDatabase
             mRequest.getParameterMap().put("displayType","seqView");
         
         StringBuffer inputStr=new StringBuffer();      
+        List row;
         for(Iterator i=results.iterator();i.hasNext();)
-            inputStr.append(((List)i.next()).get(0)+" ");       
+        {
+            row=(List)i.next();
+            inputStr.append(row.get(0)+" "+row.get(1)+" ");
+        }            
 
         mRequest.getParameterMap().put("inputKey",inputStr.toString());
         

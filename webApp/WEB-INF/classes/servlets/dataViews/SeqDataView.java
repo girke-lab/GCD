@@ -14,6 +14,7 @@ package servlets.dataViews;
 import java.util.*;
 import java.io.*;
 import servlets.Common;
+import servlets.search.Search;
 import servlets.ResultPage;
 import servlets.dataViews.queryWideViews.*; 
 import org.apache.log4j.Logger;
@@ -71,6 +72,16 @@ public class SeqDataView implements DataView
     public QueryWideView getQueryWideView() 
     {
         return new DefaultQueryWideView();
+//        {
+//            public void printStats(PrintWriter out, Search search)
+//            {
+//                Object[] values=new Object[4];
+//                values[0]=new Integer(search.getResults().size());        
+//                values[1]=(search==null || search.getStats().size() < 1)?null:search.getStats().get("models");
+//                
+//                Common.printStatsTable(out,"Total Query",new String[]{"Loci","Models","Clusters"},values);         
+//            }
+//        };
     }  
 ///////////////////////////////////////////////////////////////////////
     private void loadData()
@@ -83,16 +94,35 @@ public class SeqDataView implements DataView
     private void printCounts(PrintWriter out,List records)
     { //print number of keys and models
         int modelCount=0;        
-        Collection temp=new HashSet();
+        //Collection temp=new HashSet();
+        Map clusterCounts=new HashMap();
+        Set set=null;
+        ClusterSet cs=null;
         SeqRecord sr=null;
         for(Iterator i=records.iterator();i.hasNext();)
         {
             sr=(SeqRecord)i.next();
             modelCount+=sr.getModelCount();  
-            temp.addAll(sr.getClusters());
+            for(Iterator j=sr.getClusters().iterator();j.hasNext();)
+            {                
+                cs=(ClusterSet)j.next();
+                set=(Set)clusterCounts.get(cs.method);
+                if(set==null)
+                {
+                    set=new HashSet();
+                    clusterCounts.put(cs.method, set);
+                }
+                set.add(cs);                
+            }
+            
+            //temp.addAll(sr.getClusters());
         }
-        Common.printStatsTable(out,"On This Page", new String[]{"Loci","Models","Clusters"},
-            new Object[]{new Integer(records.size()),new Integer(modelCount),new Integer(temp.size())});          
+        Common.printStatsTable(out,"On This Page", 
+            new String[]{"Loci","Models","Blast_35 Clusters", "HMM Clusters"},
+            new Object[]{new Integer(records.size()),new Integer(modelCount),
+                new Integer(((Set)clusterCounts.get("BLASTCLUST_35")).size()),
+                new Integer(((Set)clusterCounts.get("Domain Composition")).size())});          
+                
     }
     private List parseData(List data)
     {
@@ -374,10 +404,13 @@ public class SeqDataView implements DataView
                      StringTokenizer tok=new StringTokenizer(cs.clusterNum,"_");
                      while(tok.hasMoreTokens())
                      {
-                         String n=tok.nextToken();                     
-                         out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+n.substring(0,n.indexOf('.'))+"'" +
-//                            "onmouseover=\"return escape('"+n+"')\""+   // used for tool tips
-                            ">"+n+"</a>");
+                         String n=tok.nextToken();                                            
+                         if(n.startsWith("noHit"))
+                             out.println(n);
+                         else
+                            out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+n.substring(0,n.indexOf('.'))+"'" +
+                //                            "onmouseover=\"return escape('"+n+"')\""+   // used for tool tips
+                                ">"+n+"</a>");
                          if(tok.hasMoreTokens())
                              out.println("_");
                      }                 
@@ -434,6 +467,12 @@ public class SeqDataView implements DataView
 
              //does this link work for rice? no
              out.println("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");         
+             
+             //link to uniprot blast results
+             out.println("<a href='QueryPageServlet?searchType=blast&displayType=blastView&inputKey=uniprot "+key+"'>" +
+                         "Cross-Species Profile</a>");
+             if(g==Common.arab)
+                out.println("<a href='http://www.arabidopsis.org:1555/ARA/NEW-IMAGE?type=GENE&object="+key+"'>AraCyc</a>");
         }        
     }
 }

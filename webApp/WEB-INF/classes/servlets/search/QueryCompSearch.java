@@ -16,13 +16,13 @@ import org.apache.log4j.Logger;
 
 /**
  * Expects a string consisting of a comparision id, from the updates.comparisons
- * table, a space, and then a boolean value.  True if we want keys added, false
- * if we want keys removed. Returns a list of key_ids corresponding the keys
+ * table, a space, and then an operation. The operation should be on of 'added',
+ * 'removed', or 'unchanged'. Returns a list of key_ids corresponding the keys
  * added or removed according to the given comparison.
  */
 public class QueryCompSearch implements Search
 {
-    String comp_id,added;
+    String comp_id,status;
     List data=null;
     boolean noData=false;
     
@@ -49,13 +49,14 @@ public class QueryCompSearch implements Search
     {
         if(data==null || data.size() < 2)
         {
-            log.error("invalid inputKey list");
+            log.error("invalid inputKey list," +
+                "required format: <comp_id> (added|removed|unchanged)");            
             log.error("data="+data);
             noData=true;
             return;
         }
         comp_id=(String)data.get(0);
-        added=(String)data.get(1);
+        status=(String)data.get(1);
     }
 
     private void loadData()
@@ -67,7 +68,7 @@ public class QueryCompSearch implements Search
         }
         
         String query="SELECT key_id FROM updates.diffs " +
-                     "WHERE comp_id="+comp_id+" AND added='"+added+"'";
+                     "WHERE comp_id="+comp_id+" AND difference='"+status+"'";
         List results=null;
         try{
             results=dbc.sendQuery(query);
@@ -94,9 +95,9 @@ public class QueryCompSearch implements Search
     {
         return 0;
     }
-    public java.util.List getStats()
+    public java.util.Map getStats()
     {
-        return new ArrayList();
+        return new HashMap();
     }
     public java.util.List notFound()
     {

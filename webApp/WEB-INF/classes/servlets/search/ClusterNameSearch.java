@@ -48,7 +48,8 @@ public class ClusterNameSearch extends AbstractSearch
                 wasOp=1;
             }    
         }
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
+        seqId_query=buildIdStatement(conditions.toString(),limit,db);
+        rs=Common.sendQuery(seqId_query);
         
         ArrayList al=new ArrayList();
         String lastDb="";
@@ -64,10 +65,9 @@ public class ClusterNameSearch extends AbstractSearch
             al.add(row.get(0));
         }                
         data=al;        
-        if(data.size() > Common.MAX_QUERY_KEYS) {
-            log.debug(data.size()+" keys, using local stats query.");
-            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
-        }
+//        if(data.size() > Common.MAX_QUERY_KEYS)             
+//            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
+        
     }
     private String buildStatsStatement(String conditions,int[] dbs)
     {

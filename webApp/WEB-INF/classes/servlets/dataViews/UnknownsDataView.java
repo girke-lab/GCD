@@ -25,7 +25,7 @@ public class UnknownsDataView implements DataView
     String sortCol,sortDir;
     int[] dbNums;    
     File tempDir;
-    DbConnection dbc=null;
+    static DbConnection dbc=null;
     static Logger log=Logger.getLogger(UnknownsDataView.class);   
     
     /** Creates a new instance of UnknownsDataView */
@@ -61,7 +61,7 @@ public class UnknownsDataView implements DataView
     }    
     public void printHeader(java.io.PrintWriter out)
     {
-        printUnknownHeader(out);
+        Common.printUnknownHeader(out);
         //out.println("<h1 align='left' >Unknowns</h1>");
     }    
     public void printStats(java.io.PrintWriter out) 
@@ -115,28 +115,28 @@ public class UnknownsDataView implements DataView
         };
     }   
     ////////////////////////////////////////////////////////////////
-    private void printUnknownHeader(PrintWriter out)
-    {
-        String base="http://bioinfo.ucr.edu/projects/internal/Unknowns/external";
-        out.println(
-        "  <font face='sans-serif, Arial, Helvetica, Geneva'>"+
-        "  <img alt='Unknown Database' src='images/unknownspace3.png'>"+
-        "  <table>"+
-        "  <tr>"+
-        "  <td valign='top' bgcolor='#F0F8FF'' width=180 nowrap ><font SIZE=-1>"+
-        "  <a href='"+base+"/index.html'><li>Project</a></li>"+
-        "  <a href='"+base+"/descriptors.html'><li>Unknown Descriptors</a></li>"+
-        "  <a href='"+base+"/retrieval.html'><li>Search Options</a></li>"+
-        "  <a href='"+base+"/interaction.html'><li>Protein Interaction</a></li>"+
-        "  <a href='"+base+"/KO_cDNA.html'><li>KO & cDNA Results</a></li>"+
-        "  <a href='"+base+"/profiling.html'><li>Chip Profiling</a></li>"+
-        "  <a href='"+base+"/tools.html'><li>Technical Tools</a></li>"+
-        "  <a href='"+base+"/external.html'><li>External Resources</a></li>"+
-        "  <a href='"+base+"/downloads.html'><li>Downloads</a></li>"+
-        "  </font></td>"+
-        "  <td>&nbsp;&nbsp;&nbsp;</td>"+
-        "  <td valign='top'' width=600> ");
-    }
+//    private void printUnknownHeader(PrintWriter out)
+//    {
+//        String base="http://bioinfo.ucr.edu/projects/internal/Unknowns/external";
+//        out.println(
+//        "  <font face='sans-serif, Arial, Helvetica, Geneva'>"+
+//        "  <img alt='Unknown Database' src='images/unknownspace3.png'>"+
+//        "  <table>"+
+//        "  <tr>"+
+//        "  <td valign='top' bgcolor='#F0F8FF'' width=180 nowrap ><font SIZE=-1>"+
+//        "  <a href='"+base+"/index.html'><li>Project</a></li>"+
+//        "  <a href='"+base+"/descriptors.html'><li>Unknown Descriptors</a></li>"+
+//        "  <a href='"+base+"/retrieval.html'><li>Search Options</a></li>"+
+//        "  <a href='"+base+"/interaction.html'><li>Protein Interaction</a></li>"+
+//        "  <a href='"+base+"/KO_cDNA.html'><li>KO & cDNA Results</a></li>"+
+//        "  <a href='"+base+"/profiling.html'><li>Chip Profiling</a></li>"+
+//        "  <a href='"+base+"/tools.html'><li>Technical Tools</a></li>"+
+//        "  <a href='"+base+"/external.html'><li>External Resources</a></li>"+
+//        "  <a href='"+base+"/downloads.html'><li>Downloads</a></li>"+
+//        "  </font></td>"+
+//        "  <td>&nbsp;&nbsp;&nbsp;</td>"+
+//        "  <td valign='top'' width=600> ");
+//    }
     private void printData(PrintWriter out,List data)
     {         
          String lastId="";                          

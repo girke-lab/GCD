@@ -78,18 +78,22 @@ public class DefaultQueryWideView implements QueryWideView
      */
     public void printStats(PrintWriter out, Search search)  
     {
-        Object[] values=new Object[3];
+        Object[] values=new Object[4];
         values[0]=new Integer(search.getResults().size());        
+        Map stats;
         
-        if(search==null || search.getStats()==null || search.getStats().size()!=2)
+        if(search==null || search.getStats()==null )
         {    values[1]=null;values[2]=null; }
         else
         {
-            values[1]=search.getStats().get(0);
-            values[2]=search.getStats().get(1);
+            stats=search.getStats();
+            values[1]=stats.get("models");
+            values[2]=stats.get("BLASTCLUST_35");
+            values[3]=stats.get("Domain Composition");
         }
         
-        Common.printStatsTable(out,"Total Query",new String[]{"Loci","Models","Clusters"},values);         
+        Common.printStatsTable(out,"Total Query",
+            new String[]{"Loci","Models","Blast_35 Clusters","HMM Clusters"},values);         
     }
     
     /**

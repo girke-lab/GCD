@@ -23,7 +23,9 @@ import org.apache.log4j.Logger;
  */
 public abstract class AbstractSearch implements Search, java.io.Serializable
 {
-    List input,keysFound,data=null,stats=null;
+    List input,keysFound,data=null;
+    Map stats=null;
+    String seqId_query=null;
     int limit;
     int[] db=null;
     int[] dbStartPositions;  //index of firs occurance of each database in dataset
@@ -104,28 +106,63 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
      * counts, using the ids in data as the condition.
      * @return A list with at most 2 elements.
      */    
-    public List getStats() {
+    public Map getStats() {
         if(data==null)
             loadData(); //make sure we have some data.
         if(stats!=null)
             return stats;
-        if(data.size() >= Common.MAX_QUERY_KEYS){
-            log.info(data.size()+" is too many keys, skipping the stats");
-            stats=new ArrayList();
-            return stats;
-        }
-        log.debug("querying "+data.size()+" keys");
-        String conditions=buildCondition();
-        String query="SELECT t1.count as model_count, t2.count as cluster_count" +
-        " FROM" +
-        "        (select count( distinct m.model_id) from sequences as s, models as m" +
-        "        where s.seq_id=m.seq_id and "+conditions+" ) as t1," +
-        "        (select count(distinct c.cluster_id) from sequences as s, clusters as c" +
-        "        where s.seq_id=c.seq_id and "+conditions+" ) as t2";       
-                
-        log.info("AbstactSearch stats query: "+query);
-        stats=(List)Common.sendQuery(query).get(0);
+        
+        stats=new HashMap();
+        log.debug("number of keys: "+data.size());
+        if(data.size() < Common.MAX_QUERY_KEYS)
+            stats=statsById();
+        else if(seqId_query!=null)
+            stats=statsByQuery();
+        else
+            log.info(data.size()+" is too many keys, and no predefind seq_id query, skipping the stats");
+        
+        
         return stats;
+    }
+    private Map statsById()
+    {
+        log.debug("getting stats with id numbers");
+        String conditions=Common.buildIdListCondition("s.seq_id",data);
+        String query=
+        "        select 'models', count( distinct m.model_id) from sequences as s, models as m" +
+        "        where s.seq_id=m.seq_id and "+conditions +
+        "       UNION "+
+        "        (select ci.method, count(distinct c.cluster_id) from sequences as s, clusters as c,cluster_info as ci" +
+        "        where s.seq_id=c.seq_id and c.cluster_id=ci.cluster_id and "+conditions+
+        "        group by ci.method order by ci.method)";       
+        Map sMap=new HashMap();                       
+        for(Iterator i=Common.sendQuery(query).iterator();i.hasNext();)
+        {
+            List row=(List)i.next();
+            sMap.put(row.get(0),row.get(1));
+        }        
+        return sMap;
+    }
+    private Map statsByQuery()
+    {
+        log.debug("getting stats with query");
+        String query=
+        "        select 'models', count( distinct m.model_id) from sequences as s, models as m, " +
+        "           ("+seqId_query+") as t "+
+        "        where s.seq_id=m.seq_id and s.seq_id=t.seq_id "+
+        "       UNION "+
+        "        (select ci.method, count(distinct c.cluster_id) from sequences as s, clusters as c,cluster_info as ci, " +
+        "           ("+seqId_query+") as t "+
+        "        where s.seq_id=c.seq_id and c.cluster_id=ci.cluster_id and s.seq_id=t.seq_id "+
+        "        group by ci.method order by ci.method)";       
+
+        Map sMap=new HashMap();                       
+        for(Iterator i=Common.sendQuery(query).iterator();i.hasNext();)
+        {
+            List row=(List)i.next();
+            sMap.put(row.get(0),row.get(1));
+        }        
+        return sMap;
     }
     private String buildCondition()
     {

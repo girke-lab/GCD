@@ -115,7 +115,7 @@ public class DbConnection
     public void connect(String connectURI,String name,String password)  throws Exception 
     {        
         log.setLevel(org.apache.log4j.Level.WARN);
-        //log.setLevel(org.apache.log4j.Level.INFO);
+        log.setLevel(org.apache.log4j.Level.INFO);
         
         if(dataSource!=null)
             return;
@@ -204,7 +204,7 @@ public class DbConnection
                 conn.close();
         }
         if(log.isInfoEnabled())
-            log.info("time: "+((System.currentTimeMillis()-startTime)/1000.0));
+            log.info(l.size()+" records in "+((System.currentTimeMillis()-startTime)/1000.0)+" seconds");
         return l;
     }
       

@@ -63,8 +63,9 @@ public class IdSearch extends AbstractSearch
             
         log.debug("conditions="+conditions);
 
+        seqId_query=buildIdStatement(conditions.toString(),limit,db);
+        rs=Common.sendQuery(seqId_query);
 
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
         ArrayList al=new ArrayList();
         String lastDb="";
         int c=0;
@@ -79,8 +80,8 @@ public class IdSearch extends AbstractSearch
             keysFound.add(((String)t.get(1)).toLowerCase());
         }        
         data=al;
-        if(data.size() > Common.MAX_QUERY_KEYS) 
-            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);        
+        //if(data.size() > Common.MAX_QUERY_KEYS) 
+        //    stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);        
     }
     private String buildCondition()
     {

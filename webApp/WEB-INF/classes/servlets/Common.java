@@ -107,15 +107,15 @@ public class Common {
             "<INPUT type=hidden name='displayType' value='modelView'>"+                        
             "<TABLE align='center' border='0'>\n"+
             "\t<TR>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='3'><a href='/titleInfo.html'>TU</a></TD>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='4'><a href='/titleInfo.html'>Promoter 3000</a></TD>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='5'><a href='/titleInfo.html'>3' UTR</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='3'><a href='titleInfo.html'>TU</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='4'><a href='titleInfo.html'>Promoter 3000</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='5'><a href='titleInfo.html'>3' UTR</a></TD>\n"+
             "\t</TR>\n<TR>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='6'><a href='/titleInfo.html'>Intergenic</a></TD>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='7'><a href='/titleInfo.html'>CDS</a></TD>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='8'><a href='/titleInfo.html'>5' UTR</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='6'><a href='titleInfo.html'>Intergenic</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='7'><a href='titleInfo.html'>CDS</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='8'><a href='titleInfo.html'>5' UTR</a></TD>\n"+
             "\t</TR>\n<TR>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='9'><a href='/titleInfo.html'>Protein</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='9'><a href='titleInfo.html'>Protein</a></TD>\n"+
             "\t\t<TD colspan='2'>Length of Sequence to return: <INPUT name='length' value='' size='5'></TD>\n"+
             "</TR><TR>\n"+
             //"\t\t<TD align='center' colspan='1'><INPUT type=checkbox name='format' value='1'>fasta format</TD>\n"+            
@@ -134,6 +134,58 @@ public class Common {
     }
    
     public static void printHeader(Writer out)
+    {
+        String header=
+            "<!--GCD_Tool_Bar-->" +
+            "<meta Http-Equiv='Content-Type' content='text/html; charset=UTF-8'><meta Http-Equiv='Cache-Control' Content='no-cache'/><meta Http-Equiv='Pragma' Content='no-cache'/><meta Http-Equiv='Expires' Content='0'/>" +
+            "<style type='text/css'>	body { color: #000000; font-family: avantgarde, sans-serif; font-size: 11pt} " +
+            "	a { color: #006699} " +
+            "	a:hover { background-color: #AAAAAA} " +
+            "	h1, h2, h3, h4, h5, h6 { font-weight: bold} " +
+            "	h1 { font-size: 180%} " +
+            "	h2 { font-size: 150%} " +
+            "	h3 { font-size: 120%} " +
+            "	h4 { font-size: 120%} " +
+            "	pre { font-family: FreeMono, monospace; font-size: 10pt} " +
+            "	tt { font-family: FreeMono, monospace; font-size: 10pt} " +
+            "</style>" +
+            "<body bgcolor='#fefefe' text='#000000' link='#006699' vlink='#003366'>" +
+            "<head>" +
+            "	<title>GCD ReadMe</title>" +
+            "</head>" +
+            "<font face='sans-serif, Arial, Helvetica, Geneva'>" +
+            "	<table  border='4' width='100%'>" +
+            "		<tr>" +
+            "			<td nowrap, colspan=11, valign='top', align='center', bgcolor='D3D3D3', width=1000><font SIZE=+4>Genome Cluster Database</font></td>" +
+            "		</tr>" +
+            "		<tr>" +
+            "			<td nowrap, colspan=11, valign='top', align='center', width=1000><font SIZE=+0>Center for Plant Cell Biology, UC Riverside</font></td>" +
+            "		</tr>" +
+            "		<tr>" +
+            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/projects/internal/PlantFam/Readme/about.html'>ReadMe</a>&nbsp;]</font></td>'" +
+            "            			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
+            "                                " +
+            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='index.jsp'>Search</a>&nbsp;]</font></td>" +
+            "            	<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
+            "                   <td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='advancedSearch.jsp'>Advanced</a>&nbsp;]</font></td>" +
+            "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
+            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>Table</a>&nbsp;]</font></td>" +
+            "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
+            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>Stats</a>&nbsp;]</font></td>" +
+            "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
+            "			<td nowrap, align='center', bgcolor='#D3D3D3', width=100><font SIZE=+1>[&nbsp;<a href='index.jsp'>FTP</a>&nbsp;]</font></td>" +
+            "		</tr>" +
+            "	</table>" +
+            "</font>" +
+            "<!--GCD_Tool_Bar-->";
+        try{
+            out.write(header);
+        }catch(Exception e){
+            log.error("io error: "+e.getMessage());
+        }
+    }
+    
+    public static void printHeaderOld(Writer out)
     {   //print the CEPCEB header on the top of every page        
         int cs=1,space=10;;
         String header=""+ 
@@ -172,20 +224,29 @@ public class Common {
             log.error("io error: "+e.getMessage());
         }
     }
-    public static void printHeaderOld(PrintWriter out)
-    {   //print the CEPCEB header on the top of every page
-        String header=new String(""+ 
-        "<table width=\"86%\" border=\"0\">"+
-        "<tr> <td width=\"376\" rowspan=\"3\"><i><font face=\"georgia, Times New Roman, Times\"><a href=\"http://www.cepceb.ucr.edu/\"><img src=\"images/header_01.jpg\" width=\"371\" height=\"90\" border=\"0\"></a></font></i></td>"+
-        "<td width=\"463\"> <div align=\"center\"><font size=\"+3\" face=\"Arial, Helvetica, sans-serif\"><i><b><font color=\"#339933\" size=\"+4\">Bioinformatics "+
-        "Core</font></b></i></font></div>"+"</td>"+"</tr>"+
-        "<tr> <td width=\"463\"> <div align=\"center\"><font face=\"georgia, Times New Roman, Times\"><font color=\"#D27E00\"><b><font color=\"#000000\" face=\"Arial, Helvetica, sans-serif\" size=\"2\"><a href=\"http://www.cepceb.ucr.edu/\">Center"+
-        "for Plant Cell Biology</a>, UC Riverside</font></b></font></font></div>"+"</td>"+"</tr>"+
-        "<tr> <td width=\"463\" height=\"32\"> <div align=\"center\"><font color=\"#339933\" face=\"Arial, Helvetica, sans-serif\" size=\"+3\"><i>Information Retrieval</i></font></div>"+
-        "</td>"+"</tr>"+"<tr> <td colspan=\"2\"> <hr size=\"3\">"+"</td>"+"</tr>"+"</table>");
-        out.println(header);
-    }
     
+    public static void printUnknownHeader(PrintWriter out)
+    {
+        String base="http://bioinfo.ucr.edu/projects/internal/Unknowns/external";
+        out.println(
+        "  <font face='sans-serif, Arial, Helvetica, Geneva'>"+
+        "  <img alt='Unknown Database' src='images/unknownspace3.png'>"+
+        "  <table>"+
+        "  <tr>"+
+        "  <td valign='top' bgcolor='#F0F8FF'' width=180 nowrap ><font SIZE=-1>"+
+        "  <a href='"+base+"/index.html'><li>Project</a></li>"+
+        "  <a href='"+base+"/descriptors.html'><li>Unknown Descriptors</a></li>"+
+        "  <a href='"+base+"/retrieval.html'><li>Search Options</a></li>"+
+        "  <a href='"+base+"/interaction.html'><li>Protein Interaction</a></li>"+
+        "  <a href='"+base+"/KO_cDNA.html'><li>KO & cDNA Results</a></li>"+
+        "  <a href='"+base+"/profiling.html'><li>Chip Profiling</a></li>"+
+        "  <a href='"+base+"/tools.html'><li>Technical Tools</a></li>"+
+        "  <a href='"+base+"/external.html'><li>External Resources</a></li>"+
+        "  <a href='"+base+"/downloads.html'><li>Downloads</a></li>"+
+        "  </font></td>"+
+        "  <td>&nbsp;&nbsp;&nbsp;</td>"+
+        "  <td valign='top'' width=600> ");
+    }
     public static int getDBid(String name)
     {//takes a Genome string from database and reutrn an integer id number for it
         if(name.equals("arab"))

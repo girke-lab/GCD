@@ -1,14 +1,14 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
 <html>
-    <head><title>status queries</title></head>
+    <head><title>Difference Tracking</title></head>
     <body>
 
         <jsp:useBean id="bean" scope="session" class="servlets.StatusQueriesBean" />         
         <jsp:useBean id='common' class='servlets.Common' />
 
-        <h2 align='center'>Status Queries</h2>
-        
+        <h2 align='center'>Difference Tracking Table</h2>
+        <!--
         <u><h4 align='left'>Queries</h4></u>
         <table bgcolor='<%=common.dataColor%>' width='100%'
                align='center' border='1' cellspacing='0' cellpadding='0'>
@@ -32,5 +32,8 @@
             </tr>
             <%= bean.printComparisons() %>
         </table>
+        --> 
+        <%= bean.printTrackingTable() %>
+        UD: Unknown Descriptor
     </body>
 </html>
