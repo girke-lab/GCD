@@ -80,6 +80,8 @@
                                         out.println("selected"); %>>Cluster Name
                             <OPTION <%if(fieldName.equals("GO Number"))
                                         out.println("selected"); %>>GO Number
+                            <OPTION <%if(fieldName.equals("GO Text"))
+                                        out.println("selected"); %>>GO Text
 
                         </SELECT>
                         <BR>                       
