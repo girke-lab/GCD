@@ -48,7 +48,6 @@ public class ClusterIDSearch implements Search {
         conditions.append(")");
         
         rs=Common.sendQuery(buildClusterStatement(conditions.toString(),limit,db));
-        
         ArrayList al=new ArrayList();
         ArrayList t;
         for(Iterator i=rs.iterator();i.hasNext();)
@@ -63,7 +62,7 @@ public class ClusterIDSearch implements Search {
     
      private String buildClusterStatement(String conditions, int limit, int[] DBs)
     {
-        String q="SELECT Sequences.Seq_id, Cluster_Info.filename "+
+        String q="SELECT distinct  Sequences.Seq_id, Cluster_Info.filename,sequences.genome "+
                  "FROM Sequences, Cluster_Info, Clusters "+
                  "WHERE Cluster_Info.cluster_id=Clusters.cluster_id AND Sequences.seq_id=Clusters.seq_id AND (";
         for(int i=0;i<DBs.length;i++)

@@ -46,6 +46,7 @@ public class SeqDataView implements DataView
     
     public void printData(java.io.PrintWriter out) 
     {
+        System.out.println("seq_ids="+seq_ids);
         List data=getData(seq_ids, sortCol, limit, dbNums);
         List records=parseData(data);
         printCounts(out,records);
@@ -55,10 +56,16 @@ public class SeqDataView implements DataView
     private void printCounts(PrintWriter out,List records)
     { //print number of keys and models
         int modelCount=0;        
-        
+        Collection temp=new HashSet();
+        SeqRecord sr=null;
         for(Iterator i=records.iterator();i.hasNext();)
-            modelCount+=((SeqRecord)i.next()).getModelCount();
-        
+        {
+            sr=(SeqRecord)i.next();
+            modelCount+=sr.getModelCount();  
+            temp.addAll(sr.getClusters());
+        }
+
+        out.println("Unique clusters found: "+temp.size()+"<BR>");
         out.println("Keys found: "+records.size()+",&nbsp&nbsp Models found: "+modelCount+"<BR>");
     }
     private List parseData(List data)
@@ -124,6 +131,9 @@ public class SeqDataView implements DataView
                     " onClick=\"javascript: action='http://bioinfo.ucr.edu/cgi-bin/chrplot.pl'; submit();\"></TD>");
         out.println("<TD><INPUT type='submit' value='Go Slim Counts' "+
                     " onClick=\"javascript: action='http://bioinfo.ucr.edu/cgi-bin/goSlimCounts'; submit();\"></TD>");
+        out.println("<TD><INPUT type='submit' value='Key List' "+
+                " onClick=\"javascript: action='http://bioinfo.ucr.edu/cgi-bin/displayKeys.pl'; submit();\"></TD>");
+
         out.println("</TR></TABLE>");
 
         out.println("<INPUT type=hidden name='database' value='all'/>");
@@ -343,7 +353,7 @@ public class SeqDataView implements DataView
                      out.println(cs.clusterNum);
                  out.println("\t\t</TD>");
                  out.println("\t\t<TD>"+cs.size+"</TD>");
-                 out.println("\t\t<TD><a href='/databaseWeb/index.jsp?fieldName=Cluster Id&limit=0q&input="+cs.clusterNum+"'>Retrieve</a></TD>");
+                 out.println("\t\t<TD><a href='/databaseWeb/index.jsp?fieldName=Cluster Id&limit=0&input="+cs.clusterNum+"'>Retrieve</a></TD>");
                  if(!cs.size.equals("1"))
                  {
                      String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";

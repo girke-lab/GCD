@@ -239,6 +239,11 @@ function MM_nbGroup(event, grpName) { //v6.0
                        <INPUT TYPE=submit value='Submit Query' ><!-- onClick="send();"> -->
                                
                     </TD>
+                </TR>   
+                <TR>
+                    <TD colspan='2' align='center'>
+                        <A href='advancedSearch.jsp'>Advanced Search Page</A>
+                   </TD>
                 </TR>
             </TABLE> 
             <P>            

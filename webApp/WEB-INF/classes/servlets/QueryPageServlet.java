@@ -111,6 +111,9 @@ public class QueryPageServlet extends HttpServlet
         //search all databases simultaniously
         s=getSearchObj(searchType);
         s.init(inputKeys,limit, dbNums); 
+        
+        
+        
         returnedKeys=s.getResults();
         qi.addKeySet(returnedKeys); //store this key set in the session variable    
         
@@ -121,6 +124,8 @@ public class QueryPageServlet extends HttpServlet
         printMismatches(out, s.notFound());
         out.println("Keys entered: "+inputKeys.size()+"<br>");
         dv.printData(out);
+        
+        
         
         out.println("</body>");
         out.println("</html>");

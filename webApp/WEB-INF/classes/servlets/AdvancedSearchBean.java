@@ -73,6 +73,8 @@ public class AdvancedSearchBean {
             sortField=Integer.parseInt(sortTemp);
         if(limit==null)
             limit="50";
+        else if(limit.equals("0"))
+            limit="1000";
         
         processCommands(request);
     }
@@ -194,11 +196,9 @@ public class AdvancedSearchBean {
             query.append("SELECT DISTINCT cluster_info.cluster_id ");
         else
             query.append("SELECT DISTINCT sequences.seq_id ");
-        query.append("FROM sequences , cluster_info, clusters , go ");
-        query.append("WHERE sequences.seq_id=clusters.seq_id " +
-                     "AND clusters.cluster_id=cluster_info.cluster_id "+
-                     "AND sequences.seq_id=go.seq_id ");
-        query.append("AND (");
+        query.append("FROM  sequences LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequences.seq_id=go.seq_id) ");
+        query.append("WHERE ");
+        query.append(" (");
         
         int sp=0,ep=0;
         int fid,oid;

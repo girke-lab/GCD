@@ -100,7 +100,7 @@ public class ClusterDataView implements DataView
             out.println("<TD>"+row.get(SIZE_COL)+"</TD>" +
                         "<TD>"+row.get(ARAB_SIZE_COL)+"</TD>" +
                         "<TD>"+row.get(RICE_SIZE_COL)+"</TD>");
-            out.println("<TD><a href='/databaseWeb/index.jsp?fieldName=Cluster Id&input="+row.get(CLUSTER_ID_COL)+"'>Retrieve</a></TD>");
+            out.println("<TD><a href='/databaseWeb/index.jsp?fieldName=Cluster Id&limit=0&input="+row.get(CLUSTER_ID_COL)+"'>Retrieve</a></TD>");
             if(Integer.parseInt((String)row.get(SIZE_COL)) > 1)
             {
                 String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
