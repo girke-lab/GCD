@@ -1,0 +1,90 @@
+/*
+ * UnknownClusterIdSearch.java
+ *
+ * Created on November 23, 2004, 8:21 AM
+ */
+
+package servlets.search;
+
+/**
+ *
+ * @author  khoran
+ */
+
+import java.util.*;
+import servlets.*;
+import org.apache.log4j.Logger;
+
+/**
+ * Takes a unknowns db cluster_id and returns a list of common db seq_ids which
+ * correspond to the keys that are in the given cluster, according to the unknowns
+ * database.
+ */
+public class UnknownClusterIdSearch implements Search
+{
+    
+    Search seqIdSearch;
+    
+    private static Logger log=Logger.getLogger(UnknownClusterIdSearch.class);
+    private static DbConnection dbc=null;
+    
+    /** Creates a new instance of UnknownClusterIdSearch */
+    public UnknownClusterIdSearch()
+    {
+        if(dbc==null)        
+            dbc=DbConnectionManager.getConnection("khoran");        
+        seqIdSearch=new IdSearch();
+    }    
+
+   
+    public void init(java.util.List data, int limit, int[] dbID)
+    {
+        if(data==null || data.size() < 1 || !(data.get(0) instanceof String))
+        {
+            log.warn("invalid input data");
+            seqIdSearch.init(new ArrayList(),limit,dbID);
+            return;
+        }
+        int cluster_id=Integer.parseInt((String)data.get(0));        
+        seqIdSearch.init(getKeys(cluster_id),limit, dbID);
+    }
+    private List getKeys(int cluster_id)
+    {
+        String query="SELECT key " +
+        "   FROM unknowns.unknown_keys as uk, unknowns.clusters as c " +
+        "   WHERE uk.key_id=c.key_id AND c.cluster_id="+cluster_id;
+        List results=null;
+        try{
+            results=dbc.sendQuery(query);
+        }catch(java.sql.SQLException e){
+            log.error("query failed: "+e.getMessage());
+            results=new ArrayList();
+        }
+        List seqIds=new LinkedList();
+        seqIds.add("exact"); //makes IdSearch go faster
+        for(Iterator i=results.iterator();i.hasNext();)
+            seqIds.add(((List)i.next()).get(0));        
+        return seqIds;
+    }
+    
+    public java.util.List getResults()
+    {
+        return seqIdSearch.getResults();
+    }
+    public java.util.List notFound()
+    {
+        return seqIdSearch.notFound();
+    }
+    public int getDbCount()
+    {
+        return seqIdSearch.getDbCount();
+    }
+    public int getDbStartPos(int i)
+    {
+        return seqIdSearch.getDbStartPos(i);
+    }
+    public java.util.List getStats()
+    {
+        return seqIdSearch.getStats();
+    }
+}

@@ -15,6 +15,9 @@ import java.util.*;
 import servlets.*;
 import org.apache.log4j.Logger;
 
+/**
+ * This bean is used by the statusQueries jsp page.
+ */
 public class StatusQueriesBean
 {
     private static Logger log=Logger.getLogger(StatusQueriesBean.class);
@@ -27,6 +30,11 @@ public class StatusQueriesBean
             log.error("could not get db connection");
     }
     
+    /**
+     * Prints a list of queries and thier descriptions.  Displays all queries in the
+     * updates.queries table.
+     * @return html
+     */
     public String printQueries()
     {
         String query="SELECT queries_id,name,description FROM updates.queries " +
@@ -52,6 +60,10 @@ public class StatusQueriesBean
         }
         return out.toString();
     }
+    /**
+     * Print a list of comparison results.  Gets info from updates.comparisons table.
+     * @return html
+     */
     public String printComparisons()
     {
         String query="SELECT * FROM updates.comparison_summary_view";

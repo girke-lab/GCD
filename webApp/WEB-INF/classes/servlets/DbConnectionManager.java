@@ -14,9 +14,20 @@ package servlets;
 import java.util.*;
 import org.apache.log4j.Logger;
 
+/**
+ * This is a static class that maintains a synchronized collection of DbConnection
+ * objects.  Each DbConnection should be to a different database.  Also 
+ * creates some default connections.
+ */
 public class DbConnectionManager
 {
+    /**
+     * A Map of connection names to DbConnection objects.
+     */
     private static Map connections=null; //this is a shared object.
+    /**
+     * logger
+     */
     private static Logger log=Logger.getLogger(DbConnectionManager.class);
     
     /** Creates a new instance of DbConnectionManager */
@@ -24,6 +35,12 @@ public class DbConnectionManager
     {
     }
     
+    /**
+     * Add a {@link DbConnection} to the collection with the given name.
+     * Then name is usally the database name, but does not have to be.
+     * @param name name of connection
+     * @param dbc connection
+     */
     public static void setConnection(String name,DbConnection dbc)
     {
         if(connections==null)
@@ -33,6 +50,11 @@ public class DbConnectionManager
             connections.put(name,dbc);        
         }
     }
+    /**
+     * get the given connection.
+     * @param name connection name
+     * @return a reference to a DbConnection
+     */
     public static DbConnection getConnection(String name)
     {
         if(connections==null)
@@ -40,6 +62,10 @@ public class DbConnectionManager
         return (DbConnection)connections.get(name);        
     }
     
+    /**
+     * This method initializes <CODE>connections</CODE> and creates DbConnection 
+     * objects for databases: common, unknowns, and khoran
+     */
     private static synchronized void initMap()
     {
         connections=new HashMap();

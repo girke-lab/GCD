@@ -15,9 +15,14 @@ import java.io.*;
 import java.util.*;
 import org.apache.log4j.Logger;
 
+/**
+ * Implements the RecordVisitor interface to provide a text table based view of 
+ * Records. Each type of record gets one column, and can use backslashes to
+ * seperate fields.
+ */
 public class TextRecordVisitor implements RecordVisitor
 {
-    public static Logger log=Logger.getLogger(TextRecordVisitor.class);
+    private static Logger log=Logger.getLogger(TextRecordVisitor.class);
     
     /** Creates a new instance of TextRecordVisitor */
     public TextRecordVisitor()

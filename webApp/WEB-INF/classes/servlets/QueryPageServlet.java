@@ -23,11 +23,7 @@ import servlets.dataViews.unknownViews.Unknowns2DataView;
 
 public class QueryPageServlet extends HttpServlet 
 {    
-    final int feildCount=17;//values used to initialize arrays
-    final int dbCount=2;
-    final int arab=0,rice=1; //database names
-    
-    long ID=0;//id number used to identify query
+
     private static Logger log; 
     
     public void init(ServletConfig config) throws ServletException
@@ -54,10 +50,7 @@ public class QueryPageServlet extends HttpServlet
         PrintWriter out = response.getWriter();
         
         
-        int hid,pos;
-        String format=request.getParameter("format");
-        boolean allFasta=(format!=null && format.equals("2"));
-        
+        int hid,pos,rpp;
         if(session.getAttribute("hid")==null)
         {//session was just created.
             session.setAttribute("hid",new Integer(0));
@@ -68,13 +61,11 @@ public class QueryPageServlet extends HttpServlet
         out.println("<head>");
         out.println("<title>Query Result Page</title>");
         out.println("</head>");      
-//        Common.printHeader(out);
         /////////////////////////// main   ////////////////////////////////////////////////////
-        List returnedKeys,stats;
+        
         Search s=null;
         DataView dv=null;
-        QueryInfo qi=null;
-        int rpp; //results per page
+        QueryInfo qi=null;        
          
         //parameters that need to be evaluated for each page should be grabbed
         //here, all others should be grabbed in the getInput() method and stored in
@@ -171,6 +162,8 @@ public class QueryPageServlet extends HttpServlet
             return new QuerySearch();
         else if(type.equals("query_comp"))
             return new QueryCompSearch();
+        else if(type.equals("unknownClusterId"))
+            return new UnknownClusterIdSearch(); 
         else
             return new IdSearch();   //default to id search
     }   

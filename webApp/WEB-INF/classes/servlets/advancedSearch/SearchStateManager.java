@@ -17,6 +17,9 @@ import java.io.*;
 import java.net.*;
 import org.apache.log4j.Logger;
 
+/**
+ * Used to manage SearchState objects.
+ */
 public class SearchStateManager
 {
     //vectors are synchronized
@@ -26,7 +29,10 @@ public class SearchStateManager
     String path="storedQueries/";      
     
     
-    /** Creates a new instance of SearchStateManager */
+    /**
+     * Creates a new instance of SearchStateManager
+     * @param filename Name of file to store searchStates in.
+     */
     public SearchStateManager(String filename) 
     {
         this.filename=filename;        
@@ -69,25 +75,47 @@ public class SearchStateManager
             log.error("could not open/write "+filename+": "+e.getMessage());
         }
     }
+    /**
+     * Adds a new SearchState to storage, and writes it to disk.
+     * @param ss SearchState to add.
+     */
     public void addSearchState(SearchState ss)
     {     
         searchStates.add(ss);        
         writeSearchStates();
     }
+    /**
+     * Removes the searchState at index i, and writes changes to disk.
+     * @param i index of searchState to remove.
+     */
     public void removeSearchState(int i)
     {
         if(i >= 0 && i < searchStates.size())
             searchStates.remove(i);
         writeSearchStates();
     }
+    /**
+     * Returns a list of all searchStates
+     * @return list of searchStates
+     */
     public Collection getSearchStateList()
     {
         return searchStates;
     }
+    /**
+     * Returns searchState at index i.
+     * @param i index of searchState
+     * @return searchState at index i.
+     */
     public SearchState getSearchState(int i)
     {
         return (SearchState)searchStates.get(i);
     }
+    /**
+     * Used to update the searchState at index i, changes are also written to disk.
+     * @param i index
+     * @param ss new searchState.
+     */
     public void setSearchState(int i, SearchState ss)
     {
         if(i >= 0 && i < searchStates.size())

@@ -34,6 +34,7 @@ public class ResultPage
      * @param pos current position in id list
      * @param hid history id
      * @param rpp records per page
+     * @param stor A Map used for persistant storage
      */
     public ResultPage(DataView dv,Search s,int pos, int hid, int rpp,Map stor)    
     {

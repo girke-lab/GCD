@@ -15,6 +15,11 @@ import java.io.*;
 import java.util.*;
 import servlets.Common;
 
+/**
+ * This class implements RecordVisitor so that it can print Records in 
+ * html format.  Each record gets its own table, which can be nested inside
+ * each other.
+ */
 public class HtmlRecordVisitor implements RecordVisitor
 {
     
@@ -117,7 +122,9 @@ public class HtmlRecordVisitor implements RecordVisitor
     }    
     public void printRecord(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
-        out.write(cr.size+"("+cr.cutoff+") &nbsp&nbsp&nbsp ");
+        String page="QueryPageServlet?searchType=unknownClusterId&" +
+                    "displayType=seqView&inputKey="+cr.cluster_id;
+        out.write("<a href='"+page+"'>"+cr.size+"("+cr.cutoff+")</a> &nbsp&nbsp&nbsp ");
         if(cr.showClusterCentricView)
         { //print the list of keys that are in this cluster
             int colNum=3;

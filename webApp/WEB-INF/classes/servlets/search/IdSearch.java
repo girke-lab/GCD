@@ -11,6 +11,13 @@ package servlets.search;
 import java.util.*;
 import servlets.Common;
 
+/**
+ * Takes a list of accession numbers. The default action is to use pattern
+ * matching, so comparisons are case insensitive, and wildcards % and _ can
+ * be used.  Since this is slow for large numbers of accessions, one can
+ * specify they keyword 'exact' as the very first accession number.  This
+ * will cause it to only find exact matches, and is case sensitive.
+ */
 public class IdSearch extends AbstractSearch
 {
     
@@ -24,21 +31,36 @@ public class IdSearch extends AbstractSearch
         StringBuffer conditions=new StringBuffer();
         List rs=null;
         int count=0;
-
+        boolean exactMatch=false;
+        String key;
+        
         log.debug("input="+input);
-//        conditions.append("a.accession in (");
         conditions.append("(");
         while(in.hasNext() && count++ < limit)
         {
-//            conditions.append("'"+in.next()+"'");
-//            if(in.hasNext() && count < limit)
-//                conditions.append(",");
-             conditions.append("a.accession "+Common.ILIKE+" '"+in.next()+"'");
-            if(in.hasNext() && count < limit)
-                conditions.append(" OR ");
+            key=(String)in.next();
+            if(key.equals("exact"))
+            {
+                exactMatch=true;
+                conditions.insert(0,"a.accession in ");
+                continue;
+            }
+            if(exactMatch)
+            { //exact search is a little faster
+                exactMatch=true;
+                conditions.append("'"+key+"'");
+                if(in.hasNext() && count < limit)
+                    conditions.append(",");
+            }
+            else
+            {
+                conditions.append("a.accession "+Common.ILIKE+" '"+key+"'");
+                if(in.hasNext() && count < limit)
+                    conditions.append(" OR ");
+            }
         }
         conditions.append(")");
-        
+            
         log.debug("conditions="+conditions);
 
 
@@ -118,7 +140,7 @@ public class IdSearch extends AbstractSearch
         for(Iterator i=input.iterator();i.hasNext();)
         {
             el=(String)i.next();
-            if(!el.matches(".*%.*")) //don't add wildcard entries
+            if(!el.matches(".*%.*") && !el.equals("exact")) //don't add wildcard entries or keywords
                 temp.add(el.toLowerCase());
         }        
         temp.removeAll(keysFound);

@@ -14,6 +14,10 @@ package servlets.advancedSearch;
 import java.util.*;
 import servlets.Common;
 
+/**
+ * Stores all information needed to store a query. Can also be serialized for
+ * persistant storage (See {@link SearchStateManager }).
+ */
 public class SearchState implements java.io.Serializable
 {
     

@@ -18,9 +18,14 @@ import javax.servlet.jsp.JspWriter;
 import servlets.*;
 
 /**
- *
- * @author  khoran 
- * @version
+ * This bean is used by a jsp page to create a search page that can be 
+ * used to create a wide variety of queries. This bean stores no state,
+ * but rather all data is stored in form variables on the jsp page.  
+ * 
+ * A SearchablDatabase is used to display values for field names, operations,
+ * connections (and, or) and sortable fields.  It also allows one to store
+ * and retrieve queries.
+ * @author khoran
  */
 public class AdvancedSearchBean {  
     
@@ -30,7 +35,13 @@ public class AdvancedSearchBean {
     ServletRequest request=null;
     ServletResponse response=null;
     
+    /**
+     * current searchState.
+     */
     public SearchState currentState=null;
+    /**
+     * current SearchablDatabase
+     */
     public SearchableDatabase db=null;
     
     private int selectedSearchState;
@@ -38,14 +49,26 @@ public class AdvancedSearchBean {
     private String defaultDb="common";
     private static Logger log=Logger.getLogger(AdvancedSearchBean.class);
     
+    /**
+     * bean constructor
+     */
     public AdvancedSearchBean()
     {                
         //log.debug("createing new bean");        
     }
+    /**
+     * set the database this bean will use if the user does not specify one.
+     * Current valid names are: common, unknowns,unknowns2.
+     * @param db name of database to use.
+     */
     public void setDefaultDatabase(String db)
     {
         defaultDb=db;
     }
+    /**
+     * set the database to use
+     * @param name name of a database
+     */
     public void setDatabase(String name)
     {        //this is not storing state properly!!
         currentState=new SearchState();
@@ -65,6 +88,10 @@ public class AdvancedSearchBean {
             setDatabase(defaultDb);
     }
    
+    /**
+     * read in data from jsp page
+     * @param request servlet request object, used to get parameters
+     */
     public void loadValues(HttpServletRequest request)
     {
         
@@ -94,21 +121,48 @@ public class AdvancedSearchBean {
         
         processCommands(request);
     }
+    /**
+     * returns the word 'selected' if the i'th element of values is equal to j.
+     * @param values list of Integers
+     * @param i index
+     * @param j value to compare to
+     * @return either 'selected' or ''
+     */
     public String selected(List values,int i, int j)
     {
         return values != null && i >= 0 && i<values.size() && ((Integer)values.get(i)).intValue()==j ? 
             "selected" : "";
     }
+    /**
+     * get the value of the i'th field of the currentState
+     * @param i index
+     * @return String
+     */
     public String getValue(int i)
     {        
         return currentState.getValue(i);
     }
+    /**
+     * get i'th value of given list if index is in range, return null otherwise.
+     * @param l list
+     * @param i index
+     * @return i'th element of list if i in range, else, null.
+     */
     public Object get(List l,int i)
     {
         if(l!=null && i>=0 && i<l.size())
             return l.get(i);
         return null;
     }
+    /**
+     * print open or close parainthesis
+     * @param out 
+     * @param j 
+     * @param sp 
+     * @param position 
+     * @param space 
+     * @return 
+     */
     public int printParinth(JspWriter out,int j, int sp,String position,int space) 
     {
         boolean start=position.equals("start");
@@ -128,10 +182,21 @@ public class AdvancedSearchBean {
         }
         return sp;
     }
+    /**
+     * returns true if a sub expression is currently open, false otherwise
+     * @param sp 
+     * @param ep 
+     * @return 
+     */
     public boolean printEndSubButton(int sp,int ep)
     {
         return currentState.getStartParinths().size() > currentState.getEndParinths().size();
     }
+    /**
+     * Used to indent sub expression level levels.
+     * @param level number of levels to indent
+     * @return a string of non-breaking spaces (nbsp)
+     */
     public String printSpace(int level)
     {//used for indenting sub expressions
         String space="";
@@ -139,6 +204,10 @@ public class AdvancedSearchBean {
             space+="&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
         return space;        
     }
+    /**
+     * returns the number of conditions to print out.
+     * @return number of conditions to print
+     */
     public int getLoopCount()
     {        
         if(noNewRow){
@@ -147,12 +216,23 @@ public class AdvancedSearchBean {
         }
         return currentState.getSelectedFields().size()+1;
     }
+    /**
+     * Used to store the jsp pages context, request, and response objects.
+     * @param sc 
+     * @param rq 
+     * @param rs 
+     */
     public void setContext(ServletContext sc,HttpServletRequest rq,HttpServletResponse rs)
     {
         servletContext=sc;
         request=rq;
         response=rs;
     }
+    /**
+     * Used to print the query retrieval options. Also prints the admin
+     * controls if admin priviledges present.
+     * @return html
+     */
     public String printStoreOptions()
     {        
         StringBuffer out=new StringBuffer();
@@ -174,6 +254,10 @@ public class AdvancedSearchBean {
          out.append("</table>");
         return out.toString();
     }
+    /**
+     * Used by printStoreOptions() to print list of stored queries.
+     * @return html
+     */
     public String printStoredQueries()
     {
         StringBuffer out=new StringBuffer();
@@ -191,6 +275,10 @@ public class AdvancedSearchBean {
         out.append("<INPUT type=submit name='load_query' value='Load Query'>\n");
         return out.toString();
     }
+    /**
+     * prints a button to save queries.
+     * @return html
+     */
     public String printSaveOptions()
     {
         StringBuffer out=new StringBuffer();
@@ -199,14 +287,27 @@ public class AdvancedSearchBean {
         out.append("<INPUT type=submit name='store_query' value='Store Query'");
         return out.toString();
     }
+    /**
+     * Enables or disables the admin controls.
+     * @param b true to ebable admin, false to disable admin
+     */
     public void adminEnabled(boolean b)
     {
         printAdminControls=b;
     }
+    /**
+     * returns 'selected' if db is the current database.
+     * @param db test database name
+     * @return 'selected' if current db is db, '' otherwise
+     */
     public String selectedDb(String db)
     {
         return "value='"+db+"' "+(db.equals(currentState.getDatabase())? "selected" : "") ;        
     }
+    /**
+     * prints a table of queries in the updates.queries table.  No longer used.
+     * @return html
+     */
     public String printStatusQueries()
     {        
         StringBuffer out=new StringBuffer();

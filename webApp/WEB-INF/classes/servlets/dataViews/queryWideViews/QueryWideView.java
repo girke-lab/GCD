@@ -54,6 +54,22 @@ public interface QueryWideView
     public boolean printAllData();
     
     
+    /**
+     * This is a general purpose method used by {@link ResultPage} to print 
+     * various pieces of data at differnt positions on the page.  The position
+     * string can be queried by the method to see if it should print any thing.
+     * @param out used for output
+     * @param search search object to get data from
+     * @param position location in page that data will be printed. (actual values have not been defined
+     * yet).
+     */
     public void printGeneral(PrintWriter out, Search search, String position);
+    /**
+     * Similar to other printGeneral, but also provides a persistent storage area.
+     * @param out for output
+     * @param search search object to get info from
+     * @param position position on page this will be printed at
+     * @param storage persistant storage area.
+     */
     public void printGeneral(PrintWriter out, Search search, String position,Map storage);
 }

@@ -25,6 +25,9 @@ import org.apache.commons.dbcp.PoolableConnectionFactory;
 import org.apache.commons.dbcp.DriverManagerConnectionFactory;
 
 
+/**
+ * This class maintains a connection pool to a single database.
+ */
 public class DbConnection 
 {
     DataSource dataSource=null;
@@ -33,22 +36,53 @@ public class DbConnection
     static Logger log=Logger.getLogger(DbConnection.class);    
         
     
-    /** Creates a new instance of DbConnection */
+    /**
+     * creates a connection to 138.23.191.152 as 'servlet'. Exists just for
+     * convienece.
+     * @throws java.lang.Exception Thrown if connection fails.
+     */
     public DbConnection() throws Exception
     {        
         connect("jdbc:postgresql://138.23.191.152/common","servlet","512256");
         hostname="localhost";        
     }
+    /**
+     * creates a connection to url, with given user name and password.
+     * @throws java.lang.Exception thrown if connection fails.
+     * @param url db url (e.g. jdbc:postgresql:5432//hostname/database_name)
+     * @param uName user name
+     * @param pwd user password
+     */
     public DbConnection(String url,String uName,String pwd) throws Exception 
     {
         connect(url,uName,pwd);  
         hostname=url; //should fix this later.
     }
+    /**
+     * creates a connetion to <CODE>db</CODE> on <CODE>host</CODE> with given user 
+     * name and password.
+     * @throws java.lang.Exception thown connection fails
+     * @param host name of host db is on
+     * @param db database name
+     * @param uName user name
+     * @param pwd user password
+     */
     public DbConnection(String host,String db,String uName,String pwd) throws Exception
     {
         connect("jdbc:postgresql://"+host+"/"+db,uName,pwd);  
         hostname=host;
     }
+        /**
+     * Takes a list of <CODE>hosts</CODE> and a <CODE>db</CODE> and tries to connect to one of them. 
+     * If the first host throws an exception, it is caught and the next host is tried
+     * untill one of them connects successfully.  If they all fail an uncaught exception
+     * is thrown.
+     * @throws java.lang.Exception thown if all connection attempst fail
+     * @param hosts list of host names to try
+     * @param db database name
+     * @param uName user name
+     * @param pwd user password
+     */
     public DbConnection(String[] hosts,String db,String uName,String pwd) throws Exception
     {
         if(dataSource!=null)
@@ -69,6 +103,15 @@ public class DbConnection
         }    
     }
    
+    /**
+     * Does the acutal connection and creates a connetion pool.  This does
+     * nothing is a connection already exists, to make a new connection, first
+     * call the <CODE>close()</CODE>  method.
+     * @param connectURI url to connect to
+     * @param name usr name
+     * @param password user password
+     * @throws java.lang.Exception thrown if connection fails
+     */
     public void connect(String connectURI,String name,String password)  throws Exception 
     {        
         log.setLevel(org.apache.log4j.Level.WARN);
@@ -82,6 +125,9 @@ public class DbConnection
         PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(connectionFactory,connectionPool,null,null,false,true);
         dataSource = new PoolingDataSource(connectionPool);        
     }
+    /**
+     * closes all connections.
+     */
     public void close()
     {
         try{
@@ -91,18 +137,39 @@ public class DbConnection
         dataSource=null;
         connectionPool=null;
     }
+    /**
+     * Returns the host currently connected to. This usefull when list of hosts was 
+     * used to make a connection.
+     * @return name of host currently connected to
+     */
     public String getHostName()
     {
         return hostname;
     }
+    /**
+     * closes connection.
+     */
     public void finish()
     {
         close();
     }
+    /**
+     * returns the number of active and idle connections in pool.
+     * @return stats about connection pool
+     */
     public String getStats()
     {
         return "active: "+connectionPool.getNumActive()+", idle: "+connectionPool.getNumIdle();
     }
+    /**
+     * Used to send a sql query.  The results are copied into an ArrayList, 
+     * and all fields are stored as Strings.  A ResultSet cannot be obtained
+     * because the associated connection whould remain open as long as the ResultSet,
+     * and this would eventually drain the connection pool.
+     * @param q sql query to send
+     * @throws java.sql.SQLException thrown if query fails
+     * @return a List of Lists of Strings
+     */
     public List sendQuery(String q) throws SQLException 
     {
         long startTime=0;
@@ -141,6 +208,13 @@ public class DbConnection
         return l;
     }
       
+    /**
+     * Creates and sends a prepared query, using the given array for the values.
+     * @param sql sql query
+     * @param values array of values to be placed in query
+     * @throws java.sql.SQLException thrown if query fails
+     * @return returns a List of Lists of Strings
+     */
     public List sendPreparedQuery(String sql, String[] values) throws SQLException
     {
         //log.info("sending query "+sql);
@@ -154,6 +228,13 @@ public class DbConnection
         conn.close();
         return l;        
     }        
+    /**
+     * copies data from a ResultSet into a List of Lists of Strings. Will attempt
+     * to convert string data into UTF-8.
+     * @param rs an open ResultSet
+     * @throws java.sql.SQLException thrown if any ResultSet operations fail
+     * @return returns a List of Lists of Strings
+     */
     private List reformat(ResultSet rs) throws SQLException
     {        
         if(rs==null)

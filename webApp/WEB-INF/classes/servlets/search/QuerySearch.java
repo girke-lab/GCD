@@ -15,6 +15,10 @@ import java.util.*;
 import servlets.*;
 import org.apache.log4j.Logger;
 
+/**
+ * Takes a queries_id number, looks up the corresponding query in the updats
+ * schema, executes the query, and returns the resulting set of key_ids.
+ */
 public class QuerySearch implements Search
 {
     private static long serialVersionUID=12;

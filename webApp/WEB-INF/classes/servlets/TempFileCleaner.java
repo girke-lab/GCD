@@ -15,6 +15,10 @@ import java.util.*;
 import java.io.*;
 import org.apache.log4j.Logger;
 
+/**
+ * This class manages a separate thread used to delete old temp files.  It is 
+ * no longer used.
+ */
 public class TempFileCleaner extends Thread
 {
     private static TempFileCleaner singleCleaner=null;   
@@ -24,13 +28,23 @@ public class TempFileCleaner extends Thread
 //    public int timeToExpire=30000;   //3600000;
 //    public int timeToSleep=10000;    //600000;
 
+    /**
+     * temp files must be this old before they can be deleted.
+     */
     public int timeToExpire=3600000;
+    /**
+     * time thread should wait before checking temp files.
+     */
     public int timeToSleep=4000000;
     
     private boolean stop=false;
     private File dirToClean;
     private FileFilter filter;
     
+    /**
+     * get an instance of this singleton class.
+     * @return a TempFileCleaner
+     */
     public static TempFileCleaner getInstance()
     {
         if(singleCleaner==null)
@@ -45,19 +59,33 @@ public class TempFileCleaner extends Thread
     }
     
 
+    /**
+     * sets name of directory to check for temp files in.
+     * @param dirName full path to a local directory
+     */
     public void setDirectory(String dirName)
     {
         dirToClean=new File(dirName);
     }
+    /**
+     * use a File to set temp file directory
+     * @param f File correspoding to temp directory
+     */
     public void setDirectory(File f)
     {
         dirToClean=f;
     }
+    /**
+     * supposedly stops the cleaner thread.
+     */
     public void stopCleaner()
     {
         stop=true;
     }
     
+    /**
+     * starts cleaner thread.
+     */
     public void run()
     { //only this method will execute in seperate thread.
         log.debug("cleaner starts");

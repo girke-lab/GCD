@@ -1,3 +1,15 @@
+/**
+ * field name dipslyed to user
+ */
+/**
+ * databases field name
+ */
+/**
+ * databases field name
+ */
+/**
+ * Field  name displayed to user.
+ */
 /*
  * Field.java
  *
@@ -13,11 +25,21 @@ package servlets.advancedSearch;
 
 import java.util.*;
 
+ /**
+  * This class is used to store information about a searchable field and
+  * and can also render the search field in html.
+  */
  public class Field
  {
         public String displayName,dbName;
+        /**
+         * The type of this field
+         */
         public Class type;
         private Object[] list;
+        /**
+         * 
+         */
         public Field(String name, String dbn)
         {
             displayName=name;
@@ -25,6 +47,9 @@ import java.util.*;
             type=String.class;
             list=null;
         }
+        /**
+         * 
+         */
         public Field(String name, String dbn,Class t)
         {
             displayName=name;
@@ -47,6 +72,11 @@ import java.util.*;
             list=l;
         }
         
+        /**
+         * Returns html view of this field with the current value.
+         * @param currentValue value of field, as entered by user
+         * @return html required to draw this field
+         */
         public String render(String currentValue)
         {//draws corect input statement for this type
             if(list!=null && list.length != 0)

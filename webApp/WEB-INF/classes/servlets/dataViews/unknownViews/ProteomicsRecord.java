@@ -16,6 +16,9 @@ import org.apache.log4j.Logger;
 import servlets.Common;
 import servlets.DbConnection;
 
+/**
+ * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
+ */
 public class ProteomicsRecord implements Record
 {
     float mol_weight,ip,charge,prob;

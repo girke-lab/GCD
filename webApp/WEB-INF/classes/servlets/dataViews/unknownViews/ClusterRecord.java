@@ -16,25 +16,29 @@ import org.apache.log4j.Logger;
 import servlets.Common;
 import servlets.DbConnection;
 
+/**
+ * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
+ */
 public class ClusterRecord implements Record
 {
-    int size, cutoff;
+    int size, cutoff,cluster_id;
     String name;
     List keys=null;
     boolean showClusterCentricView;
     private static Logger log=Logger.getLogger(ClusterRecord.class);
     
     /** Creates a new instance of ClusterRecord */
-    public ClusterRecord(String name,int size, int cutoff)
+    public ClusterRecord(String name,int size, int cutoff,int cluster_id)
     {//used for key centric view
         this.name=name;
         this.size=size;
         this.cutoff=cutoff;
+        this.cluster_id=cluster_id;
         showClusterCentricView=false;
     }
     public ClusterRecord(List values)
     {//used for key centric view
-        if(values==null || values.size()!=3)
+        if(values==null || values.size()!=4)
         {
             log.error("invalid list in ClusterRecord constructor");
             if(values!=null)
@@ -44,14 +48,16 @@ public class ClusterRecord implements Record
         name=(String)values.get(0);
         size=Integer.parseInt((String)values.get(1));
         cutoff=Integer.parseInt((String)values.get(2));
+        cluster_id=Integer.parseInt((String)values.get(3));
         showClusterCentricView=false;
     }
-    public ClusterRecord(String name,int size,int cutoff,List keys)
+    public ClusterRecord(String name,int size,int cutoff,int cluster_id,List keys)
     {//used for cluster centric view
         this.name=name;
         this.size=size;
         this.cutoff=cutoff;
         this.keys=keys;
+        this.cluster_id=cluster_id;
         showClusterCentricView=true;
     }
     
@@ -118,7 +124,7 @@ public class ClusterRecord implements Record
                 l=new LinkedList();
                 output.put(row.get(0),l);
             }            
-            l.add(new ClusterRecord(row.subList(1,4)));            
+            l.add(new ClusterRecord(row.subList(1,5)));            
         }
         return output;
     }

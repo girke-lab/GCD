@@ -14,6 +14,12 @@ import java.util.*;
 import servlets.*;
 import org.apache.log4j.Logger;
 
+/**
+ * Expects a string consisting of a comparision id, from the updates.comparisons
+ * table, a space, and then a boolean value.  True if we want keys added, false
+ * if we want keys removed. Returns a list of key_ids corresponding the keys
+ * added or removed according to the given comparison.
+ */
 public class QueryCompSearch implements Search
 {
     String comp_id,added;

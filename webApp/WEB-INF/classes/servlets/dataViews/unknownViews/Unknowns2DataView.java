@@ -19,6 +19,9 @@ import servlets.dataViews.DataView;
 import servlets.search.Search;
 import org.apache.log4j.Logger;
 
+/**
+ * This is the main view for the new unknowns database
+ */
 public class Unknowns2DataView implements DataView
 {
     List seq_ids;
@@ -44,6 +47,11 @@ public class Unknowns2DataView implements DataView
         if(dbc==null)
             log.error("could not get db connection to khoran");
     }        
+    /**
+     * Constructor that also takes path to a temp director, for putting temp files
+     * in.
+     * @param tempPath path to temp directory.
+     */
     public Unknowns2DataView(String tempPath)
     {
         sortDir="asc"; //default sort direction
@@ -51,11 +59,12 @@ public class Unknowns2DataView implements DataView
         if(dbc==null)
             log.error("could not get db connection to khoran");
         tempDir=new File(tempPath);
-//        TempFileCleaner.getInstance().setDirectory(tempDir);
-//        if(!TempFileCleaner.getInstance().isAlive())
-//            TempFileCleaner.getInstance().start();
     }        
     
+    /**
+     * prints page.
+     * @param out used for printing
+     */
     public void printData(java.io.PrintWriter out)
     {                
         //printData(out,parseData(getData(seq_ids)));
@@ -63,17 +72,31 @@ public class Unknowns2DataView implements DataView
         out.println("</td></table>"); //close page level table
     }
     
+    /**
+     * prints page title
+     * @param out for output
+     */
     public void printHeader(java.io.PrintWriter out)
     {
         printUnknownHeader(out);
     }
     
+    /**
+     * prints number of records displayed on current page
+     * @param out for output
+     */
     public void printStats(java.io.PrintWriter out)
     {
         Common.printStatsTable(out, "On This Page", new String[]{"Records found"},
             new Object[]{new Integer(seq_ids.size())});
     }
     
+    /**
+     * sets information about how to get and display data
+     * @param sortCol name of column to sort results by
+     * @param dbList list of db ids to use. (not used for this view)
+     * @param hid current hid.
+     */
     public void setData(String sortCol, int[] dbList, int hid)
     {
         this.hid=hid;
@@ -81,16 +104,30 @@ public class Unknowns2DataView implements DataView
         this.dbNums=dbList;
     }
     
+    /**
+     * used to set the list of key_ids to display
+     * @param ids list of key_ids
+     */
     public void setIds(java.util.List ids)
     {
          this.seq_ids=ids;   
     }
     
+    /**
+     * used to change the sort direction of the current sort column.
+     * @param dir should be either "asc", or "desc", case insensitive.
+     */
     public void setSortDirection(String dir)
     {
         if(dir!=null && (dir.equals("asc") || dir.equals("desc")))
             sortDir=dir;   
     }
+    /**
+     * Returns a QueryWideView as defined by this DataView.
+     * Implements stats, no buttons, and a general that prints
+     * after stats, but before the data.
+     * @return a customized QueryWideView.
+     */
     public servlets.dataViews.queryWideViews.QueryWideView getQueryWideView()
     {
          return new DefaultQueryWideView(){
@@ -104,32 +141,9 @@ public class Unknowns2DataView implements DataView
             }
             public void printGeneral(PrintWriter out, Search search, String pos,Map storage)
             {
-//                File tempFile=(File)storage.get("unknowns2.tempfile");
-//                if(tempFile==null)
-//                { //create temp file for entire query.                                
-//                    log.debug("generating a new temp file");                                         
-//                    try{            
-//                        tempFile=File.createTempFile("results",".csv",tempDir);             
-//                    }catch(IOException e){
-//                         log.warn("could not create temp file: "+e.getMessage());
-//                    }
-//                    storage.put("unknowns2.tempfile", tempFile);
-//                    
-//                    Thread genTempFile=new GenTempFile(tempFile,search.getResults());                    
-//                    genTempFile.start(); //gen file in background                   
-//                }
-//                if(tempFile!=null) //make sure tempFile is still not null
-//                    out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>" +
-//                    "(this file may not contain any data for several minutes, while the data is retrieved)");
-//                else
-//                    log.warn("could not create csv file");
-             
-                
                 out.println(" &nbsp&nbsp&nbsp <a href='/databaseWeb/DispatchServlet?hid="+hid+
                             "&script=unknownsText&range=0-"+search.getResults().size()+
-                            "'>download in excel format</a> (This may take several minutes)");
-                
-                
+                            "'>download in excel format</a>");
             }
          };
     }
@@ -212,32 +226,6 @@ public class Unknowns2DataView implements DataView
         
         out.println("</TABLE>");
     }
-//    private void writeTempFile(File tempFile,Collection data)
-//    { //returns the temp file written to.
-//        
-//        if(tempFile==null)
-//            return;
-//        RecordVisitor visitor=new TextRecordVisitor();
-//        FileWriter fw;
-//        try{
-//            fw=new FileWriter(tempFile);
-//            //print title row
-//            Record rec;
-//            boolean isFirst=true;
-//            for(Iterator i=data.iterator();i.hasNext();)
-//            {
-//                rec=(Record)i.next();
-//                if(isFirst){
-//                    rec.printHeader(fw, visitor);
-//                    isFirst=false;
-//                }
-//                rec.printRecord(fw,visitor);
-//            }                        
-//            fw.close();
-//        }catch(IOException e){
-//            log.error("could not write to temp file "+tempFile.getPath()+": "+e.getMessage());
-//        }       
-//    }
     private List getData(List seq_ids)
     {
         StringBuffer conditions=new StringBuffer();
@@ -258,7 +246,7 @@ public class Unknowns2DataView implements DataView
     }
     private String buildQuery(String conditions)
     {
-        //THIS IS CURRENTLY BROKEN!
+        //THIS IS CURRENTLY BROKEN! (but not currently used)
         String[] tables=new String[]{"unknowns.unknown_keys","unknowns.blast_results",
                                      "unknowns.blast_databases","go.go_numbers","go.seq_gos",
                                      "unknowns.cluster_info_and_counts_view","unknowns.proteomics_stats",
@@ -342,20 +330,5 @@ public class Unknowns2DataView implements DataView
             this.s=s;
             this.e=e;
         }
-    }
-    
-//    class GenTempFile extends Thread
-//    {                        
-//        File temp;
-//        List ids;
-//        public GenTempFile(File t,List l)
-//        {
-//            super("Generation thread for "+t.getName());
-//            temp=t;
-//            ids=l;
-//        }
-//        public void run(){ //since this queries all data, it will be slow, so run it in the background
-//            writeTempFile(temp,parseData(getData(ids)));        
-//        }
-//    }
+    }    
 }

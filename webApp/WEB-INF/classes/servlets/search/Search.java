@@ -17,15 +17,15 @@ import java.util.List;
  * This should usually be used with a fairly large limit, so that
  * most of the time all possible results are returned.  This is not
  * too expensive since only id numbers are transferred.
- *
+ * 
  * Most classes wishing to implement this interface should extend
- * {@link AbstractSearch }, an implement the loadData() method.
+ * {@link AbstractSearch }, and implement the loadData() method.
  */
 public interface Search extends java.io.Serializable
 {
     
     /**
-     * Initialize the search object with the input data, as well as
+     * Initializes the search object with the input data, as well as
      * a list of databases (really genomes) that should be included in
      * the results.
      * @param data List of id, or keywords or anything else this
@@ -63,6 +63,10 @@ public interface Search extends java.io.Serializable
      */    
     int getDbStartPos(int i);
     
+    /**
+     * returns the number of genomes in this result set
+     * @return number of genomes.
+     */
     int getDbCount();
     /**
      * Should return a list with model count and cluster count.

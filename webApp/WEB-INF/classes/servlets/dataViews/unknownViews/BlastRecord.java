@@ -15,6 +15,9 @@ import servlets.Common;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
 
+/**
+ * Stores blast information from the unknowns database.
+ */
 public class BlastRecord implements Record
 {
     String target,targetDesc,score,ident,positives,gaps,dbname,link,method;
@@ -23,7 +26,9 @@ public class BlastRecord implements Record
     
     private static Logger log=Logger.getLogger(BlastRecord.class);
     
-    /** Creates a new instance of BlastRecord */
+    /**
+     * Creates a new instance of BlastRecord
+     */
     public BlastRecord(String t,String d,String s,String id,String pos,String gaps,String db,String l,String m,int len,double e)
     {
         target=t;
@@ -38,6 +43,14 @@ public class BlastRecord implements Record
         evalue=e;       
         method=m;
     }
+    /**
+     * Takes a list of values corresponding to the data values that can be stored.
+     * The values must be in the same order as they are given in the first
+     * constructor, which is the same order as their respective database feilds 
+     * appear in the db tables.  This makes it simple to just pass a subset 
+     * of each row of a result set to this constructor.
+     * @param values list of values in proper order and of string type.
+     */
     public BlastRecord(List values)
     {
         if(values==null || values.size()!=11)
@@ -75,6 +88,11 @@ public class BlastRecord implements Record
         }                            
         return link.replaceAll("\\$V\\{key\\}",key );
     }
+    /**
+     * 
+     * @param o 
+     * @return 
+     */
     public boolean equals(Object o)
     {
         if(this==o)
@@ -96,29 +114,66 @@ public class BlastRecord implements Record
     {
         return target.hashCode()+dbname.hashCode()+length;
     }
+    /**
+     * 
+     * @return 
+     */
     public String toString()
     {
         return "target="+target+",evalue="+evalue;
     }
     
+    /**
+     * Should use the given RecordVisitor to print the header
+     * @param out 
+     * @param visitor 
+     * @throws java.io.IOException 
+     */
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printHeader(out,this);       
     }
     
+    /**
+     * Should use the given RecordVisitor to print the data
+     * @param out 
+     * @param visitor 
+     * @throws java.io.IOException 
+     */
     public void printRecord(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printRecord(out,this);      
     }
   
+    /**
+     * Should use the given RecordVisitor to print the footer
+     * @param out 
+     * @param visitor 
+     * @throws java.io.IOException 
+     */
     public void printFooter(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
     }
     
+    /**
+     * This method is used to allow BlastRecords to load themselves. The list should
+     * be a list of key_id numbers to get information for.
+     * @param dbc a database connection to the proper database
+     * @param ids list of key_id values
+     * @return a map of key_ids to BlastRecords.
+     */
     public static Map getData(DbConnection dbc, List ids)
     {
         return getData(dbc,ids,"db_name","ASC");
     }    
+    /**
+     * Allows one to also specify a sort field and a direction
+     * @param dbc a connection to the proper db.
+     * @param ids list of key_ids
+     * @param sortCol column name to sort by
+     * @param sortDir sort direction, should be either "ASC", or "DESC".
+     * @return a map of key_ids to BlastRecords
+     */
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
         if(ids==null || ids.size()==0)

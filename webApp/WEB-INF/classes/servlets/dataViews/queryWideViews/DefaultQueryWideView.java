@@ -27,6 +27,20 @@ public class DefaultQueryWideView implements QueryWideView
     }
     
   
+    /**
+     * prints some buttons for applying operations to an arrbitrary subset of data.
+     * Printed buttons are:
+     * All Gene Structures
+     * Chr Map
+     * Go Slim Counts
+     * Key List
+     * Align to Hmm
+     * @param out for output
+     * @param hid current hid
+     * @param pos current pos
+     * @param end index of last key
+     * @param rpp results per page
+     */
     public void printButtons(java.io.PrintWriter out, int hid, int pos, int end, int rpp) 
     {
         out.println("<FORM METHOD='POST' ACTION='DispatchServlet'>");
@@ -56,6 +70,12 @@ public class DefaultQueryWideView implements QueryWideView
         //out.println("range must be in the form a-b,c-d,...,x-y");
     }
     
+    /**
+     * Tries to print the number of sequences, models, and clusters for the
+     * current page.
+     * @param out output
+     * @param search data source
+     */
     public void printStats(PrintWriter out, Search search)  
     {
         Object[] values=new Object[3];
@@ -72,15 +92,32 @@ public class DefaultQueryWideView implements QueryWideView
         Common.printStatsTable(out,"Total Query",new String[]{"Loci","Models","Clusters"},values);         
     }
     
+    /**
+     * returns false
+     * @return false
+     */
     public boolean printAllData() 
     {
         return false;
     }    
    
+    /**
+     * this method is empty
+     * @param out for output
+     * @param search data source
+     * @param position page position
+     */
     public void printGeneral(PrintWriter out, Search search, String position)
     {
     }    
     
+    /**
+     * this method is empty.
+     * @param out for output
+     * @param search data source
+     * @param position position in page
+     * @param storage persistant storage
+     */
     public void printGeneral(PrintWriter out, Search search, String position, Map storage)
     {
     }

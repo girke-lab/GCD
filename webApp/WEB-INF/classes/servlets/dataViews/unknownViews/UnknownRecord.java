@@ -17,6 +17,9 @@ import servlets.Common;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
 
+/**
+ * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
+ */
 public class UnknownRecord implements Record
 {
     String key,description;
