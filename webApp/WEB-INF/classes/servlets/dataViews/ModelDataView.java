@@ -54,6 +54,7 @@ public class ModelDataView implements DataView
     }    
     public void printHeader(java.io.PrintWriter out) 
     {
+        Common.printHeader(out);        
         Common.printForm(out,hid);
     }    
     public void printStats(java.io.PrintWriter out) 
@@ -83,7 +84,9 @@ public class ModelDataView implements DataView
     }
     public boolean hasFeature(int f)
     {
-        return f==ResultPage.BUTTONS || (f==ResultPage.ALL && mqi.format==ALL_FASTA);
+        return f==ResultPage.BUTTONS ||
+               (f==ResultPage.ALL && mqi.format==ALL_FASTA) ||
+               f==ResultPage.STATS ;
     }
 /////////////////////////////////////////////////////////////////////////////
 //                              Private  Methods                 

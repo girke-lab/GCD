@@ -26,21 +26,16 @@ public class ResultPage
     
     
     //available features
-    public static final int BUTTONS=0, ALL=1;
+    public static final int BUTTONS=0, ALL=1,STATS=2;
     
     /** Creates a new instance of ResultPage */
-    public ResultPage(DataView dv,Search s,HttpServletRequest request, int hid, int rpp)    
+    public ResultPage(DataView dv,Search s,int pos, int hid, int rpp)    
     {
         this.dv=dv;
         this.search=s;
         this.hid=hid;
         this.rpp=rpp;
-        this.request=request;        
-        try{
-            pos=Integer.parseInt(request.getParameter("pos"));
-        }catch(Exception e){
-            pos=0;
-        }
+        this.pos=pos;
     }
     
     public void dipslayPage(PrintWriter out)
@@ -49,7 +44,7 @@ public class ResultPage
         for(int i=0;i<positions.length;i++)
             positions[i]=search.getDbStartPos(i);
         
-        Common.printHeader(out);        
+        
         dv.printHeader(out);
         printControls(out);
         printGotoLinks(out, Common.dbPrintNames, positions);
@@ -66,7 +61,8 @@ public class ResultPage
         }
         
         out.println("<table cellspacing='0' cellpadding='0'><tr><td>");
-        printTotals(out); 
+        if(dv.hasFeature(STATS))
+            printTotals(out);   
         out.println("</td><td>");
         dv.printStats(out);
         out.println("</td></tr></table>");

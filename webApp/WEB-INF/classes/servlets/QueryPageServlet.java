@@ -114,7 +114,7 @@ public class QueryPageServlet extends HttpServlet
         
         dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);
         dv.setData(qi.getSortCol(),qi.getDbs(),hid);
-        ResultPage page=new ResultPage(dv, s, request, hid, rpp);
+        ResultPage page=new ResultPage(dv, s, pos, hid, rpp);
         page.dipslayPage(out);
         
         

@@ -50,6 +50,7 @@ public class SeqDataView implements DataView
         loadData(); //update data to reflect new id numbers
     }
     public void printHeader(java.io.PrintWriter out) {
+        Common.printHeader(out);        
         Common.printForm(out,hid);    
     }   
     public void printData(java.io.PrintWriter out) 
@@ -66,7 +67,7 @@ public class SeqDataView implements DataView
     }    
     public boolean hasFeature(int f) 
     {
-        return f==ResultPage.BUTTONS;
+        return f==ResultPage.BUTTONS || f==ResultPage.STATS;
     }   
     
 ///////////////////////////////////////////////////////////////////////

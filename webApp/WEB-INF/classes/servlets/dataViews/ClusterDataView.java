@@ -15,6 +15,7 @@ import java.util.*;
 import java.io.*;
 import servlets.Common;
 import org.apache.log4j.Logger;
+import servlets.ResultPage;
 
 public class ClusterDataView implements DataView 
 {   
@@ -37,6 +38,7 @@ public class ClusterDataView implements DataView
     
     public void printHeader(java.io.PrintWriter out) 
     {
+        Common.printHeader(out);        
         out.println("<h1 align='center'>Cluster View</h1>");
     }
     public void printData(java.io.PrintWriter out) 
@@ -58,7 +60,7 @@ public class ClusterDataView implements DataView
     }
      public boolean hasFeature(int f) 
      {
-         return false;
+         return f==ResultPage.STATS;
      }   
     
     private void printCounts(PrintWriter out,List data)
