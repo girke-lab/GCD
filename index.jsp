@@ -140,7 +140,7 @@ function MM_nbGroup(event, grpName) { //v6.0
 		         <A href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>About this Database</A>	
 		    </TD>
 		    <TD align='center'>
-			 <A href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/statistics.html'>Cluster Statistics</A>
+			 <A href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>Cluster Statistics</A>
 		    </TD>
                 <TR>
                     <TD colspan='2'>
