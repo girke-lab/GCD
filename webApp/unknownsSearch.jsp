@@ -4,7 +4,7 @@
 <head><title>Plant Unknowns</title></head>
 <body>
 
-<jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='application'/>
+<jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='page'/>
 <jsp:useBean id='common' class='servlets.Common' />
 <%      
         //common.printHeader(out);
@@ -85,7 +85,6 @@
                             </tr>            
                             <tr>
                                 <td>
-
                                     <% ep=bean.printParinth(out,j,ep,"end",sp-ep);%>
                                 </td>
                             </tr>

@@ -23,45 +23,51 @@ public class UnknownsDataView implements DataView
     List seq_ids;
     int hid;
     String sortCol;
-    int[] dbNums;
-    String tempPath;
+    int[] dbNums;    
+    File tempDir;
     DbConnection dbc=null;
     static Logger log=Logger.getLogger(UnknownsDataView.class);   
     
     /** Creates a new instance of UnknownsDataView */
     public UnknownsDataView() 
-    {
-        tempPath="";
+    {        
         dbc=DbConnectionManager.getConnection("unknowns");
         if(dbc==null)
             log.error("could not get db connection to unknowns");
+        //try to use the system temp dir, though this will not always work
+        tempDir=new File(System.getProperty("java.io.tempdir"));
+        TempFileCleaner.getInstance().setDirectory(tempDir);
+        if(!TempFileCleaner.getInstance().isAlive())
+            TempFileCleaner.getInstance().start();
     }
     public UnknownsDataView(String tempPath) 
     {
-        this.tempPath=tempPath;
+        
         dbc=DbConnectionManager.getConnection("unknowns");
         if(dbc==null)
             log.error("could not get db connection to unknowns");
+        log.debug("temp dir in UnknownsDataview is "+tempPath);        
+        tempDir=new File(tempPath);
+        TempFileCleaner.getInstance().setDirectory(tempDir);
+        if(!TempFileCleaner.getInstance().isAlive())
+            TempFileCleaner.getInstance().start();
     }
     public void printData(java.io.PrintWriter out) 
     {
         List data=getData();
         printData(out,data);
         out.println("</td></tr></table></font></body></html>");
-    }
-    
+    }    
     public void printHeader(java.io.PrintWriter out)
     {
         printUnknownHeader(out);
         //out.println("<h1 align='left' >Unknowns</h1>");
-    }
-    
+    }    
     public void printStats(java.io.PrintWriter out) 
     {
         Common.printStatsTable(out, "On This Page", new String[]{"Records found"},
             new Object[]{new Integer(seq_ids.size())});
-    }
-    
+    }    
     public void setData(String sortCol, int[] dbList, int hid) 
     {    
         this.hid=hid;
@@ -71,8 +77,7 @@ public class UnknownsDataView implements DataView
     public void setIds(java.util.List ids) 
     {
          this.seq_ids=ids;   
-    }
-   
+    }   
     public QueryWideView getQueryWideView() 
     {
         return new DefaultQueryWideView(){
@@ -115,10 +120,8 @@ public class UnknownsDataView implements DataView
          File tempFile=null;
          if(data==null)
              return;
-         try{
-            log.debug("temp dir in dataview is "+tempPath);
-            tempFile=File.createTempFile("results",".csv",new File(tempPath)); 
-            TempFileCleaner.getInstance().addFile(tempFile);
+         try{            
+            tempFile=File.createTempFile("results",".csv",tempDir);             
          }catch(IOException e){
              log.warn("could not create temp file: "+e.getMessage());
          }

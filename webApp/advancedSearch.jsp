@@ -4,7 +4,7 @@
 <head><title>Advanced Search</title></head>
 <body>
 
-<jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='application'/>
+<jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='page'/>
 <jsp:useBean id='common' class='servlets.Common' />
 <%      
         common.printHeader(out);

@@ -19,7 +19,7 @@ import servlets.Common;
 
 /**
  *
- * @author  khoran
+ * @author  khoran 
  * @version
  */
 public class AdvancedSearchBean {  
@@ -37,15 +37,14 @@ public class AdvancedSearchBean {
     private static Logger log=Logger.getLogger(AdvancedSearchBean.class);
     
     public AdvancedSearchBean()
-    {        
-        currentState=new SearchState();
-        db=new CommonDatabase();        
+    {                
+        log.debug("createing new bean");
     }
     public void setDatabase(String name)
     {        //this is not storing state properly!!
         currentState=new SearchState();
-        if(db!=null)
-            return;
+//        if(db!=null)
+//            return;
         
         if(name.equals("common"))
             db=new CommonDatabase();
@@ -70,7 +69,13 @@ public class AdvancedSearchBean {
         else
             currentState.setSortField(Integer.parseInt(temp));
                 
-        currentState.setLimit(request.getParameter("limit"));              
+        currentState.setLimit(request.getParameter("limit"));    
+        
+        try{
+               selectedSearchState=Integer.parseInt(request.getParameter("stored_query"));               
+        }catch(Exception e){ 
+               selectedSearchState=0; 
+        }
         
         processCommands(request);
     }
@@ -135,22 +140,31 @@ public class AdvancedSearchBean {
     }
     public String printStoreOptions()
     {
+        boolean printAdminControls=false;
         StringBuffer out=new StringBuffer();
         out.append("<table align='center'>\n");
-        out.append("<tr><th>Load Query</th><th>Store Query</th></tr>\n");
-        out.append("<tr><td>");
+        out.append("<tr><th colspan='3'>Stored Queries</th></tr>\n");
+        out.append("<tr><td colspan='3'>");
         out.append(printStoredQueries());
-        out.append("</td><td>\n");
-        out.append(printSaveOptions());
-        out.append("</td></tr></table>");
+        out.append("</td></tr>\n");
+        if(printAdminControls)
+        {
+            out.append("<tr><th colspan='3'>Admin Controls</th></tr>\n");
+            out.append("<tr>\n");
+            out.append("<td>"+printSaveOptions()+"</td>\n");
+            out.append("<td><INPUT type=submit name='update_query' value='Update'></td>\n");
+            out.append("<td><INPUT type=submit name='remove_query' value='Remove'></td>\n");
+            out.append("</tr>");            
+        }
+           
+         out.append("</table>");
         return out.toString();
     }
     public String printStoredQueries()
     {
         StringBuffer out=new StringBuffer();
         Collection c=db.getSearchManager().getSearchStateList();
-        int count=0;
-        log.debug("selected="+selectedSearchState);
+        int count=0;       
         out.append("<SELECT name='stored_query'>\n");
         for(Iterator i=c.iterator();i.hasNext();count++)          
         {
@@ -190,11 +204,7 @@ public class AdvancedSearchBean {
             //nothing to do
         }else if(request.getParameter("load_query")!=null){
             log.debug("loading query");
-            try{
-               selectedSearchState=Integer.parseInt(request.getParameter("stored_query"));               
-            }catch(Exception e){ 
-               selectedSearchState=0; 
-            }
+            
             if(selectedSearchState >=0 && 
                selectedSearchState < db.getSearchManager().getSearchStateList().size())
                 currentState=db.getSearchManager().getSearchState(selectedSearchState);
@@ -206,6 +216,14 @@ public class AdvancedSearchBean {
                 currentState.setDescription(desc);
                 db.getSearchManager().addSearchState(currentState);
             }
+            lastWasRemove=true;
+        }else if(request.getParameter("update_query")!=null){
+            SearchState ss=db.getSearchManager().getSearchState(selectedSearchState);
+            currentState.setDescription(ss.getDescription());
+            db.getSearchManager().setSearchState(selectedSearchState, currentState);
+            lastWasRemove=true;
+        }else if(request.getParameter("remove_query")!=null){
+            db.getSearchManager().removeSearchState(selectedSearchState);
             lastWasRemove=true;
         }else if(request.getParameter("action") !=null){ //this should always be the last case
             lastWasRemove=true;
