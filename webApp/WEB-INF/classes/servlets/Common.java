@@ -256,31 +256,34 @@ public class Common {
         }
         out.println("</tr></table>");        
     }
-    public static void printButtons(PrintWriter out, int hid,int pos,int end, int rpp)
-    {
-        
-        out.println("<FORM METHOD='POST' ACTION='DispatchServlet'>");
-        out.println("<INPUT type=hidden name='hid' value='"+hid+"'>");
-        out.println("<INPUT type=hidden name='script'>");
-        
-        out.println("<TABLE border='0' ><TR>");        
-        out.println("<TD><INPUT type='submit' value='All Gene Structures' " +
-                    " onClick=\"javascript: script.value='multigene.pl'; submit();\" ></TD>");
-        out.println("<TD><INPUT type='submit' value='Chr Map' "+       
-                    " onClick=\"javascript: script.value='chrplot.pl'; submit();\"></TD>");
-        out.println("<TD><INPUT type='submit' value='Go Slim Counts' "+
-                    " onClick=\"javascript: script.value='goSlimCounts'; submit();\"></TD>");
-        out.println("<TD><INPUT type='submit' value='Key List' "+
-                " onClick=\"javascript: script.value='displayKeys.pl'; submit();\"></TD>");
-        out.println("</TR><TR>");
-        out.println("<TD colspan='4'> Apply buttons to:&nbsp&nbsp ");
-        out.println("<SELECT name='range' >" + 
-                            "<OPTION value='0-"+end+"' >All" +
-                            "<OPTION selected value='"+pos+"-"+(pos+rpp)+"'>Page" +
-                            "<OPTION value='custom'>Range: " +
-                        "</SELECT>&nbsp ");
-        out.println("<INPUT type=text name='range' value=''></TD>");
-        out.println("</TR></TABLE></FORM>");
-        //out.println("range must be in the form a-b,c-d,...,x-y");
-    }
+//    public static void printButtons(PrintWriter out, int hid,int pos,int end, int rpp)
+//    {
+//        
+//        out.println("<FORM METHOD='POST' ACTION='DispatchServlet'>");
+//        out.println("<INPUT type=hidden name='hid' value='"+hid+"'>");
+//        out.println("<INPUT type=hidden name='script'>");
+//        
+//        out.println("<TABLE border='0' ><TR>");        
+//        out.println("<TD><INPUT type='submit' value='All Gene Structures' " +
+//                    " onClick=\"javascript: script.value='multigene.pl'; submit();\" ></TD>");
+//        out.println("<TD><INPUT type='submit' value='Chr Map' "+       
+//                    " onClick=\"javascript: script.value='chrplot.pl'; submit();\"></TD>");
+//        out.println("<TD><INPUT type='submit' value='Go Slim Counts' "+
+//                    " onClick=\"javascript: script.value='goSlimCounts'; submit();\"></TD>");
+//        out.println("<TD><INPUT type='submit' value='Key List' "+
+//                " onClick=\"javascript: script.value='displayKeys.pl'; submit();\"></TD>");
+//        out.println("<TD><INPUT type='submit' value='Align to Hmm' "+
+//                " onClick=\"javascript: script.value='alignToHmm'; submit();\"></TD>");
+//
+//        out.println("</TR><TR>");
+//        out.println("<TD colspan='4'> Apply buttons to:&nbsp&nbsp ");
+//        out.println("<SELECT name='range' >" + 
+//                            "<OPTION value='0-"+end+"' >All" +
+//                            "<OPTION selected value='"+pos+"-"+(pos+rpp)+"'>Page" +
+//                            "<OPTION value='custom'>Range: " +
+//                        "</SELECT>&nbsp ");
+//        out.println("<INPUT type=text name='range' value=''></TD>");
+//        out.println("</TR></TABLE></FORM>");
+//        //out.println("range must be in the form a-b,c-d,...,x-y");
+//    }
 }

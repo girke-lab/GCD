@@ -97,6 +97,8 @@ public class DispatchServlet extends HttpServlet {
             return new MultigeneScript();
         else if(script.equals("chrplot.pl"))
             return new ChrPlotScript();
+        else if(script.equals("alignToHmm"))
+            return new AlignToHmmScript();
         return null;
     }
         

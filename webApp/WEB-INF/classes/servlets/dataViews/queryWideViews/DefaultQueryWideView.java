@@ -42,6 +42,8 @@ public class DefaultQueryWideView implements QueryWideView
                     " onClick=\"javascript: script.value='goSlimCounts'; submit();\"></TD>");
         out.println("<TD><INPUT type='submit' value='Key List' "+
                 " onClick=\"javascript: script.value='displayKeys.pl'; submit();\"></TD>");
+        out.println("<TD><INPUT type='submit' value='Align to Hmm' "+
+                " onClick=\"javascript: script.value='alignToHmm'; submit();\"></TD>");
         out.println("</TR><TR>");
         out.println("<TD colspan='4'> Apply buttons to:&nbsp&nbsp ");
         out.println("<SELECT name='range' >" + 
