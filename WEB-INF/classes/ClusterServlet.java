@@ -124,8 +124,10 @@ public class ClusterServlet extends HttpServlet {
     {
         String query="";
         query=new String("SELECT Clusters.Cluster_id, Sequences.Primary_Key, Sequences.Description "+
-                         "FROM Sequences, Clusters "+
-                         "WHERE Sequences.Seq_id=Clusters.Seq_id AND Clusters.Cluster_id='"+id+"'");
+                         "FROM Clusters LEFT JOIN Sequences USING(Seq_id) "+
+                         //"FROM Sequences, Clusters "+
+                         //"WHERE Sequences.Seq_id=Clusters.Seq_id AND Clusters.Cluster_id='"+id+"'");
+                         "WHERE Clusters.Cluster_id='"+id+"'");
         
 //        if(currentDB==arab)
 //            query=new String("Select Clusters.ClusterNum,Clusters.Atnum,"+

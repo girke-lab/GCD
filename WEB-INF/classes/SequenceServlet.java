@@ -105,6 +105,7 @@ public class SequenceServlet extends HttpServlet
             keySet=qi.getKeySet(i); //keySet will be a list of Seq_id numbers, not Accession numbers
 //            keySet=(ArrayList)keys.get(i);
             main=searchByKey(keySet,qi.limit,qi.dbNums[i],fieldNums,fieldsLength);
+            Common.printList(out,main);
             //Common.blastLinks(out,qi.dbNums[i],hid);
             printFasta(out,main,qi.dbNums[i],fieldNums,length,format);            
         }

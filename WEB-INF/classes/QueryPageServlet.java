@@ -115,17 +115,18 @@ public class QueryPageServlet extends HttpServlet
         {
             out.println("<P><H3 align='center'>"+dbPrintNames[dbNums[i]]+" search results:</H3>");
             if(searchType.charAt(0)=='d') //descritption search
-                main=searchByDescription(inputKeys,limit,dbNums[i]);
+                returnedKeys=searchByDescription(inputKeys,limit,dbNums[i]);
             else 
             {
-                main=searchByKey(inputKeys,limit,dbNums[i]);
-                keysNotFound=findMismatches(inputKeys, main,dbNums[i]);
+                returnedKeys=searchByKey(inputKeys,limit,dbNums[i]);
+                //keysNotFound=findMismatches(inputKeys, main,dbNums[i]);
             }
-            //Common.printList(out,main);
-            returnedKeys=getKeysReturned(main); //gets the actual keys returned by the DB
+            
+//            returnedKeys=getKeysReturned(main); //gets the actual keys returned by the DB
              //these should be Seq_id numbers, not accession numbers.
             qi.addKeySet(returnedKeys);
-            
+  
+            main=getData(returnedKeys,limit,dbNums[i]);
             //Common.blastLinks(out,dbNums[i],hid);
             printSummary(out,main,dbNums[i],hid);
             if(keysNotFound!=null)
@@ -172,10 +173,7 @@ public class QueryPageServlet extends HttpServlet
             }    
         }
         
-//        conditions.append(" limit "+limit);//set max number of records to return
-        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),4);
-//        for(int i=0;i<rs.size();i++)  //restructure rs from an  array of array of keys                                    
-//            rs.set(i,(String)((ArrayList)rs.get(i)).get(0));//to just an array of keys.
+        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db),1);
         return rs;
     }
     private List searchByKey(List input,int limit,int db)
@@ -184,12 +182,25 @@ public class QueryPageServlet extends HttpServlet
         ListIterator in=input.listIterator();
         StringBuffer conditions=new StringBuffer();
         List rs=null;
-        int count=0,fieldCount=4;
-//        if(db==rice) fieldCount=3;
+        int count=0;
+
         while(in.hasNext() && count++ < limit) //build condtions
             conditions.append(likeExpression((String)in.next(),db));
         conditions.append(" 0=1 ");                
-        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),fieldCount);
+        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db),1);
+        return rs;
+    }
+    private List getData(List input, int limit, int db)
+    {
+        ListIterator it=input.listIterator();
+        StringBuffer condition=new StringBuffer();
+        List rs=null;
+        int count=0;
+        
+        while(it.hasNext() && count++ < limit)
+            conditions.append(Seq_idExpression((String)in.next())); 
+        conditions.append("0=1");
+        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),4);
         return rs;
     }
     private void printSummary(PrintWriter out,List data,int currentDB,int hid)
@@ -222,7 +233,7 @@ public class QueryPageServlet extends HttpServlet
             key=(String)row.get(0);
             clusterNum=(String)row.get(3);
             out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Links</TH>");
-            printArabLinks(out,key,clusterNum,hid);
+            printArabLinks(out,key,clusterNum,hid,currentDB);
             out.println("</TR>");
 
             out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Key</TH>");
@@ -260,20 +271,27 @@ public class QueryPageServlet extends HttpServlet
         }
         out.println("</TABLE>");                    
     }
-    private void printArabLinks(PrintWriter out,String key,String clusterNum,int hid)
+    private void printArabLinks(PrintWriter out,String key,String clusterNum,int hid,int currentDB)
     {
-    	 System.out.println("key="+key+", clusterNum="+clusterNum);
+         String db=null;
+         System.out.println("currentDB="+currentDB);
+    	 if(currentDB==arab)
+             db="ath1";
+         else if(currentDB==rice)
+             db="osa1";
     	 out.println("\t\t<TD>");
-    	 out.println("<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+ key+"'>MIPS</a>&nbsp&nbsp");            
-         out.println("<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+ "ORF_infopage.cgi?db=ath1&orf="+key+"'>TIGR</a>&nbsp&nbsp");
+    	 out.println("<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+ key+"'>MIPS</a>&nbsp&nbsp");                 
+         out.println("<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+ "ORF_infopage.cgi?db="+db+"&orf="+key+"'>TIGR</a>&nbsp&nbsp");
 	 out.println("<a href='/databaseWeb/ClusterServlet?hid="+hid+"&clusterID="+clusterNum+"'>Cluster "+clusterNum+"</a>&nbsp&nbsp");
+//we need the cluster size here as well, since we don't want to print alignment or tree links for singletons         
 	 out.println("<a href='http://bioinfo.ucr.edu/projects/PlantFam/FinalAlignments/"+clusterNum+".html'>Alignments</a>&nbsp&nbsp");
-	 out.println("<a href='http://bioinfo.ucr.edu/projects/PlantFam/Trees/"+clusterNum+".html'>Trees</a>&nbsp&nbsp");
+	 out.println("<a href='http://bioinfo.ucr.edu/projects/PlantFam/FinalAlignments/"+clusterNum+".png'>Trees</a>&nbsp&nbsp");
 	 out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/geneview.pl?accession="+key+"'>GeneStructure*</a>&nbsp&nbsp");
 	 out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?PF'>PFAM</a>&nbsp&nbsp");
 	 //expression link goes here or here
 	 out.println("<a href='http://signal.salk.edu/cgi-bin/tdnaexpress?GENE="+key+"&FUNCTION=&JOB=HITT&DNA=&INTERVAL=10'>KO</a>&nbsp&nbsp");
 	 out.println("<a href='http://www.geneontology.org/doc/index.shtml#downloads'>GO</a>&nbsp&nbsp");
+         //does this link work for rice?
 	 out.println("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");
 	 out.println("\t\t</TD>");
                 
@@ -347,7 +365,7 @@ public class QueryPageServlet extends HttpServlet
     }            
     ////////////////////////////  Query stuff    ////////////////////////////////////////////////
     
-    
+/*    
     private String buildDescStatement(String conditions,int currentDB)
     {//this should no longer be used
         String desc=null;
@@ -359,24 +377,39 @@ public class QueryPageServlet extends HttpServlet
         else if(currentDB==rice)
             desc+=" Genome='rice' and ";
         desc+=conditions;
-        /*
-        if(currentDB==arab)  //select TIGR_Data.Atnum from TIGR_Data where ...
-            desc=new String("SELECT TIGR_Data.Atnum FROM TIGR_Data WHERE "+ conditions);
-        else if(currentDB==rice)
-            desc=new String("SELECT Rice.Rice_Data.Id1  FROM Rice.Rice_Data WHERE "+ conditions);
-        else
-            System.err.println("invalid DB name in buildDescStatement");
-         */
+       
+//        if(currentDB==arab)  //select TIGR_Data.Atnum from TIGR_Data where ...
+//            desc=new String("SELECT TIGR_Data.Atnum FROM TIGR_Data WHERE "+ conditions);
+//        else if(currentDB==rice)
+//            desc=new String("SELECT Rice.Rice_Data.Id1  FROM Rice.Rice_Data WHERE "+ conditions);
+//        else
+//            System.err.println("invalid DB name in buildDescStatement");
+//        
         System.out.println("description query: "+desc);
         return desc;      
+    }
+*/
+    private String buildIdStatement(String conditions, int limit,int currentDB)
+    {
+        String id="SELECT Sequences.Seq_id from Sequences LEFT JOIN Id_Associations USING(Seq_id) "+
+                  "WHERE ";
+        if(currentDB==arab)
+            id+=" Genome='arab' and ";
+        else if(currentDB==rice)
+            id+=" Genome='rice' and ";
+        id+="("+conditions+")";
+        System.out.println("id query: "+id);   
+        return id;
     }
     private String buildKeyStatement(String conditions,int limit, int currentDB)
     {
         StringBuffer general=new StringBuffer();
-                                //Accession                               //description
+                                           //Accession                               //description
         general.append("SELECT DISTINCT Sequences.Primary_Key, "+fullNames[1]+",Sequences.Seq_id, Clusters.Cluster_id "+
-                       "FROM Id_Associations, Sequences, Clusters "+
-                       "WHERE Sequences.Seq_id=Id_Associations.Seq_id AND Sequences.Seq_id=Clusters.Seq_id AND ");                        
+                       "FROM  Clusters LEFT JOIN Sequences USING(Seq_id) LEFT JOIN Id_Associations USING(Seq_id) "+                       
+                       //"FROM Id_Associations, Sequences, Clusters "+
+                       //"WHERE Sequences.Seq_id=Id_Associations.Seq_id AND Sequences.Seq_id=Clusters.Seq_id AND ");                        
+                       "WHERE ");
         
         if(currentDB==arab)
             general.append(" Genome='arab' and ");
@@ -398,6 +431,10 @@ public class QueryPageServlet extends HttpServlet
         general.append(" limit "+limit);
         System.out.println("general Query: "+general);
         return general.toString();
+    }
+    private String Seq_idExpression(String id)
+    {
+        return "Sequences.Seq_id="+id+" OR ";
     }
     private String regExpression(String key,int currentDB)
     {
