@@ -15,6 +15,7 @@ import java.util.*;
 import java.io.*;
 import servlets.Common;
 import org.apache.log4j.Logger;
+import servlets.DbConnection;
 
 class UnknownRecord implements Record
 {
@@ -40,6 +41,8 @@ class UnknownRecord implements Record
         if(values==null || values.size()!=6)
         {
             log.error("invalid list in UnknownRecord constructor");
+            if(values!=null)
+                log.error("recieved list of size "+values.size()+", but expected size of 6");
             return;
         }
         key=(String)values.get(0);
@@ -65,7 +68,10 @@ class UnknownRecord implements Record
         }
         ((Collection)collection).add(record);             
     }
-
+    public void setSubRecordList(String name,Collection col)
+    {
+        subRecords.put(name, col);
+    }
     public boolean equals(Object o)
     {
         if(this==o)
@@ -95,16 +101,40 @@ class UnknownRecord implements Record
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printHeader(out,this);        
-    }
-    
+    }    
     public void printRecord(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {                
         visitor.printRecord(out,this);
-    }
-      
+    }      
     public void printFooter(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printFooter(out,this);
     }    
     
+    public static Map getData(DbConnection dbc, List ids)
+    {
+        return getData(dbc,ids,"key","ASC");
+    }    
+    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+    {
+        String query="SELECT * " +
+        "   FROM unknowns.unknown_keys " +
+        "   WHERE "+Common.buildIdListCondition("key_id",ids)+ 
+        "   ORDER BY "+sortCol+" "+sortDir;
+        List data=null;
+        try{
+            data=dbc.sendQuery(query);
+        }catch(java.sql.SQLException e){
+            log.error("could not send unknownRecord query: "+e.getMessage());
+            return new HashMap();
+        }
+        List row;
+        Map output=new LinkedHashMap(); //need to maintain order here
+        for(Iterator i=data.iterator();i.hasNext();)
+        {
+            row=(List)i.next();            
+            output.put(row.get(0),new UnknownRecord(row.subList(1,7)));
+        }
+        return output;
+    }          
 }

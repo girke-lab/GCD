@@ -88,7 +88,7 @@
                                 </td>
                                 <td>
                                     <input type=submit name='remove' value='remove' 
-                                        onClick='row.value=<%=j%>;submit()'> 
+                                        onClick="row.value='<%=j%>';submit()"> 
                                 </td>
                             </tr>            
                             <tr>

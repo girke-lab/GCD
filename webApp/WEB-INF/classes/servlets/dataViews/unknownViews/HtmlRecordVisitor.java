@@ -47,10 +47,9 @@ public class HtmlRecordVisitor implements RecordVisitor
     }
     
     public void printRecord(java.io.Writer out, BlastRecord br) throws java.io.IOException
-    {
-        
+    {                
          out.write("<tr><td><a href='"+br.link+"'>"+br.target+"</a></td><td>"+br.evalue+"</td><td>"+br.score+"</td>" +
-                    "<td>"+br.dbname+"</td></tr>\n");
+                    "<td>"+br.dbname+"/"+br.method+"</td></tr>\n");
     }    
     public void printRecord(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {

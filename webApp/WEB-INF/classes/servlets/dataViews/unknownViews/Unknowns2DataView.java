@@ -30,10 +30,10 @@ public class Unknowns2DataView implements DataView
     
     private static Logger log=Logger.getLogger(Unknowns2DataView.class);    
     private final FieldRange unknown_key=new FieldRange(0,6),
-                             blast_results=new FieldRange(6,16),
-                             go_numbers=new FieldRange(16,19),
-                             clusters=new FieldRange(19,21),
-                             proteomics=new FieldRange(21,26);
+                             blast_results=new FieldRange(6,17),
+                             go_numbers=new FieldRange(17,20),
+                             clusters=new FieldRange(20,23),
+                             proteomics=new FieldRange(23,28);
     
     /** Creates a new instance of Unknowns2DataView */
     public Unknowns2DataView()
@@ -58,6 +58,7 @@ public class Unknowns2DataView implements DataView
     public void printData(java.io.PrintWriter out)
     {                
         printData(out,parseData(getData(seq_ids)));
+        //printData(out,getRecords(seq_ids));
         out.println("</td></table>"); //close page level table
     }
     
@@ -114,8 +115,7 @@ public class Unknowns2DataView implements DataView
                     storage.put("unknowns2.tempfile", tempFile);
                     
                     Thread genTempFile=new GenTempFile(tempFile,search.getResults());                    
-                    genTempFile.start(); //gen file in background
-                    
+                    genTempFile.start(); //gen file in background                   
                 }
                 if(tempFile!=null) //make sure tempFile is still not null
                     out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>" +
@@ -129,8 +129,33 @@ public class Unknowns2DataView implements DataView
   //////////////////////////////////////////////////////////////////////////////
   ///////////// Private methods  ////////////////////////////////////
 
+    private Collection getRecords(List ids)
+    { //method 2, multiple queries
+        Map records,t;
+        Map[] subRecordMaps=new Map[]{
+            GoRecord.getData(dbc,ids),
+            BlastRecord.getData(dbc,ids),            
+            ProteomicsRecord.getData(dbc,ids),
+            ClusterRecord.getData(dbc,ids)            
+        };
+        String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters"};
+        
+        records=UnknownRecord.getData(dbc,ids,sortCol,sortDir);
+        
+        for(Iterator i=records.entrySet().iterator();i.hasNext();)
+        {            
+            Map.Entry set=(Map.Entry)i.next();
+         //   log.debug("working on key "+set.getKey());
+            for(int j=0;j<subRecordMaps.length;j++)
+                ((UnknownRecord)set.getValue()).setSubRecordList(names[j], (List)subRecordMaps[j].get(set.getKey()));
+        }        
+        return records.values();
+    }
+    
+    
     private Collection parseData(List raw_data)
-    {  //recivies unformatted data from database
+    { //method 1, one big query
+        //recivies unformatted data from database
         List row;
         UnknownRecord rec;
         BlastRecord br;
@@ -223,23 +248,18 @@ public class Unknowns2DataView implements DataView
     }
     private String buildQuery(String conditions)
     {
-
-        
-//        unknowns.unknown_keys.*,unknowns.blast_results.* unknowns.blast_databases.db_name," +
-//                            "go.go_numbers.* "+
-        
-        
+  
         String[] tables=new String[]{"unknowns.unknown_keys","unknowns.blast_results",
                                      "unknowns.blast_databases","go.go_numbers","go.seq_gos",
-                                     "unknowns.cluster_counts_view","unknowns.proteomics_stats"};
+                                     "unknowns.cluster_info_and_counts_view","unknowns.proteomics_stats"};
         String[][] fields=new String[][]{
             {"key","description","est_count","mfu","ccu","bpu"},        //[0-6)
             {"target_accession","target_description","e_value","score","identities","length","positives","gaps"}, //[6-14)
-            {"db_name,link"}, //[14,16)
-            {"go_number","function","text"}, //[16-19)
+            {"db_name,link,method"}, //[14,17)
+            {"go_number","function","text"}, //[17-20)
             {}, //no fields for seq_gos
-            {"size","cutoff"},  //[19,21)
-            {"mol_weight","ip","charge","prob_in_body","prob_is_neg"} //[21,26)
+            {"cluster_name","size","cutoff"},  //[20,23)
+            {"mol_weight","ip","charge","prob_in_body","prob_is_neg"} //[23,28)
         };
         StringBuffer fieldList=new StringBuffer();
         StringBuffer tableList=new StringBuffer();
@@ -268,7 +288,7 @@ public class Unknowns2DataView implements DataView
             "        AND unknowns.unknown_keys.key_id=min_blast_ids.key_id \n" +
             "        AND min_blast_ids.blast_id=unknowns.blast_results.blast_id \n" +
             "        AND unknowns.blast_results.blast_db_id=unknowns.blast_databases.blast_db_id \n"+
-            "        AND unknowns.unknown_keys.key_id=unknowns.cluster_counts_view.key_id \n"+
+            "        AND unknowns.unknown_keys.key_id=unknowns.cluster_info_and_counts_view.key_id \n"+
             "        AND unknowns.unknown_keys.key_id=unknowns.proteomics_stats.key_id \n"+
             "        AND ("+conditions+")\n"+
             " ORDER BY "+sortCol+" "+sortDir;
@@ -316,6 +336,7 @@ public class Unknowns2DataView implements DataView
         List ids;
         public GenTempFile(File t,List l)
         {
+            super("Generation thread for "+t.getName());
             temp=t;
             ids=l;
         }

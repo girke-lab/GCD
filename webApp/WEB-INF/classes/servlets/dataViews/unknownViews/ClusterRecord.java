@@ -13,34 +13,42 @@ package servlets.dataViews.unknownViews;
 
 import java.util.*;
 import org.apache.log4j.Logger;
+import servlets.Common;
+import servlets.DbConnection;
 
 public class ClusterRecord implements Record
 {
     int size, cutoff;
+    String name;
     List keys=null;
     boolean showClusterCentricView;
     private static Logger log=Logger.getLogger(ClusterRecord.class);
     
     /** Creates a new instance of ClusterRecord */
-    public ClusterRecord(int size, int cutoff)
+    public ClusterRecord(String name,int size, int cutoff)
     {//used for key centric view
+        this.name=name;
         this.size=size;
         this.cutoff=cutoff;
         showClusterCentricView=false;
     }
     public ClusterRecord(List values)
     {//used for key centric view
-        if(values==null || values.size()!=2)
+        if(values==null || values.size()!=3)
         {
             log.error("invalid list in ClusterRecord constructor");
+            if(values!=null)
+                log.error("recieved list of size "+values.size()+", but expected size of 3");
             return;
         }
-        size=Integer.parseInt((String)values.get(0));
-        cutoff=Integer.parseInt((String)values.get(1));
+        name=(String)values.get(0);
+        size=Integer.parseInt((String)values.get(1));
+        cutoff=Integer.parseInt((String)values.get(2));
         showClusterCentricView=false;
     }
-    public ClusterRecord(int size,int cutoff,List keys)
+    public ClusterRecord(String name,int size,int cutoff,List keys)
     {//used for cluster centric view
+        this.name=name;
         this.size=size;
         this.cutoff=cutoff;
         this.keys=keys;
@@ -75,5 +83,42 @@ public class ClusterRecord implements Record
     {
         visitor.printFooter(out,this);
     }
+    
+    public static Map getData(DbConnection dbc, List ids)
+    {
+        return getData(dbc,ids,"cutoff","ASC");
+    }
+    
+    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+    {
+           String query="SELECT * "+                 
+        "   FROM unknowns.cluster_info_and_counts_view " +        
+        "   WHERE "+Common.buildIdListCondition("key_id",ids)+
+        "   ORDER BY "+sortCol+" "+sortDir;
+        
+        List data=null;
+        try{
+            data=dbc.sendQuery(query);
+        }catch(java.sql.SQLException e){
+            log.error("could not send ClusterRecord query: "+e.getMessage());
+            return new HashMap();
+        }
+        List row,l;
+        Map output=new HashMap(); //need to maintain order here
+        for(Iterator i=data.iterator();i.hasNext();)
+        {
+            row=(List)i.next();
+            l=(List)output.get(row.get(0));
+            if(l==null)
+            {
+                l=new LinkedList();
+                output.put(row.get(0),l);
+            }            
+            l.add(new ClusterRecord(row.subList(1,4)));            
+        }
+        return output;
+    }
+    
+   
     
 }

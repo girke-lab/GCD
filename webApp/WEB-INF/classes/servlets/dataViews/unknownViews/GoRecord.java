@@ -14,6 +14,7 @@ package servlets.dataViews.unknownViews;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.Common;
+import servlets.DbConnection;
 
 public class GoRecord implements Record
 {
@@ -70,5 +71,41 @@ public class GoRecord implements Record
     public void printFooter(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
     }
+    
+    public static Map getData(DbConnection dbc, List ids)
+    {
+        return getData(dbc,ids,"go_number","ASC");
+    }
+    
+    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+    {
+         String query="SELECT  key_id, go_number,function,text"+                 
+        "   FROM unknowns.unknown_keys as uk, go.go_numbers as gn, go.seq_gos as sg " +        
+        "   WHERE substring(uk.key from 1 for 9)=sg.accession AND sg.go_id=gn.go_id \n" +
+        "      AND "+Common.buildIdListCondition("key_id",ids)+
+        "   ORDER BY "+sortCol+" "+sortDir;
+        
+        List data=null;
+        try{
+            data=dbc.sendQuery(query);
+        }catch(java.sql.SQLException e){
+            log.error("could not send GoRecord query: "+e.getMessage());
+            return new HashMap();
+        }
+        List row,l;
+        Map output=new HashMap(); //need to maintain order here
+        for(Iterator i=data.iterator();i.hasNext();)
+        {
+            row=(List)i.next();
+            l=(List)output.get(row.get(0));
+            if(l==null)
+            {
+                l=new LinkedList();
+                output.put(row.get(0),l);
+            }
+            l.add(new GoRecord(row.subList(1,4)));            
+        }
+        return output;
+    }      
     
 }

@@ -211,7 +211,7 @@ public class AdvancedSearchBean {
     {        
         String action;
         if(request.getParameter("remove") != null){
-            String row=request.getParameter("row");    
+            String row=request.getParameter("row");                
             if(row==null)
                 return;            
             removeExpression(Integer.decode(row));

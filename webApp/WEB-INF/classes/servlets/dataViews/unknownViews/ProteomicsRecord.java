@@ -13,6 +13,8 @@ package servlets.dataViews.unknownViews;
 
 import java.util.*;
 import org.apache.log4j.Logger;
+import servlets.Common;
+import servlets.DbConnection;
 
 public class ProteomicsRecord implements Record
 {
@@ -75,5 +77,38 @@ public class ProteomicsRecord implements Record
     public void printFooter(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
     }
+    
+    public static Map getData(DbConnection dbc, List ids)
+    {
+        return getData(dbc,ids,"","");
+    }     
+    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+    {
+           String query="SELECT * "+                 
+        "   FROM unknowns.proteomics_stats " +        
+        "   WHERE "+Common.buildIdListCondition("key_id",ids);
+        
+        List data=null;
+        try{
+            data=dbc.sendQuery(query);
+        }catch(java.sql.SQLException e){
+            log.error("could not send ProteomicsRecord query: "+e.getMessage());
+            return new HashMap();
+        }
+        List row,l;
+        Map output=new HashMap(); //need to maintain order here
+        for(Iterator i=data.iterator();i.hasNext();)
+        {
+            row=(List)i.next();
+            l=(List)output.get(row.get(1));
+            if(l==null)
+            {
+                l=new LinkedList();
+                output.put(row.get(1),l);
+            }
+            l.add(new ProteomicsRecord(row.subList(2,7)));            
+        }
+        return output;
+    } 
     
 }

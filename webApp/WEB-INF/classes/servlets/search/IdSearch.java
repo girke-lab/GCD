@@ -25,14 +25,21 @@ public class IdSearch extends AbstractSearch
         List rs=null;
         int count=0;
 
-        conditions.append("a.accession in (");
+        log.debug("input="+input);
+//        conditions.append("a.accession in (");
+        conditions.append("(");
         while(in.hasNext() && count++ < limit)
         {
-            conditions.append("'"+in.next()+"'");
+//            conditions.append("'"+in.next()+"'");
+//            if(in.hasNext() && count < limit)
+//                conditions.append(",");
+             conditions.append("a.accession "+Common.ILIKE+" '"+in.next()+"'");
             if(in.hasNext() && count < limit)
-                conditions.append(",");
+                conditions.append(" OR ");
         }
         conditions.append(")");
+        
+        log.debug("conditions="+conditions);
 
 
         rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
@@ -47,7 +54,7 @@ public class IdSearch extends AbstractSearch
                 dbStartPositions[Common.getDBid(lastDb)]=c;
             }
             al.add(t.get(0));
-            keysFound.add(t.get(1));
+            keysFound.add(((String)t.get(1)).toLowerCase());
         }        
         data=al;
         if(data.size() > Common.MAX_QUERY_KEYS) 
@@ -112,7 +119,7 @@ public class IdSearch extends AbstractSearch
         {
             el=(String)i.next();
             if(!el.matches(".*%.*")) //don't add wildcard entries
-                temp.add(el);
+                temp.add(el.toLowerCase());
         }        
         temp.removeAll(keysFound);
         return temp;        

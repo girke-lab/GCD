@@ -201,46 +201,7 @@ public class Common {
         out.println("</body></html>");
         out.close();
     }
-//    public static void printTotals(PrintWriter out,Search s,String view)
-//    {
-//        out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
-//        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>Total Query</th></tr>");
-//        out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
-//        out.println("<tr>");
-//        if(view.equals("clusterView"))
-//        {
-//            out.println("<td>&nbsp</td><td>&nbsp</td>");
-//            out.println("<td>"+s.getResults().size()+"</td>");
-//        }
-//        else
-//        {
-//            out.println("<td>"+s.getResults().size()+"</td>");
-//            if(s.getStats()!=null && s.getStats().size()==2)
-//            {
-//                out.println("<td>"+s.getStats().get(0)+"</td>");
-//                out.println("<td>"+s.getStats().get(1)+"</td>");
-//            }
-//            else
-//                out.println("<td>&nbsp</td><td>&nbsp</td>");
-//        }
-//        out.println("</tr></table>");
-//    }
-//    public static void printPageStats(PrintWriter out,int keys,int models,int clusters)
-//    {
-//        out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
-//        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>On This Page</th></tr>");
-//        out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
-//        out.println("<tr>");
-//        // use -1 to signal that a value should not be printed.
-//        if(keys >= 0) out.println("<td>"+keys+"</td>");
-//            else out.println("<td>&nbsp</td>");
-//        if(models >= 0) out.println("<td>"+models+"</td>");
-//            else out.println("<td>&nbsp</td>");
-//        if(clusters >= 0) out.println("<td>"+clusters+"</td>");
-//            else out.println("<td>&nbsp</td>");
-//        out.println("</tr></table>");
-//        
-//    }
+
     public static void printStatsTable(PrintWriter out,String title,String[] subTitles,Object[] values)
     {
         out.println("<table border='1' cellspacing='0' bgcolor='"+Common.dataColor+"'>");
@@ -258,34 +219,17 @@ public class Common {
         }
         out.println("</tr></table>");        
     }
-//    public static void printButtons(PrintWriter out, int hid,int pos,int end, int rpp)
-//    {
-//        
-//        out.println("<FORM METHOD='POST' ACTION='DispatchServlet'>");
-//        out.println("<INPUT type=hidden name='hid' value='"+hid+"'>");
-//        out.println("<INPUT type=hidden name='script'>");
-//        
-//        out.println("<TABLE border='0' ><TR>");        
-//        out.println("<TD><INPUT type='submit' value='All Gene Structures' " +
-//                    " onClick=\"javascript: script.value='multigene.pl'; submit();\" ></TD>");
-//        out.println("<TD><INPUT type='submit' value='Chr Map' "+       
-//                    " onClick=\"javascript: script.value='chrplot.pl'; submit();\"></TD>");
-//        out.println("<TD><INPUT type='submit' value='Go Slim Counts' "+
-//                    " onClick=\"javascript: script.value='goSlimCounts'; submit();\"></TD>");
-//        out.println("<TD><INPUT type='submit' value='Key List' "+
-//                " onClick=\"javascript: script.value='displayKeys.pl'; submit();\"></TD>");
-//        out.println("<TD><INPUT type='submit' value='Align to Hmm' "+
-//                " onClick=\"javascript: script.value='alignToHmm'; submit();\"></TD>");
-//
-//        out.println("</TR><TR>");
-//        out.println("<TD colspan='4'> Apply buttons to:&nbsp&nbsp ");
-//        out.println("<SELECT name='range' >" + 
-//                            "<OPTION value='0-"+end+"' >All" +
-//                            "<OPTION selected value='"+pos+"-"+(pos+rpp)+"'>Page" +
-//                            "<OPTION value='custom'>Range: " +
-//                        "</SELECT>&nbsp ");
-//        out.println("<INPUT type=text name='range' value=''></TD>");
-//        out.println("</TR></TABLE></FORM>");
-//        //out.println("range must be in the form a-b,c-d,...,x-y");
-//    }
+    public static String buildIdListCondition(String varName,List ids)
+    {
+        StringBuffer out=new StringBuffer();
+        out.append(varName+" in (");
+        for(Iterator i=ids.iterator();i.hasNext();)
+        {
+            out.append(i.next());
+            if(i.hasNext())
+                out.append(",");
+        }
+        out.append(")");
+        return out.toString();
+    }
 }
