@@ -128,6 +128,7 @@ function MM_nbGroup(event, grpName) { //v6.0
 
  
 	<FORM NAME="form1" METHOD=POST ACTION="/databaseWeb/QueryPageServlet"  target="rd" >   
+<!--            <INPUT type=hidden name='dbs' value='0'> -->
             <TABLE width='70%' align='center' border='0'>
 	    	<TR>
 		    <TD colspan='2' align='center'>
@@ -167,7 +168,7 @@ function MM_nbGroup(event, grpName) { //v6.0
                         <BR>
                         <INPUT type=checkbox name='dbs' value='1'>
                         Rice     
-                    </TD>
+                    </TD> 
                 </TR>
                 <TR>                    
                     <TD colspan='2' align='center' >

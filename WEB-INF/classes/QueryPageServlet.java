@@ -165,6 +165,7 @@ public class QueryPageServlet extends HttpServlet
                 wasOp=1;
             }    
         }
+        
         conditions.append(" limit "+limit);//set max number of records to return
         rs=Common.sendQuery(buildDescStatement(conditions.toString(),db),1);
         for(int i=0;i<rs.size();i++)  //restructure rs from an  array of array of keys                                    
@@ -326,7 +327,13 @@ public class QueryPageServlet extends HttpServlet
     {
         String desc=null;
         desc=new String("SELECT "+fullNames[0]+" FROM Id_Associations LEFT JOIN "+
-                        "Sequences USING(Seq_id) WHERE "+conditions);
+                        "Sequences USING(Seq_id) WHERE ");
+        
+        if(currentDB==arab)
+            desc+=" Genome='arab' and ";
+        else if(currentDB==rice)
+            desc+=" Genome='rice' and ";
+        desc+=conditions;
         /*
         if(currentDB==arab)  //select TIGR_Data.Atnum from TIGR_Data where ...
             desc=new String("SELECT TIGR_Data.Atnum FROM TIGR_Data WHERE "+ conditions);
@@ -343,7 +350,14 @@ public class QueryPageServlet extends HttpServlet
         StringBuffer general=new StringBuffer();
                                 //Accession                     //description
         general.append("SELECT "+fullNames[0]+", "+fullNames[1]+",Sequences.Seq_id FROM Id_Associations LEFT JOIN "+
-                        "Sequences USING(Seq_id) WHERE "+conditions+" ORDER BY "+fullNames[0]);
+                        "Sequences USING(Seq_id) WHERE ");
+        
+        if(currentDB==arab)
+            general.append(" Genome='arab' and ");
+        else if(currentDB==rice)
+            general.append(" Genome='rice' and ");        
+        
+        general.append(conditions+" ORDER BY "+fullNames[0]);
         /*
         if(currentDB==arab)  //ID is a global varibale used to kill the query at a later time
             general.append("SELECT TIGR_Data.Atnum,TIGR_Data.Description, Clusters.ClusterNum"+
@@ -375,7 +389,7 @@ public class QueryPageServlet extends HttpServlet
     private String likeExpression(String key,int currentDB)
     {
         String exp=null;
-        exp=new String(fullNames[0]+" LIKE '"+key+"%' OR ");
+        exp=new String(fullNames[0]+" LIKE '"+key+"' OR ");
         /*
         if(currentDB==arab)  //TIGR_Data.Atnum
             exp=new String("TIGR_Data.Atnum LIKE '"+key+"%' OR ");
