@@ -54,7 +54,7 @@ public class Common {
                 return null;
             }
 //        }
-        q=q.toLowerCase();
+        //q=q.toLowerCase();
         ArrayList data=new ArrayList();
         try{
             Statement stmt=conn.createStatement();
