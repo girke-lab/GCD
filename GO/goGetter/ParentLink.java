@@ -12,9 +12,11 @@ package GO.goGetter;
  */
 public class ParentLink 
 {
-    GoNode link;
-    int relation; //either is-a or part-of
-    int depth; //depth of parent of link
+    public final static int PART_OF=0;
+    public final static int IS_A=1;
+    private GoNode link;
+    private int relation; //either is-a or part-of
+    private int depth; //depth of parent of link
     
     /** Creates a new instance of ParentLink */
     public ParentLink(GoNode l,int r,int d) 
@@ -22,6 +24,18 @@ public class ParentLink
         link=l;
         relation=r;
         depth=d;
+    }
+    public GoNode getLink()
+    {
+        return link;
+    }
+    public int getDepth()
+    {
+        return depth;
+    }
+    public int getRealtion()
+    {
+        return relation;
     }
     
 }

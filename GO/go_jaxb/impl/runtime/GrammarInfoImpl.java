@@ -69,6 +69,8 @@ public class GrammarInfoImpl implements GrammarInfo
         // the assumption is that the content interfaces and their impls
         // are loaded from the same class loader. 
         this.classLoader = objectFactoryClass.getClassLoader(); 
+        
+//        System.out.println("\nrootTagMap="+rootTagMap);
     }
     
     /**
@@ -78,8 +80,11 @@ public class GrammarInfoImpl implements GrammarInfo
     private final Class lookupRootMap( String nsUri, String localName ) {
         // note that the value of rootTagMap could be null.
         QName qn;
+//        System.out.println("looking for "+localName);
+//        System.out.println("\nrootTagMap is now: "+rootTagMap);
         
         qn = new QName(nsUri,localName);
+//        System.out.println("\nQname="+qn);
         if(rootTagMap.containsKey(qn))    return (Class)rootTagMap.get(qn);
 
         qn = new QName(nsUri,"*");
@@ -99,7 +104,11 @@ public class GrammarInfoImpl implements GrammarInfo
         String namespaceUri, String localName, UnmarshallingContext context ) {
         
         Class impl = getRootElement(namespaceUri,localName);
-        if(impl==null)        return null;
+        if(impl==null)     
+        {
+            System.out.println("impl is null");
+            return null;
+        }
         
         try {
             return ((UnmarshallableObject)impl.newInstance()).createUnmarshaller(context);
