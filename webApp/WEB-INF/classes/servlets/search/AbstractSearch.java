@@ -164,17 +164,17 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
         }        
         return sMap;
     }
-    private String buildCondition()
-    {
-        StringBuffer condition=new StringBuffer();
-        condition.append(" s.seq_id in (");
-        for(Iterator i=data.iterator();i.hasNext();)
-        {
-            condition.append(i.next());
-            if(i.hasNext())
-                condition.append(",");
-        }
-        condition.append(")");
-        return condition.toString();
-    }
+//    private String buildCondition()
+//    {
+//        StringBuffer condition=new StringBuffer();
+//        condition.append(" s.seq_id in (");
+//        for(Iterator i=data.iterator();i.hasNext();)
+//        {
+//            condition.append(i.next());
+//            if(i.hasNext())
+//                condition.append(",");
+//        }
+//        condition.append(")");
+//        return condition.toString();
+//    }
 }

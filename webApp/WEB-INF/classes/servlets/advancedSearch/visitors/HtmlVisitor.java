@@ -132,7 +132,13 @@ public class HtmlVisitor implements QueryTreeVisitor
         {            
             out.println("<td><select name='ops' onChange=\"action.value='refresh'; submit()\">");
             //printOptionList(db.getOperators(),n.getOperation().toUpperCase());
-            printOptionList(db.getFields()[lastFieldUsedIndex].getValidOps(),n.getOperation().toUpperCase());
+            if(lastFieldUsedIndex < 0 || lastFieldUsedIndex >= db.getFields().length)
+            {
+                log.error("lastFieldUsed value is out of range: "+lastFieldUsedIndex);
+                log.error("trying to print operation: "+n);
+            }
+            else
+                printOptionList(db.getFields()[lastFieldUsedIndex].getValidOps(),n.getOperation().toUpperCase());
             out.println("</select></td>");         
         }
         

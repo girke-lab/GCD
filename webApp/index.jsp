@@ -1,7 +1,7 @@
 <%@page contentType="text/html"%>
 <html>
 <head>
-    <title>Arabidopsis Sequence Retrieval</title>
+    <title>GDC</title>
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 

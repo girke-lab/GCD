@@ -151,6 +151,8 @@ public class CommonDatabase extends DefaultSearchableDatabase
     public Query buildQueryTree(SearchState state)
     {
         Query q=super.buildQueryTree(state);
+//        if(true) 
+//            return q;
         //modify select list and order by.
         List fields=new LinkedList();
         Order order=q.getOrder();
@@ -166,8 +168,8 @@ public class CommonDatabase extends DefaultSearchableDatabase
             
             order=new Order(new DbField("sequences.genome, "+getField(state.getSortField()).dbName,String.class),"ASC");
             
-            //fieldList=" sequences.seq_id, models.model_id, "+fields[state.getSortField()].dbName+",sequences.genome ";
-            //order=" sequences.genome, "+fields[state.getSortField()].dbName; 
+//            fieldList=" sequences.seq_id, models.model_id, "+fields[state.getSortField()].dbName+",sequences.genome ";
+//            order=" sequences.genome, "+fields[state.getSortField()].dbName; 
         }
         fields.add(getField(state.getSortField()).dbName);
         q.setFields(fields);
@@ -202,6 +204,7 @@ public class CommonDatabase extends DefaultSearchableDatabase
         {
             row=(List)i.next();
             inputStr.append(row.get(0)+" "+row.get(1)+" ");
+            //inputStr.append(row.get(0)+" ");
         }            
 
         mRequest.getParameterMap().put("inputKey",inputStr.toString());

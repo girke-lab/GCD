@@ -156,7 +156,7 @@ public class AdvancedSearchBean2
      * @param request servlet request object, used to get parameters
      */
     private void buildState(HttpServletRequest request)
-    {      
+    {       
         setDatabase(request.getParameter("database"));
         
         currentState.setSelectedFields(getIntList(request.getParameterValues("fields")));

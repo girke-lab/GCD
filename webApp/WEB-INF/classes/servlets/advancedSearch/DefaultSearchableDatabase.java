@@ -110,7 +110,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         }catch(Exception e){
             log.error("could not forward to QueryPageServlet: "+e.getMessage());
             e.printStackTrace();
-        }
+        } 
     }
     protected ServletRequest getNewRequest(SearchState state,HttpServletRequest request,List results)
     { //this can be overridden by sub classes to send different parameters

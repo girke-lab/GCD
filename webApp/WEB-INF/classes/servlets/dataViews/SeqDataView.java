@@ -148,7 +148,7 @@ public class SeqDataView implements DataView
             if(!row.get(P_KEY_COL).equals(primary_key))
             {//reset stuff for the next sequence
                 if(primary_key!=null) //first is null
-                    records.add(sr);                
+                    records.add(sr);                                
                 primary_key=(String)row.get(P_KEY_COL);
                 sr=new SeqRecord(primary_key,(String)row.get(DESC_COL),(String)row.get(GENOME_COL),(String)row.get(V3_KEY));                
             }
@@ -263,6 +263,7 @@ public class SeqDataView implements DataView
             if(!(o instanceof ClusterSet))
                 return false;
             ClusterSet cs=(ClusterSet)o;
+            //log.debug("testing if "+clusterNum+" is equal to "+cs.clusterNum);
             return cs.clusterNum.equals(clusterNum);                        
         }
         public String toString()
@@ -278,7 +279,12 @@ public class SeqDataView implements DataView
         {
             if(!(obj instanceof ClusterSet) || method==null)
                 return -1;
-            return method.compareTo(((ClusterSet)obj).method);
+            int c;
+            
+            c=method.compareTo(((ClusterSet)obj).method);
+            if(c==0) //if methods are the same, then check id numbers
+                c=((ClusterSet)obj).clusterNum.compareTo(clusterNum);
+            return c;
         }
     }
     class SeqRecord
@@ -447,7 +453,7 @@ public class SeqDataView implements DataView
                     
                     String treeViewLink="DispatchServlet?hid="+hid+"&script=treeViewer.pl&range=0&clusterId="+cs.clusterNum;
                     //out.println("\t\t<TD><a href='"+webBase+"jpg'>view</a></TD>");
-                    out.println("\t\t<TD><a href='"+treeViewLink+"' target='tree'>view</a></TD>");
+                    out.println("\t\t<TD><a href='"+treeViewLink+"' target='_blank'>view</a></TD>");
                  }             
                  else
                      out.println("<TD>&nbsp</TD><TD>&nbsp</TD>");

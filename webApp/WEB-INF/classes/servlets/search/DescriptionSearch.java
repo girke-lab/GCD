@@ -107,26 +107,26 @@ public class DescriptionSearch extends AbstractSearch
         log.info("Description query: "+id);   
         return id;
     }        
-    private String buildStatsStatement(String conditions,int[] dbs)
-    {
-        conditions="( "+conditions+") AND (";
-        for(int i=0;i<dbs.length;i++)
-        {
-            conditions+=" Genome='"+Common.dbRealNames[dbs[i]]+"' ";
-            if(i < dbs.length-1)//not last iteration of loop
-                conditions+=" or ";
-        }
-        conditions+=" )";
-        String query="SELECT t1.count as model_count, t2.count as cluster_count "+
-            "FROM " +
-                "select 'models', count(distinct m.model_id) from sequences , models as m" +
-                " where sequences.seq_id=m.seq_id and "+conditions +
-                " UNION "+
-                " (select ci.method, count(distinct c.cluster_id) from sequences , clusters as c, cluster_info as ci " +
-                " where sequences.seq_id=c.seq_id and c.cluster_id=ci.cluster_id and "+conditions+
-                " group by ci.method)";
-                
-        log.info("Description stats query: "+query);
-        return query;
-    }
+//    private String buildStatsStatement(String conditions,int[] dbs)
+//    {
+//        conditions="( "+conditions+") AND (";
+//        for(int i=0;i<dbs.length;i++)
+//        {
+//            conditions+=" Genome='"+Common.dbRealNames[dbs[i]]+"' ";
+//            if(i < dbs.length-1)//not last iteration of loop
+//                conditions+=" or ";
+//        }
+//        conditions+=" )";
+//        String query="SELECT t1.count as model_count, t2.count as cluster_count "+
+//            "FROM " +
+//                "select 'models', count(distinct m.model_id) from sequences , models as m" +
+//                " where sequences.seq_id=m.seq_id and "+conditions +
+//                " UNION "+
+//                " (select ci.method, count(distinct c.cluster_id) from sequences , clusters as c, cluster_info as ci " +
+//                " where sequences.seq_id=c.seq_id and c.cluster_id=ci.cluster_id and "+conditions+
+//                " group by ci.method)";
+//                
+//        log.info("Description stats query: "+query);
+//        return query;
+//    }
 }
