@@ -40,7 +40,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
         this.db=dbID;
         dbStartPositions=new int[Common.dbCount];
         keysFound=new ArrayList();
-        stats=new ArrayList();
+        //stats=new ArrayList();
     }
     
     public java.util.List notFound() {
@@ -51,9 +51,33 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     abstract void loadData();
     
     public List getStats() {
-        if(stats==null)
-            loadData();
+        if(data==null)
+            loadData(); //make sure we have some data.
+        if(stats!=null)
+            return stats;
+        String conditions=buildCondition();
+        String query="SELECT t1.count as model_count, t2.count as cluster_count" +
+        " FROM" +
+        "        (select count( distinct m.model_id) from sequences as s, models as m" +
+        "        where s.seq_id=m.seq_id and "+conditions+" ) as t1," +
+        "        (select count(distinct c.cluster_id) from sequences as s, clusters as c" +
+        "        where s.seq_id=c.seq_id and "+conditions+" ) as t2";       
+                
+        System.out.println("AbstactSearch stats query: "+query);
+        stats=(List)Common.sendQuery(query).get(0);
         return stats;
     }
-    
+    private String buildCondition()
+    {
+        StringBuffer condition=new StringBuffer();
+        condition.append(" s.seq_id in (");
+        for(Iterator i=data.iterator();i.hasNext();)
+        {
+            condition.append(i.next());
+            if(i.hasNext())
+                condition.append(",");
+        }
+        condition.append(")");
+        return condition.toString();
+    }
 }

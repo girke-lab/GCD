@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+  <servlet>
+    <servlet-name>QueryPageServlet</servlet-name>
+    <servlet-class>servlets.QueryPageServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>index</servlet-name>
+    <servlet-class>index.jsp</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>SequenceServlet</servlet-name>
+    <servlet-class>servlets.SequenceServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>DetailsServlet</servlet-name>
+    <servlet-class>servlets.DetailsServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ClusterServlet</servlet-name>
+    <servlet-class>servlets.ClusterServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>blastPage</servlet-name>
+    <servlet-class>servlets.blastPage</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>AdvancedSearchServlet</servlet-name>
+    <servlet-class>servlets.AdvancedSearchBean</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>DispatchServlet</servlet-name>
+    <servlet-class>servlets.DispatchServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>QueryPageServlet</servlet-name>
+    <url-pattern>/QueryPageServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>index</servlet-name>
+    <url-pattern>/index</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SequenceServlet</servlet-name>
+    <url-pattern>/SequenceServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DetailsServlet</servlet-name>
+    <url-pattern>/DetailsServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ClusterServlet</servlet-name>
+    <url-pattern>/ClusterServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>blastPage</servlet-name>
+    <url-pattern>/blastPage</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DispatchServlet</servlet-name>
+    <url-pattern>/DispatchServlet</url-pattern>
+  </servlet-mapping>
+  <!-- 
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name> all </web-resource-name>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>database</role-name>
+    </auth-constraint>
+  </security-constraint>
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>database web</realm-name>
+  </login-config>
+  -->
+
+</web-app>

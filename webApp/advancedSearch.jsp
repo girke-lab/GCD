@@ -120,5 +120,21 @@
     </table>
 </form>
 
+<h4> Usage: </h4>
+<p>
+Most operators work as expected.  The LIKE and NOT LIKE operators can be used
+to match patterns.  The symbol '%' will match any number of characters,
+while the '_' will match any one character. These operators should only 
+be used for text fields, spceifically, they will not work on the cluster
+size or arab/rice count fields.
+<p>
+The sort column will also determine the result view. Sorting by sequence
+attributes will result in a sequence oriented view, while sorting
+by cluster attributes will result in a cluter oriented view. Sorting
+by go number or database will give a sequence oriented view.
+<p>
+The limit field determines the total number of results returned, which 
+will be displayed 50 at a time. 
+
 </body>
 </html>

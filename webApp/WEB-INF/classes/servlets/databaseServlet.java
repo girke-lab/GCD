@@ -241,7 +241,7 @@ public class databaseServlet extends HttpServlet {
         StringBuffer logConditions=new StringBuffer();
         StringTokenizer in=new StringTokenizer(inputKey);
         while(in.hasMoreTokens() && count++ < limit)//limit the number of actual keys sent, but cannot account for wildcards
-            logConditions.append("Blast_Results.HitList.Atnum LIKE '"+in.nextToken()+"%' OR ");
+            logConditions.append("Blast_Results.HitList.Atnum "+Common.ILIKE+" '"+in.nextToken()+"%' OR ");
         logConditions.append(" 0=1");//or'ing with false does not change expression
         logConditions.append(" ORDER BY Atnum ");
         logConditions.append(" limit "+limit*5); //each key can have up to 5 orthlogs
@@ -255,7 +255,7 @@ public class databaseServlet extends HttpServlet {
         StringBuffer conditions=new StringBuffer();
         StringTokenizer in=new StringTokenizer(inputKey);
         while(in.hasMoreTokens() && count++ < limit)
-            conditions.append("TIGR_left_UTR_stats.Atnum LIKE '"+in.nextToken()+"%' OR ");
+            conditions.append("TIGR_left_UTR_stats.Atnum "+Common.ILIKE+" '"+in.nextToken()+"%' OR ");
         conditions.append(" 0=1");
         conditions.append(" limit "+limit);
         stats=sendQuery(buildStatStatement(conditions.toString()),10); //10 feilds returned
@@ -268,7 +268,7 @@ public class databaseServlet extends HttpServlet {
         StringBuffer conditions=new StringBuffer();
         StringTokenizer in=new StringTokenizer(inputKey);
         while(in.hasMoreTokens() && count++ < limit)
-            conditions.append("PDB.Atnum LIKE '"+in.nextToken()+"%' OR ");
+            conditions.append("PDB.Atnum "+Common.ILIKE+" '"+in.nextToken()+"%' OR ");
         conditions.append(" 0=1");
         conditions.append(" ORDER BY Atnum ");
         conditions.append(" limit "+limit);
@@ -282,7 +282,7 @@ public class databaseServlet extends HttpServlet {
         StringBuffer conditions=new StringBuffer();
         StringTokenizer in=new StringTokenizer(inputKey);
         while(in.hasMoreTokens() && count++ < limit)
-            conditions.append("Clusters.Atnum LIKE '"+in.nextToken()+"%' OR ");
+            conditions.append("Clusters.Atnum "+Common.ILIKE+" '"+in.nextToken()+"%' OR ");
         conditions.append(" 0=1");
         conditions.append(" ORDER BY Atnum");
         conditions.append(" limit "+limit);
@@ -778,10 +778,10 @@ public class databaseServlet extends HttpServlet {
     {
         String exp=null;
         if(currentDB==arab)  //TIGR_Data.Atnum
-            exp=new String("TIGR_Data.Atnum LIKE '"+key+"%' OR ");
+            exp=new String("TIGR_Data.Atnum "+Common.ILIKE+" '"+key+"%' OR ");
         else if(currentDB==rice)
-            exp=new String("Rice.Rice_Data_temp.Id1 LIKE '"+key+"%' OR "+
-                           "Rice.Rice_Data_temp.Id2 LIKE '"+key+"%' OR ");
+            exp=new String("Rice.Rice_Data_temp.Id1 "+Common.ILIKE+" '"+key+"%' OR "+
+                           "Rice.Rice_Data_temp.Id2 "+Common.ILIKE+" '"+key+"%' OR ");
         else
             System.err.println("invalid DB name in likeExpression");
         return exp;
@@ -880,9 +880,9 @@ public class databaseServlet extends HttpServlet {
     {
         String exp=null;
         if(currentDB==arab)  //TIGR_Data.Atnum
-            exp=new String("Promoter_1500.Atnum LIKE '"+key+"%' OR ");
+            exp=new String("Promoter_1500.Atnum "+Common.ILIKE+" '"+key+"%' OR ");
         else if(currentDB==rice)
-            exp=new String("Rice.rice_all_proteins.Id1 LIKE '"+key+"%' OR ");
+            exp=new String("Rice.rice_all_proteins.Id1 "+Common.ILIKE+" '"+key+"%' OR ");
         else
             System.err.println("invalid DB name in likeExpression");
         return exp;

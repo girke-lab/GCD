@@ -101,7 +101,7 @@ function MM_nbGroup(event, grpName) { //v6.0
         if(limit==null)
             limit="0";
         if(fieldName==null)
-            fieldName="Id";
+            fieldName="Description";
     %>   
 <!--  
 <table width="800" border="1" cellspacing="0" cellpadding="0">
@@ -217,22 +217,17 @@ function MM_nbGroup(event, grpName) { //v6.0
                                         out.println("selected"); %>>GO Number
 
                         </SELECT>
-<!--
-                       <INPUT type=radio name="searchType" value="k" CHECKED>
-                        Search by ID #
-                        <BR>
-                        <INPUT type=radio name="searchType" value="d">
-                        Search by description
-                        <BR>                
-                        <INPUT type=radio name="searchType" value="c">
-                        Search by cluster number  -->
-                        <BR>
-                       
+                        <BR>                       
                     </TD>
-                    <TD>
-                    Number of results to return:&nbsp&nbsp 
+<!--                    <TD>
+                        Number of results to return:&nbsp&nbsp 
                         <INPUT name="limit" value="<%=limit%>" size='5'>
+                    </TD> -->
+                    <TD>
+                        Records per page:&nbsp&nbsp 
+                        <INPUT name="rpp" value="50" size='5'>
                     </TD>
+
                 </TR>    
                 <TR >                    
                     <TD colspan='2' align='center'>

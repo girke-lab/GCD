@@ -59,7 +59,7 @@ public class SequenceServlet extends HttpServlet
         out.println("<html>");
         out.println("<head>");
         out.println("<title>Servlet</title>");
-        Common.javaScript(out);
+
         out.println("</head>");
         Common.printHeader(out);        
         Common.printForm(out,hid);
@@ -72,8 +72,9 @@ public class SequenceServlet extends HttpServlet
         
         int[] fieldNums=new int[fieldCount];       
         int fieldsLength=0;
-        int length,format,pos;
+        int length,format,pos,rpp;
         pos=qi.getCurrentPos();
+        rpp=((Integer)qi.getObject("rpp")).intValue();
         
         //get the list of feilds from the web page
         String[] temp1=request.getParameterValues("fields");//all fields                
@@ -102,7 +103,7 @@ public class SequenceServlet extends HttpServlet
             Common.quit(out, "position "+pos+" is out of bounds");
             return;
         }        
-        int end=pos+Common.recordsPerPage > s.getResults().size()? s.getResults().size() : pos+Common.recordsPerPage;
+        int end=pos+rpp > s.getResults().size()? s.getResults().size() : pos+rpp;
         keySet=s.getResults().subList(pos,end);                
         main=searchByKey(keySet,fieldNums,fieldsLength);
         out.println("Models found: "+main.size()+"<br>");        

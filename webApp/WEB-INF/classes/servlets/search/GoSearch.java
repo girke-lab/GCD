@@ -52,6 +52,8 @@ public class GoSearch extends AbstractSearch
             keysFound.add(t.get(1));
         }
         data=al;
+        if(data.size() > Common.MAX_QUERY_KEYS)         
+            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
     }
     
     private String buildIdStatement(String conditions, int limit,int[] DBs)
@@ -63,7 +65,20 @@ public class GoSearch extends AbstractSearch
         System.out.println("IdSearch query: "+id);   
         return id;
     }
-    
+    private String buildStatsStatement(String conditions,int[] dbs)
+    {
+        conditions="( "+conditions+") ";
+        
+        String query="SELECT t1.count as model_count, t2.count as cluster_count" +
+        " FROM" +
+        "        (select count( distinct m.model_id) from sequences as s, models as m, go " +
+        "        where s.seq_id=m.seq_id and s.seq_id=go.seq_id and "+conditions+" ) as t1," +
+        "        (select count(distinct c.cluster_id) from sequences as s, clusters as c, go" +
+        "        where s.seq_id=c.seq_id and s.seq_id=go.seq_id and "+conditions+" ) as t2";       
+                
+        System.out.println("GoSearch stats query: "+query);
+        return query;
+    }
     public List notFound()
     {//find the intersection of inputKeys and keysFound.
         List temp=new ArrayList();

@@ -38,7 +38,7 @@ public class ClusterNameSearch extends AbstractSearch
             {
                 if(wasOp==0)//last token was not an operator, but we must have an operator between every word
                     conditions.append(" and ");
-                conditions.append(" ( Cluster_Info.Name ILIKE '%"+temp+"%') ");
+                conditions.append(" ( Cluster_Info.Name "+Common.ILIKE+" '%"+temp+"%') ");
 
                 wasOp=0;
             }
@@ -63,10 +63,32 @@ public class ClusterNameSearch extends AbstractSearch
             }            
             al.add(row.get(0));
         }                
-        data=al;
-        stats=Arrays.asList(new String[]{null,Integer.toString(data.size())});
+        data=al;        
+        if(data.size() > Common.MAX_QUERY_KEYS) {
+            System.out.println(data.size()+" keys, using local stats query.");
+            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
+        }
     }
-   
+    private String buildStatsStatement(String conditions,int[] dbs)
+    {
+        conditions="( "+conditions+") AND (";
+        for(int i=0;i<dbs.length;i++)
+        {
+            conditions+=" Genome='"+Common.dbRealNames[dbs[i]]+"' ";
+            if(i < dbs.length-1)//not last iteration of loop
+                conditions+=" or ";
+        }
+        conditions+=" )";
+        String query="SELECT t1.count as model_count, t2.count as cluster_count "+
+            "FROM " +
+                "(select count(distinct m.model_id) from sequences as s, models as m, clusters as c, cluster_info" +
+                " where s.seq_id=m.seq_id and s.seq_id=c.seq_id and c.cluster_id=cluster_info.cluster_id and "+conditions+" ) as t1," +
+                "(select count(distinct c2.cluster_id) from sequences as s, clusters as c, clusters as c2, cluster_info" +
+                " where s.seq_id=c.seq_id and s.seq_id=c2.seq_id and c.cluster_id=cluster_info.cluster_id and "+conditions+" ) as t2";
+                
+        System.out.println("Cluster name stats query: "+query);
+        return query;
+    }
     private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
         String id="SELECT DISTINCT Sequences.Seq_id,sequences.genome from Cluster_Info, Clusters, Sequences "+

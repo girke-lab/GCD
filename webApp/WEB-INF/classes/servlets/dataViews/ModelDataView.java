@@ -21,7 +21,7 @@ import java.io.*;
 public class ModelDataView implements DataView
 {
     final int fieldCount=10;        
-    final int STANDARD=0, FASTA=1;    
+    final int STANDARD=0, FASTA=1,ALL_FASTA=2;    
     final int LINE_SIZE=1000; //number of base pairs to print on a line
                             //per database query
     
@@ -31,6 +31,7 @@ public class ModelDataView implements DataView
     int hid;
     HttpSession session;
     HttpServletRequest request;
+    List data=null;
     
     ModelQueryInfo mqi;
     
@@ -46,20 +47,20 @@ public class ModelDataView implements DataView
     
     public void printData(java.io.PrintWriter out) 
     {                
-        List main=searchByKey(seq_ids,mqi.fieldNums,mqi.fieldsLength);
-        out.println("Models found: "+main.size()+"<br>");        
-        printFasta(out,main,mqi.fieldNums,mqi.length,mqi.format);              
-    }
-    
+        if(data==null)
+            loadData();        
+        printFasta(out,data,mqi.fieldNums,mqi.length,mqi.format);              
+    }    
     public void printHeader(java.io.PrintWriter out) 
     {
         Common.printForm(out,hid);
-    }
-    
+    }    
     public void printStats(java.io.PrintWriter out) 
     {
-    }
-    
+        if(data==null)
+            loadData();
+        Common.printPageStats(out, seq_ids.size(),data.size(),-1);
+    }    
     public void setData(java.util.List ids, String sortCol, int[] dbList, int hid) 
     {
         this.seq_ids=ids;
@@ -69,13 +70,9 @@ public class ModelDataView implements DataView
         //store the data we got from request in the session object
         QueryInfo qi=(QueryInfo)((List)session.getAttribute("history")).get(hid);
         ModelQueryInfo mqi_temp=(ModelQueryInfo)qi.getObject("ModelQueryInfo");
-        if(mqi_temp==null)
-            System.out.println("no existing mqi");
-        else
-            System.out.println("exising mqi is: "+mqi_temp);
+        
         //update the stored mqi with any new options
-        mqi=getOptions(mqi_temp);
-        System.out.println("updated mqi is: "+mqi);
+        mqi=getOptions(mqi_temp);        
         qi.setObject("ModelQueryInfo",mqi);
         defineNames();
     }
@@ -83,6 +80,13 @@ public class ModelDataView implements DataView
 /////////////////////////////////////////////////////////////////////////////
 //                              Private  Methods                 
 /////////////////////////////////////////////////////////////////////////////
+    private void loadData()
+    {
+        if(seq_ids.size()==0)
+            data=new ArrayList();
+        else
+            data=searchByKey(seq_ids,mqi.fieldNums,mqi.fieldsLength);
+    }
     private ModelQueryInfo getOptions(ModelQueryInfo mqit)
     {
             int[] fieldNums=new int[fieldCount];       
@@ -118,18 +122,6 @@ public class ModelDataView implements DataView
                 return new ModelQueryInfo(fieldNums, fieldsLength, length,format);
             else 
                 return mqit;
-
-            //for things that were not given, use the old values.
-//            if(!isNew[0]){
-//                fieldNums=mqit.fieldNums;
-//                fieldsLength=mqit.fieldsLength;
-//            }
-//            if(!isNew[1])
-//                length=mqit.length;                
-//            if(!isNew[2])
-//                format=mqit.format;            
-//            
-//            return new ModelQueryInfo(fieldNums, fieldsLength, length,format);
     }
     private List searchByKey(List keys,int[] fields,int fieldsLength)
     {   //takes a List of keys to search for, and the fields to return
@@ -250,7 +242,7 @@ public class ModelDataView implements DataView
                 }
                 fastaOutput.append(record);                   
                 standard.append("<FORM method=post action='http://138.23.191.152/blast/blastSearch.cgi'>"+
-                    "<INPUT type=hidden name='input' value='"+record+"'>\n");
+                    "<INPUT type=hidden name='input' value=\""+record+"\">\n");
                 standard.append("\t<TR bgcolor='"+Common.titleColor+"'><TH>Links</TH>"+
                     "<TD><a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+key+
                     "'>MIPS</a>&nbsp&nbsp"+
@@ -269,7 +261,7 @@ public class ModelDataView implements DataView
             standard.append("</TABLE>\n");
             if(format==STANDARD)
                 out.println(standard);
-            else if(format==FASTA)
+            else if(format==FASTA || format==ALL_FASTA)
                 out.println("<PRE>"+fastaOutput.toString()+"</PRE>");
         }catch(NullPointerException npe){
             System.out.println("null pointer in fasta: "+npe.getMessage());

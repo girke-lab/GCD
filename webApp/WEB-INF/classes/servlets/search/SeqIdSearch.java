@@ -13,11 +13,10 @@ package servlets.search;
 
 import java.util.List;
 import java.util.ArrayList;
-import servlets.search.Search;
+import servlets.search.AbstractSearch;
 
-public class SeqIdSearch implements Search, java.io.Serializable
-{
-    List data;
+public class SeqIdSearch extends AbstractSearch //implements Search, java.io.Serializable
+{    
     /** Creates a new instance of SeqIdSearch */
     public SeqIdSearch() {
     }
@@ -37,9 +36,8 @@ public class SeqIdSearch implements Search, java.io.Serializable
     public int getDbStartPos(int i) {
         return 0;
     }
-    
-    public List getStats() {
-        return null;
+      
+    void loadData() {       
     }
     
 }

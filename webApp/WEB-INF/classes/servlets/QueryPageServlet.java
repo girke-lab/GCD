@@ -41,7 +41,8 @@ public class QueryPageServlet extends HttpServlet
         PrintWriter out = response.getWriter();
         
         int hid,pos;
-        
+        String format=request.getParameter("format");
+        boolean allFasta=(format!=null && format.equals("2"));
         
         if(session.getAttribute("hid")==null)
         {//session was just created.
@@ -59,7 +60,11 @@ public class QueryPageServlet extends HttpServlet
         Search s=null;
         DataView dv=null;
         QueryInfo qi=null;
+        int rpp; //results per page
          
+        //parameters that need to be evaluated for each page should be grabbed
+        //here, all others should be grabbed in the getInput() method and stored in
+        //a QueryInfo object.
         try{
             hid=Integer.parseInt(request.getParameter("hid"));           
             if(hid < 0 || hid >= ((ArrayList)session.getAttribute("history")).size())
@@ -83,13 +88,11 @@ public class QueryPageServlet extends HttpServlet
             pos=Integer.parseInt(request.getParameter("pos"));
             if(pos < 0)
                 pos=0;
-            System.out.println("setting pos to "+pos);
             qi.setCurrentPos(pos);
         }catch(Exception e){
             pos=qi.getCurrentPos();
-            System.out.println("retirvied pos as "+pos);
         }
-        
+        rpp=((Integer)qi.getObject("rpp")).intValue();
         s=qi.getSearch(); 
         
         String displayType=request.getParameter("displayType");
@@ -104,22 +107,29 @@ public class QueryPageServlet extends HttpServlet
             Common.quit(out, "position "+pos+" is out of bounds");
             return;
         }
-        int end=pos+Common.recordsPerPage > s.getResults().size()? s.getResults().size() : pos+Common.recordsPerPage;
-        returnedKeys=s.getResults().subList(pos,end);
+        int end=pos+rpp > s.getResults().size()? s.getResults().size() : pos+rpp;
+        if(allFasta)
+            returnedKeys=s.getResults();
+        else
+            returnedKeys=s.getResults().subList(pos,end);
         stats=s.getStats();
         dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);                
         dv.setData(returnedKeys, qi.getSortCol(),qi.getDbs(),hid); //rpp is redundent here
         
         //print page
         dv.printHeader(out); //prints form for  seq servlet
-        Common.printPageControls(out, pos, s.getResults().size(),s.getDbStartPos(Common.rice),hid); 
+        //Common.printPageControls(out,rpp, pos, s.getResults().size(),s.getDbStartPos(Common.rice),hid); 
         out.println("Keys entered: "+qi.getInputCount()+"<br>");        
-        out.println("<table cellspacing='0'><tr><td>");
+
+        out.println("<table cellspacing='0' cellpadding='0'><tr><td>");
         Common.printTotals(out,s);
         out.println("</td><td>");
         dv.printStats(out);
         out.println("</td></tr></table>");
         
+        printPageControls(out,qi,hid);
+        Common.printButtons(out,hid,pos,s.getResults().size(),rpp); 
+
         dv.printData(out);
                 
         printMismatches(out, s.notFound());
@@ -130,8 +140,7 @@ public class QueryPageServlet extends HttpServlet
         /////////////////////////////////  end of main  ////////////////////////////////////////////
     }
     private DataView getDataView(String displayType,String sortCol,HttpServletRequest request)
-    {        
-        System.out.println("displayType="+displayType);
+    {                
         if(displayType!=null)
         {
             if(displayType.equals("clusterView"))
@@ -140,6 +149,8 @@ public class QueryPageServlet extends HttpServlet
                 return new SeqDataView();
             else if(displayType.equals("modelView"))
                 return new ModelDataView(request);
+            else if(displayType.equals("statsView"))
+                return new StatsDataView();
         }
         else if(sortCol!=null)
         {
@@ -151,8 +162,7 @@ public class QueryPageServlet extends HttpServlet
         return new SeqDataView();        
     }
     private Search getSearchObj(String type) 
-    {        
-        System.out.println("Search type="+type);
+    {                
         if(type.equals("Description"))
             return new DescriptionSearch();
         else if(type.equals("Id"))
@@ -187,7 +197,7 @@ public class QueryPageServlet extends HttpServlet
             if(limit>=Common.MAXKEYS || limit==0) //cap limit at MAXKEYS
                 limit=Common.MAXKEYS;
         }catch(NumberFormatException nfe){
-            limit=Common.recordsPerPage; //default limit
+            limit=Common.MAXKEYS; //default limit
         }
         try{//test dbNums for valid input and conver text to numbers   // DBfeilds
             dbNums=new int[dbTemp.length];
@@ -196,7 +206,7 @@ public class QueryPageServlet extends HttpServlet
         }catch(Exception e){
             dbNums=new int[]{0,1};              
         }
-        System.out.println("input="+input);
+        
         if(input==null || input.length()==0)
             return null;
         else
@@ -206,16 +216,48 @@ public class QueryPageServlet extends HttpServlet
             while(tok.hasMoreTokens())
                 inputKeys.add(tok.nextToken());
         }
-        qi=new QueryInfo(dbNums,sortCol,"");
-        //search all databases simultaniously
+        qi=new QueryInfo(dbNums,sortCol,"");        
         s=getSearchObj(searchType);        
         s.init(inputKeys,limit, dbNums);              
         qi.setSearch(s);
         qi.setInputCount(inputKeys.size());
         
+        try{            
+            qi.setObject("rpp", new Integer(request.getParameter("rpp")));            
+        }catch(Exception e){
+            qi.setObject("rpp", new Integer(50));            
+        }
         return qi;
     }
  
+    private void printPageControls(PrintWriter out,QueryInfo qi,int hid)
+    {
+        String action="QueryPageServlet?hid="+hid;        
+        int pos=qi.getCurrentPos();
+        int rpp=((Integer)qi.getObject("rpp")).intValue();
+        int end=qi.getSearch().getResults().size();
+        int c=2;
+        if(pos-rpp >=0 ) c++;
+        if(pos+rpp < end) c++;
+        
+        out.println("<table align='left' border='0'>");
+//        out.println("<tr><th colspan='"+c+"'>Page Switch</th>" +
+//            "<th colspan='"+qi.getDbs().length+"'>Go to: </th></tr>");
+        out.println("<tr>");        
+        out.println("<td><a href='"+action+"&pos=0'>Start</a></td>");
+        if(pos-rpp >= 0)        
+            out.println("<td><a href='"+action+"&pos="+(pos-rpp)+"'>Previous</a></td>");
+        if(pos+rpp < end)
+            out.println("<td><a href='"+action+"&pos="+(pos+rpp)+"'>Next</a></td>");        
+        out.println("<td><a href='"+action+"&pos="+(end-(end%rpp))+"'>End</a></td>");
+  
+        out.println("<td>&nbsp&nbsp&nbsp&nbsp Go to: </td>");
+        for(int i=0;i<qi.getDbs().length;i++)        
+            out.println("<td><a href='"+action+"&pos="+qi.getSearch().getDbStartPos(qi.getDbs()[i])+"'>" +
+                Common.dbPrintNames[qi.getDbs()[i]]+"</a></td>");
+        out.println("</tr>");
+        out.println("</table><p><br>");
+    }
     private void printMismatches(PrintWriter out,List keys)
     {
         if(keys.size()==0) //don't print anything if there are no missing keys

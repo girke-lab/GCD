@@ -26,7 +26,9 @@ public class SeqDataView implements DataView
     private final int GENOME_COL=0, P_KEY_COL=1,
                       DESC_COL=2,   MODEL_COL=3,
                       GO_COL=4,     FILENAME_COL=5,
-                      SIZE_COL=6,   NAME_COL=7;
+                      SIZE_COL=6,   NAME_COL=7,
+                      A_SIZE_COL=8, R_SIZE_COL=9;
+    
     String dataColor="D3D3D3",titleColor="AAAAAA";
     
     /** Creates a new instance of SeqDataView */
@@ -59,7 +61,10 @@ public class SeqDataView implements DataView
 ///////////////////////////////////////////////////////////////////////
     private void loadData()
     {
-        records=parseData(getData(seq_ids,sortCol,dbNums));
+        if(seq_ids.size()==0)
+            records=new ArrayList();
+        else
+            records=parseData(getData(seq_ids,sortCol,dbNums));
     }
     private void printCounts(PrintWriter out,List records)
     { //print number of keys and models
@@ -74,8 +79,6 @@ public class SeqDataView implements DataView
         }
 
         Common.printPageStats(out, records.size(), modelCount, temp.size());
-//        out.println("Unique clusters found: "+temp.size()+"<BR>");
-//        out.println("Keys found: "+records.size()+",&nbsp&nbsp Models found: "+modelCount+"<BR>");
     }
     private List parseData(List data)
     {
@@ -99,7 +102,8 @@ public class SeqDataView implements DataView
             sr.addModel((String)row.get(MODEL_COL));                
             if(row.get(GO_COL)!=null)
                 sr.addGoNumber((String)row.get(GO_COL));
-            sr.addCluster(new ClusterSet((String)row.get(FILENAME_COL),(String)row.get(SIZE_COL),(String)row.get(NAME_COL)));                
+            sr.addCluster(new ClusterSet((String)row.get(FILENAME_COL),(String)row.get(SIZE_COL),
+                    (String)row.get(NAME_COL),(String)row.get(A_SIZE_COL),(String)row.get(R_SIZE_COL)));                
         }
         //store last set
         records.add(sr);
@@ -109,7 +113,7 @@ public class SeqDataView implements DataView
     {
         String genome=null;
         SeqRecord sr=null;
-        printForms(out,data);
+        //printForms(out,data);
         
         out.println("<TABLE bgcolor='"+dataColor+"' width='100%' align='center' border='1' cellspacing='0'>");
         for(Iterator i=data.iterator();i.hasNext();)
@@ -127,40 +131,7 @@ public class SeqDataView implements DataView
          
     }
 
-    private void printForms(PrintWriter out, List data)
-    {
-        if(data==null || data.size() == 0)
-            return;
-
-        out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/multigene.pl'>\n");
-        out.println("<TABLE border='0' ><TR>");        
-        out.println("<TD><INPUT type='submit' value='All Gene Structures' "+
-                    " onClick=\"javascript: action='http://bioinfo.ucr.edu/cgi-bin/multigene.pl'; submit();\"></TD>");
-        out.println("<TD><INPUT type='submit' value='Chr Map' "+       
-                    " onClick=\"javascript: action='http://bioinfo.ucr.edu/cgi-bin/chrplot.pl'; submit();\"></TD>");
-        out.println("<TD><INPUT type='submit' value='Go Slim Counts' "+
-                    " onClick=\"javascript: action='http://bioinfo.ucr.edu/cgi-bin/goSlimCounts'; submit();\"></TD>");
-        out.println("<TD><INPUT type='submit' value='Key List' "+
-                " onClick=\"javascript: action='http://bioinfo.ucr.edu/cgi-bin/displayKeys.pl'; submit();\"></TD>");
-
-        out.println("</TR></TABLE>");
-
-        out.println("<INPUT type=hidden name='database' value='all'/>");
-        out.println("<INPUT type=hidden name='total_seq_count' value='"+data.size()+"'/>\n");
-
-        SeqRecord sr;
-        for(Iterator i=data.iterator();i.hasNext();)
-        {
-            sr=(SeqRecord)i.next();
-            for(Iterator j=sr.getGoNumbers().iterator();j.hasNext();)
-                out.println("<INPUT type=hidden name='go_numbers' value='"+sr.getKey()+"_"+j.next()+"' />");
-            out.println("<INPUT type=hidden name='accession' value='"+sr.getKey()+"'/>\n");
-            
-            if(sr.getGoNumbers().size()==0) //no go numbers
-                out.println("<INPUT type=hidden name='missing_keys' value='"+sr.getKey()+"' />\n");
-        }
-        out.println("</FORM></TD></TR></TABLE>\n");
-    }
+    
     private List getData(List input, String order, int[] db)
     {
         StringBuffer conditions=new StringBuffer();
@@ -183,7 +154,7 @@ public class SeqDataView implements DataView
         StringBuffer query=new StringBuffer();
         
         query.append("SELECT sequences.genome, sequences.primary_key,sequences.description,models.model_id," +
-                    " go.go, cluster_info.filename,cluster_info.size,cluster_info.name "+
+                    " go.go, cluster_info.filename,cluster_info.size,cluster_info.name,cluster_info.arab_count,cluster_info.rice_count "+
                 "FROM sequences LEFT JOIN models USING (seq_id) LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequences.seq_id=go.seq_id)"+
                 //clusters, cluster_info, sequences LEFT JOIN go USING (seq_id) "+
                 "WHERE  ");
@@ -211,12 +182,14 @@ public class SeqDataView implements DataView
    
     
     class ClusterSet {
-        public String clusterNum, size,name;
-        ClusterSet(String cn,String s,String n)
+        public String clusterNum, size,name,arab_size,rice_size;
+        ClusterSet(String cn,String s,String n,String as,String rs)
         {
             clusterNum= cn==null? "":cn;
             size= s==null? "":s;
             name= n==null? "":n;
+            arab_size=as;
+            rice_size=rs;
         }
         public boolean equals(Object o)
         {
@@ -238,6 +211,7 @@ public class SeqDataView implements DataView
     {
         Collection goNumbers,clusters,models;
         String key,desc,genome;        
+        private final String align="left";
         
         public SeqRecord()
         {
@@ -306,7 +280,7 @@ public class SeqDataView implements DataView
                 
         public void printRecord(PrintWriter out)
         {
-            out.println("<TR bgcolor='"+titleColor+"'><TH>Key</TH><TH colspan='6' align='center'>Description</TH></TR>");
+            out.println("<TR bgcolor='"+titleColor+"'><TH align='"+align+"'>Key</TH><TH colspan='6' align='"+align+"'>Description</TH></TR>");
             out.println("<TR><TD><A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+key+"'>"+key+"</A></TD>");
             out.println("<TD colspan='6'>"+desc+"</TD></TR>");        
 
@@ -334,7 +308,10 @@ public class SeqDataView implements DataView
             }
             if(!hasCluster)
                 return;
-            out.println("\t<TR bgcolor='"+titleColor+"'><TH>Clustering</TH><TH>Name</TH><TH>ID</TH><TH>Size</TH><TH>Members</TH><TH>Alignment</TH><TH>Tree</TH></TR>");
+            out.println("\t<TR bgcolor='"+titleColor+"'><TH align='"+align+"'>Clustering</TH>" +
+                "<TH align='"+align+"'>Name</TH><TH align='"+align+"'>ID</TH>" +
+                "<TH align='"+align+"'>Size</TH><TH align='"+align+"'>Members</TH>" +
+                "<TH align='"+align+"'>Alignment</TH><TH align='"+align+"'>Tree</TH></TR>");
             String clusterType,blast="BLASTCLUST", hmm="Domain Composition";
             for(Iterator i=clusters.iterator();i.hasNext();)
             {//one row per set
@@ -364,7 +341,8 @@ public class SeqDataView implements DataView
                      out.println(cs.clusterNum);
                  out.println("\t\t</TD>");
                  out.println("\t\t<TD>"+cs.size+"</TD>");
-                 out.println("\t\t<TD><a href='/databaseWeb/index.jsp?fieldName=Cluster Id&limit=0&input="+cs.clusterNum+"'>Retrieve</a></TD>");
+                 out.println("\t\t<TD nowrap><a href='/databaseWeb/index.jsp?fieldName=Cluster Id&limit=0&input="+cs.clusterNum+"'>" +
+                            cs.arab_size+" Ath &nbsp&nbsp "+cs.rice_size+" Osa</a></TD>");
                  if(!cs.size.equals("1"))
                  {
                      String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";

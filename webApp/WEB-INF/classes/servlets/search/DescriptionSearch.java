@@ -43,7 +43,7 @@ public class DescriptionSearch extends AbstractSearch
             {
                 if(wasOp==0)//last token was not an operator, but we must have an operator between every word
                     conditions.append(" and ");
-                conditions.append(" ( Sequences.Description LIKE '%"+temp+"%') ");
+                conditions.append(" ( Sequences.Description "+Common.ILIKE+" '%"+temp+"%') ");
                 wasOp=0;
             }
             else //must be a keyword or a parinth
@@ -67,8 +67,9 @@ public class DescriptionSearch extends AbstractSearch
             }            
             al.add(row.get(0));
         }
-        data=al;
-        stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
+        data=al;        
+        if(data.size() > Common.MAX_QUERY_KEYS) 
+            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
     }
     private String printList(int[] a)
     {
@@ -107,9 +108,9 @@ public class DescriptionSearch extends AbstractSearch
         conditions+=" )";
         String query="SELECT t1.count as model_count, t2.count as cluster_count "+
             "FROM " +
-                "(select count(m.model_id) from sequences , models as m" +
+                "(select count(distinct m.model_id) from sequences , models as m" +
                 " where sequences.seq_id=m.seq_id and "+conditions+" ) as t1," +
-                "(select count(c.cluster_id) from sequences , clusters as c" +
+                "(select count(distinct c.cluster_id) from sequences , clusters as c" +
                 " where sequences.seq_id=c.seq_id and "+conditions+" ) as t2 ";
                 
         System.out.println("Description stats query: "+query);

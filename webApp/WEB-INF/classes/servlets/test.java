@@ -81,7 +81,7 @@ public class test extends HttpServlet {
          String q=new String("select Promoter_1500.Atnum, MIPS_UTRs.MIPS_Description"+
                     " from Promoter_1500, MIPS_UTRs where Promoter_1500.Atnum="+
                     "MIPS_UTRs.Atnum limit 300;");
-        String q2=new String("SELECT Promoter_1500.Atnum, MIPS_UTRs.MIPS_Description, Intergenic.DNA, Arabi_all_proteins.Protein, '', Hyperlinks.MIPS FROM Promoter_1500 LEFT JOIN TIGR_cDNA_UTRs ON Promoter_1500.Atnum=TIGR_cDNA_UTRs.Atnum LEFT JOIN MIPS_UTRs ON Promoter_1500.Atnum=MIPS_UTRs.Atnum LEFT JOIN Arabi_all_proteins ON Promoter_1500.Atnum=Arabi_all_proteins.Atnum LEFT JOIN Hyperlinks ON Promoter_1500.Atnum=Hyperlinks.Atnum LEFT JOIN Intergenic ON Promoter_1500.Atnum=Intergenic.Atnum WHERE Promoter_1500.Atnum LIKE 'At1g010%' OR  0=1  limit 5;");
+        String q2=new String("SELECT Promoter_1500.Atnum, MIPS_UTRs.MIPS_Description, Intergenic.DNA, Arabi_all_proteins.Protein, '', Hyperlinks.MIPS FROM Promoter_1500 LEFT JOIN TIGR_cDNA_UTRs ON Promoter_1500.Atnum=TIGR_cDNA_UTRs.Atnum LEFT JOIN MIPS_UTRs ON Promoter_1500.Atnum=MIPS_UTRs.Atnum LEFT JOIN Arabi_all_proteins ON Promoter_1500.Atnum=Arabi_all_proteins.Atnum LEFT JOIN Hyperlinks ON Promoter_1500.Atnum=Hyperlinks.Atnum LEFT JOIN Intergenic ON Promoter_1500.Atnum=Intergenic.Atnum WHERE Promoter_1500.Atnum "+Common.ILIKE+" 'At1g010%' OR  0=1  limit 5;");
 
         dbConnection.setQuery(q,2);
         dbConnection.start();

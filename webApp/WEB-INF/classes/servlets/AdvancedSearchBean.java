@@ -71,10 +71,9 @@ public class AdvancedSearchBean {
             sortField=2; //default to sort on cluster id
         else
             sortField=Integer.parseInt(sortTemp);
-        if(limit==null)
-            limit="50";
-        else if(limit.equals("0"))
-            limit=Integer.toString(Common.MAXKEYS);
+        if(limit==null || limit.equals("0"))
+            limit=Integer.toString(Common.MAXKEYS);        
+            
         
         processCommands(request);
     }
@@ -126,8 +125,7 @@ public class AdvancedSearchBean {
         return space;        
     }
     public int getLoopCount()
-    {
-        System.out.println("lastWasRemove="+lastWasRemove);
+    {        
         if(lastWasRemove){
             lastWasRemove=false;
             return selectedFields.size();
@@ -169,8 +167,8 @@ public class AdvancedSearchBean {
         values.remove(row.intValue());
         selectedBools.remove(row.intValue());
         
-        System.out.println("removing "+row);
-        System.out.println("start: "+startParinths+", end: "+endParinths);
+//        System.out.println("removing "+row);
+//        System.out.println("start: "+startParinths+", end: "+endParinths);
         for(int i=0;i<startParinths.size();i++)
             if(((Integer)startParinths.get(i)).intValue() > row.intValue())
                 startParinths.set(i, new Integer(((Integer)startParinths.get(i)).intValue()-1));
@@ -178,9 +176,7 @@ public class AdvancedSearchBean {
             if(((Integer)endParinths.get(i)).intValue() >= row.intValue())
                 endParinths.set(i, new Integer(((Integer)endParinths.get(i)).intValue()-1));
            
-//        startParinths.remove(row);
-//        endParinths.remove(row);
-        System.out.println("2start: "+startParinths+", end: "+endParinths);
+//        System.out.println("2start: "+startParinths+", end: "+endParinths);
         
         lastWasRemove=true;
     }
@@ -215,9 +211,9 @@ public class AdvancedSearchBean {
             
             if(fields[fid].displayName.equals("Cluster Type")){
                 if(values.get(i).equals("blast"))
-                    query.append(fields[fid].dbName+" NOT LIKE 'PF%' ");
+                    query.append(fields[fid].dbName+" NOT "+Common.ILIKE+" 'PF%' ");
                 else if(values.get(i).equals("hmm"))
-                    query.append(fields[fid].dbName+" LIKE 'PF%'");
+                    query.append(fields[fid].dbName+" "+Common.ILIKE+" 'PF%'");
             }
             else{
                 query.append(fields[fid].dbName+" "+operators[oid]+" ");
@@ -275,9 +271,7 @@ public class AdvancedSearchBean {
     }
     private void addSubExp()
     { //add the length of fields at the end of startPars
-        System.out.println("adding sub exp");
         startParinths.add(new Integer(selectedFields.size()));
-        System.out.println("startParinths="+startParinths);
     }
     private void endSubExp()
     { //add the length of fields at end of endPars
@@ -299,7 +293,7 @@ public class AdvancedSearchBean {
                             new Field("Database","sequences.Genome",new String[]{"arab","rice"}),
                             new Field("GO Number","go.go")
         };
-        operators=new String[]{"=","!=","<",">","<=",">=","LIKE","NOT LIKE"};
+        operators=new String[]{"=","!=","<",">","<=",">=",Common.ILIKE,"NOT "+Common.ILIKE};
         booleans=new String[]{"and","or"};        
     }
     private List getIntList(String[] strings)

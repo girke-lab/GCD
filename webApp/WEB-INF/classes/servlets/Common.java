@@ -15,15 +15,19 @@ import servlets.search.Search;
 
 
 public class Common {
-    public final static int arab=0, rice=1;
-    //actual database names
+    public final static int arab=0, rice=1;    
+    public final static int dbCount=2;
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
-    public final static String dataColor="D3D3D3",titleColor="AAAAAA";
-    public final static int recordsPerPage=50;
-    public final static int dbCount=2;
-    public final static int MAXKEYS=100000; //maximum number of results that can be returned 
-                            //per database query
+    public final static String dataColor="D3D3D3",titleColor="AAAAAA";        
+    //maximum number of results that can be returned per database query
+    public final static int MAXKEYS=100000; 
+    public final static int SCRIPT_LIMIT=500;
+    public final static int MAX_QUERY_KEYS=10000; //max number of keys to list in a query
+    
+    //the caselss compare keyword is ILIKE in postgres, but LIKE in mysql
+    public final static String ILIKE="ILIKE";
+                            
     private static DbConnection dbc=null;
     
     /** Creates a new instance of Common */
@@ -37,9 +41,9 @@ public class Common {
             if(dbc==null)
                 dbc=new DbConnection(); //use default connection
             rs=dbc.sendQuery(q);        
-            System.out.println("Stats: "+dbc.getStats());
+            //System.out.println("Stats: "+dbc.getStats());
         }catch(Exception e){
-            System.out.println("error connecting: "+e.getMessage());         
+            System.out.println("query error: "+e.getMessage());         
         }
         return rs;
     }
@@ -170,31 +174,21 @@ public class Common {
             "\t\t<TD><INPUT type=checkbox name='fields' value='9'><a href='/titleInfo.html'>Protein</a></TD>\n"+
             "\t\t<TD colspan='2'>Length of Sequence to return: <INPUT name='length' value='' size='5'></TD>\n"+
             "</TR><TR>\n"+
-            "\t\t<TD align='center' colspan='3'><INPUT type=checkbox name=format value='1'>fasta format</TD>\n"+            
+            //"\t\t<TD align='center' colspan='1'><INPUT type=checkbox name='format' value='1'>fasta format</TD>\n"+            
+            "\t\t<TD align='center' colspan='3'>Format: <SELECT name='format'><OPTION value='0'>html" +
+            "\t\t\t<OPTION value='1'>fasta<OPTION value='2'>all fasta</SELECT></TD>\n"+
             "</TR></TABLE>\n"+ 
             "<TABLE align='center' border='0'>\n"+
             "\t<TR>\n"+
             //"\t\t<TD><INPUT type=submit name='seq_fields' value='Sequence Data' ></TD>\n"+
-            "\t\t<TD><INPUT type=image name='submit' width='100' height='25' border='0' src='images/data.jpg' ></TD>\n"+
+            "\t\t<TD><INPUT type=image name='submit' width='100' height='25' border='0' src='images/sequence.jpg' ></TD>\n"+
             "\t\t<TD><a href='QueryPageServlet?hid="+hid+"&displayType=seqView'><img width='100' height='25' border='0' src='images/summary.jpg'></a></TD>\n"+
             //"\t\t<TD><INPUT type=submit value='Annotation Data' onClick='getDetails();'>\n"+
             "\t</TR>\n"+            
             "</TABLE>\n"+
             "</FORM>\n");
     }
-    public static void javaScript(PrintWriter out)
-    { //no longer needed
-        out.println("<script language='JavaScript' type='text/JavaScript'>\n"+
-            "<!--\n"+
-            "function getSequences()\n{\n"+
-            "document.form1.action='SequenceServlet';"+
-            "document.form1.submit();\n}\n"+
-            "function getDetails()\n{\n"+
-            "document.form1.action='DetailsServlet';"+
-            "document.form1.submit();\n}\n"+
-            "-->\n"+
-            "</script>\n");
-    }
+   
     public static void printHeader(Writer out)
     {   //print the CEPCEB header on the top of every page        
         String header=""+ 
@@ -240,14 +234,7 @@ public class Common {
         "</td>"+"</tr>"+"<tr> <td colspan=\"2\"> <hr size=\"3\">"+"</td>"+"</tr>"+"</table>");
         out.println(header);
     }
-    public static void navLinks(PrintWriter out)
-    {
-    	return; //don't print the nav links anymore
-        //out.println("<TABLLE width='50%' align='right'><TR>");
-        //out.println("<TD><A href='http://faculty.ucr.edu/~tgirke'>Home</A></TD>");
-        //out.println("<TD><A href='http://138.23.191.152:/blast/blast.html'>UCR Blast Page</A></TD>");
-        //out.println("</TR></TABLE>");
-    }
+    
     public static int getDBid(String name)
     {//takes a Genome string from database and reutrn an integer id number for it
         if(name.equals("arab"))
@@ -256,23 +243,23 @@ public class Common {
             return rice;
         return -1;
     }
-    public static void printPageControls(PrintWriter out,int pos,int end,int ricePos,int hid)
-    {
-        String action="QueryPageServlet?hid="+hid;
-        out.println("<table align='center'>");
-        out.println("<tr>");
-        
-        out.println("<td><a href='"+action+"&pos=0'>|&lt</a></td>");
-        if(pos-Common.recordsPerPage >= 0)        
-            out.println("<td><a href='"+action+"&pos="+(pos-recordsPerPage)+"'>&lt</a></td>");
-        if(pos+Common.recordsPerPage < end)
-            out.println("<td><a href='"+action+"&pos="+(pos+recordsPerPage)+"'>&gt</a></td>");        
-        out.println("<td><a href='"+action+"&pos="+(end-(end%recordsPerPage))+"'>&gt|</a></td>");
-        if(ricePos!=0)
-            out.println("<td>&nbsp<a href='"+action+"&pos="+ricePos+"'>go to Rice</a></td>");
-        out.println("</tr>");
-        out.println("</table>");
-    }
+//    public static void printPageControls(PrintWriter out,int rpp,int pos,int end,int ricePos,int hid)
+//    {
+//        String action="QueryPageServlet?hid="+hid;
+//        out.println("<table align='center'>");
+//        out.println("<tr>");
+//        
+//        out.println("<td><a href='"+action+"&pos=0'>|&lt</a></td>");
+//        if(pos-rpp >= 0)        
+//            out.println("<td><a href='"+action+"&pos="+(pos-recordsPerPage)+"'>&lt</a></td>");
+//        if(pos+rpp < end)
+//            out.println("<td><a href='"+action+"&pos="+(pos+recordsPerPage)+"'>&gt</a></td>");        
+//        out.println("<td><a href='"+action+"&pos="+(end-(end%recordsPerPage))+"'>&gt|</a></td>");
+//        if(ricePos!=0)
+//            out.println("<td>&nbsp<a href='"+action+"&pos="+ricePos+"'>go to Rice</a></td>");
+//        out.println("</tr>");
+//        out.println("</table>");
+//    }
     public static void quit(PrintWriter out,String message)
     {
         out.println(message);
@@ -282,7 +269,7 @@ public class Common {
     public static void printTotals(PrintWriter out,Search s)
     {
         out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
-        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>Query Stats</th></tr>");
+        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>Total Query</th></tr>");
         out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
         out.println("<tr>");
         out.println("<td>"+s.getResults().size()+"</td>");
@@ -298,13 +285,41 @@ public class Common {
     public static void printPageStats(PrintWriter out,int keys,int models,int clusters)
     {
         out.println("<table border='1' cellspacing='0' bgcolor='"+dataColor+"'>");
-        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>Page Stats</th></tr>");
+        out.println("<tr  bgcolor='"+titleColor+"'><th colspan='3'>On This Page</th></tr>");
         out.println("<tr  bgcolor='"+titleColor+"'><th>Loci</th><th>Models</th><th>Clusters</th></tr>");
         out.println("<tr>");
-        out.println("<td>"+keys+"</td>");
-        out.println("<td>"+models+"</td>");
-        out.println("<td>"+clusters+"</td>");
+        // use -1 to signal that a value should not be printed.
+        if(keys >= 0) out.println("<td>"+keys+"</td>");
+        if(models >= 0) out.println("<td>"+models+"</td>");
+        if(clusters >= 0) out.println("<td>"+clusters+"</td>");
         out.println("</tr></table>");
         
+    }
+    public static void printButtons(PrintWriter out, int hid,int pos,int end, int rpp)
+    {
+        
+        out.println("<FORM METHOD='POST' ACTION='DispatchServlet'>");
+        out.println("<INPUT type=hidden name='hid' value='"+hid+"'>");
+        out.println("<INPUT type=hidden name='script'>");
+        
+        out.println("<TABLE border='0' ><TR>");        
+        out.println("<TD><INPUT type='submit' value='All Gene Structures' " +
+                    " onClick=\"javascript: script.value='multigene.pl'; submit();\" ></TD>");
+        out.println("<TD><INPUT type='submit' value='Chr Map' "+       
+                    " onClick=\"javascript: script.value='chrplot.pl'; submit();\"></TD>");
+        out.println("<TD><INPUT type='submit' value='Go Slim Counts' "+
+                    " onClick=\"javascript: script.value='goSlimCounts'; submit();\"></TD>");
+        out.println("<TD><INPUT type='submit' value='Key List' "+
+                " onClick=\"javascript: script.value='displayKeys.pl'; submit();\"></TD>");
+        out.println("</TR><TR>");
+        out.println("<TD colspan='4'> Apply buttons to:&nbsp&nbsp ");
+        out.println("<SELECT name='range' >" + 
+                            "<OPTION value='0-"+end+"' >All" +
+                            "<OPTION selected value='"+pos+"-"+(pos+rpp)+"'>Page" +
+                            "<OPTION value='custom'>Range: " +
+                        "</SELECT>&nbsp ");
+        out.println("<INPUT type=text name='range' value=''></TD>");
+        out.println("</TR></TABLE></FORM>");
+        //out.println("range must be in the form a-b,c-d,...,x-y");
     }
 }

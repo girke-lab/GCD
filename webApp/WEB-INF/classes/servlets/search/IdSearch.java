@@ -25,7 +25,7 @@ public class IdSearch extends AbstractSearch
         List rs=null;
         int count=0;
 
-        conditions.append("a.Accession in (");
+        conditions.append("a.accession in (");
         while(in.hasNext() && count++ < limit)
         {
             conditions.append("'"+in.next()+"'");
@@ -51,9 +51,22 @@ public class IdSearch extends AbstractSearch
         }
         System.out.println("al="+al);
         data=al;
-        //stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
+        if(data.size() > Common.MAX_QUERY_KEYS) 
+            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);        
     }
-
+    private String buildCondition()
+    {
+        StringBuffer condition=new StringBuffer();
+        condition.append(" s.seq_id in (");
+        for(Iterator i=data.iterator();i.hasNext();)
+        {
+            condition.append(i.next());
+            if(i.hasNext())
+                condition.append(",");
+        }
+        condition.append(")");
+        return condition.toString();
+    }
     private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
         String id="SELECT DISTINCT a.Seq_id, a.Accession,s.genome FROM Sequences as s, Id_Associations as a "+
@@ -82,14 +95,14 @@ public class IdSearch extends AbstractSearch
                 conditions+=" or ";
         }
         conditions+=" )";
-        String query="SELECT t1.count as model_count, t2.count as cluster_count "+
-            "FROM " +
-                "(select count(m.model_id) from sequences , models as m" +
-                " where sequences.seq_id=m.seq_id and "+conditions+" ) as t1," +
-                "(select count(c.cluster_id) from sequences , clusters as c" +
-                " where sequences.seq_id=c.seq_id and "+conditions+" ) as t2 ";
+        String query="SELECT t1.count as model_count, t2.count as cluster_count" +
+        " FROM" +
+        "        (select count( distinct m.model_id) from sequences as s, models as m, id_associations as a" +
+        "        where s.seq_id=m.seq_id and s.seq_id=a.seq_id and "+conditions+" ) as t1," +
+        "        (select count(distinct c.cluster_id) from sequences as s, clusters as c, id_associations as a" +
+        "        where s.seq_id=c.seq_id and s.seq_id=a.seq_id and "+conditions+" ) as t2";       
                 
-        System.out.println("Description stats query: "+query);
+        System.out.println("IdSearch stats query: "+query);
         return query;
     }
     public List notFound()

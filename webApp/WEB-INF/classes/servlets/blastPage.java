@@ -79,7 +79,7 @@ public class blastPage extends HttpServlet {
         }catch(NumberFormatException nfe){
             db=arab;
         }
-        Common.navLinks(out);
+
         Common.blastLinks(out,db,hid);
         
         if(qi.dbsLength==2)//both databases
@@ -108,7 +108,7 @@ public class blastPage extends HttpServlet {
 //        String table, blastQuery, keyTitle;
 //        keyTitle=new String("Atnum");
         for(Iterator i=keys.iterator();i.hasNext();)
-            conditions.append("Atnum LIKE '"+i.next()+"%' OR ");
+            conditions.append("Atnum "+Common.ILIKE+" '"+i.next()+"%' OR ");
         
 //        for(int i=0;i<keys.length;i++)//LIKE allows for partial keys to be used
 //            conditions.append(keyTitle+" LIKE '"+keys[i]+"%' OR ");

@@ -54,11 +54,11 @@ public class DetailsServlet extends HttpServlet {
         out.println("<html>");
         out.println("<head>");
         out.println("<title>Annotation Data</title>");
-        Common.javaScript(out);
+
         out.println("</head>");
         out.println("<BODY bgcolor=\"#FFFFFF\" text=\"#000000\" link=\"#000000\" vlink=\"#000000\" alink=\"#000000\">");     
         Common.printHeader(out);
-        Common.navLinks(out);
+
         ///////////////////////////////////////////////////////////////////////
 //        logs=getOrthologs(keys,limit,dbNums[0]);
         for(int i=0;i<qi.dbsLength;i++)
@@ -88,7 +88,7 @@ public class DetailsServlet extends HttpServlet {
     {
         StringBuffer condition=new StringBuffer();        
         for(Iterator i=keys.iterator();i.hasNext();)
-            condition.append("Blast_Results.HitList.Atnum LIKE '"+i.next()+"%' OR ");        
+            condition.append("Blast_Results.HitList.Atnum "+Common.ILIKE+" '"+i.next()+"%' OR ");        
         condition.append("0=1 ");
         return Common.sendQuery(orthologQuery(condition.toString(),limit*10,currentDB));
     }
@@ -343,7 +343,7 @@ public class DetailsServlet extends HttpServlet {
     {
         String like="";
         if(currentDB==arab)
-            like=new String("TIGR_left_UTR_stats.Atnum LIKE '"+key+"%' OR ");
+            like=new String("TIGR_left_UTR_stats.Atnum "+Common.ILIKE+" '"+key+"%' OR ");
         else if(currentDB==rice)
             like=new String("0=1");//unknown still
         return like;
@@ -352,10 +352,10 @@ public class DetailsServlet extends HttpServlet {
     {
         String like="";
         if(currentDB==arab)
-            like=new String("Rice.Rice_Data.ID1 LIKE '"+key+"%' OR "+
-                "Rice.Rice_Data.ID2 LIKE '"+key+"%' OR ");
+            like=new String("Rice.Rice_Data.ID1 "+Common.ILIKE+" '"+key+"%' OR "+
+                "Rice.Rice_Data.ID2 "+Common.ILIKE+" '"+key+"%' OR ");
         else if(currentDB==rice)
-            like=new String("TIGR_Data.Atnum LIKE '"+key+"%' OR ");
+            like=new String("TIGR_Data.Atnum "+Common.ILIKE+" '"+key+"%' OR ");
         return like;
     }
     private String clusterLike(String key,int currentDB)

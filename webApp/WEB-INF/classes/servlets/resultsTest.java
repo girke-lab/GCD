@@ -50,7 +50,7 @@ public class resultsTest extends HttpServlet {
         out.println("servlet test");
         
         if(query!=null && query.equals("one"))
-            queryString=new String("SELECT * FROM TIGR_Data where Atnum LIKE "+
+            queryString=new String("SELECT * FROM TIGR_Data where Atnum "+Common.ILIKE+" "+
                                       "'At1g1%' ");
         else
             queryString=new String("SELECT * FROM TIGR_Data where Atnum='At1g01010.1'");
