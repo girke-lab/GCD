@@ -4,7 +4,7 @@
  * Created on August 6, 2004, 12:53 PM
  */
 
-package servlets;
+package servlets.search;
 
 /**
  *
@@ -13,6 +13,7 @@ package servlets;
 
 import java.util.List;
 import java.util.ArrayList;
+import servlets.search.Search;
 
 public class SeqIdSearch implements Search
 {

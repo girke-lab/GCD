@@ -14,9 +14,10 @@ import java.sql.*;
 
 
 public class Common {
-    final static int arab=0, rice=1;
+    public final static int arab=0, rice=1;
     //actual database names
-    final static String[] dbRealNames=new String[]{"arab","rice"};
+    public final static String[] dbRealNames=new String[]{"arab","rice"};
+    public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
     
     /** Creates a new instance of Common */
     public Common() {

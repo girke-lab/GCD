@@ -1,26 +1,28 @@
 /*
- * IdSearch.java
+ * ClusterIDSearch.java
  *
- * Created on March 3, 2004, 12:49 PM
+ * Created on March 3, 2004, 12:50 PM
  */
-package servlets;
+package servlets.search;
 /**
  *
  * @author  khoran
  */
-import java.util.*;
+import java.util.*; 
+import servlets.search.Search;
+import servlets.Common;
 
-public class IdSearch implements Search {
+public class ClusterIDSearch implements Search { 
     
-    List input;
-    ArrayList keysFound; //list of the keys found, of the same type of the query key.
+    List input,keysFound;
     int limit;
     int[] db;
-    
-    /** Creates a new instance of IdSearch */
-    public IdSearch() 
+
+    /** Creates a new instance of ClusterIDSearch */
+    public ClusterIDSearch() 
     {
     }
+
     public void init(List data, int limit, int[] dbID)
     {
         this.input=data;
@@ -28,15 +30,15 @@ public class IdSearch implements Search {
         this.db=dbID;
         keysFound=new ArrayList();
     }
-    
-    public List getResults()
+     
+    public List getResults() 
     {
         ListIterator in=input.listIterator();
         StringBuffer conditions=new StringBuffer();
         List rs=null;
         int count=0;
-
-        conditions.append("a.Accession in (");
+                
+        conditions.append("Cluster_Info.filename in (");
         while(in.hasNext() && count++ < limit)
         {
             conditions.append("'"+in.next()+"'");
@@ -44,41 +46,44 @@ public class IdSearch implements Search {
                 conditions.append(",");
         }
         conditions.append(")");
-
-
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
+        
+        rs=Common.sendQuery(buildClusterStatement(conditions.toString(),limit,db),2);
+        
         ArrayList al=new ArrayList();
+        ArrayList t;
         for(Iterator i=rs.iterator();i.hasNext();)
         {
-            ArrayList t=(ArrayList)i.next();
+            t=(ArrayList)i.next();
             al.add(t.get(0));
-            keysFound.add(t.get(1));
+            keysFound.add(t.get(1));            
         }
-        System.out.println("al="+al);
         return al;
+
     }
-
-    private String buildIdStatement(String conditions, int limit,int[] DBs)
+    
+     private String buildClusterStatement(String conditions, int limit, int[] DBs)
     {
-        String id="SELECT DISTINCT a.Seq_id, a.Accession FROM Sequences as s, Id_Associations as a "+
-                  "WHERE s.seq_id=a.seq_id AND ("; 
-
+        String q="SELECT Sequences.Seq_id, Cluster_Info.filename "+
+                 "FROM Sequences, Cluster_Info, Clusters "+
+                 "WHERE Cluster_Info.cluster_id=Clusters.cluster_id AND Sequences.seq_id=Clusters.seq_id AND (";
         for(int i=0;i<DBs.length;i++)
         {
-            id+=" s.Genome='"+Common.dbRealNames[DBs[i]]+"' ";
+            q+=" Genome='"+Common.dbRealNames[DBs[i]]+"' ";
             if(i < DBs.length-1)//not last iteration of loop
-                id+=" or ";
+                q+=" or ";
         }
-        
-        id+=") and ("+conditions+")";
-        id+=" limit "+limit;
-        System.out.println("IdSearch query: "+id);   
-        return id;
+
+        q+=") and ("+conditions+")";
+        q+=" order by Genome ";
+        q+=" limit "+limit;
+        System.out.println("ClusterID query is:"+q);
+
+        return q;
     }
-    
 
     
-    public List notFound()
+    
+    public List notFound() 
     {//find the intersection of inputKeys and keysFound.
         List temp=new ArrayList();
         String el;
@@ -91,6 +96,6 @@ public class IdSearch implements Search {
         System.out.println("temp="+temp);
         temp.removeAll(keysFound);
         return temp;        
-    }
+    }    
     
 }

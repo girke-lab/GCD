@@ -3,12 +3,15 @@
  *
  * Created on March 3, 2004, 12:51 PM
  */
-package servlets;
+package servlets.search;
 /**
  *
  * @author  khoran
  */
 import java.util.*;
+import servlets.search.Search;
+import servlets.Common;
+
 public class GoSearch implements Search 
 {
     List input,keysFound;
@@ -43,7 +46,7 @@ public class GoSearch implements Search
                 conditions.append(",");
         }
         conditions.append(")");
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db),2);
+        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
 
         ArrayList al=new ArrayList();
         ArrayList t;

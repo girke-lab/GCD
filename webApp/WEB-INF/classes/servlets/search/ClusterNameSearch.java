@@ -3,12 +3,15 @@
  *
  * Created on March 3, 2004, 12:51 PM
  */
-package servlets;
+package servlets.search;
 /**
  *
  * @author  khoran
  */
 import java.util.*;
+import servlets.search.Search;
+import servlets.Common;
+
 public class ClusterNameSearch implements Search {
     
     List input;

@@ -3,12 +3,16 @@
  *
  * Created on March 3, 2004, 12:49 PM
  */
-package servlets;
+package servlets.search;
+
 /**
  *
  * @author  khoran
  */
 import java.util.*;
+import servlets.search.Search;
+import servlets.Common;
+
 public class DescriptionSearch implements Search 
 {
 
