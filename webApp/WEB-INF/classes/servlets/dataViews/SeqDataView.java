@@ -13,6 +13,7 @@ package servlets.dataViews;
 
 import java.util.*;
 import java.io.*;
+import java.net.URL;
 import servlets.Common;
 import servlets.search.Search;
 import servlets.ResultPage;
@@ -117,11 +118,16 @@ public class SeqDataView implements DataView
             
             //temp.addAll(sr.getClusters());
         }
+        Integer bcl_35Count=new Integer(0),hclCount=new Integer(0);
+        if(clusterCounts.get("BLASTCLUST_35")!=null)
+            bcl_35Count=new Integer(((Set)clusterCounts.get("BLASTCLUST_35")).size());
+        if(clusterCounts.get("Domain Composition")!=null)
+            hclCount=new Integer(((Set)clusterCounts.get("Domain Composition")).size());
+        
         Common.printStatsTable(out,"On This Page", 
             new String[]{"Loci","Models","Blast_35 Clusters", "HMM Clusters"},
             new Object[]{new Integer(records.size()),new Integer(modelCount),
-                new Integer(((Set)clusterCounts.get("BLASTCLUST_35")).size()),
-                new Integer(((Set)clusterCounts.get("Domain Composition")).size())});          
+                bcl_35Count,hclCount});          
                 
     }
     private List parseData(List data)
@@ -423,21 +429,45 @@ public class SeqDataView implements DataView
                  if(!cs.size.equals("1") && !cs.method.endsWith("_50") && !cs.method.endsWith("_70"))
                  {
                      String webBase="http://bioinfo.ucr.edu/";
-                     String fileBase="/data/";
-                     String offset,csLink="noAlignment.html",tLink="noTree.html";
+                     String csLink="noAlignment.html",tLink="noTree.html";
                      
-                     if(cs.method.equals("Domain Composition"))
-                         offset="projects/ClusterDB/clusters.d/hmmClusters/";                         
-                     else
-                         offset="projects/ClusterDB/clusters.d/blastClusters/";
-                         
-                     //log.debug("testing for "+fileBase+offset+cs.clusterNum+".html");
-                     //log.debug("testing for "+fileBase+offset+cs.clusterNum+".jpg");
+//                     if(cs.method.equals("Domain Composition"))
+//                         type="hmm";
+//                     else
+//                         webBase+="projects/ClusterDB/clusters.d/blastClusters/";                                              
                      
-                     if(new File(fileBase+offset+cs.clusterNum+".html").exists())
-                        csLink=webBase+offset+cs.clusterNum+".html";
-                     if(new File(fileBase+offset+cs.clusterNum+".jpg").exists())
-                         tLink=webBase+offset+cs.clusterNum+".jpg";
+                        csLink=webBase+"cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
+                             "&cluster_type="+cs.method+"&file_type=html"; 
+                        tLink=webBase+"cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
+                             "&cluster_type="+cs.method+"&file_type=jpg"; 
+
+                     
+//                     int size=Integer.parseInt(cs.size);
+//                     if(size > 2 && size < 1000)
+//                     { //just assume it exists
+//                        csLink=webBase+cs.clusterNum+".html";                        
+//                        tLink=webBase+cs.clusterNum+".jpg";                     
+//                     }
+//                     else if(size > 2)
+//                     { //size is on the edge, so check for existance
+//                        if(urlExists(webBase+cs.clusterNum+".html"))
+//                            csLink=webBase+cs.clusterNum+".html";           
+//                        if(urlExists(webBase+cs.clusterNum+".jpg"))
+//                            tLink=webBase+cs.clusterNum+".jpg";      
+//                     }
+                     //////////////////////////////////////
+//                     try{
+//                        log.debug("testing for "+webBase+offset+cs.clusterNum+".html"); 
+//                        int l=new URL(webBase+offset+cs.clusterNum+".html").openConnection().getContentLength();
+//                        if(l!=-1)
+//                            csLink=webBase+offset+cs.clusterNum+".html";                        
+//                     }catch(IOException e){log.debug(cs.clusterNum+" failed");}
+//                     try{
+//                        log.debug("testing for "+webBase+offset+cs.clusterNum+".jpg");
+//                        int l=new URL(webBase+offset+cs.clusterNum+".jpg").openConnection().getContentLength();
+//                        if(l!=-1)
+//                            tLink=webBase+offset+cs.clusterNum+".jpg";
+//                     }catch(IOException e){log.debug(cs.clusterNum+" failed");}
                      
                      out.println("\t\t<TD nowrap>");
                      out.println("\t\t\t<a href='"+csLink+"'>Consensus shaded</a>&nbsp&nbsp");
@@ -449,6 +479,18 @@ public class SeqDataView implements DataView
                      out.println("<TD>&nbsp</TD><TD>&nbsp</TD>");
                  out.println("\t</TR>");
             }
+        }
+        private boolean urlExists(String urlStr)
+        {
+             try{
+                log.debug("testing for "+urlStr);
+                URL url=new URL(urlStr);
+                int l=url.openConnection().getContentLength();
+                return l != -1;
+             }catch(IOException e){
+                 log.debug("failed");
+             }
+             return false;
         }
         private void printLinks(PrintWriter out)    
         {//size is cluster size

@@ -90,8 +90,15 @@
                                
                     </TD>
                 </TR>   
+                <tr>
+                    <td colspan='1'>
+                        &nbsp<p>
+                        Browser specific behavior of GCD: Internet Explorer requires 'page refreshing'
+                        to view the content of a previous page.
+                    </td>
+                </tr>
             </TABLE> 
-            <P>            
+            <P>      
 	</FORM>
 </body>
 </html>
