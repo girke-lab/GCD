@@ -25,7 +25,7 @@ public class GoGetter
     /** Creates a new instance of SelectGo */
     public GoGetter() 
     {
-        connect("common");
+        connect("common_loading");
         d=new Debug();
         d.setPrintLevel(0);        
     }
@@ -243,7 +243,7 @@ public class GoGetter
         try{
             //Class.forName("org.gjt.mm.mysql.Driver").newInstance();        
             Class.forName("org.postgresql.Driver").newInstance();
-            con=DriverManager.getConnection(url,"updater","1024");
+            con=DriverManager.getConnection(url,"updater","");
         }catch(SQLException e){
             System.out.println("connection error:"+e.getMessage());
             con=null;       

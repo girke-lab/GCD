@@ -4,10 +4,11 @@
 <head><title>Advanced Search</title></head>
 <body>
 
-<jsp:useBean id='bean' class='servlets.AdvancedSearchBean' scope='session'/>
+<jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='session'/>
 <jsp:useBean id='common' class='servlets.Common' />
 <%      
         common.printHeader(out);
+        bean.setDatabase("common");
         bean.setContext(application,request,response);
         bean.loadValues(request); //get entered values for fields, opts, bools , etc ...
 %>
@@ -32,29 +33,29 @@
             <td>
                 <%= bean.printSpace(sp-ep) %>
                 <select name='fields' onChange="action.value='refresh'; submit()">
-                <%for(int i=0;i<bean.fields.length;i++){%>
+                <%for(int i=0;i<bean.db.getFields().length;i++){%>
                     <option value='<%=i%>'
-                            <%=bean.selected(bean.selectedFields,j,i)%>>
-                        <%=bean.fields[i].displayName%>
+                            <%=bean.selected(bean.currentState.getSelectedFields(),j,i)%>>
+                        <%=bean.db.getFields()[i].displayName%>
                     </option>
                 <%}%>
                 </select>
             </td>
             <td>
                 <select name='ops'>
-                <% for(int i=0;i<bean.operators.length;i++){%>
+                <% for(int i=0;i<bean.db.getOperators().length;i++){%>
                     <option value='<%=i%>'
-                            <%=bean.selected(bean.selectedOps,j,i)%>>
-                        <%=bean.operators[i]%>
+                            <%=bean.selected(bean.currentState.getSelectedOps(),j,i)%>>
+                        <%=bean.db.getOperators()[i]%>
                     </option>
                 <%}%>        
                 </select>            
             </td>
             <td>
-                <% if(j<bean.selectedFields.size()){
-                    out.println(bean.fields[((Integer)bean.selectedFields.get(j)).intValue()].render(bean.getValue(j)));
+                <% if(j<bean.currentState.getSelectedFields().size()){
+                    out.println(bean.db.getFields()[bean.currentState.getSelectedField(j).intValue()].render(bean.getValue(j)));
                 }else{
-                    out.println(bean.fields[0].render(bean.getValue(j)));
+                    out.println(bean.db.getFields()[0].render(bean.getValue(j)));
                 }%>
 <!--                <input type=text name='values' value='<%=bean.getValue(j)%>'> -->
             </td>
@@ -73,10 +74,10 @@
             <td colspan='4'>
                 <%= bean.printSpace(sp-ep) %>
                 <select name='bools'>
-                <%for(int i=0;i<bean.booleans.length;i++){%>
+                <%for(int i=0;i<bean.db.getBooleans().length;i++){%>
                     <option value='<%=i%>'
-                            <%=bean.selected(bean.selectedBools,j,i)%>>
-                        <%=bean.booleans[i]%>
+                            <%=bean.selected(bean.currentState.getSelectedBools(),j,i)%>>
+                        <%=bean.db.getBooleans()[i]%>
                     </option>
                 <%}%>
                 </select>
@@ -100,16 +101,16 @@
             <td colspan='2' align='center'>
                 Sort by: 
                 <select name='sortField' >
-                <%for(int i=0;i<bean.fields.length;i++){%>
+                <%for(int i=0;i<bean.db.getFields().length;i++){%>
                     <option value='<%=i%>'
-                        <%if(bean.sortField==i){
+                        <%if(bean.currentState.getSortField()==i){
                             out.print(" selected "); } %> >
-                        <%=bean.fields[i].displayName%>
+                        <%=bean.db.getFields()[i].displayName%>
                     </option>
                 <%}%>
             </td>
             <td colspan='2'>
-                Limit: <input name='limit' value='<%=bean.limit%>'>
+                Limit: <input name='limit' value='<%=bean.currentState.getLimit()%>'>
             </td>
         </tr>
         <tr>            

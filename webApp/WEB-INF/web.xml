@@ -33,7 +33,10 @@
     <servlet-name>DispatchServlet</servlet-name>
     <servlet-class>servlets.DispatchServlet</servlet-class>
   </servlet>
-  
+  <servlet>
+    <servlet-name>UnknownResultsServlet</servlet-name>
+    <servlet-class>servlets.UnknownResultsServlet</servlet-class>
+  </servlet>
   <servlet-mapping>
     <servlet-name>QueryPageServlet</servlet-name>
     <url-pattern>/QueryPageServlet</url-pattern>
@@ -77,5 +80,8 @@
     <realm-name>database web</realm-name>
   </login-config>
   -->
-
+  <servlet-mapping>
+    <servlet-name>UnknownResultsServlet</servlet-name>
+    <url-pattern>/UnknownResultsServlet</url-pattern>
+  </servlet-mapping>
 </web-app>

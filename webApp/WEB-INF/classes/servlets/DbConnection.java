@@ -27,17 +27,21 @@ import org.apache.commons.dbcp.DriverManagerConnectionFactory;
 
 public class DbConnection 
 {
-    static DataSource dataSource=null;
-    static ObjectPool connectionPool=null;
-    private static String hostname="";
+    DataSource dataSource=null;
+    ObjectPool connectionPool=null;
+    private String hostname="";
     static Logger log=Logger.getLogger(DbConnection.class);    
     
     /** Creates a new instance of DbConnection */
     public DbConnection() throws Exception
     {
         connect("jdbc:postgresql://138.23.191.152/common","servlet","");
-        hostname="localhost";
-        
+        hostname="localhost";        
+    }
+    public DbConnection(String url,String uName,String pwd) throws Exception 
+    {
+        connect(url,uName,pwd);  
+        hostname=url; //should fix this later.
     }
     public DbConnection(String host,String db,String uName,String pwd) throws Exception
     {
@@ -64,7 +68,7 @@ public class DbConnection
         }    
     }
    
-    public static void connect(String connectURI,String name,String password)  throws Exception 
+    public void connect(String connectURI,String name,String password)  throws Exception 
     {
         if(dataSource!=null)
             return;
@@ -83,7 +87,7 @@ public class DbConnection
         dataSource=null;
         connectionPool=null;
     }
-    public static String getHostName()
+    public String getHostName()
     {
         return hostname;
     }
@@ -91,7 +95,7 @@ public class DbConnection
     {
         close();
     }
-    public static String getStats()
+    public String getStats()
     {
         return "active: "+connectionPool.getNumActive()+", idle: "+connectionPool.getNumIdle();
     }
