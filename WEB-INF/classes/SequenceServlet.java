@@ -243,10 +243,13 @@ public class SequenceServlet extends HttpServlet
                         //record.append(data.toUpperCase()+"\n");
                     
                     //insert some spaces into data, so that the text is wrapped
-                    StringBuffer temp=new StringBuffer(data);
-                    for(int j=LINE_SIZE;j<temp.length();j+=LINE_SIZE)
-                        temp.insert(j,' ');
-                    data=temp.toString();
+                    if(format==STANDARD)
+                    {
+                        StringBuffer temp=new StringBuffer(data);
+                        for(int j=LINE_SIZE;j<temp.length();j+=LINE_SIZE)
+                            temp.insert(j,' ');
+                        data=temp.toString();
+                    }
                     
                     record.append(data+"\n");
                     standard.append("\t<TR bgcolor='"+colors[currentFeildNums[index]]+"'>"+
