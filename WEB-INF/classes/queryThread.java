@@ -39,7 +39,7 @@ public class queryThread extends Thread
     }
     public void close()
     {
-        System.out.println("closing connection");
+//        System.out.println("closing connection");
         try{
             con.close();
         }catch(SQLException e){
@@ -50,7 +50,7 @@ public class queryThread extends Thread
     {
         stmt=null;
         rs=null;
-        System.out.println("sending query number "+count++);
+//        System.out.println("sending query number "+count++);
         try{
             stmt=con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             stmt.setEscapeProcessing(false);
@@ -110,7 +110,7 @@ public class queryThread extends Thread
     {        
         //open a connnection with the database server
         String url="jdbc:mysql://138.23.191.152/"+DB+"?autoReconnect=false"; //was true
-        System.out.println("connecting to "+DB);
+//        System.out.println("connecting to "+DB);
         try{
             Class.forName("org.gjt.mm.mysql.Driver").newInstance();
         }catch(Exception e){

@@ -163,7 +163,6 @@ public class SequenceServlet extends HttpServlet
             return;
         
         int fieldsLength=((ArrayList)rs.get(0)).size()-1; //last entry is genome data, don't print it.
-        currentDB=0; //don't distigiush between databases anymore
         try{
 //            out.println("<FORM METHOD='POST' ACTION='http://138.23.191.152/blast/blastSearch.cgi'>");
 //            out.println("<INPUT type='submit' value='Blast it'><BR>");
@@ -192,8 +191,8 @@ public class SequenceServlet extends HttpServlet
                 for(int f=start;f<fieldsLength;f++)
                 {   
                     data=(String)row.get(f);                          
-                    if(fullNames[currentDB][currentFeildNums[index]].length()==0)
-                        index++; //3UTR and 5UTR are empty, so skip them 
+//                    if(fullNames[currentDB][currentFeildNums[index]].length()==0)     //rice should always have utrs now 
+//                        index++; //3UTR and 5UTR are empty, so skip them 
                     if(data==null || data.compareTo("")==0 )//|| currentFeildNums[index]==3)
                     {
                         index++;
