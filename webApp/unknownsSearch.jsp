@@ -13,7 +13,7 @@
         bean.loadValues(request); //get entered values for fields, opts, bools , etc ...
 %>
 
-<p><p>  k
+<p><p>  
 <font face="sans-serif, Arial, Helvetica, Geneva">
 <img alt="Unknown Database" src="images/unknownspace3.png">		
 <table>
@@ -57,7 +57,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>
+                                <td nowrap >
                                     <%= bean.printSpace(sp-ep) %>
                                     <select name='fields' onChange="action.value='refresh'; submit()">
                                     <%for(int i=0;i<bean.db.getFields().length;i++){%>
@@ -160,7 +160,15 @@
                     while the '_' will match any one character. 
                     <p>                    
                     The limit field determines the total number of results returned. 
-		</td>
+
+                    <%= bean.printStatusQueries() %>
+                    <table>
+                        <tr><th>Additinoal Queries</th></tr>
+                        <!--<tr><td><a href='QueryDispatcherServlet?query_name=test1'>test query</a></tr></td> -->
+                        <tr><td><a href='QueryDispatcherServlet?query_name=swp_large_evalue_view'>SWP evalue >= 1e-4</a></tr></td>
+                        <tr><td><a href='QueryDispatcherServlet?query_name=pfam_large_evalue_view'>Pfam evalue >= 0.1</a></tr></td>
+                        <!--<tr><td><a href='QueryDispatcherServlet?query_name= '></a></tr></td> -->
+		</td>                
 	</tr>
 </table>
 

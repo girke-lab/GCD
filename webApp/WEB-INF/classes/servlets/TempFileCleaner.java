@@ -40,7 +40,7 @@ public class TempFileCleaner extends Thread
     
     private TempFileCleaner() 
     {
-        super("cleaner");
+        super("cleaner "+(int)(Math.random()*100));
         filter=new OldCsvFilter(timeToExpire,"csv");
     }
     

@@ -4,30 +4,35 @@
   <servlet>
     <servlet-name>QueryPageServlet</servlet-name>
     <servlet-class>servlets.QueryPageServlet</servlet-class>
-  </servlet>    
+  </servlet>
   <servlet>
     <servlet-name>DispatchServlet</servlet-name>
     <servlet-class>servlets.DispatchServlet</servlet-class>
-  </servlet>  
-  
+  </servlet>
+  <servlet>
+    <servlet-name>QueryDispatcherServlet</servlet-name>
+    <servlet-class>servlets.advancedSearch.QueryDispatcherServlet</servlet-class>
+  </servlet>
   <servlet-mapping>
     <servlet-name>QueryPageServlet</servlet-name>
     <url-pattern>/QueryPageServlet</url-pattern>
-  </servlet-mapping>  
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>DispatchServlet</servlet-name>
     <url-pattern>/DispatchServlet</url-pattern>
-  </servlet-mapping> 
-  
-  
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>QueryDispatcherServlet</servlet-name>
+    <url-pattern>/QueryDispatcherServlet</url-pattern>
+  </servlet-mapping>
   <security-constraint>
     <web-resource-collection>
-        <web-resource-name>queryAdmin page</web-resource-name>
-        <url-pattern>/queryAdmin.jsp</url-pattern>
+      <web-resource-name>queryAdmin page</web-resource-name>
+      <url-pattern>/queryAdmin.jsp</url-pattern>
     </web-resource-collection>
     <auth-constraint>
-        <role-name>query_admin</role-name>
-    </auth-constraint>        
+      <role-name>query_admin</role-name>
+    </auth-constraint>
   </security-constraint>
   <security-constraint>
     <web-resource-collection>
@@ -37,21 +42,15 @@
     <auth-constraint>
       <role-name>database</role-name>
     </auth-constraint>
-  </security-constraint> 
-  
+  </security-constraint>
   <login-config>
     <auth-method>BASIC</auth-method>
     <realm-name>UserDatabase</realm-name>
   </login-config>
-  
   <security-role>
     <role-name>query_admin</role-name>
   </security-role>
   <security-role>
     <role-name>database</role-name>
   </security-role>
- 
-  
-  
-  
 </web-app>

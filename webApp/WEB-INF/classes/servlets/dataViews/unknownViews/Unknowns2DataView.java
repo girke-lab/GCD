@@ -33,7 +33,8 @@ public class Unknowns2DataView implements DataView
                              blast_results=new FieldRange(6,17),
                              go_numbers=new FieldRange(17,20),
                              clusters=new FieldRange(20,23),
-                             proteomics=new FieldRange(23,28);
+                             proteomics=new FieldRange(23,28),
+                             externals=new FieldRange(28,30);
     
     /** Creates a new instance of Unknowns2DataView */
     public Unknowns2DataView()
@@ -50,15 +51,15 @@ public class Unknowns2DataView implements DataView
         if(dbc==null)
             log.error("could not get db connection to khoran");
         tempDir=new File(tempPath);
-        TempFileCleaner.getInstance().setDirectory(tempDir);
-        if(!TempFileCleaner.getInstance().isAlive())
-            TempFileCleaner.getInstance().start();
+//        TempFileCleaner.getInstance().setDirectory(tempDir);
+//        if(!TempFileCleaner.getInstance().isAlive())
+//            TempFileCleaner.getInstance().start();
     }        
     
     public void printData(java.io.PrintWriter out)
     {                
-        printData(out,parseData(getData(seq_ids)));
-        //printData(out,getRecords(seq_ids));
+        //printData(out,parseData(getData(seq_ids)));
+        printData(out,getRecords(seq_ids));
         out.println("</td></table>"); //close page level table
     }
     
@@ -103,25 +104,31 @@ public class Unknowns2DataView implements DataView
             }
             public void printGeneral(PrintWriter out, Search search, String pos,Map storage)
             {
-                File tempFile=(File)storage.get("unknowns2.tempfile");
-                if(tempFile==null)
-                { //create temp file for entire query.                                
-                    log.debug("generating a new temp file");                                         
-                    try{            
-                        tempFile=File.createTempFile("results",".csv",tempDir);             
-                    }catch(IOException e){
-                         log.warn("could not create temp file: "+e.getMessage());
-                    }
-                    storage.put("unknowns2.tempfile", tempFile);
-                    
-                    Thread genTempFile=new GenTempFile(tempFile,search.getResults());                    
-                    genTempFile.start(); //gen file in background                   
-                }
-                if(tempFile!=null) //make sure tempFile is still not null
-                    out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>" +
-                    "(this file may not contain any data for several minutes, while the data is retrieved)");
-                else
-                    log.warn("could not create csv file");
+//                File tempFile=(File)storage.get("unknowns2.tempfile");
+//                if(tempFile==null)
+//                { //create temp file for entire query.                                
+//                    log.debug("generating a new temp file");                                         
+//                    try{            
+//                        tempFile=File.createTempFile("results",".csv",tempDir);             
+//                    }catch(IOException e){
+//                         log.warn("could not create temp file: "+e.getMessage());
+//                    }
+//                    storage.put("unknowns2.tempfile", tempFile);
+//                    
+//                    Thread genTempFile=new GenTempFile(tempFile,search.getResults());                    
+//                    genTempFile.start(); //gen file in background                   
+//                }
+//                if(tempFile!=null) //make sure tempFile is still not null
+//                    out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>" +
+//                    "(this file may not contain any data for several minutes, while the data is retrieved)");
+//                else
+//                    log.warn("could not create csv file");
+             
+                
+                out.println(" &nbsp&nbsp&nbsp <a href='/databaseWeb/DispatchServlet?hid="+hid+
+                            "&script=unknownsText&range=0-"+search.getResults().size()+
+                            "'>download in excel format</a> (This may take several minutes)");
+                
                 
             }
          };
@@ -136,9 +143,11 @@ public class Unknowns2DataView implements DataView
             GoRecord.getData(dbc,ids),
             BlastRecord.getData(dbc,ids),            
             ProteomicsRecord.getData(dbc,ids),
-            ClusterRecord.getData(dbc,ids)            
+            ClusterRecord.getData(dbc,ids),
+            ExternalUnknownRecord.getData(dbc,ids)
         };
-        String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters"};
+        //these names must appear in the same order as the subRecordMaps array
+        String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters","externals"};
         
         records=UnknownRecord.getData(dbc,ids,sortCol,sortDir);
         
@@ -177,6 +186,7 @@ public class Unknowns2DataView implements DataView
             rec.addSubRecord("blast_results",new BlastRecord(row.subList(blast_results.s,blast_results.e))); 
             rec.addSubRecord("proteomics",new ProteomicsRecord(row.subList(proteomics.s,proteomics.e)));
             rec.addSubRecord("clusters",new ClusterRecord(row.subList(clusters.s,clusters.e)));
+            rec.addSubRecord("externals",new ExternalUnknownRecord(row.subList(externals.s,externals.e))); 
         }
         return records.values(); //this is  a list of Record objects
     }
@@ -202,32 +212,32 @@ public class Unknowns2DataView implements DataView
         
         out.println("</TABLE>");
     }
-    private void writeTempFile(File tempFile,Collection data)
-    { //returns the temp file written to.
-        
-        if(tempFile==null)
-            return;
-        RecordVisitor visitor=new TextRecordVisitor();
-        FileWriter fw;
-        try{
-            fw=new FileWriter(tempFile);
-            //print title row
-            Record rec;
-            boolean isFirst=true;
-            for(Iterator i=data.iterator();i.hasNext();)
-            {
-                rec=(Record)i.next();
-                if(isFirst){
-                    rec.printHeader(fw, visitor);
-                    isFirst=false;
-                }
-                rec.printRecord(fw,visitor);
-            }                        
-            fw.close();
-        }catch(IOException e){
-            log.error("could not write to temp file "+tempFile.getPath()+": "+e.getMessage());
-        }       
-    }
+//    private void writeTempFile(File tempFile,Collection data)
+//    { //returns the temp file written to.
+//        
+//        if(tempFile==null)
+//            return;
+//        RecordVisitor visitor=new TextRecordVisitor();
+//        FileWriter fw;
+//        try{
+//            fw=new FileWriter(tempFile);
+//            //print title row
+//            Record rec;
+//            boolean isFirst=true;
+//            for(Iterator i=data.iterator();i.hasNext();)
+//            {
+//                rec=(Record)i.next();
+//                if(isFirst){
+//                    rec.printHeader(fw, visitor);
+//                    isFirst=false;
+//                }
+//                rec.printRecord(fw,visitor);
+//            }                        
+//            fw.close();
+//        }catch(IOException e){
+//            log.error("could not write to temp file "+tempFile.getPath()+": "+e.getMessage());
+//        }       
+//    }
     private List getData(List seq_ids)
     {
         StringBuffer conditions=new StringBuffer();
@@ -248,10 +258,11 @@ public class Unknowns2DataView implements DataView
     }
     private String buildQuery(String conditions)
     {
-  
+        //THIS IS CURRENTLY BROKEN!
         String[] tables=new String[]{"unknowns.unknown_keys","unknowns.blast_results",
                                      "unknowns.blast_databases","go.go_numbers","go.seq_gos",
-                                     "unknowns.cluster_info_and_counts_view","unknowns.proteomics_stats"};
+                                     "unknowns.cluster_info_and_counts_view","unknowns.proteomics_stats",
+                                     "unknowns.external_unknowns"};
         String[][] fields=new String[][]{
             {"key","description","est_count","mfu","ccu","bpu"},        //[0-6)
             {"target_accession","target_description","e_value","score","identities","length","positives","gaps"}, //[6-14)
@@ -259,7 +270,8 @@ public class Unknowns2DataView implements DataView
             {"go_number","function","text"}, //[17-20)
             {}, //no fields for seq_gos
             {"cluster_name","size","cutoff"},  //[20,23)
-            {"mol_weight","ip","charge","prob_in_body","prob_is_neg"} //[23,28)
+            {"mol_weight","ip","charge","prob_in_body","prob_is_neg"}, //[23,28)
+            {"is_unknown","source"} //[28,30)
         };
         StringBuffer fieldList=new StringBuffer();
         StringBuffer tableList=new StringBuffer();
@@ -290,6 +302,7 @@ public class Unknowns2DataView implements DataView
             "        AND unknowns.blast_results.blast_db_id=unknowns.blast_databases.blast_db_id \n"+
             "        AND unknowns.unknown_keys.key_id=unknowns.cluster_info_and_counts_view.key_id \n"+
             "        AND unknowns.unknown_keys.key_id=unknowns.proteomics_stats.key_id \n"+
+            "        AND unknowns.unknown_keys.key_id=unknowns.external_unknowns.key_id \n"+
             "        AND ("+conditions+")\n"+
             " ORDER BY "+sortCol+" "+sortDir;
 
@@ -330,18 +343,18 @@ public class Unknowns2DataView implements DataView
         }
     }
     
-    class GenTempFile extends Thread
-    {                        
-        File temp;
-        List ids;
-        public GenTempFile(File t,List l)
-        {
-            super("Generation thread for "+t.getName());
-            temp=t;
-            ids=l;
-        }
-        public void run(){ //since this queries all data, it will be slow, so run it in the background
-            writeTempFile(temp,parseData(getData(ids)));        
-        }
-    }
+//    class GenTempFile extends Thread
+//    {                        
+//        File temp;
+//        List ids;
+//        public GenTempFile(File t,List l)
+//        {
+//            super("Generation thread for "+t.getName());
+//            temp=t;
+//            ids=l;
+//        }
+//        public void run(){ //since this queries all data, it will be slow, so run it in the background
+//            writeTempFile(temp,parseData(getData(ids)));        
+//        }
+//    }
 }

@@ -48,7 +48,10 @@ public class HtmlRecordVisitor implements RecordVisitor
     
     public void printRecord(java.io.Writer out, BlastRecord br) throws java.io.IOException
     {                
-         out.write("<tr><td><a href='"+br.link+"'>"+br.target+"</a></td><td>"+br.evalue+"</td><td>"+br.score+"</td>" +
+        String target=br.target;
+        if(br.link!=null)
+            target="<a href='"+br.link+"'>"+br.target+"</a>";
+         out.write("<tr><td>"+target+"</td><td>"+br.evalue+"</td><td>"+br.score+"</td>" +
                     "<td>"+br.dbname+"/"+br.method+"</td></tr>\n");
     }    
     public void printRecord(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
@@ -140,6 +143,18 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("</td></tr>"); //end the last cluster(cutoff) row
     }
     
-   
+    public void printHeader(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException
+    {
+        out.write("<tr><th bgcolor='"+Common.titleColor+"'>External Sources</th></tr>\n");
+        out.write("<tr><td>");
+    }
+    public void printRecord(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException
+    {
+        out.write("<b>"+eur.source+":</b> "+(eur.isUnknown? "unknown" : "known")+" &nbsp&nbsp&nbsp ");
+    }
+    public void printFooter(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException
+    {
+        out.write("</td></tr>");
+    }
     
 }

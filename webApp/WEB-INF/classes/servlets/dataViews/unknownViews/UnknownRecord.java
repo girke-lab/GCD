@@ -17,7 +17,7 @@ import servlets.Common;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
 
-class UnknownRecord implements Record
+public class UnknownRecord implements Record
 {
     String key,description;
     int estCount;
@@ -117,11 +117,14 @@ class UnknownRecord implements Record
     }    
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
+        if(!sortCol.startsWith("unknowns.unknown_keys."))
+            sortCol="key";
         String query="SELECT * " +
         "   FROM unknowns.unknown_keys " +
         "   WHERE "+Common.buildIdListCondition("key_id",ids)+ 
         "   ORDER BY "+sortCol+" "+sortDir;
         List data=null;
+        log.info("unknownRecord query: "+query);
         try{
             data=dbc.sendQuery(query);
         }catch(java.sql.SQLException e){

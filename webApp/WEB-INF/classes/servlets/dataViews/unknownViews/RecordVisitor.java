@@ -27,9 +27,13 @@ public interface RecordVisitor
     public void printFooter(java.io.Writer out, ClusterRecord cr) throws java.io.IOException;
     
     public void printHeader(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException;
-    public void printRecord(java.io.Writer out,  ProteomicsRecord pr) throws java.io.IOException;
+    public void printRecord(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException;
     
+    public void printHeader(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException;
+    public void printRecord(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException;
+    public void printFooter(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException;
     
     //public void printHeader(java.io.Writer out) throws java.io.IOException;
     //public void printRecord(java.io.Writer out) throws java.io.IOException;
+    //public void printFooter(java.io.Writer out) throws java.io.IOException;
 }

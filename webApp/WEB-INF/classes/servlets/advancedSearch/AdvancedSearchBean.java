@@ -15,7 +15,7 @@ import javax.servlet.http.*;
 import org.apache.log4j.Logger;
 import javax.servlet.jsp.JspWriter;
 
-import servlets.Common;
+import servlets.*;
 
 /**
  *
@@ -24,7 +24,8 @@ import servlets.Common;
  */
 public class AdvancedSearchBean {  
     
-    boolean lastWasRemove=false;
+    boolean noNewRow=false;
+   
     ServletContext servletContext=null;
     ServletRequest request=null;
     ServletResponse response=null;
@@ -34,7 +35,7 @@ public class AdvancedSearchBean {
     
     private int selectedSearchState;
     private boolean printAdminControls=false;
-    private String defaultDb;
+    private String defaultDb="common";
     private static Logger log=Logger.getLogger(AdvancedSearchBean.class);
     
     public AdvancedSearchBean()
@@ -140,8 +141,8 @@ public class AdvancedSearchBean {
     }
     public int getLoopCount()
     {        
-        if(lastWasRemove){
-            lastWasRemove=false;
+        if(noNewRow){
+            noNewRow=false;
             return currentState.getSelectedFields().size();
         }
         return currentState.getSelectedFields().size()+1;
@@ -206,6 +207,34 @@ public class AdvancedSearchBean {
     {
         return "value='"+db+"' "+(db.equals(currentState.getDatabase())? "selected" : "") ;        
     }
+    public String printStatusQueries()
+    {        
+        StringBuffer out=new StringBuffer();
+        DbConnection dbc=DbConnectionManager.getConnection("khoran");
+        if(dbc==null)
+        {
+            log.error("could not connect to khoran for status queries");
+            return "";
+        }
+        String query="SELECT queries_id,name FROM updates.queries";
+        List results=null,row;
+        try{
+            results=dbc.sendQuery(query);
+        }catch(java.sql.SQLException e){
+            log.error("query "+query+" failed: "+e.getMessage());
+        }
+        
+        out.append("<table>\n");        
+        out.append("<tr><th>Status Queries</th></tr>\n");
+        for(Iterator i=results.iterator();i.hasNext();)
+        {
+            row=(List)i.next();
+            out.append("<tr><td><a href='QueryDispaterServlet?queries_id="+
+                row.get(0)+"'>"+row.get(1)+"</a></td></tr>\n");
+        }
+        out.append("</table>\n");
+        return out.toString();
+    }
 //////////////////// PRIVATE METHODS  ////////////////////////////////////    
     private void processCommands(HttpServletRequest request)
     {        
@@ -228,26 +257,26 @@ public class AdvancedSearchBean {
             if(selectedSearchState >=0 && 
                selectedSearchState < db.getSearchManager().getSearchStateList().size())
                 currentState=db.getSearchManager().getSearchState(selectedSearchState);
-            lastWasRemove=true;
+            noNewRow=true;
         }else if(request.getParameter("store_query")!=null){
             String desc=request.getParameter("description");
             if(desc!=null){                
                 currentState.setDescription(desc);
                 db.getSearchManager().addSearchState(currentState);
             }
-            lastWasRemove=true;
+            noNewRow=true;
         }else if(request.getParameter("update_query")!=null){
             SearchState ss=db.getSearchManager().getSearchState(selectedSearchState);
             currentState.setDescription(ss.getDescription());
             db.getSearchManager().setSearchState(selectedSearchState, currentState);
-            lastWasRemove=true;
+            noNewRow=true;
         }else if(request.getParameter("remove_query")!=null){
             db.getSearchManager().removeSearchState(selectedSearchState);
-            lastWasRemove=true;                    
+            noNewRow=true;                    
         }else if((action=request.getParameter("action")) !=null){ //this should always be the last case
             log.debug("action="+action);
             if(action.equals("refresh"))
-                lastWasRemove=true;    
+                noNewRow=true;    
             else if(action.equals("reset")){
                 log.debug("resetting search state");
                 String db=currentState.getDatabase();
@@ -276,10 +305,10 @@ public class AdvancedSearchBean {
            
 //        log.debug("2start: "+startParinths+", end: "+endParinths);
         
-        lastWasRemove=true;
+        noNewRow=true;
     }
     private void doQuery()
-    { //put all the conditions together to build a query        
+    { 
         if(servletContext==null)
         {
             log.error("could not get servlet context");
@@ -290,11 +319,11 @@ public class AdvancedSearchBean {
 
     private void addSubExp()
     { //add the length of fields at the end of startPars
-        currentState.getStartParinths().add(new Integer(currentState.getSelectedFields().size()));
+        currentState.getStartParinths().add(new Integer(currentState.getSelectedFields().size()));                
     }
     private void endSubExp()
     { //add the length of fields at end of endPars
-        currentState.getEndParinths().add(new Integer(currentState.getSelectedFields().size()));        
+        currentState.getEndParinths().add(new Integer(currentState.getSelectedFields().size()));                
     }
         
            

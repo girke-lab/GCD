@@ -39,20 +39,18 @@ public class TextRecordVisitor implements RecordVisitor
     public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {
         out.write("key,description,");   
-        Collection list;
+        Collection list;        
         for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
         {
             list=(Collection)i.next();
-            if(list==null)
-                continue;
-            for(Iterator j=list.iterator();j.hasNext();)
-                ((Record)j.next()).printHeader(out,this);     
+            if(list != null && list.size() > 0)
+                ((Record)list.iterator().next()).printHeader(out,this);                
         }        
     }
     
     public void printRecord(java.io.Writer out, GoRecord gr) throws java.io.IOException
     {
-        out.write(gr.go_number+"\\\""+gr.text+"\"\\"+gr.function+"\\");
+        out.write("\""+gr.go_number+" "+gr.function+" "+gr.text+":\"");
     }
     
     public void printRecord(java.io.Writer out, BlastRecord br) throws java.io.IOException
@@ -82,7 +80,7 @@ public class TextRecordVisitor implements RecordVisitor
      
     public void printHeader(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException
     {
-        out.write("Proteomics data");
+        out.write("Proteomics data,");
     }
     public void printRecord(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException
     {
@@ -91,7 +89,7 @@ public class TextRecordVisitor implements RecordVisitor
     
     public void printHeader(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
-        out.write("Cluster data");
+        out.write("Cluster data,");
     }
     public void printRecord(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
@@ -101,6 +99,17 @@ public class TextRecordVisitor implements RecordVisitor
     {
     }
     
-   
+    public void printHeader(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException
+    {
+        out.write("External Unknowns,");
+    }
+    public void printRecord(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException
+    {
+        out.write(eur.source+": "+(eur.isUnknown? "unknowns":"known")+"\\");
+    }
+    public void printFooter(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException
+    {
+        
+    }
     
 }

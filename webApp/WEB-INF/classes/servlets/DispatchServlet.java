@@ -52,7 +52,7 @@ public class DispatchServlet extends HttpServlet {
         String script=request.getParameter("script");        
         String hid_str=request.getParameter("hid");
         String[] range_set=request.getParameterValues("range");
-        String range= range_set[0].equals("custom")? range_set[1] : range_set[0];
+        String range= "custom".equals(range_set[0])? range_set[1] : range_set[0];
                 
         if(script==null || hid_str==null || range_set==null){
             Common.quit( response.getWriter(), "must specify 'hid' and 'script' parameters");
@@ -99,6 +99,8 @@ public class DispatchServlet extends HttpServlet {
             return new ChrPlotScript();
         else if(script.equals("alignToHmm"))
             return new AlignToHmmScript();
+        else if(script.equals("unknownsText"))
+            return new UnknownsTextScript();
         return null;
     }
         

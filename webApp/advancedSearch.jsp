@@ -8,6 +8,7 @@
 <jsp:useBean id='common' class='servlets.Common' />
 <%      
         common.printHeader(out);
+        bean.setDefaultDatabase("common");
         bean.setDatabase("common");
         bean.setContext(application,request,response);
         bean.loadValues(request); //get entered values for fields, opts, bools , etc ...
