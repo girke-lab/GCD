@@ -107,6 +107,26 @@ public class Common {
     }
     public static void printHeader(PrintWriter out)
     {   //print the CEPCEB header on the top of every page
+        String header=""+ 
+        "<table width='800' border='0' cellspacing='0' cellpadding='0'>"+
+        "<tr>"+
+        "<td width='210' rowspan='2'><a href='http://www.cepceb.ucr.edu/' target='_blank'><img src='images/cepceb.jpg' alt='cepceb' width='210' height='90' border='0'></a></td>"+
+        "<td width='590' align='center' colspan='3'><h1>Genome Cluster Database</h1></td>"+
+        "</tr>"+
+        "<tr>"+
+        "<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>"+
+        "    About this Database</a></font></div></td>"+
+        "<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.ucr.edu/' target='_blank'>"+
+        "    UC Riverside</a></font></div></td>"+
+        "<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>"+
+        "    Cluster Statistics</a></font></div></td>"+
+        "</tr>"+
+        "</table>"+
+        "<hr>";
+        out.println(header);
+    }
+    public static void printHeaderOld(PrintWriter out)
+    {   //print the CEPCEB header on the top of every page
         String header=new String(""+ 
         "<table width=\"86%\" border=\"0\">"+
         "<tr> <td width=\"376\" rowspan=\"3\"><i><font face=\"georgia, Times New Roman, Times\"><a href=\"http://www.cepceb.ucr.edu/\"><img src=\"images/header_01.jpg\" width=\"371\" height=\"90\" border=\"0\"></a></font></i></td>"+

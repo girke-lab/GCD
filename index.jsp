@@ -100,8 +100,8 @@ function MM_nbGroup(event, grpName) { //v6.0
         if(limit==null)
             limit=new String("50");
     %>   
-  
-<table width="800" border="0" cellspacing="0" cellpadding="0">
+<!--  
+<table width="800" border="1" cellspacing="0" cellpadding="0">
 <tr>
 <td width="210" rowspan="2"><a href="http://www.cepceb.ucr.edu/" target="_blank"><img src="images/cepceb.jpg" alt="cepceb" width="210" height="90" border="0"></a></td>
 <td width="590"><img src="images/bioinform.jpg" alt="Bioinformatics Core" width="590" height="70"></td>
@@ -125,16 +125,34 @@ function MM_nbGroup(event, grpName) { //v6.0
 </table></td>
 </tr>
 </table>
-
+-->
  
-	<FORM NAME="form1" METHOD=POST ACTION="/databaseWeb/QueryPageServlet"  target="rd" >   
+
+<table width='800' border='0' cellspacing='0' cellpadding='0'>
+<tr>
+<td width='210' rowspan='2'><a href='http://www.cepceb.ucr.edu/' target='_blank'><img src='images/cepceb.jpg' alt='cepceb' width='210' height='90' border='0'></a></td>
+<td width='590' align='center' colspan='3'><h1>Genome Cluster Database</h1></td>
+</tr>
+<tr>
+<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>
+    About this Database</a></font></div></td>
+<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.ucr.edu/' target='_blank'>
+    UC Riverside</a></font></div></td>
+<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>
+    Cluster Statistics</a></font></div></td>
+
+</tr>
+</table>
+
+<hr>
+	<FORM NAME='form1' METHOD=POST ACTION='/databaseWeb/QueryPageServlet'  target='rd' >   
             <TABLE width='70%' align='center' border='0'>
-	    	<TR>
+<!--	    	<TR>
 		    <TD colspan='2' align='center'>
 		    	<h2>Full-Genome Cluster Database</h2>
 		    </TD>
 		    <TD>&nbsp</TD>
-		</TR>
+		</TR> 
 		<TR>
 		    <TD align='center'>
 		         <A href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>About this Database</A>	
@@ -142,6 +160,7 @@ function MM_nbGroup(event, grpName) { //v6.0
 		    <TD align='center'>
 			 <A href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>Cluster Statistics</A>
 		    </TD>
+                </TR> -->
                 <TR>
                     <TD colspan='2'>
                         1.Obtain selected sequences for one or many ID numbers.
@@ -150,7 +169,7 @@ function MM_nbGroup(event, grpName) { //v6.0
                         <BR>
                         3.For perfomance reasons, the maximum number of query results is 1000.
                          To download entire datasets, please use our 
-                        <A href="ftp://138.23.191.152/pub/"> FTP site.</A>
+                        <A href='ftp://138.23.191.152/pub/'> FTP site.</A>
                     </TD>                    
                 </TR>  
                 <TR >

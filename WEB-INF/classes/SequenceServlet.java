@@ -164,14 +164,17 @@ public class SequenceServlet extends HttpServlet
         StringBuffer fastaOutput=new StringBuffer();//gets send to blast script
         StringBuffer record=new StringBuffer(); //these get sent to screen
         StringBuffer standard=new StringBuffer();
-        String key,key2,desc,data;
+        StringBuffer temp=new StringBuffer();
+        String key,key2,desc,data, tigrDb="ath1";
         int start;
         if(rs==null || rs.size()==0)
             return;
+        if(currentDB==rice)
+            tigrDb="osa1";
         int fieldsLength=((ArrayList)rs.get(0)).size();
         currentDB=0; //don't distigiush between databases anymore
         try{
-            out.println("<FORM METHOD='POST' ACTION='http://138.23.191.152/blast/blastSearch.cgi'>");
+//            out.println("<FORM METHOD='POST' ACTION='http://138.23.191.152/blast/blastSearch.cgi'>");
 //            out.println("<INPUT type='submit' value='Blast it'><BR>");
             System.out.println("size of rs is "+((ArrayList)rs.get(0)).size());
             standard.append("<TABLE align='center'>");
@@ -182,35 +185,11 @@ public class SequenceServlet extends HttpServlet
                 key2=(String)row.get(1); //model accession number
                 desc=(String)row.get(2); //description
                 start=3;
-/*
-                if(currentDB==rice)
-                {
-                    key2=(String)row.get(1);
-                    desc=(String)row.get(2);
-                    start=3;
-                }
-                else
-                {
-                    key2=new String("&nbsp");
-                    desc=(String)row.get(1);
-                    start=2;
-                }
- */
-                if(currentDB==arab)
-                    standard.append("\t<TR bgcolor='"+colors[0]+"'><TH>Links</TH>"+
-                        "<TD><a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+key+
-                        "'>MIPS</a>&nbsp&nbsp"+
-                        "<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+
-                        "ORF_infopage.cgi?db=ath1&orf="+key+"'>TIGR</a></TD></TR>");      
-                standard.append("\t<TR bgcolor='"+colors[0]+"'><TH align='left'>Accession</TH><TD>"+
-                    "<A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?db=all&accession="+key+"'>"+key+"</A></TD></TR>"+
-                    "\t<TR bgcolor='"+colors[1]+"'><TH align='left'>Model Accession</TH><TD>"+key2+"</TD></TR>"+
-                    "\t<TR bgcolor='"+colors[2]+"'><TH align='left'>Description</TH><TD>"+desc+"</TD></TR>\n");
-
+  
                 int index=0;                
                 for(int f=start;f<fieldsLength;f++)
                 {   
-                    data=(String)row.get(f);      
+                    data=(String)row.get(f);                          
                     if(fullNames[currentDB][currentFeildNums[index]].length()==0)
                         index++; //3UTR and 5UTR are empty, so skip them 
                     if(data==null || data.compareTo("")==0 )//|| currentFeildNums[index]==3)
@@ -219,8 +198,6 @@ public class SequenceServlet extends HttpServlet
                         continue;                                        
                     }
                     record.append("&gt "+key+" "+key2+" "+desc+": "+printNames[currentFeildNums[index]]+"\n");
-                    fastaOutput.append(record.toString());
-                    record.setLength(0);
                     
                     if(currentFeildNums[index]==4){ //deal with the promoter
                         if(data.length() > 3000) //only trim if it is greater than 3000
@@ -230,44 +207,54 @@ public class SequenceServlet extends HttpServlet
                         ; //dont change data at all                    
                     else if(currentFeildNums[index]==9)//dont trim the protein  
                         data=data.toUpperCase();
-                        //record.append(data.toUpperCase()+"\n");
                     else if(length > 0 && length < data.length())  //trim output feilds to length
                         data=data.substring(0,length).toUpperCase();
-                        //record.append(data.substring(0,length).toUpperCase()+"\n");
                     else if(length < 0 && (-1*length) < data.length())
                         //length is negative, so adding it to data.lenth moves back from the end
                         data=data.substring(data.length()+length,data.length()).toUpperCase();
-                        //record.append(data.substring(data.length()+length,data.length()).toUpperCase()+"\n");
                     else //length==0
                         data=data.toUpperCase();
-                        //record.append(data.toUpperCase()+"\n");
                     
                     //insert some spaces into data, so that the text is wrapped
                     if(format==STANDARD)
                     {
-                        StringBuffer temp=new StringBuffer(data);
-                        for(int j=LINE_SIZE;j<temp.length();j+=LINE_SIZE)
-                            temp.insert(j,' ');
-                        data=temp.toString();
+                        StringBuffer temp2=new StringBuffer(data);
+                        for(int j=LINE_SIZE;j<temp2.length();j+=LINE_SIZE)
+                            temp2.insert(j,' ');
+                        data=temp2.toString();
                     }
-                    
-                    record.append(data+"\n");
-                    standard.append("\t<TR bgcolor='"+colors[currentFeildNums[index]]+"'>"+
+                  
+                    temp.append("\t<TR bgcolor='"+colors[currentFeildNums[index]]+"'>"+
                         "<TH align='left'>"+printNames[currentFeildNums[index]]+"</TH>"+
-                        "<TD>"+record.toString()+"</TD></TR>\n");
-                    fastaOutput.append(record.toString());
-                    record.setLength(0); //erase string
+                        "<TD>"+data+"</TD></TR>\n");
+                    record.append(data+"\n");
                     index++;
                 }
-                standard.append("<TR><TD colspan='2'>&nbsp</TD></TR>\n");
+                fastaOutput.append(record);                   
+                standard.append("<FORM method=post action='http://138.23.191.152/blast/blastSearch.cgi'>"+
+                    "<INPUT type=hidden name='input' value='"+record+"'>\n");
+                standard.append("\t<TR bgcolor='"+colors[0]+"'><TH>Links</TH>"+
+                    "<TD><a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+key+
+                    "'>MIPS</a>&nbsp&nbsp"+
+                    "<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+
+                    "ORF_infopage.cgi?db="+tigrDb+"&orf="+key+"'>TIGR</a></TD></TR>");      
+                standard.append("\t<TR bgcolor='"+colors[0]+"'><TH align='left'>Accession</TH><TD>"+
+                    "<A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?db=all&accession="+key+"'>"+key+"</A>"+
+                    "&nbsp&nbsp<INPUT type=submit value='Blast it'></TD></TR>"+
+                    "\t<TR bgcolor='"+colors[1]+"'><TH align='left'>Model Accession</TH><TD>"+key2+"</TD></TR>"+
+                    "\t<TR bgcolor='"+colors[2]+"'><TH align='left'>Description</TH><TD>"+desc+"</TD></TR>\n");
+                standard.append(temp);
+                standard.append("<TR><TD colspan='2'>&nbsp</TD></TR></FORM>\n");
+                record.setLength(0); //erase string
+                temp.setLength(0);
             }
             standard.append("</TABLE>\n");
             if(format==STANDARD)
                 out.println(standard);
             else if(format==FASTA)
                 out.println("<PRE>"+fastaOutput.toString()+"</PRE>");
-            out.println("<INPUT type=hidden name='input' value='"+fastaOutput.toString()+"'>");
-            out.println("</FORM>");
+//            out.println("<INPUT type=hidden name='input' value='"+fastaOutput.toString()+"'>");
+//            out.println("</FORM>");
         }catch(NullPointerException npe){
             System.out.println("null pointer in fasta: "+npe.getMessage());
             npe.printStackTrace();
