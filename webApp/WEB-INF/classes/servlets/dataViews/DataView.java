@@ -13,5 +13,10 @@ package servlets.dataViews;
 public interface DataView 
 {
     void setData(java.util.List ids,String sortCol,int limit,int[] dbList,int hid);
+    
+    /** 
+     *shoul first print the number of keys and models found, then
+     *the data.
+     */
     void printData(java.io.PrintWriter out);
 }

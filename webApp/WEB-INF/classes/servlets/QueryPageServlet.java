@@ -83,9 +83,6 @@ public class QueryPageServlet extends HttpServlet
             while(tok.hasMoreTokens())
                 inputKeys.add(tok.nextToken());
         }
-        System.out.println("qp: sortCol="+sortCol);
-        if(sortCol==null)
-            sortCol="cluster_info.filename"; //sort by cluster_id by default
         
         if(session.getAttribute("hid")==null)
         {//session was just created.
@@ -121,8 +118,8 @@ public class QueryPageServlet extends HttpServlet
         returnedKeys=s.getResults();
         qi.addKeySet(returnedKeys); //store this key set in the session variable    
         
-        //dv=getDataView(sortCol);
-        dv=new GeneralDataView();
+        dv=getDataView(sortCol);
+        //dv=new SeqDataView();
         dv.setData(returnedKeys, sortCol,limit, dbNums,hid);
         printMismatches(out, s.notFound());
         out.println("Keys entered: "+inputKeys.size()+"<br>");
@@ -146,12 +143,12 @@ public class QueryPageServlet extends HttpServlet
     }
     private DataView getDataView(String sortCol)
     {        
-        if(sortCol.startsWith("sequences"))
+        if(sortCol==null || sortCol.startsWith("sequences"))
             return new SeqDataView();
         else if(sortCol.startsWith("cluster_info"))
             return new ClusterDataView();
         else
-            return new GeneralDataView();        
+            return new SeqDataView();        
     }
     private Search getSearchObj(String type) 
     {        

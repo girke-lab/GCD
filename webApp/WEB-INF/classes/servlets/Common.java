@@ -39,10 +39,11 @@ public class Common {
 //        {//then connect
         Connection conn;
             try{
-                //String url="jdbc:postgresql://138.23.191.152/common";
-                String url="jdbc:mysql://138.23.191.152/common_test";
-                //Class.forName("org.postgresql.Driver").newInstance();
-                Class.forName("org.gjt.mm.mysql.Driver").newInstance();
+                String url="jdbc:postgresql://138.23.191.152/common";
+                Class.forName("org.postgresql.Driver").newInstance();
+
+                //String url="jdbc:mysql://138.23.191.152/common_test";
+                //Class.forName("org.gjt.mm.mysql.Driver").newInstance();
                 conn=DriverManager.getConnection(url,"servlet","512256");
             }catch(SQLException e){
                 System.out.println("could not coneect to database: "+e.getMessage());

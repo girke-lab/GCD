@@ -357,7 +357,7 @@ public class GeneralDataView implements DataView
         general.append(") and ( "+conditions+" ) GROUP BY sequences.seq_id,primary_Key, description,Genome ");
         //general.append("ORDER BY Genome,Primary_Key");
         general.append("ORDER BY "+order);
-        general.append(" limit "+limit);
+        //general.append(" limit "+limit);
         System.out.println("general Query: "+general);
         return general.toString();
     }

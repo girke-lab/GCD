@@ -249,8 +249,7 @@ public class AdvancedSearchBean {
         
         mRequest.getParameterMap().put("searchType","seq_id");
         mRequest.getParameterMap().put("limit", limit);
-        mRequest.getParameterMap().put("sortCol",fields[sortField].dbName);
-        System.out.println("as: sortCol="+fields[sortField].dbName);
+        mRequest.getParameterMap().put("sortCol",fields[sortField].dbName);        
         
         StringBuffer inputStr=new StringBuffer();        
         for(Iterator i=results.iterator();i.hasNext();)
