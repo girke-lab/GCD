@@ -13,10 +13,10 @@ import java.util.*;
 import servlets.search.Search;
 import servlets.Common;
 
-public class DescriptionSearch implements Search 
+public class DescriptionSearch implements Search, java.io.Serializable 
 {
 
-    List input;
+    List input,data=null;
     int limit;
     int[] db;
     
@@ -30,8 +30,7 @@ public class DescriptionSearch implements Search
         this.limit=limit;
         this.db=dbID;
     }
-    
-    public List getResults()     
+    private void loadData()
     {
         Iterator in=input.iterator();
         StringBuffer conditions=new StringBuffer();
@@ -62,8 +61,16 @@ public class DescriptionSearch implements Search
         ArrayList al=new ArrayList();
         for(Iterator i=rs.iterator();i.hasNext();)        
             al.add(((ArrayList)i.next()).get(0));
-        return al;
+        data=al;
     }
+    public List getResults()     
+    {
+        if(data==null)
+            loadData();
+//        System.out.println("descriptionSearch: data="+data);
+        return data;
+    }
+
     private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
         String id="SELECT DISTINCT Sequences.Seq_id from Sequences "+
@@ -86,5 +93,6 @@ public class DescriptionSearch implements Search
     {
         return new ArrayList(); //return an empty list since this operation does not make sense.
     }    
+    
     
 }

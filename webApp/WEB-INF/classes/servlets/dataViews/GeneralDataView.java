@@ -37,11 +37,11 @@ public class GeneralDataView implements DataView
         printSummary(out, data, findGoNumbers(seq_ids), findClusterNumbers(seq_ids), dbNums, hid);
     }
     
-    public void setData(java.util.List ids, String sortCol, int limit, int[] dbList, int hid) 
+    public void setData(java.util.List ids, String sortCol, int[] dbList, int hid) 
     {
         this.seq_ids=ids;
         this.sortCol=sortCol;
-        this.limit=limit;        
+        this.limit=1000;        
         this.dbNums=dbList;        
         this.hid=hid;
     }
@@ -261,7 +261,7 @@ public class GeneralDataView implements DataView
                 
 
         System.out.println("sending goNumbers query: "+buildGoStatement(conditions.toString()));
-        List results=Common.sendQuery(buildGoStatement(conditions.toString()),2); 
+        List results=Common.sendQuery(buildGoStatement(conditions.toString())); 
         if(results.size()==0)
             System.out.println("no results");
         

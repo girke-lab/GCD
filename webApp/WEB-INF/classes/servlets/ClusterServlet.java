@@ -87,7 +87,7 @@ public class ClusterServlet extends HttpServlet {
     
     private List getClusters(String clusterID, int currentDB)
     {
-        return Common.sendQuery(clusterQuery(clusterID,currentDB),3);
+        return Common.sendQuery(clusterQuery(clusterID,currentDB));
     }
     private String getQueryURL(List data)
     {

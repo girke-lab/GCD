@@ -113,8 +113,8 @@ public class blastPage extends HttpServlet {
 //        for(int i=0;i<keys.length;i++)//LIKE allows for partial keys to be used
 //            conditions.append(keyTitle+" LIKE '"+keys[i]+"%' OR ");
         conditions.append("1=0");//just to end the statement
-        rs=Common.sendQuery(buildBlastStatement(conditions.toString(),"blastp",db),11);
-        rs.addAll(Common.sendQuery(buildBlastStatement(conditions.toString(),"tblastn",db),11));
+        rs=Common.sendQuery(buildBlastStatement(conditions.toString(),"blastp",db));
+        rs.addAll(Common.sendQuery(buildBlastStatement(conditions.toString(),"tblastn",db)));
         Collections.sort(rs,new blastComparer(db));
         printBlastStats(out, rs);
     }

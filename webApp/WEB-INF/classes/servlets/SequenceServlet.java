@@ -71,8 +71,8 @@ public class SequenceServlet extends HttpServlet
         
         int[] fieldNums=new int[fieldCount];       
         int fieldsLength=0;
-        int length,format;
-        
+        int length,format,pos;
+        pos=qi.getCurrentPos();
         
         //get the list of feilds from the web page
         String[] temp1=request.getParameterValues("fields");//all fields                
@@ -92,19 +92,14 @@ public class SequenceServlet extends HttpServlet
             format=STANDARD;
         }
         
+        
         ///////////////////////  main /////////////////////////////////////////////////////////
         List keySet,main;
-//        for(int i=0;i<qi.dbsLength;i++)
-//        {
-//            System.out.println("i="+i);
-//            out.println("<P><H3 align='center'>"+dbPrintNames[qi.dbNums[i]]+" search results:</H3>");
-            keySet=qi.getKeySet(0); //keySet will be a list of Seq_id numbers, not Accession numbers
-            main=searchByKey(keySet,qi.limit,qi.dbNums[0],fieldNums,fieldsLength);
-            //Common.printList(out,main);
-            //Common.blastLinks(out,qi.dbNums[i],hid);
-            out.println("Models found: "+main.size());
-            printFasta(out,main,qi.dbNums[0],fieldNums,length,format);            
-//        }
+        keySet=qi.getSearch().getResults().subList(pos,pos+Common.recordsPerPage);
+        main=searchByKey(keySet,fieldNums,fieldsLength);
+        out.println("Models found: "+main.size()+"<br>");        
+        printFasta(out,main,fieldNums,length,format);            
+
         exit(out);    
     }
 
@@ -114,7 +109,7 @@ public class SequenceServlet extends HttpServlet
         out.println("</html>");
         out.close();
     }
-    private List searchByKey(List keys,int limit,int currentDB,int[] fields,int fieldsLength)
+    private List searchByKey(List keys,int[] fields,int fieldsLength)
     {   //takes a List of keys to search for, and the fields to return
         //returns a string of actual keys returned from database
         StringBuffer conditions=new StringBuffer();
@@ -123,7 +118,7 @@ public class SequenceServlet extends HttpServlet
         int fieldCount=3; //we add accession, model, and description
         int count=0; //used to limit number of keys actually sent to database
         
-        currentDB=0;//we no longer need to distiguish between databases, so just use 0
+        int currentDB=0;//we no longer need to distiguish between databases, so just use 0
         
         feildCombo.append(fullNames[currentDB][0]);  //accession
         feildCombo.append(", "+fullNames[currentDB][1]); //model number
@@ -141,18 +136,18 @@ public class SequenceServlet extends HttpServlet
         ListIterator in=keys.listIterator();
         
         conditions.append("Sequences.Seq_id in (");
-        while(in.hasNext() && count++ < limit)
+        while(in.hasNext())
         {
             conditions.append("'"+in.next()+"'");
-            if(in.hasNext() && count < limit)
+            if(in.hasNext() )
                 conditions.append(",");
         }
         conditions.append(")");
         
-        rs=Common.sendQuery(buildGeneralStatement(feildCombo.toString(),conditions.toString(),limit,currentDB),fieldCount);
+        rs=Common.sendQuery(buildGeneralStatement(feildCombo.toString(),conditions.toString(),currentDB));
         return rs;   
     }       
-    private void printFasta(PrintWriter out,List rs,int currentDB,int[] currentFeildNums,int length,int format)
+    private void printFasta(PrintWriter out,List rs,int[] currentFeildNums,int length,int format)
     {
         
         StringBuffer fastaOutput=new StringBuffer();//gets send to blast script
@@ -160,7 +155,7 @@ public class SequenceServlet extends HttpServlet
         StringBuffer standard=new StringBuffer();
         StringBuffer temp=new StringBuffer();
         String key,key2,desc,data, tigrDb="ath1";
-        int start;
+        int start,currentDB;
         int lastDB=-1;
         if(rs==null || rs.size()==0)
             return;
@@ -268,19 +263,12 @@ public class SequenceServlet extends HttpServlet
         }
     }
 ///////////////////////////  Query stuff  ///////////////////////////////////////////////////////    
-    private String buildGeneralStatement(String feilds, String conditions,int limit,int currentDB)
+    private String buildGeneralStatement(String feilds, String conditions,int currentDB)
     {
         StringBuffer general=new StringBuffer();
         general.append("SELECT "+feilds+" FROM Sequences "+
                        " LEFT JOIN Models USING(Seq_id) WHERE "+conditions+
-                       " ORDER BY Genome, "+fullNames[0][0]);
-//        if(currentDB==arab)  //ID is a global varibale used to kill the query at a later time
-//            general.append("/*"+ID+"*/SELECT "+feilds+" FROM TIGR_Data WHERE "+conditions+" ORDER BY Atnum");
-//        else if(currentDB==rice)
-//            general.append("/*"+ID+"*/SELECT "+feilds+" FROM Rice.Rice_Data WHERE "+conditions+" ORDER BY Id1");
-//        else
-//            System.err.println("invalid DB name in buildGeneralStatement");
-        general.append(" limit "+limit);
+                       " ORDER BY Genome, "+fullNames[0][0]+","+fullNames[0][1]);
         System.out.println("general Query: "+general);
         return general.toString();
     }
@@ -288,15 +276,6 @@ public class SequenceServlet extends HttpServlet
     {
         String exp=null;
         exp=new String("Sequences.Seq_id ='"+key+"' OR ");
-        /*
-        if(currentDB==arab)  //TIGR_Data.Atnum
-            exp=new String("TIGR_Data.Atnum LIKE '"+key+"%' OR ");
-        else if(currentDB==rice)
-            exp=new String("Rice.Rice_Data.Id1 LIKE '"+key+"%' OR "+
-                           "Rice.Rice_Data.Id2 LIKE '"+key+"%' OR ");
-        else
-            System.err.println("invalid DB name in likeExpression");
-         */
         return exp;
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////    

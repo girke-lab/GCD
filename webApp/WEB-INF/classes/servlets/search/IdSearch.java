@@ -14,7 +14,7 @@ import servlets.Common;
 
 public class IdSearch implements Search {
     
-    List input;
+    List input,data;
     ArrayList keysFound; //list of the keys found, of the same type of the query key.
     int limit;
     int[] db;
@@ -32,6 +32,12 @@ public class IdSearch implements Search {
     }
     
     public List getResults()
+    {
+        if(data==null)
+            loadData();
+        return data;
+    }
+    private void loadData()
     {
         ListIterator in=input.listIterator();
         StringBuffer conditions=new StringBuffer();
@@ -57,7 +63,7 @@ public class IdSearch implements Search {
             keysFound.add(t.get(1));
         }
         System.out.println("al="+al);
-        return al;
+        data=al;
     }
 
     private String buildIdStatement(String conditions, int limit,int[] DBs)
@@ -94,5 +100,11 @@ public class IdSearch implements Search {
         temp.removeAll(keysFound);
         return temp;        
     }
+    
+    public List getResults(int offset, int length) 
+    {
+        return null;
+    }
+    
     
 }

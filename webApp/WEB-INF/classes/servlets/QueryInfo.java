@@ -10,13 +10,23 @@ package servlets;
  */
 import java.util.*;
 import java.io.Serializable;
+import servlets.search.Search;
 
 public class QueryInfo implements Serializable
 {
+    //////////  deprecated  ///////
     public int dbsLength;
-    public int[] dbNums;
-    public int limit;
+    public int[] dbNums;    
+    public int limit;    
     private List keys;
+    ///////////////////////////
+    
+    private Search s;
+    private int[] dbs;
+    private String sortCol,displayType;
+    private int inputCount; //number of keys
+    private int currentPos;
+    
     /** Creates a new instance of QueryInfo */
     public QueryInfo(int[] dbNums,int dbsLength,int limit)
     {
@@ -25,6 +35,14 @@ public class QueryInfo implements Serializable
         this.limit=limit;
         this.keys=new ArrayList();
     }
+    public QueryInfo(int[] dbs,String sc,String dt)
+    {
+        this.dbs=dbs;
+        sortCol=sc;
+        displayType=dt;
+    }
+   
+    // add/get KeySet is deprecated.
     public void addKeySet(List l)
     {
         keys.add(l);
@@ -33,4 +51,42 @@ public class QueryInfo implements Serializable
     {
         return (ArrayList)keys.get(index);
     }    
+    
+    
+    public void setSearch(Search s)    {
+        this.s=s;
+    }
+    public Search getSearch()    {
+        return s;
+    }
+    public void setDbs(int[] d)    {
+        dbs=d;
+    }
+    public int[] getDbs()    {
+        return dbs;
+    }
+    public void setSortCol(String sc)    {
+        sortCol=sc;
+    }
+    public String getSortCol()    {
+        return sortCol;
+    }
+    public void setDisplayType(String dt)    {
+        displayType=dt;
+    }
+    public String getDisplayType()    {
+        return displayType;
+    }
+    public void setInputCount(int c)    {
+        inputCount=c;
+    }
+    public int getInputCount()    {
+        return inputCount;
+    }
+    public void setCurrentPos(int pos)    {
+        currentPos=pos;
+    }
+    public int getCurrentPos()    {
+        return currentPos;
+    }
 }

@@ -20,12 +20,11 @@ import servlets.dataViews.*;
  */
 
 public class QueryPageServlet extends HttpServlet 
-{
+{    
     final int feildCount=17;//values used to initialize arrays
     final int dbCount=2;
     final int arab=0,rice=1; //database names
-    final int MAXKEYS=1000; //maximum number of results that can be returned 
-                            //per database query
+    
     long ID=0;//id number used to identify query
     
     String[] fullNames;//names to use in querys
@@ -47,56 +46,28 @@ public class QueryPageServlet extends HttpServlet
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         
-        int[] dbNums;//=new int[dbCount];
-        int limit,hid; //hid is history id      
-        List inputKeys;
-        /////////////////////////  get input  //////////////////////////////////////////////////
-        String input=request.getParameter("inputKey"); //actual input from form feild
-        String searchType=request.getParameter("searchType");
-        String[] dbTemp=request.getParameterValues("dbs"); //list of databases to use
-        String sortCol=request.getParameter("sortCol");
-        String displayType=request.getParameter("displayType");
-
-        try{//test limit
-            limit=Integer.parseInt(request.getParameter("limit"));
-            if(limit>=MAXKEYS || limit==0) //cap limit at MAXKEYS
-                limit=MAXKEYS;
-        }catch(NumberFormatException nfe){
-            limit=50; //default limit
-        }try{//test dbNums for valid input and conver text to numbers   // DBfeilds
-            dbNums=new int[dbTemp.length];
-            for(int i=0;i<dbTemp.length;i++)
-                dbNums[i]=Integer.parseInt(dbTemp[i]);            
+        int hid,pos;
+        
+        try{
+            pos=Integer.parseInt(request.getParameter("pos"));
+            if(pos < 0)
+                pos=0;
         }catch(Exception e){
-            dbNums=new int[]{0,1};              
+            pos=0;
         }
-        if(input==null || input.length()==0)
-        {
-            out.println("no data entered");
-            out.println("</body></html>");
-            out.close();
-            return;
-        }
-        else
-        { //put keys in a list, rather then have to parse the sting every time
-            inputKeys=new ArrayList();
-            StringTokenizer tok=new StringTokenizer(input);
-            while(tok.hasMoreTokens())
-                inputKeys.add(tok.nextToken());
+        try{
+            hid=Integer.parseInt(request.getParameter("hid"));
+            System.out.println("got hid="+hid);
+        }catch(Exception e){
+            System.out.println("setting hid=-1");
+            hid=-1; 
         }
         
         if(session.getAttribute("hid")==null)
         {//session was just created.
             session.setAttribute("hid",new Integer(0));
-            session.setAttribute("history",new ArrayList());
-        }
-        
-        hid=((Integer)session.getAttribute("hid")).intValue();
-        session.setAttribute("hid",new Integer(hid+1));
-        QueryInfo qi=new QueryInfo(dbNums,dbNums.length,limit); 
-        ((ArrayList)session.getAttribute("history")).add(qi);
-        
-
+            session.setAttribute("history",new ArrayList());            
+        }                        
         ////////////////////////// HTML headers  ////////////////////////////////////////////
         out.println("<html>");
         out.println("<head>");
@@ -107,25 +78,48 @@ public class QueryPageServlet extends HttpServlet
         List returnedKeys;
         Search s=null;
         DataView dv=null;
-            
-        //search all databases simultaniously
-        s=getSearchObj(searchType);
-        s.init(inputKeys,limit, dbNums); 
+        QueryInfo qi=null;
+         
+        if(hid!=-1) //hid was given for an exsisting search
+        {
+            if(hid < 0 || hid >= ((ArrayList)session.getAttribute("history")).size())
+            {
+                Common.quit(out,"hid "+hid+" out of bounds");
+                return;
+            }
+            qi=(QueryInfo)((ArrayList)session.getAttribute("history")).get(hid);                    
+        }
+        else //no hid, so start a new search
+        {
+            qi=getInput(request);
+            if(qi==null)
+            {
+               Common.quit(out,"no results found");
+                return;
+            }            
+            hid=((Integer)session.getAttribute("hid")).intValue();
+            session.setAttribute("hid",new Integer(hid+1));
+            ((ArrayList)session.getAttribute("history")).add(qi);            
+        }
+        qi.setCurrentPos(pos);
+        s=qi.getSearch(); 
+        if(pos < 0 || pos > s.getResults().size() )
+        {
+            Common.quit(out, "position "+pos+" is out of bounds");
+            return;
+        }
+        int end=pos+Common.recordsPerPage > s.getResults().size()? s.getResults().size() : pos+Common.recordsPerPage;
+        returnedKeys=s.getResults().subList(pos,end);
+        dv=getDataView(qi.getDisplayType(),qi.getSortCol());        
         
-        
-        
-        returnedKeys=s.getResults();
-        qi.addKeySet(returnedKeys); //store this key set in the session variable    
-        
-        dv=getDataView(displayType,sortCol);
-
-        dv.setData(returnedKeys, sortCol,limit, dbNums,hid);
+        dv.setData(returnedKeys, qi.getSortCol(),qi.getDbs(),hid); //rpp is redundent here
         dv.printHeader(out);
+        Common.printPageControls(out, pos, s.getResults().size(),hid);
         printMismatches(out, s.notFound());
-        out.println("Keys entered: "+inputKeys.size()+"<br>");
+        out.println("Keys entered: "+qi.getInputCount()+"<br>");
+        out.println("Total Keys found: "+s.getResults().size()+"<br>");
         dv.printData(out);
-        
-        
+                
         
         out.println("</body>");
         out.println("</html>");
@@ -135,8 +129,6 @@ public class QueryPageServlet extends HttpServlet
     }
     private DataView getDataView(String displayType,String sortCol)
     {        
-        System.out.println("display type="+displayType);
-        System.out.println("sortCol="+sortCol);
         if(displayType!=null)
         {
             if(displayType.equals("clusterView"))
@@ -173,7 +165,53 @@ public class QueryPageServlet extends HttpServlet
     }
    
     
+    private QueryInfo getInput(HttpServletRequest request)
+    {
+        int[] dbNums;
+        int limit;
+        List inputKeys;
+        Search s;
+        QueryInfo qi;
+        
+        String input=request.getParameter("inputKey"); //actual input from form feild
+        String searchType=request.getParameter("searchType");
+        String[] dbTemp=request.getParameterValues("dbs"); //list of databases to use
+        String sortCol=request.getParameter("sortCol");
+        String displayType=request.getParameter("displayType");
 
+        try{//test limit
+            limit=Integer.parseInt(request.getParameter("limit"));
+            if(limit>=Common.MAXKEYS || limit==0) //cap limit at MAXKEYS
+                limit=Common.MAXKEYS;
+        }catch(NumberFormatException nfe){
+            limit=Common.recordsPerPage; //default limit
+        }
+        try{//test dbNums for valid input and conver text to numbers   // DBfeilds
+            dbNums=new int[dbTemp.length];
+            for(int i=0;i<dbTemp.length;i++)
+                dbNums[i]=Integer.parseInt(dbTemp[i]);            
+        }catch(Exception e){
+            dbNums=new int[]{0,1};              
+        }
+        System.out.println("input="+input);
+        if(input==null || input.length()==0)
+            return null;
+        else
+        { //put keys in a list, rather then have to parse the sting every time
+            inputKeys=new ArrayList();
+            StringTokenizer tok=new StringTokenizer(input);
+            while(tok.hasMoreTokens())
+                inputKeys.add(tok.nextToken());
+        }
+        qi=new QueryInfo(dbNums,sortCol,displayType);
+        //search all databases simultaniously
+        s=getSearchObj(searchType);        
+        s.init(inputKeys,limit, dbNums);              
+        qi.setSearch(s);
+        qi.setInputCount(inputKeys.size());
+        
+        return qi;
+    }
  
     private void printMismatches(PrintWriter out,List keys)
     {

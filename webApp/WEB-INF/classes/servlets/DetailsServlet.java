@@ -82,7 +82,7 @@ public class DetailsServlet extends HttpServlet {
         for(Iterator i=keys.iterator();i.hasNext();)
             condition.append(likeExpression((String)i.next(),currentDB));
         condition.append("0=1 "); //terminate last OR statement
-        return Common.sendQuery(detailsQuery(condition.toString(),limit,currentDB),18);           
+        return Common.sendQuery(detailsQuery(condition.toString(),limit,currentDB));           
     }
     private List getOrthologs(List keys,int limit,int currentDB)
     {
@@ -90,7 +90,7 @@ public class DetailsServlet extends HttpServlet {
         for(Iterator i=keys.iterator();i.hasNext();)
             condition.append("Blast_Results.HitList.Atnum LIKE '"+i.next()+"%' OR ");        
         condition.append("0=1 ");
-        return Common.sendQuery(orthologQuery(condition.toString(),limit*10,currentDB),2);
+        return Common.sendQuery(orthologQuery(condition.toString(),limit*10,currentDB));
     }
     private List getClusterKeys(List data,int limit,int currentDB)
     {
@@ -98,7 +98,7 @@ public class DetailsServlet extends HttpServlet {
         for(Iterator i=data.iterator();i.hasNext();)
             condition.append(clusterLike((String)((ArrayList)i.next()).get(1),currentDB));
         condition.append("0=1 ");
-        return Common.sendQuery(clusterQuery(condition.toString(),limit,currentDB),3);
+        return Common.sendQuery(clusterQuery(condition.toString(),limit,currentDB));
     }   
     private String hexColor(int r, int g, int b)
     {

@@ -14,7 +14,7 @@ import servlets.Common;
 
 public class ClusterIDSearch implements Search { 
     
-    List input,keysFound;
+    List input,keysFound,data;
     int limit;
     int[] db;
 
@@ -32,6 +32,12 @@ public class ClusterIDSearch implements Search {
     }
      
     public List getResults() 
+    {
+        if(data==null)
+            loadData();
+        return data;
+    }
+    public void loadData()
     {
         ListIterator in=input.listIterator();
         StringBuffer conditions=new StringBuffer();
@@ -56,8 +62,7 @@ public class ClusterIDSearch implements Search {
             al.add(t.get(0));
             keysFound.add(t.get(1));            
         }
-        return al;
-
+        data=al;
     }
     
      private String buildClusterStatement(String conditions, int limit, int[] DBs)
@@ -96,5 +101,9 @@ public class ClusterIDSearch implements Search {
         temp.removeAll(keysFound);
         return temp;        
     }    
+    
+    public List getResults(int offset, int length) {
+        return null;
+    }
     
 }

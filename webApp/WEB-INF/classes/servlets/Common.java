@@ -18,47 +18,38 @@ public class Common {
     //actual database names
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
+    public final static int recordsPerPage=50;
+    public final static int MAXKEYS=100000; //maximum number of results that can be returned 
+                            //per database query
     
     /** Creates a new instance of Common */
     public Common() {
     }
     
-     public static List sendQuery(String q, int length)
-    {
-        int i=0;
-        queryThread dbConnection=new queryThread("common");
-        dbConnection.setQuery(q,length);
-        dbConnection.start();
-        while(dbConnection.isAlive());//wait for query to finish
-        List data=new ArrayList(dbConnection.getResults());
-        return data;
-    }
     public static List sendQuery(String q)
     {
-//        if(conn==null)
-//        {//then connect
         Connection conn;
-            try{
-                String url="jdbc:postgresql://138.23.191.152/common";
-                Class.forName("org.postgresql.Driver").newInstance();
+        try{
+            String url="jdbc:postgresql://138.23.191.152/common";
+            Class.forName("org.postgresql.Driver").newInstance();
 
-                //String url="jdbc:mysql://138.23.191.152/common_test";
-                //Class.forName("org.gjt.mm.mysql.Driver").newInstance();
-                conn=DriverManager.getConnection(url,"servlet","512256");
-            }catch(SQLException e){
-                System.out.println("could not coneect to database: "+e.getMessage());
-                return null;
-            }catch(Exception e){
-                System.out.println("unknown connection error: "+e.getMessage());
-                e.printStackTrace();
-                return null;
-            }
-//        }
-        //q=q.toLowerCase();
+            //String url="jdbc:mysql://138.23.191.152/common_test";
+            //Class.forName("org.gjt.mm.mysql.Driver").newInstance();
+            //q=q.toLowerCase();
+            conn=DriverManager.getConnection(url,"servlet","512256");
+        }catch(SQLException e){
+            System.out.println("could not coneect to database: "+e.getMessage());
+            return null;
+        }catch(Exception e){
+            System.out.println("unknown connection error: "+e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+
         ArrayList data=new ArrayList();
         try{
             Statement stmt=conn.createStatement();
-            System.out.println("Common: query="+q);
+//            System.out.println("Common: query="+q);
             ResultSet rs=stmt.executeQuery(q);
             while(rs.next())
             {
@@ -160,17 +151,19 @@ public class Common {
     {   //print the CEPCEB header on the top of every page        
         String header=""+ 
         "<table width='100%' border='0' cellspacing='0' cellpadding='0'>"+
-        "<tr bgcolor='AAAAAA'><td colspan='3'>&nbsp</td></tr>"+
+        "<tr bgcolor='AAAAAA'><td colspan='4'>&nbsp</td></tr>"+
         "<tr>"+
-        "   <td align='center' colspan='3' bgcolor='AAAAAA' ><h1>Genome Cluster Database</h1></td>"+
+        "   <td align='center' colspan='4' bgcolor='AAAAAA' ><h1>Genome Cluster Database</h1></td>"+
         "</tr>"+
         "<tr>"+
-        "    <td align='center' colspan='3' bgcolor='AAAAAA'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.cepceb.ucr.edu/' target='_blank'>"+
+        "    <td align='center' colspan='4' bgcolor='AAAAAA'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.cepceb.ucr.edu/' target='_blank'>"+
         "       Center for Plant Cell Biology at UC Riverside</a></font></td>"+
         "</tr>"+
-        "<tr bgcolor='AAAAAA'><td colspan='3'>&nbsp</td></tr>"+
-        "<tr colspan='3'><td>&nbsp</td></tr>"+
+        "<tr bgcolor='AAAAAA'><td colspan='4'>&nbsp</td></tr>"+
+        "<tr><td colspan='4'>&nbsp</td></tr>"+
         "<tr>"+        
+        "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='index.jsp'>"+
+        "        <img src='images/search.jpg' width='100' height='25' border='0'></a></font></div></td>"+
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>"+
         "        <img src='images/aboutDB.jpg' width='100' height='25' border='0'></a></font></div></td>"+
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>"+
@@ -215,5 +208,26 @@ public class Common {
             return rice;
         return -1;
     }
-    
+    public static void printPageControls(PrintWriter out,int pos,int end,int hid)
+    {
+        String action="QueryPageServlet?hid="+hid;
+        out.println("<table align='center'>");
+        out.println("<tr>");
+        
+        out.println("<td><a href='"+action+"&pos=0'>|&lt</a></td>");
+        if(pos-Common.recordsPerPage >= 0)        
+            out.println("<td><a href='"+action+"&pos="+(pos-recordsPerPage)+"'>&lt</a></td>");
+        if(pos+Common.recordsPerPage < end)
+            out.println("<td><a href='"+action+"&pos="+(pos+recordsPerPage)+"'>&gt</a></td>");        
+        out.println("<td><a href='"+action+"&pos="+(end-(end%recordsPerPage))+"'>&gt|</a></td>");
+        
+        out.println("</tr>");
+        out.println("</table>");
+    }
+    public static void quit(PrintWriter out,String message)
+    {
+        out.println(message);
+        out.println("</body></html>");
+        out.close();
+    }
 }

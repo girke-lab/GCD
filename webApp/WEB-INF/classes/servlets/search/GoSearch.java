@@ -12,9 +12,9 @@ import java.util.*;
 import servlets.search.Search;
 import servlets.Common;
 
-public class GoSearch implements Search 
+public class GoSearch implements Search, java.io.Serializable 
 {
-    List input,keysFound;
+    List input,keysFound,data=null;
     int limit;
     int[] db;
     
@@ -32,6 +32,12 @@ public class GoSearch implements Search
     }
     
     public List getResults() 
+    {
+        if(data==null)
+            loadData();
+        return data;
+    }
+    public void loadData()
     {
         ListIterator in=input.listIterator();
         StringBuffer conditions=new StringBuffer();
@@ -56,7 +62,7 @@ public class GoSearch implements Search
             al.add(t.get(0));
             keysFound.add(t.get(1));
         }
-        return al;
+        data=al;
     }
     
     private String buildIdStatement(String conditions, int limit,int[] DBs)
@@ -84,4 +90,5 @@ public class GoSearch implements Search
         return temp;        
     }
     
+  
 }

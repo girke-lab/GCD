@@ -99,7 +99,7 @@ function MM_nbGroup(event, grpName) { //v6.0
         if(input==null)
             input="";
         if(limit==null)
-            limit="50";
+            limit="0";
         if(fieldName==null)
             fieldName="Id";
     %>   
@@ -157,9 +157,9 @@ function MM_nbGroup(event, grpName) { //v6.0
 <jsp:useBean id='common' class='servlets.Common' scope='application'/>
 <% common.printHeader(out); %>
 
-	<FORM NAME='form1' METHOD=POST ACTION='/databaseWeb/QueryPageServlet'  target='rd' >   
+	<FORM NAME='form1' METHOD=POST ACTION='/databaseWeb/QueryPageServlet'   >   
             <TABLE width='70%' align='center' border='0'>
-<!--	    	<TR>
+<!--	target='rd'    	<TR>
 		    <TD colspan='2' align='center'>
 		    	<h2>Full-Genome Cluster Database</h2>
 		    </TD>

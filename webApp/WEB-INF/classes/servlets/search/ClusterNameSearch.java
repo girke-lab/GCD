@@ -12,9 +12,10 @@ import java.util.*;
 import servlets.search.Search;
 import servlets.Common;
 
-public class ClusterNameSearch implements Search {
+public class ClusterNameSearch implements Search, java.io.Serializable
+{
     
-    List input;
+    List input,data=null;
     int limit;
     int[] db;
     
@@ -30,6 +31,12 @@ public class ClusterNameSearch implements Search {
         this.db=dbID;
     }
     public List getResults() 
+    {
+        if(data==null)
+            loadData();
+        return data;
+    }
+    private void loadData()
     {
         Iterator in=input.iterator();
         StringBuffer conditions=new StringBuffer();
@@ -61,7 +68,7 @@ public class ClusterNameSearch implements Search {
         ArrayList al=new ArrayList();
         for(Iterator i=rs.iterator();i.hasNext();)        
             al.add(((ArrayList)i.next()).get(0));
-        return al;
+        data=al;
     }
    
     private String buildIdStatement(String conditions, int limit,int[] DBs)

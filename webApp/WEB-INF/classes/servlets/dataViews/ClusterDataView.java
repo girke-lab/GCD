@@ -19,7 +19,7 @@ public class ClusterDataView implements DataView
 {   
     
     List seq_ids;
-    int limit,hid;
+    int hid;
     String sortCol;
     int[] dbNums;
     
@@ -38,15 +38,14 @@ public class ClusterDataView implements DataView
     }
     public void printData(java.io.PrintWriter out) 
     {
-        List data=getData(seq_ids, sortCol, limit, dbNums);
+        List data=getData(seq_ids, sortCol, dbNums);
         printCounts(out,data);
         printSummary(out,data,dbNums,hid);
     }
     
-    public void setData(java.util.List ids, String sortCol, int limit, int[] dbList, int hid) 
+    public void setData(java.util.List ids, String sortCol, int[] dbList, int hid) 
     {//this class expexts cluster_id numbers as input
-        this.seq_ids=ids;
-        this.limit=limit;
+        this.seq_ids=ids;        
         this.sortCol=sortCol;
         this.hid=hid;
         this.dbNums=dbList;
@@ -119,25 +118,25 @@ public class ClusterDataView implements DataView
         out.println("</TABLE>");
     }
        
-    private List getData(List input, String order, int limit, int[] db)
+    private List getData(List input, String order, int[] db)
     {
         StringBuffer conditions=new StringBuffer();
         List rs=null;
         int count=0;
 
         conditions.append("cluster_info.cluster_id in (");
-        for(Iterator it=input.iterator();it.hasNext() && count++ < limit;)
+        for(Iterator it=input.iterator();it.hasNext();)
         {
             conditions.append((String)it.next());
-            if(it.hasNext() && count < limit)
+            if(it.hasNext() )
                 conditions.append(",");
         }
         conditions.append(")");
-        rs=Common.sendQuery(buildClusterViewStatement(conditions.toString(),order,limit,db));
+        rs=Common.sendQuery(buildClusterViewStatement(conditions.toString(),order,db));
         return rs;
     }
     
-     private String buildClusterViewStatement(String conditions, String order ,int limit , int[] DBs)
+     private String buildClusterViewStatement(String conditions, String order, int[] DBs)
     {
         StringBuffer query=new StringBuffer();
         
@@ -150,8 +149,7 @@ public class ClusterDataView implements DataView
             "WHERE ");
         query.append(" ("+conditions+" )");
                 
-        query.append("ORDER BY "+order);
-        //query.append(" LIMIT "+limit);
+        query.append("ORDER BY "+order);        
         System.out.println("cluster view query: "+query);
         return query.toString();        
     }          

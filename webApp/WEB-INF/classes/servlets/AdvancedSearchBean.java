@@ -74,7 +74,7 @@ public class AdvancedSearchBean {
         if(limit==null)
             limit="50";
         else if(limit.equals("0"))
-            limit="1000";
+            limit=Integer.toString(Common.MAXKEYS);
         
         processCommands(request);
     }
@@ -196,6 +196,7 @@ public class AdvancedSearchBean {
             query.append("SELECT DISTINCT cluster_info.cluster_id ");
         else
             query.append("SELECT DISTINCT sequences.seq_id ");
+        query.append(", "+fields[sortField].dbName+",sequences.genome ");
         query.append("FROM  sequences LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequences.seq_id=go.seq_id) ");
         query.append("WHERE ");
         query.append(" (");
@@ -239,9 +240,9 @@ public class AdvancedSearchBean {
             
             
         }
-        
-        
-        query.append(") LIMIT "+limit);
+        query.append(") ");
+        query.append("ORDER BY sequences.genome, "+fields[sortField].dbName+" ");
+        query.append("LIMIT "+limit);
         System.out.println("query is: "+query);
         List results=Common.sendQuery(query.toString());
         //then figure out how to pass this info to QueryPageServlet via post.

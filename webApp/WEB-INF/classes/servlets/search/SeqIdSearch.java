@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.ArrayList;
 import servlets.search.Search;
 
-public class SeqIdSearch implements Search
+public class SeqIdSearch implements Search, java.io.Serializable
 {
     List data;
     /** Creates a new instance of SeqIdSearch */

@@ -18,7 +18,7 @@ import servlets.Common;
 public class SeqDataView implements DataView 
 {
     List seq_ids;
-    int limit,hid;
+    int hid;
     String sortCol;
     int[] dbNums;
     
@@ -32,10 +32,9 @@ public class SeqDataView implements DataView
     public SeqDataView() {
     }
     
-    public void setData(java.util.List ids, String sortCol, int limit, int[] dbList, int hid) 
+    public void setData(java.util.List ids, String sortCol, int[] dbList, int hid) 
     {
-        this.seq_ids=ids;
-        this.limit=limit;
+        this.seq_ids=ids;        
         this.sortCol=sortCol;
         this.hid=hid;
         this.dbNums=dbList;
@@ -45,11 +44,11 @@ public class SeqDataView implements DataView
     }
     
     public void printData(java.io.PrintWriter out) 
-    {
-        System.out.println("seq_ids="+seq_ids);
-        List data=getData(seq_ids, sortCol, limit, dbNums);
+    {        
+//        System.out.println("seq_ids="+seq_ids);
+        List data=getData(seq_ids, sortCol,dbNums);
         List records=parseData(data);
-        printCounts(out,records);
+        printCounts(out,records);        
         printSummary(out,records);
     }
  
@@ -152,24 +151,24 @@ public class SeqDataView implements DataView
         }
         out.println("</FORM></TD></TR></TABLE>\n");
     }
-    private List getData(List input, String order, int limit, int[] db)
+    private List getData(List input, String order, int[] db)
     {
         StringBuffer conditions=new StringBuffer();
         List rs=null;
         int count=0;
 
         conditions.append("sequences.seq_id in (");
-        for(Iterator it=input.iterator();it.hasNext() && count++ < limit;)
+        for(Iterator it=input.iterator();it.hasNext();)
         {
             conditions.append((String)it.next());
-            if(it.hasNext() && count < limit)
+            if(it.hasNext())
                 conditions.append(",");
         }
         conditions.append(")");
-        rs=Common.sendQuery(buildSeqViewStatement(conditions.toString(),order,limit,db));
+        rs=Common.sendQuery(buildSeqViewStatement(conditions.toString(),order,db));
         return rs;
     }
-    private String buildSeqViewStatement(String conditions,String order,int limit, int[] DBs)
+    private String buildSeqViewStatement(String conditions,String order, int[] DBs)
     {
         StringBuffer query=new StringBuffer();
         
@@ -192,8 +191,7 @@ public class SeqDataView implements DataView
         query.append("ORDER BY sequences.genome,");
         if(order!=null && order != "")
             query.append(order+", ");
-        query.append(" sequences.primary_key,clusters.model_id, go.go,cluster_info.filename ");
-        //query.append("LIMIT "+limit);
+        query.append(" sequences.primary_key,clusters.model_id, go.go,cluster_info.filename ");        
         System.out.println("sequence view query: "+query);
         return query.toString();
     }
