@@ -26,7 +26,7 @@ public class HtmlVisitor implements QueryTreeVisitor
      private PrintWriter out;
      private SearchableDatabase db;
      private int lastFieldUsedIndex,depth,fieldId;
-     private boolean wasJoinExpression,printParinths,wasStartPar, wasEndPar;
+     private boolean wasJoinExpression,printParinths,hasSubAdd;
      
     /** Creates a new instance of HtmlVisitor */
     public HtmlVisitor(PrintWriter out,SearchableDatabase db)
@@ -34,8 +34,7 @@ public class HtmlVisitor implements QueryTreeVisitor
         this.out=out;
         this.db=db;
         printParinths=true;
-        wasStartPar=false;
-        wasEndPar=false;
+        hasSubAdd=false;
     }
 
     public void visit(servlets.advancedSearch.queryTree.DbField n)
@@ -141,7 +140,7 @@ public class HtmlVisitor implements QueryTreeVisitor
         
         if(localPrintParinths)
         {
-            depth--;
+            depth--;            
             out.println("<input type=hidden name='endPars' value='"+(fieldId-1)+"'>");
             out.println("<tr><td colspan='2'>");
             printSpaces(depth);
@@ -150,6 +149,7 @@ public class HtmlVisitor implements QueryTreeVisitor
             out.println("<input type=submit name='add_exp' value='add'" +
                     " onClick=\"row.value='"+(fieldId-1)+"';action.value='add_exp';submit()\">");
             out.println("</td></tr>");
+            hasSubAdd=true;
         }
         if(!isBoolOperation)
             fieldId++;
@@ -187,7 +187,8 @@ public class HtmlVisitor implements QueryTreeVisitor
         n.getCondition().accept(this);
         log.debug("fieldId="+fieldId);
         //print expression buttons
-        if(fieldId <= 1)
+        //if(fieldId <= 1)
+        if(!hasSubAdd)
             out.println("<tr> <td>" +
                 "      <input type=submit name='add_exp' value='add expression'" +
                 "           onClick=\"action.value='add_exp';submit()\">" +

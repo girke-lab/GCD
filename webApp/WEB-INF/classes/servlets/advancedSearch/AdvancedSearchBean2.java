@@ -226,37 +226,41 @@ public class AdvancedSearchBean2
         currentState.getSelectedOps().add(new Integer(0));
         currentState.getSelectedBools().add(new Integer(0));
     }
-    private void addExpression(Integer row)
+    private void addExpression(Integer r)
     {
+        int row=r.intValue();
         log.debug("adding expression at row "+row);
-        currentState.getSelectedFields().add(row.intValue()+1,new Integer(0));
-        currentState.getSelectedOps().add(row.intValue()+1,new Integer(0));
-        currentState.getValues().add(row.intValue()+1,"");
+        currentState.getSelectedFields().add(row+1,new Integer(0));
+        currentState.getSelectedOps().add(row+1,new Integer(0));
+        currentState.getValues().add(row+1,"");
         
         
         log.debug("bools: "+currentState.getSelectedBools());
         log.debug("row="+row+", field size: "+currentState.getSelectedFields().size());
         
-        Integer newBool=new Integer(0);        
-        if(row.intValue()-1 < currentState.getSelectedBools().size()) 
+        Integer newBool=new Integer(0);                
+        if(row > 0 && row-1 < currentState.getSelectedBools().size()) 
         {
-            log.debug("using bool at index "+(row.intValue()-1));
-            newBool=currentState.getSelectedBool(row.intValue()-1);        
+            log.debug("using bool at index "+(row-1));
+            newBool=currentState.getSelectedBool(row-1);        
         }
             
-            
-        currentState.getSelectedBools().add(row.intValue()-1,newBool);
+        if(row <= 0)
+            currentState.getSelectedBools().add(newBool);
+        else
+            currentState.getSelectedBools().add(row-1,newBool);
         
         log.debug("new bools: "+currentState.getSelectedBools());
         
     }
-    private void removeExpression(Integer row)
+    private void removeExpression(Integer r)
     { //remove entry row from fields, ops, values, and bools
+        int row=r.intValue();
         log.debug("removing expression at row "+row);
-        currentState.getSelectedFields().remove(row.intValue());
-        currentState.getSelectedOps().remove(row.intValue());
-        currentState.getValues().remove(row.intValue()); 
-        int j=row.intValue();
+        currentState.getSelectedFields().remove(row);
+        currentState.getSelectedOps().remove(row);
+        currentState.getValues().remove(row); 
+        int j=row;
         if(j > 0)
             j--;
         if(j >=0 && j < currentState.getSelectedBools().size())
@@ -266,10 +270,10 @@ public class AdvancedSearchBean2
 //        log.debug("removing "+row);
 //        log.debug("start: "+startParinths+", end: "+endParinths);
 //        for(int i=0;i<currentState.getStartParinths().size();i++)
-//            if(currentState.getStartParinth(i).intValue() > row.intValue())
+//            if(currentState.getStartParinth(i).intValue() > row)
 //                currentState.getStartParinths().set(i, new Integer(currentState.getStartParinth(i).intValue()-1));
 //        for(int i=0;i<currentState.getEndParinths().size();i++)
-//            if(currentState.getEndParinth(i).intValue() >= row.intValue())
+//            if(currentState.getEndParinth(i).intValue() >= row)
 //                currentState.getEndParinths().set(i, new Integer(currentState.getEndParinth(i).intValue()-1));
            
 //        log.debug("2start: "+startParinths+", end: "+endParinths);
