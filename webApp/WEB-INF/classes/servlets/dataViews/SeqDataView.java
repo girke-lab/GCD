@@ -14,6 +14,7 @@ package servlets.dataViews;
 import java.util.*;
 import java.io.*;
 import servlets.Common;
+import servlets.ResultPage;
 import org.apache.log4j.Logger;
 
 public class SeqDataView implements DataView 
@@ -65,6 +66,7 @@ public class SeqDataView implements DataView
     }    
     public boolean hasFeature(int f) 
     {
+        return f==ResultPage.BUTTONS;
     }   
     
 ///////////////////////////////////////////////////////////////////////
@@ -186,8 +188,7 @@ public class SeqDataView implements DataView
         return query.toString();
     }
     
-    public boolean hasFeature(int f) {
-    }    
+   
     
     
 //////////////////////////////////////////////////////////////////////

@@ -25,7 +25,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
 {
     List input,keysFound,data=null,stats=null;
     int limit;
-    int[] db;
+    int[] db=null;
     int[] dbStartPositions;  //index of firs occurance of each database in dataset
     /**
      * This logger may be used by all subclasses, so we don't have to
@@ -45,7 +45,12 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
             return 0;
         return dbStartPositions[i];
     }
-    
+    public int getDbCount()
+    {
+        if(db==null)
+            return 0;
+        return db.length;
+    }
     /**
      * Returns the <CODE>data</CODE> list.  If <CODE>data</CODE> is null,
      * <CODE>loadData()</CODE> is called first.

@@ -54,7 +54,11 @@ public class UnknownsDataView implements DataView
     
     public void printStats(java.io.PrintWriter out) 
     {
-        out.println(seq_ids.size()+" records found");
+        out.println("<table cellspacing='0'  border='1' bgcolor='"+Common.dataColor+"'>");
+        out.println("<tr><th bgcolor='"+Common.titleColor+"'>On This Page</th></tr>");
+        out.println("<tr><th bgcolor='"+Common.titleColor+"'>Records</th></tr>");
+        out.println("<tr><td align='center'>"+seq_ids.size()+"</td></tr>");
+        out.println("</table>");        
     }
     
     public void setData(String sortCol, int[] dbList, int hid) 
@@ -67,7 +71,10 @@ public class UnknownsDataView implements DataView
     {
          this.seq_ids=ids;   
     }
-    
+    public boolean hasFeature(int f) 
+    {
+        return false;
+    }    
     ////////////////////////////////////////////////////////////////
     
     private void printData(PrintWriter out,List data)
@@ -162,8 +169,7 @@ public class UnknownsDataView implements DataView
         return query;
     }
   
-    public boolean hasFeature(int f) {
-    }    
+    
     
     String[] printNames=new String[]{
             "At Key" ,

@@ -56,6 +56,11 @@ public class ClusterDataView implements DataView
     {
         this.seq_ids=ids;                
     }
+     public boolean hasFeature(int f) 
+     {
+         return false;
+     }   
+    
     private void printCounts(PrintWriter out,List data)
     {
         //out.println("clusters found on this page: "+data.size()+"<br>");
@@ -163,8 +168,7 @@ public class ClusterDataView implements DataView
          Common.printPageStats(out, 0,0, seq_ids.size());
      }
      
-     public boolean hasFeature(int f) {
-     }     
+      
      
      
 }

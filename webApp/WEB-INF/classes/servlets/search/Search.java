@@ -63,7 +63,7 @@ public interface Search extends java.io.Serializable
      */    
     int getDbStartPos(int i);
     
-    
+    int getDbCount();
     /**
      * Should return a list with model count and cluster count.
      * The first element must be the model count, and the second

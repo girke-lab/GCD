@@ -57,7 +57,7 @@ public class QueryPageServlet extends HttpServlet
         out.println("<head>");
         out.println("<title>Query Result Page</title>");
         out.println("</head>");      
-        Common.printHeader(out);
+//        Common.printHeader(out);
         /////////////////////////// main   ////////////////////////////////////////////////////
         List returnedKeys,stats;
         Search s=null;
@@ -110,33 +110,43 @@ public class QueryPageServlet extends HttpServlet
             Common.quit(out, "position "+pos+" is out of bounds");
             return;
         }
-        int end=pos+rpp > s.getResults().size()? s.getResults().size() : pos+rpp;
-        if(allFasta)
-            returnedKeys=s.getResults();
-        else
-            returnedKeys=s.getResults().subList(pos,end);
-        stats=s.getStats();
-        dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);                
-        dv.setData(returnedKeys, qi.getSortCol(),qi.getDbs(),hid); //rpp is redundent here
         
-        //print page
-        dv.printHeader(out); //prints form for  seq servlet
-        //Common.printPageControls(out,rpp, pos, s.getResults().size(),s.getDbStartPos(Common.rice),hid); 
-        out.println("Keys entered: "+qi.getInputCount()+"<br>");        
         
-        out.println("<table cellspacing='0' cellpadding='0'><tr><td>");
-        Common.printTotals(out,s,qi.getDisplayType()); 
-        out.println("</td><td>");
-        dv.printStats(out);
-        out.println("</td></tr></table>");
+        dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);
+        dv.setData(qi.getSortCol(),qi.getDbs(),hid);
+        ResultPage page=new ResultPage(dv, s, request, hid, rpp);
+        page.dipslayPage(out);
         
-        printPageControls(out,qi,hid);
-        if(!qi.getDisplayType().equals("clusterView"))
-            Common.printButtons(out,hid,pos,s.getResults().size(),rpp); 
-
-        dv.printData(out);
-                
-        printMismatches(out, s.notFound());
+        
+        
+//        
+//        int end=pos+rpp > s.getResults().size()? s.getResults().size() : pos+rpp;
+//        if(allFasta)
+//            returnedKeys=s.getResults();
+//        else
+//            returnedKeys=s.getResults().subList(pos,end);
+//        
+//        dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);                
+//        dv.setData(returnedKeys, qi.getSortCol(),qi.getDbs(),hid); //rpp is redundent here
+//        
+//        //print page
+//        dv.printHeader(out); //prints form for  seq servlet
+//        //Common.printPageControls(out,rpp, pos, s.getResults().size(),s.getDbStartPos(Common.rice),hid); 
+//        out.println("Keys entered: "+qi.getInputCount()+"<br>");        
+//        
+//        out.println("<table cellspacing='0' cellpadding='0'><tr><td>");
+//        Common.printTotals(out,s,qi.getDisplayType()); 
+//        out.println("</td><td>");
+//        dv.printStats(out);
+//        out.println("</td></tr></table>");
+//        
+//        printPageControls(out,qi,hid);
+//        if(!qi.getDisplayType().equals("clusterView"))
+//            Common.printButtons(out,hid,pos,s.getResults().size(),rpp); 
+//
+//        dv.printData(out);
+//                
+//        printMismatches(out, s.notFound());
         out.println("</body>");
         out.println("</html>");
 
@@ -155,6 +165,8 @@ public class QueryPageServlet extends HttpServlet
                 return new ModelDataView(request);
             else if(displayType.equals("statsView"))
                 return new StatsDataView();
+            else if(displayType.equals("unknownsView"))
+                return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));
         }
         else if(sortCol!=null)
         {

@@ -39,6 +39,7 @@ public class StatsDataView implements DataView
     }
     
     public boolean hasFeature(int f) {
+        return false;
     }
     
 }

@@ -38,8 +38,7 @@ public class GeneralDataView implements DataView
     }
     
     public void setData(String sortCol, int[] dbList, int hid) 
-    {
-        this.seq_ids=ids;
+    {        
         this.sortCol=sortCol;
         this.limit=1000;        
         this.dbNums=dbList;        
@@ -379,10 +378,13 @@ public class GeneralDataView implements DataView
     public void printStats(java.io.PrintWriter out) {
     }    
     
-    public void setIds(java.util.List ids) {
+    public void setIds(java.util.List ids) 
+    {
+        this.seq_ids=ids;
     }
     
     public boolean hasFeature(int f) {
+        return false;
     }
     
     class ClusterSet {

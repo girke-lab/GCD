@@ -255,23 +255,7 @@ public class Common {
             return rice;
         return -1;
     }
-//    public static void printPageControls(PrintWriter out,int rpp,int pos,int end,int ricePos,int hid)
-//    {
-//        String action="QueryPageServlet?hid="+hid;
-//        out.println("<table align='center'>");
-//        out.println("<tr>");
-//        
-//        out.println("<td><a href='"+action+"&pos=0'>|&lt</a></td>");
-//        if(pos-rpp >= 0)        
-//            out.println("<td><a href='"+action+"&pos="+(pos-recordsPerPage)+"'>&lt</a></td>");
-//        if(pos+rpp < end)
-//            out.println("<td><a href='"+action+"&pos="+(pos+recordsPerPage)+"'>&gt</a></td>");        
-//        out.println("<td><a href='"+action+"&pos="+(end-(end%recordsPerPage))+"'>&gt|</a></td>");
-//        if(ricePos!=0)
-//            out.println("<td>&nbsp<a href='"+action+"&pos="+ricePos+"'>go to Rice</a></td>");
-//        out.println("</tr>");
-//        out.println("</table>");
-//    }
+
     public static void quit(PrintWriter out,String message)
     {
         out.println(message);

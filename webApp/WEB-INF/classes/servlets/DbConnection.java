@@ -35,7 +35,7 @@ public class DbConnection
     /** Creates a new instance of DbConnection */
     public DbConnection() throws Exception
     {
-        connect("jdbc:postgresql://138.23.191.152/common","servlet","");
+        connect("jdbc:postgresql://138.23.191.152/common","servlet","512256");
         hostname="localhost";        
     }
     public DbConnection(String url,String uName,String pwd) throws Exception 

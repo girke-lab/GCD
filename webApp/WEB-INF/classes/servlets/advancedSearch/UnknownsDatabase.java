@@ -228,10 +228,7 @@ public class UnknownsDatabase implements SearchableDatabase
         mRequest.getParameterMap().put("limit", state.getLimit());
         mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName);         
                 
-        if(getFields()[state.getSortField()].dbName.startsWith("cluster_info"))
-            mRequest.getParameterMap().put("displayType","clusterView");
-        else
-            mRequest.getParameterMap().put("displayType","seqView");
+        mRequest.getParameterMap().put("displayType","unknownsView");
         
         StringBuffer inputStr=new StringBuffer();      
         for(Iterator i=results.iterator();i.hasNext();)
@@ -241,7 +238,7 @@ public class UnknownsDatabase implements SearchableDatabase
         
         try{
             
-            context.getRequestDispatcher("/UnknownResultsServlet").forward(mRequest, response);    
+            context.getRequestDispatcher("/QueryPageServlet").forward(mRequest, response);    
         }catch(Exception e){
             log.error("could not forward to QueryPageServlet: "+e.getMessage());
             e.printStackTrace();

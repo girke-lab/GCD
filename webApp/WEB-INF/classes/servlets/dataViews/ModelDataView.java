@@ -11,8 +11,7 @@ package servlets.dataViews;
  * @author  khoran
  */
 
-import servlets.Common;
-import servlets.QueryInfo;
+import servlets.*;
 import servlets.dataViews.DataView;
 import java.util.*;
 import javax.servlet.http.*;
@@ -25,7 +24,7 @@ public class ModelDataView implements DataView
     final int STANDARD=0, FASTA=1,ALL_FASTA=2;    
     final int LINE_SIZE=1000; //number of base pairs to print on a line
                             //per database query
-    
+      
     List seq_ids;
     String sortCol;
     int[] dbs;
@@ -46,7 +45,7 @@ public class ModelDataView implements DataView
         this.request=request;
         session=request.getSession(false);                
     }
-    
+            
     public void printData(java.io.PrintWriter out) 
     {                
         if(data==null)
@@ -82,7 +81,10 @@ public class ModelDataView implements DataView
         this.seq_ids=ids;   
         loadData();
     }
-    
+    public boolean hasFeature(int f)
+    {
+        return f==ResultPage.BUTTONS || (f==ResultPage.ALL && mqi.format==ALL_FASTA);
+    }
 /////////////////////////////////////////////////////////////////////////////
 //                              Private  Methods                 
 /////////////////////////////////////////////////////////////////////////////

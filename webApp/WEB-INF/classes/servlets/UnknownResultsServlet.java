@@ -14,6 +14,7 @@ import javax.servlet.http.*;
 
 import servlets.dataViews.*;
 import java.util.*;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -24,6 +25,9 @@ public class UnknownResultsServlet extends HttpServlet {
     
     /** Initializes the servlet.
      */
+    
+    private static Logger log=Logger.getLogger(UnknownResultsServlet.class);
+    
     public void init(ServletConfig config) throws ServletException {
         super.init(config);        
     }
@@ -54,13 +58,17 @@ public class UnknownResultsServlet extends HttpServlet {
             out.println("no data");
             return;
         }
-        DataView dv=new UnknownsDataView();
+        
+        ServletContext context=this.getServletContext();
+        String tempdir=context.getRealPath("/temp");
+            
+        DataView dv=new UnknownsDataView(tempdir);
         List ids=new LinkedList();
         StringTokenizer tok=new StringTokenizer(inputKeys);
         while(tok.hasMoreTokens())
            ids.add(tok.nextToken());
-        dv.setData(ids, sortCol, new int[]{},0);
-        
+        dv.setData(sortCol, new int[]{},0);
+        dv.setIds(ids);
         dv.printHeader(out);
         dv.printStats(out);
         dv.printData(out);
