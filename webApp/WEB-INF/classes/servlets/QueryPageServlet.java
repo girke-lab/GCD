@@ -49,15 +49,16 @@ public class QueryPageServlet extends HttpServlet
         List inputKeys;
         /////////////////////////  get input  //////////////////////////////////////////////////
         String input=request.getParameter("inputKey"); //actual input from form feild
-        String searchType=request.getParameter("searchType");//d for descrition, k for key     
+        String searchType=request.getParameter("searchType");
         String[] dbTemp=request.getParameterValues("dbs"); //list of databases to use
+        String sortCol=request.getParameter("sortCol");
 
         try{//test limit
             limit=Integer.parseInt(request.getParameter("limit"));
             if(limit>=MAXKEYS || limit==0) //cap limit at MAXKEYS
                 limit=MAXKEYS;
         }catch(NumberFormatException nfe){
-            limit=10; //default limit
+            limit=50; //default limit
         }try{//test dbNums for valid input and conver text to numbers   // DBfeilds
             dbNums=new int[dbTemp.length];
             for(int i=0;i<dbTemp.length;i++)
@@ -79,14 +80,16 @@ public class QueryPageServlet extends HttpServlet
             while(tok.hasMoreTokens())
                 inputKeys.add(tok.nextToken());
         }
-        if(searchType==null)
-            searchType=new String("k");        
+        System.out.println("qp: sortCol="+sortCol);
+        if(sortCol==null)
+            sortCol="cluster_info.filename"; //sort by cluster_id by default
         
         if(session.getAttribute("hid")==null)
         {//session was just created.
             session.setAttribute("hid",new Integer(0));
             session.setAttribute("history",new ArrayList());
         }
+        
         hid=((Integer)session.getAttribute("hid")).intValue();
         session.setAttribute("hid",new Integer(hid+1));
         QueryInfo qi=new QueryInfo(dbNums,dbNums.length,limit); 
@@ -119,7 +122,7 @@ public class QueryPageServlet extends HttpServlet
         goNumbers=findGoNumbers(returnedKeys);
         clusterNumbers=findClusterNumbers(returnedKeys);
 
-        main=getData(returnedKeys,limit,dbNums);
+        main=getData(returnedKeys,sortCol,limit,dbNums);
         //Common.blastLinks(out,dbNums[i],hid);
         printCounts(out,inputKeys.size(), main);
         printMismatches(out,s.notFound());
@@ -145,6 +148,8 @@ public class QueryPageServlet extends HttpServlet
             return new ClusterNameSearch();
         else if(type.equals("GO Number"))
             return new GoSearch();
+        else if(type.equals("seq_id"))
+            return new SeqIdSearch();
         else
             return new IdSearch();   //default to id search
     }
@@ -172,9 +177,16 @@ public class QueryPageServlet extends HttpServlet
     {//query the go numbers from the GO table and organize them in a hashMap.
         StringBuffer conditions=new StringBuffer();
         System.out.println("data="+data);
+        
+        conditions.append("go.seq_id in (");
         for(Iterator i=data.iterator();i.hasNext();)
-            conditions.append("go.Seq_id="+(String)i.next()+" OR ");
-        conditions.append("0=1");
+        {
+            conditions.append(i.next());
+            if(i.hasNext())
+                conditions.append(",");
+        }
+        conditions.append(")");
+                
 
         System.out.println("sending goNumbers query: "+buildGoStatement(conditions.toString()));
         List results=Common.sendQuery(buildGoStatement(conditions.toString()),2); 
@@ -239,7 +251,7 @@ public class QueryPageServlet extends HttpServlet
         return cids;
     }
 
-    private List getData(List input, int limit, int[] db)
+    private List getData(List input, String order, int limit, int[] db)
     {
         StringBuffer conditions=new StringBuffer();
         List rs=null;
@@ -249,11 +261,11 @@ public class QueryPageServlet extends HttpServlet
         for(Iterator it=input.iterator();it.hasNext() && count++ < limit;)
         {
             conditions.append((String)it.next());
-            if(it.hasNext())
+            if(it.hasNext() && count < limit)
                 conditions.append(",");
         }
         conditions.append(")");
-        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db));
+        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),order,limit,db));
         return rs;
     }
 
@@ -391,7 +403,7 @@ public class QueryPageServlet extends HttpServlet
 
     private void printForms(PrintWriter out, List data,Map goNumbers)
     {
-        out.println("<TABLE><TR><TD>");
+        out.println("<TABLE border='0' ><TR><TD >");
         //gene structure form
         out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/multigene.pl'>\n");
         if(data.size() > 0) //don't print a button if thier is no data
@@ -402,9 +414,9 @@ public class QueryPageServlet extends HttpServlet
         
         //chr form
         out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/chrplot.pl'>\n");
-        out.println("<INPUT type=hidden name='database' value='all'/>");
         if(data.size() > 0)
             out.println("<INPUT type='submit' value='Chr Map'><BR>\n");
+        out.println("<INPUT type=hidden name='database' value='all'/>");
         for(Iterator i=data.iterator();i.hasNext();)
             out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
         out.println("</FORM></TD><TD>");
@@ -453,13 +465,13 @@ public class QueryPageServlet extends HttpServlet
     ////////////////////////////  Query stuff    ////////////////////////////////////////////////
     
     
-     private String buildKeyStatement(String conditions,int limit, int[] DBs)
+     private String buildKeyStatement(String conditions,String order,int limit, int[] DBs)
     {
         StringBuffer general=new StringBuffer();
 
         general.append("SELECT DISTINCT primary_key, description,sequences.seq_id,count(models.model_id),genome "+
-                       "FROM sequences LEFT JOIN models USING(seq_id) "+
-                       "WHERE ( ");
+                       "FROM sequences LEFT JOIN models USING(seq_id),clusters, cluster_info  "+
+                       "WHERE cluster_info.cluster_id=clusters.cluster_id and clusters.seq_id=sequences.seq_id and  ( ");
 
         for(int i=0;i<DBs.length;i++)
         {
@@ -468,8 +480,9 @@ public class QueryPageServlet extends HttpServlet
                 general.append(" or ");
         }
 
-        general.append(") and ( "+conditions+" ) GROUP BY sequences.seq_id,primary_Key, description, "+
-            "Genome ORDER BY Genome,Primary_Key");
+        general.append(") and ( "+conditions+" ) GROUP BY sequences.seq_id,primary_Key, description,Genome ");
+        //general.append("ORDER BY Genome,Primary_Key");
+        general.append("ORDER BY "+order);
         general.append(" limit "+limit);
         System.out.println("general Query: "+general);
         return general.toString();
