@@ -18,7 +18,7 @@ public class Common {
     public static List sendQuery(String q, int length)
     {
         int i=0;
-        queryThread dbConnection=new queryThread("Cis_Regul");
+        queryThread dbConnection=new queryThread("common");
         dbConnection.setQuery(q,length);
         dbConnection.start();
         while(dbConnection.isAlive());//wait for query to finish       

@@ -28,7 +28,7 @@ public class queryThread extends Thread
     public queryThread(String name,int t) 
     {
         super(name);
-        connect("Cis_Regul");//connects to database and creates con.
+        connect("common");//connects to database and creates con.
         timeOut=t;        
     }
     public queryThread(String name) 
@@ -57,6 +57,7 @@ public class queryThread extends Thread
             rs=stmt.executeQuery(QueryString);
         }catch(SQLException e){
             System.out.println("queryThread error in run: "+e.getMessage());
+            System.out.println("query was: "+QueryString);
             return;
         }catch(Exception e){ return; }
         copyToArray();
@@ -108,7 +109,8 @@ public class queryThread extends Thread
     private void connect(String DB)
     {        
         //open a connnection with the database server
-        String url="jdbc:mysql://localhost/"+DB+"?autoReconnect=false"; //was true
+        String url="jdbc:mysql://138.23.191.152/"+DB+"?autoReconnect=false"; //was true
+        System.out.println("connecting to "+DB);
         try{
             Class.forName("org.gjt.mm.mysql.Driver").newInstance();
         }catch(Exception e){

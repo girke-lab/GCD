@@ -247,12 +247,15 @@ public class SequenceServlet extends HttpServlet
     private String buildGeneralStatement(String feilds, String conditions,int limit,int currentDB)
     {
         StringBuffer general=new StringBuffer();
-        if(currentDB==arab)  //ID is a global varibale used to kill the query at a later time
-            general.append("/*"+ID+"*/SELECT "+feilds+" FROM TIGR_Data WHERE "+conditions+" ORDER BY Atnum");
-        else if(currentDB==rice)
-            general.append("/*"+ID+"*/SELECT "+feilds+" FROM Rice.Rice_Data WHERE "+conditions+" ORDER BY Id1");
-        else
-            System.err.println("invalid DB name in buildGeneralStatement");
+        general.append("SELECT "+feilds+" FROM Id_Associations LEFT JOIN Sequences "+
+                       "USING(Seq_id) LEFT JOIN Models USING(Seq_id) WHERE "+conditions+
+                       " ORDER BY "+fullNames[0][0]);
+//        if(currentDB==arab)  //ID is a global varibale used to kill the query at a later time
+//            general.append("/*"+ID+"*/SELECT "+feilds+" FROM TIGR_Data WHERE "+conditions+" ORDER BY Atnum");
+//        else if(currentDB==rice)
+//            general.append("/*"+ID+"*/SELECT "+feilds+" FROM Rice.Rice_Data WHERE "+conditions+" ORDER BY Id1");
+//        else
+//            System.err.println("invalid DB name in buildGeneralStatement");
         general.append(" limit "+limit);
         System.out.println("general Query: "+general);
         return general.toString();
@@ -260,6 +263,8 @@ public class SequenceServlet extends HttpServlet
     private String likeExpression(String key,int currentDB)
     {
         String exp=null;
+        exp=new String(fullNames[0][0]+" LIKE '"+key+"%' OR ");
+        /*
         if(currentDB==arab)  //TIGR_Data.Atnum
             exp=new String("TIGR_Data.Atnum LIKE '"+key+"%' OR ");
         else if(currentDB==rice)
@@ -267,6 +272,7 @@ public class SequenceServlet extends HttpServlet
                            "Rice.Rice_Data.Id2 LIKE '"+key+"%' OR ");
         else
             System.err.println("invalid DB name in likeExpression");
+         */
         return exp;
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////    
@@ -274,11 +280,20 @@ public class SequenceServlet extends HttpServlet
     {
         //assign names for later lookup
         fullNames=new String[dbCount][fieldCount];        
-        fullNames[0][0]="TIGR_Data.Atnum";fullNames[0][1]="";fullNames[0][2]="TIGR_Data.Description";
-        fullNames[0][3]="TIGR_Data.TU";fullNames[0][4]="TIGR_Data.Promoter";fullNames[0][5]="TIGR_Data.3UTR";
-        fullNames[0][6]="TIGR_Data.Intergenic";fullNames[0][7]="TIGR_Data.ORF";fullNames[0][8]="TIGR_Data.5UTR";
-        fullNames[0][9]="TIGR_Data.Protein";
-        fullNames[1][0]="Rice.Rice_Data.Id1";fullNames[1][1]="Rice.Rice_Data.Id2";fullNames[1][2]="Rice.Rice_Data.Description";
+//        fullNames[0][0]="TIGR_Data.Atnum";fullNames[0][1]="";fullNames[0][2]="TIGR_Data.Description";
+//        fullNames[0][3]="TIGR_Data.TU";fullNames[0][4]="TIGR_Data.Promoter";fullNames[0][5]="TIGR_Data.3UTR";
+//        fullNames[0][6]="TIGR_Data.Intergenic";fullNames[0][7]="TIGR_Data.ORF";fullNames[0][8]="TIGR_Data.5UTR";
+//        fullNames[0][9]="TIGR_Data.Protein";
+//        fullNames[1][0]="Rice.Rice_Data.Id1";fullNames[1][1]="Rice.Rice_Data.Id2";fullNames[1][2]="Rice.Rice_Data.Description";
+//        fullNames[1][3]="Rice.Rice_Data.TU";fullNames[1][4]="Rice.Rice_Data.Promoter";fullNames[1][5]="";
+//        fullNames[1][6]="Rice.Rice_Data.Intergenic";fullNames[1][7]="Rice.Rice_Data.CDS";fullNames[1][8]="";
+//        fullNames[1][9]="Rice.Rice_Data.Protein";
+        fullNames[0][0]="Id_Associations.Accession";fullNames[0][1]="Id_Associations.OS_id";fullNames[0][2]="Sequences.Description";
+        fullNames[0][3]="Models.TU";fullNames[0][4]="Sequences.Intergenic";fullNames[0][5]="Models.3UTR";
+        fullNames[0][6]="Sequences.Intergenic";fullNames[0][7]="Models.CDS";fullNames[0][8]="Models.5UTR";
+        fullNames[0][9]="Models.Protein";
+        //these should no longer be used
+        fullNames[1][0]="Id_Associations.Accession";fullNames[1][1]="Rice.Rice_Data.Id2";fullNames[1][2]="Rice.Rice_Data.Description";
         fullNames[1][3]="Rice.Rice_Data.TU";fullNames[1][4]="Rice.Rice_Data.Promoter";fullNames[1][5]="";
         fullNames[1][6]="Rice.Rice_Data.Intergenic";fullNames[1][7]="Rice.Rice_Data.CDS";fullNames[1][8]="";
         fullNames[1][9]="Rice.Rice_Data.Protein";

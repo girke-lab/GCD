@@ -129,8 +129,8 @@ public class QueryPageServlet extends HttpServlet
         out.println("</html>");
 
         out.close();
+        /////////////////////////////////  end of main  ////////////////////////////////////////////
     }
-    /////////////////////////////////  end of main  ////////////////////////////////////////////
     private List getKeysReturned(List data)
     {
         List keys=new ArrayList();
@@ -178,7 +178,7 @@ public class QueryPageServlet extends HttpServlet
         StringBuffer conditions=new StringBuffer();
         List rs=null;
         int count=0,fieldCount=3;
-        if(db==rice) fieldCount=3;
+//        if(db==rice) fieldCount=3;
         while(in.hasNext() && count++ < limit) //build condtions
             conditions.append(likeExpression((String)in.next(),db));
         conditions.append(" 0=1 ");                
@@ -206,7 +206,7 @@ public class QueryPageServlet extends HttpServlet
             if(currentDB==arab)
             {
                 key=(String)row.get(0);
-                key=key.substring(0,key.length()-2);//cut off decimal
+                //key=key.substring(0,key.length()-2);//cut off decimal
 		clusterNum=(String)row.get(2);
                 out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Links</TH>");
 		printArabLinks(out,key,clusterNum,hid);
@@ -325,33 +325,44 @@ public class QueryPageServlet extends HttpServlet
     private String buildDescStatement(String conditions,int currentDB)
     {
         String desc=null;
+        desc=new String("SELECT "+fullNames[0]+" FROM Id_Associations LEFT JOIN "+
+                        "Sequences USING(Seq_id) WHERE "+conditions);
+        /*
         if(currentDB==arab)  //select TIGR_Data.Atnum from TIGR_Data where ...
-            desc=new String("/*"+ID+"*/SELECT TIGR_Data.Atnum FROM TIGR_Data WHERE "+ conditions);
+            desc=new String("SELECT TIGR_Data.Atnum FROM TIGR_Data WHERE "+ conditions);
         else if(currentDB==rice)
-            desc=new String("/*"+ID+"*/SELECT Rice.Rice_Data.Id1  FROM Rice.Rice_Data WHERE "+ conditions);
+            desc=new String("SELECT Rice.Rice_Data.Id1  FROM Rice.Rice_Data WHERE "+ conditions);
         else
             System.err.println("invalid DB name in buildDescStatement");
+         */
         System.out.println("description query: "+desc);
-        return desc;
+        return desc;      
     }
     private String buildKeyStatement(String conditions,int limit, int currentDB)
     {
         StringBuffer general=new StringBuffer();
+                                //Accession                     //description
+        general.append("SELECT "+fullNames[0]+", "+fullNames[1]+",Sequences.Seq_id FROM Id_Associations LEFT JOIN "+
+                        "Sequences USING(Seq_id) WHERE "+conditions+" ORDER BY "+fullNames[0]);
+        /*
         if(currentDB==arab)  //ID is a global varibale used to kill the query at a later time
-            general.append("/*"+ID+"*/SELECT TIGR_Data.Atnum,TIGR_Data.Description, Clusters.ClusterNum"+
+            general.append("SELECT TIGR_Data.Atnum,TIGR_Data.Description, Clusters.ClusterNum"+
                 " FROM TIGR_Data LEFT JOIN Clusters on TIGR_Data.Atnum=Clusters.Atnum"+
 		" WHERE "+conditions+" ORDER BY Atnum");
         else if(currentDB==rice)
-            general.append("/*"+ID+"*/SELECT Rice.Rice_Data.Id1, Rice.Rice_Data.Id2,Rice.Rice_Data.Description"+
+            general.append("SELECT Rice.Rice_Data.Id1, Rice.Rice_Data.Id2,Rice.Rice_Data.Description"+
                 " FROM Rice.Rice_Data WHERE "+conditions+" ORDER BY Id1");
         else
             System.err.println("invalid DB name in buildGeneralStatement");
+        */
         general.append(" limit "+limit);
         System.out.println("general Query: "+general);
         return general.toString();
     }
     private String regExpression(String key,int currentDB)
     {
+        return " ( "+fullNames[1]+" REGEXP \""+key+"\") ";
+        /*
         if(currentDB==arab) //TIGR_Data.Description REGEXP ...
             return " ( TIGR_Data.Description REGEXP \""+key+"\") ";
         else if(currentDB==rice)
@@ -359,10 +370,13 @@ public class QueryPageServlet extends HttpServlet
         else
             System.err.println("invalid DB name in regExpression");
         return null;
+         */
     }
     private String likeExpression(String key,int currentDB)
     {
         String exp=null;
+        exp=new String(fullNames[0]+" LIKE '"+key+"%' OR ");
+        /*
         if(currentDB==arab)  //TIGR_Data.Atnum
             exp=new String("TIGR_Data.Atnum LIKE '"+key+"%' OR ");
         else if(currentDB==rice)
@@ -370,19 +384,28 @@ public class QueryPageServlet extends HttpServlet
                            "Rice.Rice_Data.Id2 LIKE '"+key+"%' OR ");
         else
             System.err.println("invalid DB name in likeExpression");
-        return exp;
+         */
+        return exp;         
     }
     
     private void defineNames()
     {
         //assign names for later lookup
         fullNames=new String[feildCount];
-        fullNames[0]="TIGR_Data.Atnum";fullNames[1]="TIGR_Data.Description";fullNames[2]="TIGR_Data.Promoter";
-        fullNames[3]="TIGR_Data.TU";fullNames[4]="TIGR_Data.5UTR";fullNames[5]="Rice.Rice_Data.Intergenic";
-        fullNames[6]="TIGR_Data.ORF";fullNames[7]="Rice.Rice_Data.Promoter";fullNames[8]="TIGR_Data.3UTR";
-        fullNames[9]="TIGR_Data.Protein";fullNames[10]="Rice.Rice_Data.Id1";fullNames[11]="Rice.Rice_Data.Id2";
-        fullNames[12]="Rice.Rice_Data.Description";fullNames[13]="Rice.Rice_Data.Protein";fullNames[14]="Rice.Rice_Data.CDS";
-        fullNames[15]="TIGR_Data.Intergenic";fullNames[16]="Rice.Rice_Data.TU";
+        //names for old database setup
+//        fullNames[0]="TIGR_Data.Atnum";fullNames[1]="TIGR_Data.Description";fullNames[2]="TIGR_Data.Promoter";
+//        fullNames[3]="TIGR_Data.TU";fullNames[4]="TIGR_Data.5UTR";fullNames[5]="Rice.Rice_Data.Intergenic";
+//        fullNames[6]="TIGR_Data.ORF";fullNames[7]="Rice.Rice_Data.Promoter";fullNames[8]="TIGR_Data.3UTR";
+//        fullNames[9]="TIGR_Data.Protein";fullNames[10]="Rice.Rice_Data.Id1";fullNames[11]="Rice.Rice_Data.Id2";
+//        fullNames[12]="Rice.Rice_Data.Description";fullNames[13]="Rice.Rice_Data.Protein";fullNames[14]="Rice.Rice_Data.CDS";
+//        fullNames[15]="TIGR_Data.Intergenic";fullNames[16]="Rice.Rice_Data.TU";
+        fullNames[0]="Id_Associations.Accession";fullNames[1]="Sequences.Description";fullNames[2]="Sequences.Intergenic";
+        fullNames[3]="Models.TU";fullNames[4]="Models.5UTR";fullNames[5]="Sequences.Intergenic";
+        fullNames[6]="Models.CDS";fullNames[7]="Sequences.Intergenic";fullNames[8]="Models.3UTR";
+        fullNames[9]="Models.Protein";fullNames[10]="Id_Associations.Accession";fullNames[11]="Id_Associations.OS_id";
+        fullNames[12]="Sequences.Description";fullNames[13]="Models.Protein";fullNames[14]="Models.CDS";
+        fullNames[15]="Sequences.Intergenic";fullNames[16]="Models.TU";
+
         //names to be printed on the screen
         printNames=new String[feildCount];
         printNames[0]="Key";printNames[1]="Description" ;printNames[2]="Promoter 1500";printNames[3]="Transcription Model";
