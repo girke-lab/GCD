@@ -75,20 +75,20 @@ public class CommonDatabase implements SearchableDatabase
             oid=state.getSelectedOp(i).intValue();
             
             
-            if(fields[fid].displayName.equals("Cluster Type")){
-                if(state.getValue(i).equals("blast"))
-                    query.append(fields[fid].dbName+" NOT "+Common.ILIKE+" 'PF%' ");
-                else if(state.getValue(i).equals("hmm"))
-                    query.append(fields[fid].dbName+" "+Common.ILIKE+" 'PF%'");
-            }
-            else{
+//            if(fields[fid].displayName.equals("Cluster Type")){
+//                if(state.getValue(i).equals("blast"))
+//                    query.append(fields[fid].dbName+" NOT "+Common.ILIKE+" 'PF%' ");
+//                else if(state.getValue(i).equals("hmm"))
+//                    query.append(fields[fid].dbName+" "+Common.ILIKE+" 'PF%'");
+//            }
+//            else{
                 query.append(fields[fid].dbName+" "+operators[oid]+" ");
 
                 if(fields[fid].type.equals(String.class) || fields[fid].type.equals(List.class))
                     query.append("'"+state.getValue(i)+"'");            
                 else
                     query.append(state.getValue(i));    
-            }
+//            }
             
             query.append(" ");
             
@@ -111,8 +111,10 @@ public class CommonDatabase implements SearchableDatabase
                             new Field("Loci Description","sequences.description"),
                             new Field("Cluster Id","cluster_info.filename"),
                             new Field("Cluster Name","cluster_info.name"),
-                            new Field("Cluster Type","cluster_info.filename",new String[]{"blast","hmm"}),
+                            //new Field("Cluster Type","cluster_info.filename",new String[]{"blast","hmm"}),
                             new Field("Cluster Size","cluster_info.size",Integer.class),
+                            new Field("Clustering Method","cluster_info.method",
+                                new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
                             new Field("# arab keys in cluster","cluster_info.arab_count",Integer.class),
                             new Field("# rice keys in cluster","cluster_info.rice_count",Integer.class),
                             new Field("Database","sequences.Genome",new String[]{"arab","rice"}),

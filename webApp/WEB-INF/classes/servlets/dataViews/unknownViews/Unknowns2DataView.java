@@ -314,6 +314,7 @@ public class Unknowns2DataView implements DataView
     {
         String base="http://bioinfo.ucr.edu/projects/internal/Unknowns/external";
         out.println(
+        "  <body link='#006699' vlink='#003366'>\n"+
         "  <font face='sans-serif, Arial, Helvetica, Geneva'>"+
         "  <img alt='Unknown Database' src='images/unknownspace3.png'>"+
         "  <table>"+

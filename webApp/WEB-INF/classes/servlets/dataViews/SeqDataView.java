@@ -30,7 +30,8 @@ public class SeqDataView implements DataView
                       DESC_COL=2,   MODEL_COL=3,
                       GO_COL=4,     FILENAME_COL=5,
                       SIZE_COL=6,   NAME_COL=7,
-                      A_SIZE_COL=8, R_SIZE_COL=9;
+                      A_SIZE_COL=8, R_SIZE_COL=9,
+                      METH_COL=10;
     
     String dataColor="D3D3D3",titleColor="AAAAAA";
     private static Logger log=Logger.getLogger(SeqDataView.class);
@@ -115,8 +116,10 @@ public class SeqDataView implements DataView
             sr.addModel((String)row.get(MODEL_COL));                
             if(row.get(GO_COL)!=null)
                 sr.addGoNumber((String)row.get(GO_COL));
-            sr.addCluster(new ClusterSet((String)row.get(FILENAME_COL),(String)row.get(SIZE_COL),
-                    (String)row.get(NAME_COL),(String)row.get(A_SIZE_COL),(String)row.get(R_SIZE_COL)));                
+            if(row.get(FILENAME_COL)!=null)
+                sr.addCluster(new ClusterSet((String)row.get(FILENAME_COL),(String)row.get(SIZE_COL),
+                    (String)row.get(NAME_COL),(String)row.get(A_SIZE_COL),(String)row.get(R_SIZE_COL),
+                    (String)row.get(METH_COL)));                
         }
         //store last set
         records.add(sr);
@@ -167,7 +170,7 @@ public class SeqDataView implements DataView
         StringBuffer query=new StringBuffer();
         
         query.append("SELECT sequences.genome, sequences.primary_key,sequences.description,models.model_id," +
-                    " go.go, cluster_info.filename,cluster_info.size,cluster_info.name,cluster_info.arab_count,cluster_info.rice_count "+
+                    " go.go, cluster_info.filename,cluster_info.size,cluster_info.name,cluster_info.arab_count,cluster_info.rice_count,cluster_info.method "+
                 "FROM sequences LEFT JOIN models USING (seq_id) LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequences.seq_id=go.seq_id)"+
                 //clusters, cluster_info, sequences LEFT JOIN go USING (seq_id) "+
                 "WHERE  ");
@@ -185,7 +188,8 @@ public class SeqDataView implements DataView
         query.append("ORDER BY sequences.genome,");
         if(order!=null && order != "")
             query.append(order+", ");
-        query.append(" sequences.primary_key,clusters.model_id, go.go,cluster_info.filename ");        
+        //query.append(" sequences.primary_key,clusters.model_id, go.go,cluster_info.filename ");        
+        query.append(" sequences.primary_key,cluster_info.filename, go.go ");        
         log.info("sequence view query: "+query);
         return query.toString();
     }
@@ -202,30 +206,40 @@ public class SeqDataView implements DataView
 //////////////////////////////////////////////////////////////////////    
    
     
-    class ClusterSet {
-        public String clusterNum, size,name,arab_size,rice_size;
-        ClusterSet(String cn,String s,String n,String as,String rs)
+    class ClusterSet implements Comparable {
+        public String clusterNum, size,name,arab_size,rice_size,method;
+        ClusterSet(String cn,String s,String n,String as,String rs,String m)
         {
             clusterNum= cn==null? "":cn;
             size= s==null? "":s;
             name= n==null? "":n;
             arab_size=as;
             rice_size=rs;
+            method=m;
+            if(method==null)
+                log.warn("cluster "+clusterNum+" has a null method");
         }
         public boolean equals(Object o)
         {
             if(!(o instanceof ClusterSet))
                 return false;
             ClusterSet cs=(ClusterSet)o;
-            return cs.clusterNum.equals(clusterNum);            
+            return cs.clusterNum.equals(clusterNum);                        
         }
         public String toString()
         {
             return "("+clusterNum+","+size+","+name+", hash="+this.hashCode()+")";
         }
         public int hashCode()
-        {
+        {            
             return clusterNum.hashCode();
+        }
+
+        public int compareTo(Object obj)
+        {
+            if(!(obj instanceof ClusterSet) || method==null)
+                return -1;
+            return method.compareTo(((ClusterSet)obj).method);
         }
     }
     class SeqRecord
@@ -237,7 +251,8 @@ public class SeqDataView implements DataView
         public SeqRecord()
         {
             goNumbers=new HashSet();
-            clusters=new LinkedHashSet(); //keeps order
+            //clusters=new LinkedHashSet(); //keeps order
+            clusters=new TreeSet();
             models=new HashSet();
         }
         public SeqRecord(String key,String desc,String genome)
@@ -246,7 +261,8 @@ public class SeqDataView implements DataView
             this.desc=desc;
             this.genome=genome;
             goNumbers=new HashSet();
-            clusters=new LinkedHashSet(); //keeps order
+            //clusters=new LinkedHashSet(); //keeps order
+            clusters=new TreeSet();
             models=new HashSet();
         }
         
@@ -254,6 +270,7 @@ public class SeqDataView implements DataView
             goNumbers.add(go);
         }
         public void addCluster(ClusterSet cs){
+            //log.debug("adding cluster "+cs.clusterNum+" to seq "+key+", method="+cs.method);
             clusters.add(cs);
         }
         public void addModel(String m){
@@ -333,22 +350,26 @@ public class SeqDataView implements DataView
                 "<TH align='"+align+"'>Name</TH><TH align='"+align+"'>ID</TH>" +
                 "<TH align='"+align+"'>Size</TH><TH align='"+align+"'>Members</TH>" +
                 "<TH align='"+align+"'>Alignment</TH><TH align='"+align+"'>Tree</TH></TR>");
-            String clusterType,blast="BLASTCLUST", hmm="Domain Composition";
+            
+            
+            //String clusterType,blast="BLASTCLUST", hmm="Domain Composition";
             for(Iterator i=clusters.iterator();i.hasNext();)
             {//one row per set
 
                  ClusterSet cs=(ClusterSet)i.next();
                  if(cs.clusterNum=="")
                      continue;
-                 clusterType=cs.clusterNum.matches("PF.*") ? hmm : blast;                          
+                 //clusterType=cs.clusterNum.matches("PF.*") ? hmm : blast;                          
                  out.println("\t<TR>");
-                 out.println("\t\t<TD nowrap>"+clusterType+"</TD>");                                      
+                 out.println("\t\t<TD nowrap>"+cs.method+"</TD>");                                      
                  if(cs.name=="")
                      out.println("\t\t<TD>&nbsp</TD>");
                  else
                     out.println("\t\t<TD>"+cs.name+"</TD>");
                  out.println("\t\t<TD>");
-                 if(clusterType.equals(hmm))
+                 //if(clusterType.equals(hmm))
+                 
+                 if(cs.method.equals("Domain Composition")) //hmm stuff
                  {
                      StringTokenizer tok=new StringTokenizer(cs.clusterNum,"_");
                      while(tok.hasMoreTokens())
@@ -366,10 +387,10 @@ public class SeqDataView implements DataView
                  out.println("\t\t<TD>"+cs.size+"</TD>");
                  out.println("\t\t<TD nowrap><a href='/databaseWeb/index.jsp?fieldName=Cluster Id&limit=0&input="+cs.clusterNum+"'>" +
                             cs.arab_size+" Ath &nbsp&nbsp "+cs.rice_size+" Osa</a></TD>");
-                 if(!cs.size.equals("1"))
+                 if(!cs.size.equals("1") && !cs.method.endsWith("_50") && !cs.method.endsWith("_70"))
                  {
                      String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
-                     if(clusterType.equals(hmm))
+                     if(cs.method.equals("Domain Composition"))
                          base+="hmmClusters/";
                      else
                          base+="blastClusters/";

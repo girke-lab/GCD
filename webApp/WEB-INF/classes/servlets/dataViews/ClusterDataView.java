@@ -29,7 +29,7 @@ public class ClusterDataView implements DataView
     
     private final int CLUSTER_ID_COL=0, CLUSTER_NAME_COL=1,
                       ARAB_SIZE_COL=2,  RICE_SIZE_COL=3,
-                      SIZE_COL=4;
+                      SIZE_COL=4,METH_COL=5;
     private final int PFAM=0,BLAST=1;
     private static Logger log=Logger.getLogger(ClusterDataView.class);
     
@@ -86,7 +86,7 @@ public class ClusterDataView implements DataView
         {
             List row=(List)i.next();            
             
-            clusterType=((String)row.get(CLUSTER_ID_COL)).startsWith("PF")? PFAM:BLAST;
+            clusterType=((String)row.get(METH_COL)).equals("Domain Composition")? PFAM:BLAST;
                         
             out.println("<TR><TD colspan='7' bgcolor='FFFFFF' border='0'>&nbsp</TD></TR>");
             out.println("<TR bgcolor='"+titleColor+"'><TH>Cluster Id</TH>" +
@@ -113,16 +113,20 @@ public class ClusterDataView implements DataView
                         "<TH nowrap>Arabidopsis Count</TH><TH nowrap>Rice Count</TH><TH>Memebers</TH>" +
                         "<TH>Alignment</TH><TH>Tree</TH></TR>");
             out.println("<TR>");
-            if(clusterType==PFAM)
-                out.println("<TD>Domain Composition</TD>");
-            else
-                out.println("<TD>BLASTCLUST</TD>");
             
-            out.println("<TD>"+row.get(SIZE_COL)+"</TD>" +
+//            if(clusterType==PFAM)
+//                out.println("<TD>Domain Composition</TD>");
+//            else
+//                out.println("<TD>BLASTCLUST</TD>");
+            
+            out.println("<TD>"+row.get(METH_COL)+"</TD>"+
+                        "<TD>"+row.get(SIZE_COL)+"</TD>" +
                         "<TD>"+row.get(ARAB_SIZE_COL)+"</TD>" +
                         "<TD>"+row.get(RICE_SIZE_COL)+"</TD>");
             out.println("<TD><a href='/databaseWeb/index.jsp?fieldName=Cluster Id&limit=0&input="+row.get(CLUSTER_ID_COL)+"'>Retrieve</a></TD>");
-            if(Integer.parseInt((String)row.get(SIZE_COL)) > 1)
+            if(Integer.parseInt((String)row.get(SIZE_COL)) > 1 && 
+                  !((String)row.get(METH_COL)).endsWith("_50") && 
+                  !((String)row.get(METH_COL)).endsWith("_70"))
             {
                 String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
                 if(clusterType==PFAM)
@@ -135,6 +139,8 @@ public class ClusterDataView implements DataView
                 out.println("</TD>");
                 out.println("<TD><a href='"+base+row.get(CLUSTER_ID_COL)+".jpg'>view</a></TD>");   
             }
+            else
+                out.println("<td>&nbsp</td><td>&nbsp</td>");
             out.println("</TR>");
         }
         out.println("</TABLE>");
@@ -160,13 +166,9 @@ public class ClusterDataView implements DataView
     
      private String buildClusterViewStatement(String conditions, String order, int[] DBs)
     {
-        StringBuffer query=new StringBuffer();
-        
-//        query.append("SELECT s.genome,ci.filename, s.primary_key,c.model_id, g.go "+
-//                "FROM clusters as c, cluster_info as ci, sequences as s LEFT JOIN go as g USING (seq_id) "+
-//                "WHERE ci.cluster_id=c.cluster_id AND c.seq_id=s.seq_id ");
+        StringBuffer query=new StringBuffer();        
   
-        query.append("SELECT DISTINCT filename, name,arab_count,rice_count,size " +
+        query.append("SELECT DISTINCT filename, name,arab_count,rice_count,size,method " +
             "FROM cluster_info " +
             "WHERE ");
         query.append(" ("+conditions+" )");
