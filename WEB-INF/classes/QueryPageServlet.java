@@ -110,28 +110,36 @@ public class QueryPageServlet extends HttpServlet
         /////////////////////////// main   ////////////////////////////////////////////////////
         List main=null,keysNotFound=null;
         List actualKeys=inputKeys,returnedKeys;
+        HashMap goNumbers=null;
+        Search s=null;
 //        session.setAttribute("keys",new ArrayList());
         for(int i=0;i<dbNumsLength;i++)
         {
             out.println("<P><H3 align='center'>"+dbPrintNames[dbNums[i]]+" search results:</H3>");
-            if(searchType.charAt(0)=='d') //descritption search
-                returnedKeys=searchByDescription(inputKeys,limit,dbNums[i]);
-            else if(searchType.charAt(0)=='c')
-                returnedKeys=searchByClusterNum(inputKeys,limit,dbNums[i]);
-            else 
-            {
-                returnedKeys=searchByKey(inputKeys,limit,dbNums[i]);
-                //TODO: fix findMismatches
-                //keysNotFound=findMismatches(inputKeys, main,dbNums[i]);
-            }
             
-//            returnedKeys=getKeysReturned(main); //gets the actual keys returned by the DB
+            s=getSearchObj(searchType);
+            s.init(inputKeys,limit, dbNums[i]);
+            returnedKeys=s.getResults();
+//            
+//            if(searchType.charAt(0)=='d') //descritption search
+//                returnedKeys=searchByDescription(inputKeys,limit,dbNums[i]);
+//            else if(searchType.charAt(0)=='c')
+//                returnedKeys=searchByClusterNum(inputKeys,limit,dbNums[i]);
+//            else 
+//            {
+//                returnedKeys=searchByKey(inputKeys,limit,dbNums[i]);
+//                //TODO: fix findMismatches
+//                //keysNotFound=findMismatches(inputKeys, main,dbNums[i]);
+//            }
+            
              //these should be Seq_id numbers, not accession numbers.
             qi.addKeySet(returnedKeys);
+            
+            goNumbers=findGoNumbers(returnedKeys);
               
             main=getData(returnedKeys,limit,dbNums[i]);
             //Common.blastLinks(out,dbNums[i],hid);
-            printSummary(out,main,dbNums[i],hid);
+            printSummary(out,main,goNumbers,dbNums[i],hid);
             if(keysNotFound!=null)
                 printMismatches(out,keysNotFound);
         }
@@ -140,6 +148,23 @@ public class QueryPageServlet extends HttpServlet
 
         out.close();
         /////////////////////////////////  end of main  ////////////////////////////////////////////
+    }
+    
+    private Search getSearchObj(String type)
+    {
+        Search s=null;
+        if(type=="Description")
+            return new DescriptionSearch();
+        else if(type=="Id")
+            return new IdSearch();
+        else if(type=="Cluster Id")
+            return new ClusterIDSearch();
+        else if(type=="Cluster Name")
+            return new ClusterNameSearch();
+        else if(type=="Go Number")
+            return new GoSearch();
+        else
+            return null;   
     }
     private List getKeysReturned(List data)
     {
@@ -216,20 +241,56 @@ public class QueryPageServlet extends HttpServlet
             al.add(((ArrayList)i.next()).get(0));
         return al;
     }
+    private HashMap findGoNumbers(List data)
+    {//query the go numbers from the GO table and organize them in a hashMap.
+        StringBuffer conditions=new StringBuffer();
+        System.out.println("data="+data);
+        for(Iterator i=data.iterator();i.hasNext();)
+            conditions.append("Seq_id="+(String)i.next()+" OR ");
+        conditions.append("0=1");
+
+        System.out.println("sending query: "+buildGoStatement(conditions.toString()));
+        List results=Common.sendQuery(buildGoStatement(conditions.toString()),2); 
+        if(results.size()==0)
+            System.out.println("no results");
+        
+        //create one entry in a hashMap for each set of Seq_id's
+        HashMap gos=new HashMap();
+        
+        for(Iterator rit=results.iterator();rit.hasNext();)
+        {
+            ArrayList row=(ArrayList)rit.next();
+            
+            ArrayList goSet=(ArrayList)gos.get(row.get(0)); //look up the Seq_id's array
+            if(goSet==null)//no array found
+            {//create a new array and add it to the hash
+                goSet=new ArrayList();
+                goSet.add(row.get(1)); //add one go number to array
+                gos.put(row.get(0), goSet); 
+            } 
+            else //an array was found for this seq_id, so add this go number to it
+                goSet.add(row.get(1));//add go number to array            
+        }
+        if(gos==null || gos.size()==0)
+            System.out.println("nothing in gos");
+        else
+            System.out.println(gos.size()+" elements in go");
+        return gos;
+    }
     private List getData(List input, int limit, int db)
     { 
-        ListIterator it=input.listIterator();  
         StringBuffer conditions=new StringBuffer();
         List rs=null;
         int count=0;
         
-        while(it.hasNext() && count++ < limit)
+        for(Iterator it=input.iterator();it.hasNext() && count++ < limit;)
             conditions.append(Seq_idExpression((String)it.next())); 
         conditions.append("0=1");
-        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),4);
+
+        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),5);
         return rs;
     }
-    private void printSummary(PrintWriter out,List data,int currentDB,int hid)
+    private void printSummary(PrintWriter out,List data,HashMap goNumbers,int currentDB,int hid)
     {
         ListIterator li=data.listIterator();
         List row;
@@ -243,6 +304,13 @@ public class QueryPageServlet extends HttpServlet
 
         out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/multigene.pl'>\n");
         out.println("<INPUT type='submit' value='All Gene Structures'><BR>\n");
+	for(Iterator i=data.iterator();i.hasNext();)
+            out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
+        out.println("</FORM>");
+//http://bioinfo.ucr.edu/cgi-bin/chrplot.pl?database=all&accession=At1g18690.1
+        out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/chrplot.pl'>\n");
+        out.println("<INPUT type=hidden name='database' value='all'/>");
+        out.println("<INPUT type='submit' value='Chr Map'><BR>\n");
 	for(Iterator i=data.iterator();i.hasNext();)
             out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
         out.println("</FORM>");
@@ -261,7 +329,7 @@ public class QueryPageServlet extends HttpServlet
                 clusterSize=(String)row.get(3);
             }
             out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Links</TH>");
-            printArabLinks(out,key,clusterNum,hid,currentDB,clusterSize);
+            printLinks(out,key,clusterNum,hid,currentDB,clusterSize,(String)row.get(4),goNumbers);
             out.println("</TR>");
 
             out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Key</TH>");
@@ -272,8 +340,8 @@ public class QueryPageServlet extends HttpServlet
         }
         out.println("</TABLE>");                    
     }
-    private void printArabLinks(PrintWriter out,String key,String clusterNum,int hid,int currentDB,String size)
-    {
+    private void printLinks(PrintWriter out,String key,String clusterNum,int hid,int currentDB,String size,String Seq_id,HashMap goNumbers)
+    {//size is cluster size
          String db=null;
          System.out.println("currentDB="+currentDB);
     	 if(currentDB==arab)
@@ -296,8 +364,20 @@ public class QueryPageServlet extends HttpServlet
 	 //expression link goes here
          if(currentDB==arab)
             out.println("<a href='http://signal.salk.edu/cgi-bin/tdnaexpress?GENE="+key+"&FUNCTION=&JOB=HITT&DNA=&INTERVAL=10'>KO</a>&nbsp&nbsp");
-         out.println("<a href='http://www.geneontology.org/doc/index.shtml#downloads'>GO</a>&nbsp&nbsp");
-         //does this link work for rice?
+         
+         //here we want an array of go numbers         
+         StringBuffer querys=new StringBuffer();
+         ArrayList gos=(ArrayList)goNumbers.get(Seq_id);
+         if(gos!=null) //gos may be null if this Seq_id does not have any GO numbers
+           for(Iterator i=gos.iterator();i.hasNext();)
+                 querys.append("query="+((String)i.next()).replaceFirst(":","%3A")+"&"); //the : must be encoded     
+         if(querys.length()!=0)//we have at least one go number
+            out.println("<a href='http://www.godatabase.org/cgi-bin/go.cgi?depth=0&advanced_query=&search_constraint=terms&"+querys+"action=replace_tree'>GO</a>&nbsp&nbsp");
+         
+//         out.println("<a href='http://www.godatabase.org/cgi-bin/go.cgi?view=query&action=query&search_constraint=terms&"+querys+"'>GO</a>&nbsp&nbsp");
+
+         
+         //does this link work for rice? no
 	 out.println("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");
 	 out.println("\t\t</TD>");
                 
@@ -397,13 +477,14 @@ public class QueryPageServlet extends HttpServlet
 */
     private String buildIdStatement(String conditions, int limit,int currentDB)
     {
-        String id="SELECT Sequences.Seq_id from Sequences LEFT JOIN Id_Associations USING(Seq_id) "+
+        String id="SELECT DISTINCT Sequences.Seq_id from Sequences LEFT JOIN Id_Associations USING(Seq_id) "+
                   "WHERE ";
         if(currentDB==arab)
             id+=" Genome='arab' and ";
         else if(currentDB==rice)
             id+=" Genome='rice' and ";
         id+="("+conditions+")";
+        id+=" limit "+limit;
         System.out.println("id query: "+id);   
         return id;
     }
@@ -424,7 +505,7 @@ public class QueryPageServlet extends HttpServlet
     {
         StringBuffer general=new StringBuffer();
                                         
-        general.append("SELECT DISTINCT Primary_Key, Description, Clusters.Cluster_id, Size "+
+        general.append("SELECT DISTINCT Primary_Key, Description, Clusters.Cluster_id, Size, Sequences.Seq_id "+
                        "FROM Sequences LEFT JOIN Clusters USING(Seq_id) LEFT JOIN Cluster_Counts USING(Cluster_id) "+                                             
                        "WHERE ");
         
@@ -448,6 +529,10 @@ public class QueryPageServlet extends HttpServlet
         general.append(" limit "+limit);
         System.out.println("general Query: "+general);
         return general.toString();
+    }
+    private String buildGoStatement(String conditions)
+    {
+        return "SELECT Seq_id, Go from Go WHERE "+conditions +" ORDER BY Seq_id";
     }
     private String clusterExpression(String id)
     {

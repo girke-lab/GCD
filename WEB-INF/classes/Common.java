@@ -120,10 +120,11 @@ public class Common {
         "<tr>"+
         "    <td colspan='3'><hr></td>"+
         "</tr>"+
-        "<tr>"+
-        "    <td>&nbsp</td>"+
+        "<tr>"+        
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>"+
         "        <b>About this Database</b></a></font></div></td>"+
+        "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>"+
+        "        <b>Cluster Table</b></a></font></div></td>"+
 "            <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>"+
 "                <b>Cluster Statistics</b></a></font></div></td>"+
         "</tr>"+
