@@ -37,12 +37,15 @@
                         <input type=hidden name='row'>
                         <input type=hidden name='action'>                        
                             <tr>
-                                <td colspan='3'>
+                                <td colspan='2'>
                                     Database: 
                                     <select name='database' onChange="action.value='reset'; submit()">
                                         <option <%=bean.selectedDb("unknowns")%>>Unknowns (old)</option>
                                         <option <%=bean.selectedDb("unknowns2")%> >Unknowns (new)</option>
                                     </select>
+                                </td>
+                                <td>
+                                    <a href='statusQueries.jsp'>Status Queries</a>
                                 </td>
                             </tr>
 
@@ -159,15 +162,8 @@
                     to match patterns.  The symbol '%' will match any number of characters,
                     while the '_' will match any one character. 
                     <p>                    
-                    The limit field determines the total number of results returned. 
-
-                    <%= bean.printStatusQueries() %>
-                    <table>
-                        <tr><th>Additinoal Queries</th></tr>
-                        <!--<tr><td><a href='QueryDispatcherServlet?query_name=test1'>test query</a></tr></td> -->
-                        <tr><td><a href='QueryDispatcherServlet?query_name=swp_large_evalue_view'>SWP evalue >= 1e-4</a></tr></td>
-                        <tr><td><a href='QueryDispatcherServlet?query_name=pfam_large_evalue_view'>Pfam evalue >= 0.1</a></tr></td>
-                        <!--<tr><td><a href='QueryDispatcherServlet?query_name= '></a></tr></td> -->
+                    The limit field determines the total number of results returned.                    
+                    
 		</td>                
 	</tr>
 </table>

@@ -167,6 +167,10 @@ public class QueryPageServlet extends HttpServlet
             return new GoSearch();
         else if(type.equals("seq_id"))
             return new SeqIdSearch();
+        else if(type.equals("query"))
+            return new QuerySearch();
+        else if(type.equals("query_comp"))
+            return new QueryCompSearch();
         else
             return new IdSearch();   //default to id search
     }   

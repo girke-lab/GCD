@@ -40,12 +40,15 @@
                         <input type=hidden name='row'>
                         <input type=hidden name='action'>
                         <tr>
-                                <td>
+                                <td colspan='2' >
                                     <select name='database' onChange="action.value='reset'; submit()">
                                         <option <%=bean.selectedDb("common")%>>Cluster db</option>
                                         <option <%=bean.selectedDb("unknowns")%>>Unknowns (old)</option>
                                         <option <%=bean.selectedDb("unknowns2")%> >Unknowns (new)</option>
                                     </select>
+                                </td>
+                                <td>
+                                    <a href='statusQueries.jsp'>Status Queries</a>
                                 </td>
                             </tr>
 

@@ -229,8 +229,9 @@ public class AdvancedSearchBean {
         for(Iterator i=results.iterator();i.hasNext();)
         {
             row=(List)i.next();
-            out.append("<tr><td><a href='QueryDispaterServlet?queries_id="+
-                row.get(0)+"'>"+row.get(1)+"</a></td></tr>\n");
+            out.append("<tr><td><a href='QueryPageServlet?inputKey="+
+                row.get(0)+"&searchType=query&displayType=unknowns2View&rpp=25'>"+
+                row.get(1)+"</a></td></tr>\n");
         }
         out.append("</table>\n");
         return out.toString();

@@ -95,10 +95,3 @@ public class SearchStateManager
         writeSearchStates();
     }
 }
-
-//            else if((url=ClassLoader.getSystemResource(path+filename))!=null)
-//                log.debug("2 found in file at: "+url);
-//            else if((url=ClassLoader.getSystemClassLoader().getResource(path+filename))!=null)
-//                log.debug("3 found in file at: "+url);  
-//            else if((url=new servlets.QueryPageServlet().getClass().getClassLoader().getResource(path+filename))!=null)            
-//                log.debug("4 found in file at: "+url);                              
