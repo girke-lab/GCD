@@ -128,23 +128,28 @@ function MM_nbGroup(event, grpName) { //v6.0
 -->
  
 
-<table width='800' border='0' cellspacing='0' cellpadding='0'>
+<table width='900' border='0' cellspacing='0' cellpadding='0'>
 <tr>
 <td width='210' rowspan='2'><a href='http://www.cepceb.ucr.edu/' target='_blank'><img src='images/cepceb.jpg' alt='cepceb' width='210' height='90' border='0'></a></td>
-<td width='590' align='center' colspan='3'><h1>Genome Cluster Database</h1></td>
+<td width='590' align='center' colspan='2'><h1>Genome Cluster Database</h1></td>
 </tr>
 <tr>
-<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>
-    About this Database</a></font></div></td>
-<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.ucr.edu/' target='_blank'>
-    UC Riverside</a></font></div></td>
-<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>
-    Cluster Statistics</a></font></div></td>
-
+    <td height='29' valign='top' colspan='2'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.ucr.edu/' target='_blank'>
+        UC Riverside</a></font></div></td>
+</tr>
+<tr>
+    <td colspan='3'><hr></td>
+</tr>
+<tr>
+    <td>&nbsp</td>
+    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>
+        <b>About this Database</b></a></font></div></td>
+    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>
+        <b>Cluster Statistics</b></a></font></div></td>
 </tr>
 </table>
 
-<hr>
+
 	<FORM NAME='form1' METHOD=POST ACTION='/databaseWeb/QueryPageServlet'  target='rd' >   
             <TABLE width='70%' align='center' border='0'>
 <!--	    	<TR>

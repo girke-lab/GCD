@@ -71,15 +71,15 @@ public class Common {
             "<INPUT type=hidden name='hid' value='"+hid+"'>"+
             "<TABLE align='center' border='0'>\n"+
             "\t<TR>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='3'>TU</TD>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='4'>Promoter 1500</TD>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='5'>3' UTR</TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='3'><a href='/titleInfo.html'>TU</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='4'><a href='/titleInfo.html'>Promoter 3000</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='5'><a href='/titleInfo.html'>3' UTR</a></TD>\n"+
             "\t</TR>\n<TR>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='6'>Intergenic</TD>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='7'>CDS</TD>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='8'>5' UTR</TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='6'><a href='/titleInfo.html'>Intergenic</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='7'><a href='/titleInfo.html'>CDS</a></TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='8'><a href='/titleInfo.html'>5' UTR</a></TD>\n"+
             "\t</TR>\n<TR>\n"+
-            "\t\t<TD><INPUT type=checkbox name='fields' value='9'>Protein</TD>\n"+
+            "\t\t<TD><INPUT type=checkbox name='fields' value='9'><a href='/titleInfo.html'>Protein</a></TD>\n"+
             "\t\t<TD colspan='2'>Length of Sequence to return: <INPUT name='length' value='' size='5'></TD>\n"+
             "</TR><TR>\n"+
             "\t\t<TD align='center' colspan='3'><INPUT type=checkbox name=format value='1'>fasta format</TD>\n"+            
@@ -108,21 +108,26 @@ public class Common {
     public static void printHeader(PrintWriter out)
     {   //print the CEPCEB header on the top of every page
         String header=""+ 
-        "<table width='800' border='0' cellspacing='0' cellpadding='0'>"+
+        "<table width='900' border='0' cellspacing='0' cellpadding='0'>"+
         "<tr>"+
         "<td width='210' rowspan='2'><a href='http://www.cepceb.ucr.edu/' target='_blank'><img src='images/cepceb.jpg' alt='cepceb' width='210' height='90' border='0'></a></td>"+
-        "<td width='590' align='center' colspan='3'><h1>Genome Cluster Database</h1></td>"+
+        "<td width='590' align='center' colspan='2'><h1>Genome Cluster Database</h1></td>"+
         "</tr>"+
         "<tr>"+
-        "<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>"+
-        "    About this Database</a></font></div></td>"+
-        "<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.ucr.edu/' target='_blank'>"+
-        "    UC Riverside</a></font></div></td>"+
-        "<td height='29' valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>"+
-        "    Cluster Statistics</a></font></div></td>"+
+        "    <td height='29' valign='top' colspan='2'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.ucr.edu/' target='_blank'>"+
+        "        UC Riverside</a></font></div></td>"+
         "</tr>"+
-        "</table>"+
-        "<hr>";
+        "<tr>"+
+        "    <td colspan='3'><hr></td>"+
+        "</tr>"+
+        "<tr>"+
+        "    <td>&nbsp</td>"+
+        "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>"+
+        "        <b>About this Database</b></a></font></div></td>"+
+"            <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>"+
+"                <b>Cluster Statistics</b></a></font></div></td>"+
+        "</tr>"+
+"        </table>";
         out.println(header);
     }
     public static void printHeaderOld(PrintWriter out)
