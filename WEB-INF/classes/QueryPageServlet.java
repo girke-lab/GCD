@@ -93,9 +93,6 @@ public class QueryPageServlet extends HttpServlet
         QueryInfo qi=new QueryInfo(dbNums,dbNumsLength,limit);
         ((ArrayList)session.getAttribute("history")).add(qi);
         
-//        session.setAttribute("dbs",dbNums);  
-//        session.setAttribute("dbsLength",new Integer(dbNumsLength));
-//        session.setAttribute("limit",new Integer(limit)); 
 
         ////////////////////////// HTML headers  ////////////////////////////////////////////
         out.println("<html>");
@@ -108,29 +105,28 @@ public class QueryPageServlet extends HttpServlet
         Common.navLinks(out);
         Common.printForm(out,hid);
         /////////////////////////// main   ////////////////////////////////////////////////////
-        List main=null,keysNotFound=null;
-        List actualKeys=inputKeys,returnedKeys;
+        List main;
+        List returnedKeys;
         HashMap goNumbers=null;
         Search s=null;
-//        session.setAttribute("keys",new ArrayList());
         for(int i=0;i<dbNumsLength;i++)
         {
-            out.println("<P><H3 align='center'>"+dbPrintNames[dbNums[i]]+" search results:</H3>");
+            out.println("<P><H3 align='center'>"+dbPrintNames[dbNums[i]]+" search results</H3>");
             
             s=getSearchObj(searchType);
             s.init(inputKeys,limit, dbNums[i]);
             returnedKeys=s.getResults();
             
              //these should be Seq_id numbers, not accession numbers.
-            qi.addKeySet(returnedKeys);
+            qi.addKeySet(returnedKeys); //store this key set in the session variable
             
             goNumbers=findGoNumbers(returnedKeys);
               
             main=getData(returnedKeys,limit,dbNums[i]);
             //Common.blastLinks(out,dbNums[i],hid);
-            printSummary(out,main,goNumbers,dbNums[i],hid);
-            if(keysNotFound!=null)
-                printMismatches(out,keysNotFound);
+            printCounts(out,inputKeys.size(), main);
+            printMismatches(out,s.notFound());
+            printSummary(out,main,goNumbers,dbNums[i],hid);            
         }
         out.println("</body>");
         out.println("</html>");
@@ -155,15 +151,14 @@ public class QueryPageServlet extends HttpServlet
         else
             return new IdSearch();   //default to id search
     }
-    private List getKeysReturned(List data)
+    public static void printCounts(PrintWriter out, int queried,List data)
     {
-        List keys=new ArrayList();
+        int found,models=0;
+        found=data.size();
         for(Iterator i=data.iterator();i.hasNext();)
-            keys.add( ((ArrayList)i.next()).get(2));//get key from data  //use 2 for now, but we will need to change this later
-        return keys;
+            models+=Integer.parseInt((String) ((ArrayList)i.next()).get(5));
+        out.println("Keys entered: "+queried+"<br> Keys found: "+found+"<br> Models found: "+models+" <BR>");
     }
-   
-   
    
     private HashMap findGoNumbers(List data)
     {//query the go numbers from the GO table and organize them in a hashMap.
@@ -211,7 +206,7 @@ public class QueryPageServlet extends HttpServlet
             conditions.append(Seq_idExpression((String)it.next())); 
         conditions.append("0=1");
 
-        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),5);
+        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),6);
         return rs;
     }
     private void printSummary(PrintWriter out,List data,HashMap goNumbers,int currentDB,int hid)
@@ -225,16 +220,20 @@ public class QueryPageServlet extends HttpServlet
         String[] colors=new String[2];
         colors[0]=new String("29F599"); //00aa00
         colors[1]=new String("26F5CC"); //00cc00
+        
+        
 
         out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/multigene.pl'>\n");
-        out.println("<INPUT type='submit' value='All Gene Structures'><BR>\n");
+        if(data.size() > 0) //don't print a button if thier is no data
+            out.println("<INPUT type='submit' value='All Gene Structures'>\n");
 	for(Iterator i=data.iterator();i.hasNext();)
             out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
         out.println("</FORM>");
-//http://bioinfo.ucr.edu/cgi-bin/chrplot.pl?database=all&accession=At1g18690.1
+        
         out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/chrplot.pl'>\n");
         out.println("<INPUT type=hidden name='database' value='all'/>");
-        out.println("<INPUT type='submit' value='Chr Map'><BR>\n");
+        if(data.size() > 0)
+            out.println("<INPUT type='submit' value='Chr Map'><BR>\n");
 	for(Iterator i=data.iterator();i.hasNext();)
             out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
         out.println("</FORM>");
@@ -381,8 +380,8 @@ public class QueryPageServlet extends HttpServlet
     {
         StringBuffer general=new StringBuffer();
                                         
-        general.append("SELECT DISTINCT Primary_Key, Description, Clusters.Cluster_id, Size, Sequences.Seq_id "+
-                       "FROM Sequences LEFT JOIN Clusters USING(Seq_id) LEFT JOIN Cluster_Counts USING(Cluster_id) "+                                             
+        general.append("SELECT DISTINCT Primary_Key, Description, Clusters.Cluster_id, Size, Sequences.Seq_id, count(Models.Model_id) "+
+                       "FROM Sequences LEFT JOIN Models USING(Seq_id) LEFT JOIN Clusters USING(Model_id) LEFT JOIN Cluster_Counts USING(Cluster_id)  "+                                             
                        "WHERE ");
         
         if(currentDB==arab)
@@ -390,7 +389,7 @@ public class QueryPageServlet extends HttpServlet
         else if(currentDB==rice)
             general.append(" Genome='rice' and ");        
         
-        general.append("( "+conditions+" ) ORDER BY Primary_Key");
+        general.append("( "+conditions+" ) GROUP BY Seq_id ORDER BY Primary_Key");
         /*
         if(currentDB==arab)  //ID is a global varibale used to kill the query at a later time
             general.append("SELECT TIGR_Data.Atnum,TIGR_Data.Description, Clusters.ClusterNum"+

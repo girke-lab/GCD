@@ -69,4 +69,10 @@ public class ClusterNameSearch implements Search {
         return id;
     }
    
+     public List notFound()
+     {
+         return new ArrayList();
+     }
+     
+     
 }

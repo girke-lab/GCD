@@ -11,7 +11,7 @@
 import java.util.*;
 public class GoSearch implements Search 
 {
-    List input;
+    List input,keysFound;
     int limit;
     int db;
     
@@ -25,6 +25,7 @@ public class GoSearch implements Search
         this.input=data;
         this.limit=limit;
         this.db=dbID;
+        keysFound=new ArrayList();
     }
     
     public List getResults() 
@@ -37,22 +38,42 @@ public class GoSearch implements Search
         while(in.hasNext() && count++ < limit) //build condtions
             conditions.append("Go.Go LIKE '"+in.next()+"' OR ");
         conditions.append(" 0=1 ");                 
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db),1);
+        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db),2);
 
         ArrayList al=new ArrayList();
+        ArrayList t;
         for(Iterator i=rs.iterator();i.hasNext();)        
-            al.add(((ArrayList)i.next()).get(0));
+        {
+            t=(ArrayList)i.next();
+            al.add(t.get(0));
+            keysFound.add(t.get(1));
+        }
         return al;
     }
     
     private String buildIdStatement(String conditions, int limit,int currentDB)
     {
-        String id="SELECT DISTINCT Seq_id from Go "+
+        String id="SELECT DISTINCT Seq_id,Go.Go from Go "+
                   "WHERE ";
         id+="("+conditions+")";
         id+=" limit "+limit;
         System.out.println("IdSearch query: "+id);   
         return id;
+    }
+    
+    public List notFound()
+    {//find the intersection of inputKeys and keysFound.
+        List temp=new ArrayList();
+        String el;
+        for(Iterator i=input.iterator();i.hasNext();)
+        {
+            el=(String)i.next();
+            if(!el.matches(".*%.*")) //don't add wildcard entries
+                temp.add(el);
+        }
+        System.out.println("temp="+temp);
+        temp.removeAll(keysFound);
+        return temp;        
     }
     
 }

@@ -16,6 +16,11 @@ public interface Search
     void init(List data,int limit,int dbID);
     
     //perform the query and return the results
-    List getResults();    
+    List getResults();    //results should always be Seq_id numbers.
+    
+    //return a list of keys that were not found in the database
+    //return an empyt list if everything was found, or if this
+    //operation does not make sense.
+    List notFound();
     
 }

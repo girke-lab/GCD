@@ -108,6 +108,7 @@ public class SequenceServlet extends HttpServlet
             main=searchByKey(keySet,qi.limit,qi.dbNums[i],fieldNums,fieldsLength);
             //Common.printList(out,main);
             //Common.blastLinks(out,qi.dbNums[i],hid);
+            out.println("Models found: "+main.size());
             printFasta(out,main,qi.dbNums[i],fieldNums,length,format);            
         }
         exit(out);    

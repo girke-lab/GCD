@@ -74,5 +74,9 @@ public class DescriptionSearch implements Search
         return id;
     }
     
+    public List notFound() 
+    {
+        return new ArrayList(); //return an empty list since this operation does not make sense.
+    }    
     
 }
