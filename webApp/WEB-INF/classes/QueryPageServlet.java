@@ -89,7 +89,7 @@ public class QueryPageServlet extends HttpServlet
         }
         hid=((Integer)session.getAttribute("hid")).intValue();
         session.setAttribute("hid",new Integer(hid+1));
-        QueryInfo qi=new QueryInfo(dbNums,dbNums.length,limit);
+        QueryInfo qi=new QueryInfo(dbNums,dbNums.length,limit); 
         ((ArrayList)session.getAttribute("history")).add(qi);
         
 
@@ -133,7 +133,7 @@ public class QueryPageServlet extends HttpServlet
         /////////////////////////////////  end of main  ////////////////////////////////////////////
     }
     
-    private Search getSearchObj(String type)
+    private Search getSearchObj(String type) 
     {        
         System.out.println("Search type="+type);
         if(type.equals("Description"))
@@ -270,21 +270,7 @@ public class QueryPageServlet extends HttpServlet
         colors[0]=new String("29F599"); //00aa00
         colors[1]=new String("26F5CC"); //00cc00
 
-
-        out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/multigene.pl'>\n");
-        if(data.size() > 0) //don't print a button if thier is no data
-            out.println("<INPUT type='submit' value='All Gene Structures'>\n");
-        for(Iterator i=data.iterator();i.hasNext();)
-            out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
-        out.println("</FORM>");
-
-        out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/chrplot.pl'>\n");
-        out.println("<INPUT type=hidden name='database' value='all'/>");
-        if(data.size() > 0)
-            out.println("<INPUT type='submit' value='Chr Map'><BR>\n");
-        for(Iterator i=data.iterator();i.hasNext();)
-            out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
-        out.println("</FORM>");
+        printForms(out,data,goNumbers);
 
         out.println("<TABLE align='center' border='0'>");
         int lastDB=-1,currentDB;
@@ -299,17 +285,6 @@ public class QueryPageServlet extends HttpServlet
 
 
             key=(String)row.get(0);
-//            if(row.get(3)!=null && row.get(2)!=null)
-//            {
-//                clusterNum=(String)row.get(2);
-//                clusterSize=(String)row.get(3);
-//            }
-//            if(!lastKey.equals("") && lastKey.equals(key))
-//            {//then we have another cluster
-//                printClusterRow(out,clusterNum,clusterSize,hid,count++,colors);
-//                lastKey=key;
-//                continue;
-//            }
             out.println("<TR><TD colspan='2'>&nbsp</TD></TR>");
             out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Links</TH>");
             printLinks(out,key,clusterNum,hid,currentDB,clusterSize,(String)row.get(2),goNumbers);
@@ -318,10 +293,8 @@ public class QueryPageServlet extends HttpServlet
             out.println("<TD><A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+row.get(0)+"'>"+row.get(0)+"</A></TD></TR>");
             out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Description</TH>");
             out.println("<TD>"+row.get(1)+"</TD></TR>");
-            //if(clusterNumbers!=null)
-                printClusters(out,(ArrayList)clusterNumbers.get(row.get(2)),hid,count++,colors);
+            printClusters(out,(ArrayList)clusterNumbers.get(row.get(2)),hid,count++,colors);
 
-//            lastKey=key;
         }
         out.println("</TABLE>");
     }
@@ -400,7 +373,39 @@ public class QueryPageServlet extends HttpServlet
          out.println("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");
          out.println("\t\t</TD>");
     }
+
+    private void printForms(PrintWriter out, List data,Map goNumbers)
+    {
+        out.println("<TABLE><TR><TD>");
+        out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/multigene.pl'>\n");
+        if(data.size() > 0) //don't print a button if thier is no data
+            out.println("<INPUT type='submit' value='All Gene Structures'>\n");
+        for(Iterator i=data.iterator();i.hasNext();)
+            out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
+        out.println("</FORM></TD><TD>");
+
+        out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/chrplot.pl'>\n");
+        out.println("<INPUT type=hidden name='database' value='all'/>");
+        if(data.size() > 0)
+            out.println("<INPUT type='submit' value='Chr Map'><BR>\n");
+        for(Iterator i=data.iterator();i.hasNext();)
+            out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
+        out.println("</FORM></TD><TD>");
+        
+        out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/goSlimCounts'>\n");
+        if(goNumbers.size() > 0)
+            out.println("<INPUT type='submit' value='Go Slim Counts'><BR>\n");
+        
+        for(Iterator i=goNumbers.entrySet().iterator();i.hasNext();)
+        {//print out key_value pairs for the goSlimCounts script
+            Map.Entry entry=(Map.Entry)i.next();
+            for(Iterator j=((ArrayList)entry.getValue()).iterator();j.hasNext();)            
+                out.println("<INPUT type=hidden name='go_numbers' value='"+entry.getKey()+"_"+j.next()+"'/>\n");
+        }
+        out.println("</FORM></TD></TR></TABLE>\n");
+
    
+    }
     private void printMismatches(PrintWriter out,List keys)
     {
         if(keys.size()==0) //don't print anything if there are no missing keys
