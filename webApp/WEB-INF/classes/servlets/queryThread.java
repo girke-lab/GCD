@@ -114,11 +114,11 @@ public class queryThread extends Thread
     private void connect(String DB)
     {
         //open a connnection with the database server
-        //String url="jdbc:mysql://138.23.191.152/"+DB+"?autoReconnect=false"; //was true
-        String url="jdbc:postgresql://138.23.191.152/" +DB;
+        String url="jdbc:mysql://138.23.191.152/"+DB+"?autoReconnect=false"; //was true
+        //String url="jdbc:postgresql://138.23.191.152/" +DB;
         try{
-            //Class.forName("org.gjt.mm.mysql.Driver").newInstance();
-            Class.forName("org.postgresql.Driver").newInstance();
+            Class.forName("org.gjt.mm.mysql.Driver").newInstance();
+            //Class.forName("org.postgresql.Driver").newInstance();
         }catch(Exception e){
             e.printStackTrace();
         }

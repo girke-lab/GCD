@@ -15,7 +15,7 @@ import java.util.*;
 import java.io.*;
 import servlets.Common;
 
-public class ClusterDataView implements DataView
+public class ClusterDataView implements DataView 
 {   
     
     List seq_ids;
