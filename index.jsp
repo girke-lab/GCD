@@ -141,11 +141,13 @@ function MM_nbGroup(event, grpName) { //v6.0
     <td colspan='3'><hr></td>
 </tr>
 <tr>
-    <td>&nbsp</td>
+    
     <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>
         <b>About this Database</b></a></font></div></td>
+    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>
+        <b>Cluster Table</b></a></font></div></td>
     <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>
-        <b>Cluster Statistics</b></a></font></div></td>
+        <b>Cluster Pies</b></a></font></div></td>
 </tr>
 </table>
 
@@ -195,6 +197,16 @@ function MM_nbGroup(event, grpName) { //v6.0
                 </TR>
                 <TR>                    
                     <TD colspan='2' align='center' >
+
+                        Search by
+                        <SELECT name='searchType'>
+                            <OPTION>Id
+                            <OPTION>Description
+                            <OPTION>Cluster Id
+                            <OPTION>Cluster Name
+                            <OPTION>GO Number
+                        </SELECT>
+<!--
                        <INPUT type=radio name="searchType" value="k" CHECKED>
                         Search by ID #
                         <BR>
@@ -202,7 +214,7 @@ function MM_nbGroup(event, grpName) { //v6.0
                         Search by description
                         <BR>                
                         <INPUT type=radio name="searchType" value="c">
-                        Search by cluster number
+                        Search by cluster number  -->
                         <BR>
                        
                     </TD>
