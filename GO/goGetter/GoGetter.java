@@ -88,35 +88,43 @@ public class GoGetter
         
         //input structure should be a list of GoGroups
         ArrayList inputData=getInput("SELECT Seq_id,Go from Go order by Seq_id",
-                                     "SELECT count(Seq_id) from Go group by Seq_id");        
+                                     "SELECT count(Seq_id) from Go group by Seq_id order by seq_id");        
         for(Iterator i=inputData.iterator();i.hasNext();)
         {
             GoGroup at=((GoGroup)i.next());
             at.selectedGO=selector.getGoNumber(at.goNums);
-            at.text=dag.find(at.selectedGO).getText();            
+            GoNode gn=dag.find(at.selectedGO);
+            if(gn!=null)
+                at.text=gn.getText();       
+            else
+                System.out.println("uniqueNumbers: go "+at.selectedGO+" was not updated properly");
         }
         
-//        storeOutput(inputData); //write data back to db or file or whatever
+        storeOutput(inputData); //write data back to db or file or whatever
         
     }
     public void findClusterNmaes(GoDag dag)
     {//assign a name to each cluster
         //1) read in sets of go numbers for each cluster.
         // 2) pick most common go number
-        // 3) grab its text and write to the database, in the Cluster_Counts table.
+        // 3) grab its text and write to the database, in the Cluster_Info table.
 
         GoSelector selector=new MostCommonSelector();
         ArrayList inputData=getInput("SELECT Cluster_id, Go_Number FROM Clusters "+
                                        "LEFT JOIN Sequences USING(Seq_id) WHERE "+
-                                       "Go_Number LIKE \"GO:%\" and Genome=\"arab\" ORDER BY Cluster_id",
+                                       "Go_Number IS NOT NULL ORDER BY Cluster_id",
                                      "SELECT count(Cluster_id) FROM Clusters "+
                                        "LEFT JOIN Sequences USING(Seq_id) WHERE "+
-                                       "Go_Number LIKE \"GO:%\" and Genome=\"arab\" GROUP BY Cluster_id");//return an array of GoGroups
+                                       "Go_Number IS NOT NULL GROUP BY Cluster_id ORDER BY Cluster_id");//return an array of GoGroups
         for(Iterator i=inputData.iterator();i.hasNext();)
         {
             GoGroup gg=(GoGroup)i.next();
             gg.selectedGO=selector.getGoNumber(gg.goNums);
-            gg.text=dag.find(gg.selectedGO).getText();
+            GoNode gn=dag.find(gg.selectedGO);
+            if(gn!=null)
+                gg.text=gn.getText();
+            else
+                System.out.println("clusterNames: go "+gg.selectedGO+" was not updated properly");
         }
         
         storeClusterNames(inputData);
@@ -176,7 +184,7 @@ public class GoGetter
             {
                 gg=(GoGroup)i.next();                        
                 String goNum=buildGo(gg.selectedGO);
-                stmt1.executeUpdate("UPDATE Sequences SET Go_Number=\""+goNum+"\" WHERE Seq_id="+gg.SeqId);
+                stmt1.executeUpdate("UPDATE Sequences SET Go_Number='"+goNum+"' WHERE Seq_id="+gg.SeqId);
             }
             con.commit();
             con.setAutoCommit(true);        
@@ -188,21 +196,33 @@ public class GoGetter
     }    
     public void storeClusterNames(ArrayList data)
     {
+        GoGroup gg=null;
         try{
             con.setAutoCommit(false);
             Statement stmt1=con.createStatement();        
-            GoGroup gg;
 
             for(Iterator i=data.iterator();i.hasNext();)
             {
-                gg=(GoGroup)i.next();       
-                stmt1.executeUpdate("UPDATE Cluster_Counts SET Name=\""+gg.text+"\" WHERE Cluster_id="+gg.SeqId);
+                gg=(GoGroup)i.next();                       
+                //gg.text=gg.text.replaceAll("\'", "\\\'");
+                String escaped="";
+                for(int j=0;j<gg.text.length();j++)
+                {
+                    if(gg.text.charAt(j)=='\'')
+                        escaped+="\\'";
+                    else
+                        escaped+=gg.text.charAt(j);
+                }
+                gg.text=escaped;
+                stmt1.executeUpdate("UPDATE Cluster_Info SET Name='"+gg.text+"' WHERE Cluster_id="+gg.SeqId);
             }
             con.commit();
             con.setAutoCommit(true);        
             stmt1.close();
         }catch(SQLException e){
             System.out.println("sql error: "+e.getMessage());
+            if(gg!=null)
+                System.out.println("text="+gg.text+", seq_id="+gg.SeqId);
         }
         
     }
@@ -218,10 +238,12 @@ public class GoGetter
     private void connect(String DB)
     {        
         //open a connnection with the database server
-        String url="jdbc:mysql://138.23.191.152/"+DB+"?autoReconnect=false"; //was true
+        //String url="jdbc:mysql://138.23.191.152/"+DB+"?autoReconnect=false"; //was true
+        String url="jdbc:postgresql://138.23.191.152/"+DB;
         try{
-            Class.forName("org.gjt.mm.mysql.Driver").newInstance();        
-            con=DriverManager.getConnection(url,"servlet","512256");
+            //Class.forName("org.gjt.mm.mysql.Driver").newInstance();        
+            Class.forName("org.postgresql.Driver").newInstance();
+            con=DriverManager.getConnection(url,"updater","1024");
         }catch(SQLException e){
             System.out.println("connection error:"+e.getMessage());
             con=null;       
@@ -242,6 +264,8 @@ class GoGroup
     {
         SeqId=id;
         goNums=g;
+        text="";
+        selectedGO=-1;
     }
     public String toString()
     {

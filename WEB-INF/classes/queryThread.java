@@ -109,16 +109,15 @@ public class queryThread extends Thread
     private void connect(String DB)
     {        
         //open a connnection with the database server
-        String url="jdbc:mysql://138.23.191.152/"+DB+"?autoReconnect=false"; //was true
-//        System.out.println("connecting to "+DB);
-        try{
-            Class.forName("org.gjt.mm.mysql.Driver").newInstance();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+        //String url="jdbc:mysql://138.23.191.152/"+DB+"?autoReconnect=false"; //was true
+        String url="jdbc:postgresql://138.23.191.152/" +DB;
+//        try{
+//            Class.forName("org.gjt.mm.mysql.Driver").newInstance();
+//        }catch(Exception e){
+//            e.printStackTrace();
+//        }
         try{
             con=DriverManager.getConnection(url,"servlet","512256");
-//            con=DriverManager.getConnection(url,"root","");
         }catch(SQLException e){
             System.out.println("connection error:"+e.getMessage());
             con=null;

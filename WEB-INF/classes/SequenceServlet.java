@@ -140,9 +140,12 @@ public class SequenceServlet extends HttpServlet
         fieldCount++;
         //StringTokenizer in=new StringTokenizer(inputKey);
         ListIterator in=keys.listIterator();
+        conditions.append("Sequences.Seq_id in (");
         while(in.hasNext() && count++ < limit)            
-            conditions.append(likeExpression((String)in.next(),currentDB));
-        conditions.append(" 0=1 ");        
+            conditions.append((String)in.next()+",");
+            //conditions.append(likeExpression((String)in.next(),currentDB));
+        conditions.append(") ");
+//        conditions.append(" 0=1 ");        
         rs=Common.sendQuery(buildGeneralStatement(feildCombo.toString(),conditions.toString(),limit,currentDB),fieldCount);
         return rs;   
     }       

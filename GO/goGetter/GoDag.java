@@ -35,7 +35,7 @@ public class GoDag implements Serializable
         goPattern=Pattern.compile(".*GO:(\\d{7})");
         index=new HashMap();        
         d=new Debug();
-        d.setPrintLevel(0);
+        d.setPrintLevel(1);
         subNode=-1; //no sub node given
         buildDag(xmlFilename);         
     }
@@ -218,8 +218,14 @@ public class GoDag implements Serializable
         
         if(gn.hasParent() || gn==root)
         {
-            d.print("adding "+gn.getGoNumber()+" to index");
+            d.print("adding "+gn.getGoNumber()+" to index");            
             index.put(new Integer(goNum), gn);        
+            for(Iterator si=t.getSynonym().iterator();si.hasNext();)
+            {
+                Synonym s=(Synonym)si.next();
+                //test to see if this is a go number, if so, add to index
+                //make sure this go is not already in index, error if it is
+            }
         }
         return gn;
     }

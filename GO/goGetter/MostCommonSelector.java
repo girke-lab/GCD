@@ -20,7 +20,7 @@ public class MostCommonSelector implements GoSelector {
     /** Creates a new instance of MostCommonSelector */
     public MostCommonSelector() 
     {
-        d=new Debug(2);        
+        d=new Debug();        
     }
     
     public int getGoNumber(int[] goNumbers)
