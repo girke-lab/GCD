@@ -6,11 +6,7 @@
 
 package servlets.advancedSearch;
 
-/**
- * This class is responsable for managing stored
- *queries persistantly.
- * @author  khoran
- */
+
 
 import java.util.*;
 import java.io.*;
@@ -18,7 +14,9 @@ import java.net.*;
 import org.apache.log4j.Logger;
 
 /**
- * Used to manage SearchState objects.
+ * This class is responsable for managing stored
+ *queries persistantly.
+ * @author  khoran
  */
 public class SearchStateManager
 {

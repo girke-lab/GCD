@@ -19,13 +19,14 @@ public class SqlVisitor implements QueryTreeVisitor
 {
     private static Logger log=Logger.getLogger(SqlVisitor.class);
     StringBuffer sql;
-    
+    boolean printParinths;
     
     /** Creates a new instance of SqlVisitor */
     public SqlVisitor()
     {
         log.debug("built new SqlVisitor");
         sql=new StringBuffer();
+        printParinths=true;
     }
     public String getSql(Query q)
     {
@@ -70,13 +71,31 @@ public class SqlVisitor implements QueryTreeVisitor
     public void visit(servlets.advancedSearch.queryTree.Operation n)
     {
         log.debug("visiting "+n.getClass().getName());
-        sql.append("(");
+        
+        //store initial value first, as we may change it later
+        boolean localPrintParinths=(n.getOperation().equals("and") || 
+                n.getOperation().equals("or")) && printParinths;
+        if(localPrintParinths)
+            sql.append("(");
+        
         if(n.getLeft()!=null)
+        {
+            printParinths=(n.getLeft() instanceof Operation 
+                    && !((Operation)n.getLeft()).getOperation().equals(n.getOperation()));
             n.getLeft().accept(this);
+        }
+        
         sql.append(" "+n.getOperation()+" ");
+                
         if(n.getRight()!=null) //could be an unary operator
+        {
+            printParinths=(n.getRight() instanceof Operation 
+                    && !((Operation)n.getRight()).getOperation().equals(n.getOperation()));
             n.getRight().accept(this);
-        sql.append(")");
+        }
+        
+        if(localPrintParinths)
+            sql.append(")\n");
     }
 
     public void visit(servlets.advancedSearch.queryTree.Order n)
@@ -116,8 +135,9 @@ public class SqlVisitor implements QueryTreeVisitor
         n.getCondition().accept(this); //add condtion to sql string
         log.debug("adding order");
         n.getOrder().accept(this);
-        log.debug("adding limit");
-        sql.append("\nLIMIT "+n.getLimit());        
+//        log.debug("adding limit");
+//        sql.append("\nLIMIT "+n.getLimit()); 
+        sql.append(";");
     }
 
     public void visit(servlets.advancedSearch.queryTree.QueryTreeNode n)
@@ -142,8 +162,7 @@ public class SqlVisitor implements QueryTreeVisitor
 
     public void visit(FloatLiteralValue n)
     {
-        log.debug("visiting "+n.getClass().getName());
-        log.debug("float value is "+n.getValue());
+        log.debug("visiting "+n.getClass().getName());        
         sql.append(n.getValue());
     }
     

@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
  * Stores all information needed to store a query. Can also be serialized for
  * persistant storage (See {@link SearchStateManager }).
  */
-public class SearchState implements java.io.Serializable
+public class SearchState implements java.io.Serializable,StorableSearch
 {
     
     public static final long serialVersionUID = new Long("-1226915453818595933").longValue();
@@ -66,9 +66,17 @@ public class SearchState implements java.io.Serializable
                 selectedBools,startParinths,endParinths,values};
         try{
             for(int c=0;c<listNames.length;c++)
-                for(Iterator i=((List)listRefs[c]).iterator();i.hasNext();)            
+                for(Iterator i=((List)listRefs[c]).iterator();i.hasNext();)  
+                {
+                    Object o=i.next();
+//                    log.debug("list name="+listNames[c]);
+//                    if(o==null)
+//                        log.debug("o is null");
+//                    else
+//                        log.debug("o is a "+o.getClass());
                     out.append("&"+listNames[c]+"="+
-                            java.net.URLEncoder.encode(i.next().toString(),"ISO-8859-1"));            
+                            java.net.URLEncoder.encode(o.toString(),"ISO-8859-1"));            
+                }
         }catch(java.io.UnsupportedEncodingException e){
             log.error("could not perform  url encoding: "+e.getMessage());
             return "";

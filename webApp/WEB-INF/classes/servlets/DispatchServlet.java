@@ -77,7 +77,7 @@ public class DispatchServlet extends HttpServlet {
              response.getWriter().println("no id numbers");            
             return;
         }
-        Script scriptRunner=getScript(script);
+        Script scriptRunner=getScript(script,request,response);
         if(scriptRunner==null){
              response.getWriter().println("invalid script name");
             return;
@@ -87,7 +87,7 @@ public class DispatchServlet extends HttpServlet {
         
     
     }
-    private Script getScript(String script)
+    private Script getScript(String script,HttpServletRequest request,HttpServletResponse response)
     {
         if(script.equals("displayKeys.pl"))
             return new DisplayKeysScript();
@@ -101,6 +101,8 @@ public class DispatchServlet extends HttpServlet {
             return new AlignToHmmScript();
         else if(script.equals("unknownsText"))
             return new UnknownsTextScript();
+        else if(script.equals("treeViewer.pl"))
+            return new TreeViewScript(request,response); 
         return null;
     }
         

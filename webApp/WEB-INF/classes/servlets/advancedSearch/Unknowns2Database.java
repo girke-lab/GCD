@@ -33,9 +33,11 @@ public class Unknowns2Database implements SearchableDatabase
     
     private int unaryBoundry; //seperates unary and binary ops in operators array
     private String rootTableName;
+    private int sp,ep,index;
     private static DbConnection dbc=null;  //need a connection to a different database
     private static Logger log=Logger.getLogger(Unknowns2Database.class);
     private static SearchStateManager ssm=new SearchStateManager("Unknown2Database.sss");
+    private static SearchTreeManager stm=new SearchTreeManager("Unknown2Database.properties");
     
     /** Creates a new instance of Unknowns2Database */
     public Unknowns2Database()
@@ -100,6 +102,11 @@ public class Unknowns2Database implements SearchableDatabase
     }
     public Query buildQueryTree(SearchState state)
     {
+        log.debug("building query tree");
+        
+        if(state.getSelectedFields().size()==0)
+            return buildInitialTree();
+        
         List fields=new LinkedList();
         Set tables=new HashSet();
         Integer limit;
@@ -139,9 +146,9 @@ public class Unknowns2Database implements SearchableDatabase
     {
         return operators;
     }   
-    public SearchStateManager getSearchManager()
+    public SearchTreeManager getSearchManager()
     {
-        return ssm;
+        return stm;
     }
     //////////////////////////////////////////////////
     
@@ -151,26 +158,87 @@ public class Unknowns2Database implements SearchableDatabase
      */
     private Expression buildCondition(SearchState state,Set tables)
     {
+        ExpressionSet expSet=null;
+        Expression condition;
         
+        sp=0;  
+        ep=0;
+        index=0;
+        expSet=buildExpression(state,tables);
+        
+        //make sure we add the table we're sorting by.
+        expSet.setJoins(updateJoin(expSet.getJoins(),getTableName(getFields()[state.getSortField()].dbName),tables));
+                
+        if(expSet.getJoins()==null)
+            condition= expSet.getRestrictedValues();
+        else if(expSet.getRestrictedValues()==null) //this should never happen
+        {
+            log.warn("no restrictedValue conditions");
+            condition=expSet.getJoins();
+        }
+        else
+            condition=new Operation("and",expSet.getJoins(),expSet.getRestrictedValues());        
+        
+        if(condition==null)
+            condition=new Operation("=",new DbField(rootTableName+".key",String.class),
+                    new StringLiteralValue(""));
+        return condition;
+    }
+    private ExpressionSet buildExpression(SearchState state,Set tables)
+    {
         int fieldCount=state.getSelectedFields().size();
-        int fid,oid,bid; //field,operator, and boolean ids
+        int fid,oid,bid; //field,operator, and boolean ids        
         String value,tableName;
         Expression joins=null,restrictedValues=null;
         
-        
-        for(int i=0;i<fieldCount;i++)
+        log.debug("starting buildExpression, sp="+sp+", ep="+ep+", index="+index);
+        for(;index<fieldCount;index++)
         {
-            fid=state.getSelectedField(i).intValue();
-            oid=state.getSelectedOp(i).intValue();
-            bid=state.getSelectedBool(i).intValue();
-            value=state.getValue(i);
+            fid=state.getSelectedField(index).intValue();
+            oid=state.getSelectedOp(index).intValue();
+            value=state.getValue(index);
+            if(index>0)
+                bid=state.getSelectedBool(index-1).intValue();
+            else 
+                bid=-1; //should not be used on first iteration anyway.            
             
+            //log.debug("fid="+fid+", oid="+oid+", value="+value+"\n\tbid="+bid);            
             tableName=getTableName(getFields()[fid].dbName);
             if(tableName.equals(""))
-                continue; //skip title fields.
+            {
+                log.debug("reseting title field to first field");                
+                state.getSelectedFields().set(index,new Integer(0));
+                fid=0;
+                tableName=getTableName(getFields()[fid].dbName);
+            }
             
             //add join conditions
             joins=updateJoin(joins,tableName,tables);            
+                        
+            if(sp < state.getStartParinths().size() && state.getStartParinth(sp).intValue()==index){
+                log.debug("found open parinth");
+                sp++;
+                //start building expression from i
+                log.debug("starting sub espression, index="+index);
+                ExpressionSet es=buildExpression(state,tables);
+                log.debug("back from sub expression, index="+index);
+                                
+                if(es.getJoins()!=null)
+                {//update joins
+                    if(joins==null)
+                        joins=es.getJoins();
+                    else
+                        joins=new Operation("and",es.getJoins(),joins);
+                }
+                if(es.getRestrictedValues()!=null)
+                {//update restricted values
+                    if(restrictedValues==null)
+                        restrictedValues=es.getRestrictedValues();
+                    else    
+                        restrictedValues=new Operation(getBooleans()[bid],restrictedValues,es.getRestrictedValues());
+                }                
+                continue;               
+            }            
             
             //add regular condition
             Operation op;
@@ -182,24 +250,22 @@ public class Unknowns2Database implements SearchableDatabase
             {
                 LiteralValue lv=getLiteralValue(getFields()[fid],value);
                 op=new Operation(getOperators()[oid],field,lv);
-            }
+            }                        
             
+            //log.debug("new expression is :"+op);
             if(restrictedValues==null)
                 restrictedValues=op;
             else
-                restrictedValues=new Operation(getBooleans()[bid],op,restrictedValues);
+                restrictedValues=new Operation(getBooleans()[bid],restrictedValues,op);            
+            
+            if(ep < state.getEndParinths().size() && state.getEndParinth(ep).intValue()==index){
+                ep++;
+                log.debug("found end parinth, index="+index);
+                //break loop and return current expression
+                break;                
+            }
         }
-        //make sure we add the table we're sorting by.
-        joins=updateJoin(joins,getTableName(getFields()[state.getSortField()].dbName),tables);
-        
-        //log.debug("joins conditions: "+joins);
-        //log.debug("restricted values: "+restrictedValues);
-        
-        if(joins==null)
-            return restrictedValues;
-        if(restrictedValues==null) //this should never happen
-            return joins;        
-        return new Operation("and",joins,restrictedValues);        
+        return new ExpressionSet(joins,restrictedValues);
     }
     private Expression updateJoin(Expression currentJoins,String tableName,Set tables)
     {
@@ -254,7 +320,22 @@ public class Unknowns2Database implements SearchableDatabase
         return str.substring(0,i);
     }
     
-    
+    private Query buildInitialTree()
+    {
+        log.debug("building initial tree");
+        Query query;
+        Order order;
+        Expression conditions;
+        
+        order=new Order(new DbField(rootTableName+".key",String.class),"ASC");
+        conditions=new Operation("=",
+                new DbField(rootTableName+".key",String.class),
+                new StringLiteralValue(""));
+        
+        query=new Query(conditions,new LinkedList(),new LinkedList(),order,
+                new Integer(Common.MAXKEYS));
+        return query;
+    }
     
     
     
@@ -483,4 +564,35 @@ public class Unknowns2Database implements SearchableDatabase
     }
 
  
+}
+class ExpressionSet
+{
+    private Expression joins,restrictedValues;
+    
+    public ExpressionSet(Expression j,Expression rv)
+    {
+        joins=j;
+        restrictedValues=rv;
+    }
+    public Expression getJoins()
+    {
+        return joins;
+    }
+    public Expression getRestrictedValues()
+    {
+        return restrictedValues;
+    }
+    public void setJoins(Expression joins)
+    {
+        this.joins = joins;
+    }
+    public void setRestrictedValues(Expression restrictedValues)
+    {
+        this.restrictedValues = restrictedValues;
+    }    
+    public String toString()
+    {
+        return "joins: \n"+joins.toString("    ")+"\n"+
+               "restricted values: \n"+restrictedValues.toString("    ");
+    }
 }

@@ -83,6 +83,9 @@ public class BlastSearch implements Search
             results=dbc.sendQuery(query);
         }catch(java.sql.SQLException e){
             log.error("query failed: "+e.getMessage());
+            log.error("error code: "+e.getErrorCode());
+            log.error("sql state: "+e.getSQLState());
+            log.error("next error: "+(e.getNextException()==null?"null":e.getNextException().toString()));
             log.error("query was: "+query);            
         }
         if(results==null)

@@ -146,9 +146,12 @@ public class QueryPageServlet extends HttpServlet
     {                
         if(displayType!=null)
         {
-            //one special case
+            //special cases (need arguments to constructor)
             if(displayType.equals("unknownsView"))
                 return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));   
+            else if(displayType.equals("modelView"))
+                return new ModelDataView(request);
+            
             
             
             String dataViewClass=dataViews.getProperty(displayType);
@@ -156,6 +159,9 @@ public class QueryPageServlet extends HttpServlet
                 return new SeqDataView();
             DataView dv=null;
             try{
+                Class c=Class.forName(dataViewClass);
+//                java.lang.reflect.Constructor con=c.getConstructor(new Class[]{HttpServletRequest.class});
+//                dv=(DataView)con.newInstance(new Object[]{request});
                 dv=(DataView)Class.forName(dataViewClass).newInstance();
             }catch(Exception e){
                 log.error("could not create class "+dataViewClass);

@@ -25,18 +25,24 @@ public class HtmlVisitor implements QueryTreeVisitor
      private static Logger log=Logger.getLogger(HtmlVisitor.class);
      private PrintWriter out;
      private SearchableDatabase db;
-     private int lastFieldUsedIndex;
+     private int lastFieldUsedIndex,depth,fieldId;
+     private boolean wasJoinExpression,printParinths,wasStartPar, wasEndPar;
      
     /** Creates a new instance of HtmlVisitor */
     public HtmlVisitor(PrintWriter out,SearchableDatabase db)
     {
         this.out=out;
         this.db=db;
+        printParinths=true;
+        wasStartPar=false;
+        wasEndPar=false;
     }
 
     public void visit(servlets.advancedSearch.queryTree.DbField n)
-    {
-        out.println("<td><select name='fields' onChange=\"action.value=refresh'; submit()\">");
+    {        
+        out.println("<td>");
+        printSpaces(depth);
+        out.println("<select name='fields' onChange=\"action.value='refresh'; submit()\">");
         Field[] fields=db.getFields();
         for(int i=0;i<fields.length;i++)
         {
@@ -49,32 +55,8 @@ public class HtmlVisitor implements QueryTreeVisitor
             out.println(">");
             out.println(fields[i].displayName+"</option>");
         }
-        out.println("</select>");
-    }
-
-    public void visit(servlets.advancedSearch.queryTree.IntLiteralValue n)
-    {
-        if(lastFieldUsedIndex==-1)
-        {
-            log.error("no DbField tied to this literal value");
-            return;
-        }
-        Field f=db.getFields()[lastFieldUsedIndex];
-        out.println(f.render(n.getValue().toString()));
-        lastFieldUsedIndex=-1;
-    }
-
-    public void visit(servlets.advancedSearch.queryTree.ListLiteralValue n)
-    {
-        if(lastFieldUsedIndex==-1)
-        {
-            log.error("no DbField tied to this literal value");
-            return;
-        }
-        Field f=db.getFields()[lastFieldUsedIndex];        
-        out.println(f.render(n.getValues().toString()));
-        lastFieldUsedIndex=-1;
-    }
+        out.println("</select></td>");        
+    }    
 
     public void visit(servlets.advancedSearch.queryTree.Not n)
     {
@@ -87,32 +69,87 @@ public class HtmlVisitor implements QueryTreeVisitor
          * print left
          * print operation
          * print right
-         * complications: when to print return, where to put buttons
+         * complications: when to print return, where to put buttons,
+         * not printing join conditions.
          */
+
+        //operations between two DbFields are join conditions,
+        //and should not be rendered.        
+        if(isJoinOperation(n))
+        {
+            wasJoinExpression=true;
+            return;
+        }
+        boolean isBoolOperation=n.getOperation().equals("and") || n.getOperation().equals("or");
+        boolean localPrintParinths= isBoolOperation && printParinths;
+                
+        if(localPrintParinths)
+        {
+            out.println("<input type=hidden name='startPars' value='"+fieldId+"'>");
+            out.println("<tr><td colspan='4'>");
+            printSpaces(depth);
+            out.println("(</td></tr>");
+            depth++;
+        }        
+        
         out.println("<tr>");
         
+        wasJoinExpression=false;
         if(n.getLeft()!=null)
-            n.getLeft().accept(this);
-        
-        if(n.getOperation().equals("and") || n.getOperation().equals("or"))
         {
-            out.println("</tr><tr bgcolor='"+Common.titleColor+"'><td colspan='4'>");
-            out.println("<select name='bools'>");
-            printOptionList(db.getBooleans(),n.getOperation());
-            out.println("</select>");
-            out.println("</td></tr><tr>");
+            printParinths=(n.getLeft() instanceof Operation 
+                    && !((Operation)n.getLeft()).getOperation().equals(n.getOperation()));
+            n.getLeft().accept(this); //this will set wasJoinExpression if it was a join expression.
+        }
+            
+        
+        if(isBoolOperation)
+        {
+            if(!wasJoinExpression)
+            {
+                out.println("</tr><tr bgcolor='"+Common.titleColor+"'><td colspan='4'>");
+                printSpaces(depth);
+                out.println("<select name='bools' onChange=\"action.value='refresh'; submit()\">");
+                printOptionList(db.getBooleans(),n.getOperation());
+                out.println("</select>");
+                out.println("</td></tr><tr>");
+            }           
         }
         else
         {
             out.println("<td><select name='ops'>");
             printOptionList(db.getOperators(),n.getOperation());
-            out.println("</select></td>");
+            out.println("</select></td>");         
         }
         
-        n.getRight().accept(this);
+        if(n.getRight()!=null)
+        {
+            printParinths=(n.getRight() instanceof Operation 
+                    && !((Operation)n.getRight()).getOperation().equals(n.getOperation()));
+            n.getRight().accept(this);
+        }
+        if(!isBoolOperation)        
+            out.println("<td><input type=submit name='remove' value='remove'" +
+                "   onClick=\"row.value='"+fieldId+"';action.value='remove_exp';submit()\"></td>");
         
-        out.println("</tr>");
+        out.println("</tr>");        
         
+        
+        if(localPrintParinths)
+        {
+            depth--;
+            out.println("<input type=hidden name='endPars' value='"+(fieldId-1)+"'>");
+            out.println("<tr><td colspan='2'>");
+            printSpaces(depth);
+            out.println(")</td>");
+            out.println("<td align='right'>");
+            out.println("<input type=submit name='add_exp' value='add'" +
+                    " onClick=\"row.value='"+(fieldId-1)+"';action.value='add_exp';submit()\">");
+            out.println("</td></tr>");
+        }
+        if(!isBoolOperation)
+            fieldId++;
+
     }
 
     public void visit(servlets.advancedSearch.queryTree.Order n)
@@ -133,19 +170,26 @@ public class HtmlVisitor implements QueryTreeVisitor
 
     public void visit(servlets.advancedSearch.queryTree.Query n)
     {
-        out.println("<form method='post' action='as2.jsp' >");
-        out.println("<table border='0' align='center' gbcolor='"+Common.dataColor+"'>");
+        //log.debug("rendering tree: "+n);
+        depth=0;
+        fieldId=0;
+        
+        out.println("\n<form method='post' action='as2.jsp' >");
+        out.println("<table border='1' align='center' gbcolor='"+Common.dataColor+"'>");
         out.println("<input type=hidden name='row'>");
         out.println("<input type=hidden name='action'");
         
         //print condition
         n.getCondition().accept(this);
-        
+        log.debug("fieldId="+fieldId);
         //print expression buttons
-        out.println("<tr> <td>" +
-                "      <input type=submit name='add_exp' value='add expression'>" +
+        if(fieldId <= 1)
+            out.println("<tr> <td>" +
+                "      <input type=submit name='add_exp' value='add expression'" +
+                "           onClick=\"action.value='add_exp';submit()\">" +
                 "    </td><td>" +
-                "      <input type=submit name='add_sub_exp' value='add sub expression'>" +
+//                "      <input type=submit name='add_sub_exp' value='add sub expression'" +
+//                "           onClick=\"action.value='add_sub_exp';submit()\">" +
                 "   </td></tr>");        
                 
         //print order
@@ -153,43 +197,46 @@ public class HtmlVisitor implements QueryTreeVisitor
         n.getOrder().accept(this);
         
         //print limit
-        out.println("<td> colspan='2'>Limit: <input name='limit' value='"+
+        out.println("<td colspan='2'>Limit: <input name='limit' value='"+
                 n.getLimit()+"'></td>");
         out.println("</tr>");
         out.println("<tr>" +
                     "    <td colspan='4' align='center'>" +
-                    "       <input type=submit name='search' value='Search'>" +
+                    "       <input type=submit name='search' value='Search'" +
+                    "           onClick=\"action.value='search';submit()\">" +
                     "    </td>" +
-                    "</tr>");        
+                    "</tr>");   
+        out.println("</table>");
     }
 
     public void visit(servlets.advancedSearch.queryTree.QueryTreeNode n)
     {//no op
     }
-
+    
+    public void visit(servlets.advancedSearch.queryTree.IntLiteralValue n)
+    {
+        printLiteral(n.getValue().toString());    
+    }
+    public void visit(servlets.advancedSearch.queryTree.ListLiteralValue n)
+    {
+        printLiteral(n.getValues().toString());    
+    }
     public void visit(servlets.advancedSearch.queryTree.StringLiteralValue n)
     {
-        if(lastFieldUsedIndex==-1)
-        {
-            log.error("no DbField tied to this literal value");
-            return;
-        }
-        Field f=db.getFields()[lastFieldUsedIndex];
-        out.println(f.render(n.getValue().toString()));
-        lastFieldUsedIndex=-1;
+        printLiteral(n.getValue().toString());    
     }
     public void visit(BooleanLiteralValue n)
     {
-        if(lastFieldUsedIndex==-1)
-        {
-            log.error("no DbField tied to this literal value");
-            return;
-        }
-        Field f=db.getFields()[lastFieldUsedIndex];
-        out.println(f.render(n.getValue().toString()));
-        lastFieldUsedIndex=-1;
+        printLiteral(n.getValue().toString());    
     }
     public void visit(FloatLiteralValue n)
+    {
+        printLiteral(n.getValue().toString());
+    }
+
+    
+//////////////////////////////////////////////////////////////////////
+    private void printLiteral(String value)
     {
         if(lastFieldUsedIndex==-1)
         {
@@ -197,7 +244,9 @@ public class HtmlVisitor implements QueryTreeVisitor
             return;
         }
         Field f=db.getFields()[lastFieldUsedIndex];
-        out.println(f.render(n.getValue().toString()));
+        out.println("<td>");
+        out.println(f.render(value));
+        out.println("</td>");
         lastFieldUsedIndex=-1;
     }
     private void printOptionList(Object[] values,Object value)
@@ -211,7 +260,25 @@ public class HtmlVisitor implements QueryTreeVisitor
         }
     }
 
-    
-    
+    private boolean isJoinOperation(Operation op)
+    {
+        if(op.getLeft() instanceof DbField && op.getRight() instanceof DbField)
+            return true;
+        else if(op.getLeft() instanceof DbField && op.getRight() instanceof Operation)
+            return isJoinOperation((Operation)op.getRight());
+        else if(op.getLeft() instanceof Operation && op.getRight() instanceof DbField)
+            return isJoinOperation((Operation)op.getLeft());
+        else if(op.getLeft() instanceof Operation && op.getRight() instanceof Operation)
+            return isJoinOperation((Operation)op.getLeft()) && isJoinOperation((Operation)op.getRight());
+        else 
+            return false;
+    }
+    private void printSpaces(int count)
+    {
+        int width=8;
+        for(int i=0;i<count;i++)
+            for(int c=0;c<width;c++)
+                out.print("&nbsp");
+    }
     
 }

@@ -30,14 +30,21 @@ public class Query extends QueryTreeNode
         this.from=from;
         order=o;
         this.limit=limit;
+        
+        if(c==null)
+            log.warn("no condition");
+        if(o==null)
+            log.warn("no order");
+        if(limit==null)
+            log.warn("no limit");
     }
 
     public String toString(String indent)
     {
         return  indent+"fields: "+fields+"\n"+
                 indent+"from: "+from+"\n"+
-                indent+"condition: "+condition.toString(indent+space)+
-                indent+"order: "+order.toString(indent+space)+
+                indent+"condition: \n"+condition.toString(indent+space)+
+                indent+"order: \n"+order.toString(indent+space)+
                 indent+"limit: "+limit+"\n";
     }
     
@@ -64,7 +71,10 @@ public class Query extends QueryTreeNode
     {
         return limit;        
     }
-    
+    public void setLimit(Integer l)
+    {
+        limit=l;
+    }
     public void accept(QueryTreeVisitor v) 
     { 
         v.visit(this);

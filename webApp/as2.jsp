@@ -4,13 +4,14 @@
     <head><title>JSP Page</title></head>
     <body>
 
-        <jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean' scope='page'/>
+        <jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean2' scope='page'/>
         <jsp:useBean id='common' class='servlets.Common' />
         <%
             common.printHeader(out,"Advanced Search 2");
-            bean.setDefaultDatabase("common");
+            bean.setDefaultDatabase("unknowns2");
             bean.setDatabase("unknowns2");
             bean.initPage(application,request,response);
+            bean.setPrintAmdinControls(true);
             
             bean.drawSearchForm(out);
         %>

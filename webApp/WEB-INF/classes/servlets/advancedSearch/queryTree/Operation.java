@@ -44,8 +44,8 @@ public class Operation extends Expression
     public String toString(String indent)
     {
         return indent+"operation: "+operation+"\n"+
-                indent+"left: "+(left==null?"null\n":left.toString(indent+space))+
-                indent+"right: "+(right==null?"null\n":right.toString(indent+space));
+                indent+"left: \n"+(left==null?indent+space+"null\n":left.toString(indent+space))+
+                indent+"right: \n"+(right==null?indent+space+"null\n":right.toString(indent+space));
     }
     
     public Class getType()

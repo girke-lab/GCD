@@ -57,5 +57,5 @@ public interface SearchableDatabase
      * returns a SearchStateManager for manages searchStates for this database.
      * @return a SearchStateManager
      */
-    public SearchStateManager getSearchManager();
+    public SearchTreeManager getSearchManager();
 }

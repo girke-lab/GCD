@@ -438,7 +438,10 @@ public class SeqDataView implements DataView
                     out.println("\t\t\t<a href='"+webBase+"html'>Consensus shaded</a>&nbsp&nbsp");
                     out.println("\t\t\t<a href='http://bioinfo.ucr.edu/cgi-bin/domainShader?cid="+cs.clusterNum+"'>Domain shaded</a>");
                     out.println("\t\t</TD>");
-                    out.println("\t\t<TD><a href='"+webBase+"jpg'>view</a></TD>");
+                    
+                    String treeViewLink="DispatchServlet?hid="+hid+"&script=treeViewer.pl&range=0&clusterId="+cs.clusterNum;
+                    //out.println("\t\t<TD><a href='"+webBase+"jpg'>view</a></TD>");
+                    out.println("\t\t<TD><a href='"+treeViewLink+"'>view</a></TD>");
                  }             
                  else
                      out.println("<TD>&nbsp</TD><TD>&nbsp</TD>");
