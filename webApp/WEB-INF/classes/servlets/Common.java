@@ -306,27 +306,88 @@ public class Common {
         }
         out.println("</tr></table>");        
     }
-    public static String buildIdListCondition(String varName,List ids)
+    public static String buildIdListCondition(String varName,Collection ids)
     {
-        return buildIdListCondition(varName,ids,false); //default to no quotes.
+        return buildIdListCondition(varName,ids,false,Integer.MAX_VALUE); //default to no quotes.
     }
-    public static String buildIdListCondition(String varName,List ids,boolean quoteIt)
+        public static String buildIdListCondition(String varName,Collection ids, boolean b)
+    {
+        return buildIdListCondition(varName,ids,b,Integer.MAX_VALUE); 
+    }
+    public static String buildIdListCondition(String varName,Collection ids,int limit)
+    {
+        return buildIdListCondition(varName,ids,false,limit); //default to no quotes.
+    }
+    public static String buildIdListCondition(String varName,Collection ids,boolean quoteIt,int limit)
     {
         StringBuffer out=new StringBuffer();
         if(ids.size()==0)
             return "0=1"; //since list is empty, return a false statement, while avoiding syntax errors.
+        int count=0;
         out.append(varName+" in (");
-        for(Iterator i=ids.iterator();i.hasNext();)
+        for(Iterator i=ids.iterator();i.hasNext() && count < limit;count++)
         {
             if(quoteIt)
                 out.append("'"+i.next()+"'");
             else
                 out.append(i.next());
-            if(i.hasNext())
+            if(i.hasNext() && count < limit)
                 out.append(",");
         }
         out.append(")");
         return out.toString();
+    }
+    public static String buildLikeCondtion(String varName, Collection ids)
+    {
+        return buildLikeCondtion(varName, ids, Integer.MAX_VALUE);// essentially no limit
+    }            
+    public static String buildLikeCondtion(String varName, Collection ids, int limit)
+    {
+        StringBuffer out=new StringBuffer();
+        if(ids.size()==0)
+            return "0=1";
+        out.append("(");
+                
+        //while(in.hasNext() && count++ < limit)
+        int count=0;
+        for(Iterator in=ids.iterator();in.hasNext() && count < limit;count++)
+        {
+            out.append(varName+" ilike '"+in.next()+"'");
+            if(in.hasNext() && count < limit)
+                out.append(" OR ");
+        }
+        out.append(")");
+        return out.toString();
+    }
+    public static String buildDescriptionCondition(String varName, Collection ids)
+    {
+        
+        Iterator in=ids.iterator();
+        StringBuffer conditions=new StringBuffer();
+        int wasOp=1;
+       
+        while(in.hasNext())
+        { //create conditions string
+            String temp=(String)in.next();//use temp becuase sucsesive calls to nextToken
+                                                    //advace the pointer
+            if(temp.compareToIgnoreCase("and")!=0 && temp.compareToIgnoreCase("or")!=0 
+                    && temp.compareToIgnoreCase("not")!=0 && temp.compareTo("(")!=0
+                    && temp.compareTo(")")!=0)
+            //no keywords or parinths
+            {
+                if(wasOp==0)//last token was not an operator, but we must have an operator between every word
+                    conditions.append(" and ");
+                conditions.append(" ( "+varName+" "+ILIKE+" '%"+temp+"%') ");
+
+                wasOp=0;
+            }
+            else //must be a keyword or a parinth
+            {
+                conditions.append(" "+temp+" ");    
+                wasOp=1;
+            }    
+        }
+        return conditions.toString();
     }
     public static boolean getBoolean(String str)
     {

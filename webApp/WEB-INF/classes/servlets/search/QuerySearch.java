@@ -14,6 +14,7 @@ package servlets.search;
 import java.util.*;
 import servlets.*;
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 /**
  * Takes a queries_id number, looks up the corresponding query in the updats
@@ -76,7 +77,7 @@ public class QuerySearch implements Search
         List results=null;
         try{
             log.debug("looking for "+queries_id);
-            results=dbc.sendQuery("select sql from updates.queries where queries_id="+queries_id);
+            results=dbc.sendQuery(QuerySetProvider.getSearchQuerySet().getQuerySearchQuery(queries_id));
             if(results==null || results.size()==0)
                 throw new Exception("no query found for "+queries_id);
             log.debug("queries_id results: "+results);

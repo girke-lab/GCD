@@ -19,6 +19,7 @@ import servlets.search.Search;
 import servlets.ResultPage;
 import servlets.dataViews.queryWideViews.*; 
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 public class SeqDataView implements DataView 
 {
@@ -189,20 +190,7 @@ public class SeqDataView implements DataView
     
     private List getData(List input, String order, int[] db)
     {
-        StringBuffer conditions=new StringBuffer();
-        List rs=null;
-        int count=0;
-
-        conditions.append("sequence_view.seq_id in (");
-        for(Iterator it=input.iterator();it.hasNext();)
-        {
-            conditions.append((String)it.next());
-            if(it.hasNext())
-                conditions.append(",");
-        }
-        conditions.append(")");
-        rs=Common.sendQuery(buildSeqViewStatement(conditions.toString(),order,db));
-        return rs;
+        return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getSeqDataViewQuery(input,order,db));
     }
     private String buildSeqViewStatement(String conditions,String order, int[] DBs)
     {

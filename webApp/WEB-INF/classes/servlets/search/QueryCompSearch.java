@@ -13,6 +13,7 @@ package servlets.search;
 import java.util.*;
 import servlets.*;
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 /**
  * Expects a string consisting of a comparision id, from the updates.comparisons
@@ -67,8 +68,8 @@ public class QueryCompSearch implements Search
             return;
         }
         
-        String query="SELECT key_id FROM updates.diffs " +
-                     "WHERE comp_id="+comp_id+" AND difference='"+status+"'";
+        String query=QuerySetProvider.getSearchQuerySet().getQueryCompSearchQuery(comp_id, status);
+        
         List results=null;
         try{
             results=dbc.sendQuery(query);

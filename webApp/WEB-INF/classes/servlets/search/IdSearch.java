@@ -10,6 +10,7 @@ package servlets.search;
  */
 import java.util.*;
 import servlets.Common;
+import servlets.querySets.*;
 
 /**
  * Takes a list of accession numbers. The default action is to use pattern
@@ -27,43 +28,9 @@ public class IdSearch extends AbstractSearch
     }
     void loadData()
     {
-        ListIterator in=input.listIterator();
-        StringBuffer conditions=new StringBuffer();
         List rs=null;
-        int count=0;
-        boolean exactMatch=false;
-        String key;
         
-        log.debug("input="+input);
-        conditions.append("(");
-        while(in.hasNext() && count++ < limit)
-        {
-            key=(String)in.next();
-            if(key.equals("exact"))
-            {
-                exactMatch=true;
-                conditions.insert(0,"a.accession in ");
-                continue;
-            }
-            if(exactMatch)
-            { //exact search is a little faster
-                exactMatch=true;
-                conditions.append("'"+key+"'");
-                if(in.hasNext() && count < limit)
-                    conditions.append(",");
-            }
-            else
-            {
-                conditions.append("a.accession "+Common.ILIKE+" '"+key+"'");
-                if(in.hasNext() && count < limit)
-                    conditions.append(" OR ");
-            }
-        }
-        conditions.append(")");
-            
-        log.debug("conditions="+conditions);
-
-        seqId_query=buildIdStatement(conditions.toString(),limit,db);
+        seqId_query=QuerySetProvider.getSearchQuerySet().getIdSearchQuery(input,limit, db);
         rs=Common.sendQuery(seqId_query);
         
         Set al=new HashSet();

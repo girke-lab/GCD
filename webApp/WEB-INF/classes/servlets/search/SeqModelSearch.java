@@ -14,6 +14,7 @@ package servlets.search;
 import java.util.*;
 import servlets.*;
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 public class SeqModelSearch implements Search
 {
@@ -74,12 +75,7 @@ public class SeqModelSearch implements Search
         stats.put("models",new Integer(model_ids.size()));
         
         //then find the cluster counts
-        String query="SELECT ci.method, count(distinct c.cluster_id) " +
-            "FROM clusters as c, cluster_info as ci " +
-            "WHERE c.cluster_id=ci.cluster_id " +
-            "        and " +Common.buildIdListCondition("c.model_id",model_ids)+
-            " GROUP BY ci.method";
-        
+        String query=QuerySetProvider.getSearchQuerySet().getSeqModelSearchQuery(model_ids);
         List row;
         for(Iterator i=Common.sendQuery(query).iterator();i.hasNext();) 
         {

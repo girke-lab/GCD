@@ -15,6 +15,7 @@ import servlets.search.Search;
 import servlets.Common;
 import java.util.*;
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 /**
  * This is a handy base class for classes implementing the Search
@@ -127,14 +128,8 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     private Map statsById()
     {
         log.debug("getting stats with id numbers");
-        String conditions=Common.buildIdListCondition("s.seq_id",data);
-        String query=
-        "        select 'models', count( distinct m.model_id) from sequences as s, models as m" +
-        "        where s.seq_id=m.seq_id and "+conditions +
-        "       UNION "+
-        "        (select ci.method, count(distinct c.cluster_id) from sequences as s, clusters as c,cluster_info as ci" +
-        "        where s.seq_id=c.seq_id and c.cluster_id=ci.cluster_id and "+conditions+
-        "        group by ci.method order by ci.method)";       
+        String query=QuerySetProvider.getSearchQuerySet().getStatsById(data);
+        
         Map sMap=new HashMap();                       
         for(Iterator i=Common.sendQuery(query).iterator();i.hasNext();)
         {
@@ -146,15 +141,8 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     private Map statsByQuery()
     {
         log.debug("getting stats with query");
-        String query=
-        "        select 'models', count( distinct m.model_id) from sequences as s, models as m, " +
-        "           ("+seqId_query+") as t "+
-        "        where s.seq_id=m.seq_id and s.seq_id=t.seq_id "+
-        "       UNION "+
-        "        (select ci.method, count(distinct c.cluster_id) from sequences as s, clusters as c,cluster_info as ci, " +
-        "           ("+seqId_query+") as t "+
-        "        where s.seq_id=c.seq_id and c.cluster_id=ci.cluster_id and s.seq_id=t.seq_id "+
-        "        group by ci.method order by ci.method)";       
+        
+        String query=QuerySetProvider.getSearchQuerySet().getStatsByQuery(seqId_query);
 
         Map sMap=new HashMap();                       
         for(Iterator i=Common.sendQuery(query).iterator();i.hasNext();)
@@ -164,17 +152,4 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
         }        
         return sMap;
     }
-//    private String buildCondition()
-//    {
-//        StringBuffer condition=new StringBuffer();
-//        condition.append(" s.seq_id in (");
-//        for(Iterator i=data.iterator();i.hasNext();)
-//        {
-//            condition.append(i.next());
-//            if(i.hasNext())
-//                condition.append(",");
-//        }
-//        condition.append(")");
-//        return condition.toString();
-//    }
 }

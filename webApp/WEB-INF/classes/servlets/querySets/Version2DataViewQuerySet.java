@@ -10,7 +10,7 @@ package servlets.querySets;
  *
  * @author khoran
  */
-public class Version2DataViewQuerySet implements DataViewQuerySet
+public class Version2DataViewQuerySet //implements DataViewQuerySet
 {
     
     /** Creates a new instance of Version2DataViewQuerySet */

@@ -15,6 +15,7 @@ import java.io.*;
 import servlets.Common;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
+import servlets.querySets.*;
 
 /**
  * Stores blast information from the unknowns database.
@@ -168,7 +169,7 @@ public class BlastRecord implements Record
      */
     public static Map getData(DbConnection dbc, List ids)
     {
-        return getData(dbc,ids,"db_name","ASC");
+        return getData(dbc,ids,null,"ASC");
     }    
     /**
      * Allows one to also specify a sort field and a direction
@@ -183,11 +184,9 @@ public class BlastRecord implements Record
         if(ids==null || ids.size()==0)
             return new HashMap();
         
-        String query="SELECT * " +
-        "   FROM unknowns.blast_summary_view " +
-        "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
-        "   ORDER BY purpose, "+sortCol+" "+sortDir;
+        
                 
+        String query=QuerySetProvider.getRecordQuerySet().getBlastRecordQuery(ids, sortCol, sortDir);
         List data=null;
         try{
             data=dbc.sendQuery(query);

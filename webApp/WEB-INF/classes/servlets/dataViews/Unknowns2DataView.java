@@ -22,6 +22,7 @@ import servlets.dataViews.records.HtmlRecordVisitor;
 import servlets.dataViews.records.RecordGroup;
 import servlets.dataViews.records.UnknownRecord;
 import servlets.dataViews.records.RecordVisitor;
+import servlets.querySets.*;
 
 /**
  * This is the main view for the new unknowns database
@@ -41,7 +42,7 @@ public class Unknowns2DataView implements DataView
     public Unknowns2DataView()
     {
         sortDir="asc"; //default sort direction
-        dbc=DbConnectionManager.getConnection("khoran_test");
+        dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection to khoran");
     }        

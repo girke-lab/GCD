@@ -17,6 +17,7 @@ import servlets.*;
 import servlets.dataViews.queryWideViews.*; 
 import servlets.search.Search;
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 public class UnknownsDataView implements DataView
 {
@@ -25,6 +26,8 @@ public class UnknownsDataView implements DataView
     String sortCol,sortDir;
     int[] dbNums;    
     File tempDir;
+    String[] dbColNames=QuerySetProvider.getDataViewQuerySet().getSortableUnknownsColumns();
+
     static DbConnection dbc=null;
     static Logger log=Logger.getLogger(UnknownsDataView.class);   
     
@@ -239,16 +242,9 @@ public class UnknownsDataView implements DataView
         return tempFile;
     }
     private List getData()
-    {
-        StringBuffer conditions=new StringBuffer();
-        for(Iterator i=seq_ids.iterator();i.hasNext();)
-        {
-            conditions.append(i.next());
-            if(i.hasNext())
-                conditions.append(",");
-        }
+    {        
         try{
-            return dbc.sendQuery(buildQuery(conditions.toString()));
+            return dbc.sendQuery(QuerySetProvider.getDataViewQuerySet().getUnknownsDataViewQuery(seq_ids,sortCol,sortDir));
         }catch(Exception e){
             log.error("could not send query: "+e.getMessage());
         }
@@ -299,38 +295,5 @@ public class UnknownsDataView implements DataView
             "Multiple selects" ,
             "Occurrence in treaments",        
             "Treatments"
-        };
-        String[] dbColNames=new String[]{
-            "unknown_id",
-            "At_Key ",
-            "Description ",
-            "Unknown_Method_TIGR ",
-            "Unknown_Method_SWP_BLAST ",
-            "Unknown_Method_GO_MFU_OR_CCU_OR_BPU ",
-            "Unknown_Method_GO_MFU ",
-            "Unknown_Method_InterPro ",
-            "Unknown_Method_Pfam ",
-            "Citosky_Small_List ",
-            "SALK_tDNA_Insertion ",
-            "EST_avail ",
-            "avail ",
-            "flcDNA_TIGR_XML_avail ",
-            "Nottingham_Chips_3x_90 ",
-            "Rice_Orth_Evalue ",
-            "HumanRatMouse_Orth_Evalue ",
-            "S_cerevisiae_Evalue ",
-            "Gene_Family_Size_35_50_70_perc_ident ",
-            "Pet_Gene_from ",
-            "Targeting_Ipsort ",
-            "Targeting_Predotar ",
-            "Targeting_Targetp ",
-            "Membr_dom_Hmmtop ",
-            "Membr_dom_Thumbup ",
-            "Membr_dom_TMHMM ",
-            "Focus_list_of_grant ",
-            "Selected_by ",
-            "Multiple_selects ",
-            "Occurrence_in_treaments",
-            "treat"
         };
 }

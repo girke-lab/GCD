@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import servlets.ResultPage;
 import servlets.dataViews.queryWideViews.*; 
 import servlets.search.Search;
+import servlets.querySets.*;
 
 public class ClusterDataView implements DataView 
 {   
@@ -157,8 +158,7 @@ public class ClusterDataView implements DataView
        
     private List getData(List input, String order, int[] db)
     {
-        return Common.sendQuery(buildClusterViewStatement(
-                Common.buildIdListCondition("cluster_info.cluster_id",input),order,db));        
+        return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getClusterDataViewQuery(input, order, db));         
     }
     
      private String buildClusterViewStatement(String conditions, String order, int[] DBs)

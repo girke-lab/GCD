@@ -10,7 +10,7 @@ package servlets.querySets;
  *
  * @author khoran
  */
-public class Version2SearchQuerySet implements SearchQuerySet
+public class Version2SearchQuerySet //implements SearchQuerySet
 {
     
     /** Creates a new instance of Version2SearchQuerySet */

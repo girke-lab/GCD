@@ -10,7 +10,7 @@ package servlets.querySets;
  *
  * @author khoran
  */
-public class Version2RecordQuerySet implements RecordQuerySet
+public class Version2RecordQuerySet //implements RecordQuerySet
 {
     
     /** Creates a new instance of Version2RecordQuerySet */

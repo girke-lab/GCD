@@ -14,6 +14,7 @@ package servlets.search;
 import java.util.*;
 import servlets.*;
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 /**
  * Takes a unknowns db cluster_id and returns a list of common db seq_ids which
@@ -50,9 +51,7 @@ public class UnknownClusterIdSearch implements Search
     }
     private List getKeys(int cluster_id)
     {
-        String query="SELECT key " +
-        "   FROM unknowns.unknown_keys as uk, unknowns.clusters as c " +
-        "   WHERE uk.key_id=c.key_id AND c.cluster_id="+cluster_id;
+        String query=QuerySetProvider.getSearchQuerySet().getUnknownClusterIdSearchQuery(cluster_id);
         List results=null;
         try{
             results=dbc.sendQuery(query);

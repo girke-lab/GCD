@@ -13,6 +13,7 @@ package servlets.search;
 import java.util.*;
 import servlets.search.Search;
 import servlets.Common;
+import servlets.querySets.*;
         
 public class GoTextSearch extends AbstractSearch {
     
@@ -21,21 +22,9 @@ public class GoTextSearch extends AbstractSearch {
     }
     
     void loadData(){
-        ListIterator in = input.listIterator();
-        StringBuffer conditions = new StringBuffer();
         List rs = null;
-        int count = 0;
         
-        while (in.hasNext()){
-            String temp = (String)in.next();
-            if (count != 0){
-                conditions.append(" and ");
-            }            
-            conditions.append(" ( g.text " + Common.ILIKE + " '%" + temp + "%') ");
-            count++;
-        }
-        
-        seqId_query = buildIdStatement(conditions.toString(), limit);
+        seqId_query=QuerySetProvider.getSearchQuerySet().getGoTextSearchQuery(input, limit);
         rs = Common.sendQuery(seqId_query);
         
         List al = new ArrayList();

@@ -15,6 +15,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.Common;
 import servlets.DbConnection;
+import servlets.querySets.*;
 
 /**
  * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
@@ -89,9 +90,8 @@ public class ProteomicsRecord implements Record
     {
         if(ids==null || ids.size()==0)
             return new HashMap();
-        String query="SELECT * "+                 
-        "   FROM unknowns.proteomics_stats " +        
-        "   WHERE "+Common.buildIdListCondition("accession_id",ids);
+        
+        String query=QuerySetProvider.getRecordQuerySet().getProteomicsRecordQuery(ids, sortCol, sortDir);
         
         List data=null;
         try{            

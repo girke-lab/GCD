@@ -17,6 +17,7 @@ import servlets.*;
 import servlets.search.Search;
 import servlets.dataViews.queryWideViews.*; 
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 public class BlastDataView implements DataView
 {
@@ -26,11 +27,8 @@ public class BlastDataView implements DataView
     String sortCol,sortDir;
     
     private static String[] titles=new String[] {"Hit ID","Description","Organism","E Value","Score","% Identity","Length"};
-    private static String[] dbColNames=new String[] { "target.accession","target.description",
-                            "o.name","br.e_value","br.score","br.identities","br.length"};
-    
-//    {"br.target_accession_id","br.target_description","uo.organism",
-//                                    "br.e_value","br.score","br.identities","br.length"};
+    private static String[] dbColNames=QuerySetProvider.getDataViewQuerySet().getSortableBlastColumns();
+
     private static DbConnection dbc=DbConnectionManager.getConnection("khoran");
     private static Logger log=Logger.getLogger(BlastDataView.class);
     
@@ -154,17 +152,7 @@ public class BlastDataView implements DataView
     private List getData()
     {
                 
-        String query=
-            "SELECT query.accession,target.accession,gd.link,target.description, " +
-            "   o.name,br.e_value,br.score,br.identities,br.length " +
-            "FROM general.blast_results as br, general.accessions as query, " +
-            "   general.accessions as target LEFT JOIN general.organisms as o USING(organism_id), " +
-            "   general.genome_databases as gd " +
-            "WHERE br.query_accession_id=query.accession_id AND " +
-            "   br.target_accession_id=target.accession_id AND " +
-            "   target.genome_db_id=gd.genome_db_id AND " +
-                Common.buildIdListCondition("br.blast_id",seq_ids)+
-            "ORDER BY query.accession, "+sortCol+" "+sortDir;
+        String query=QuerySetProvider.getDataViewQuerySet().getBlastDataViewQuery(seq_ids, sortCol, sortDir);
         
         try{
             return dbc.sendQuery(query);            

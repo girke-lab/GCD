@@ -15,6 +15,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.Common;
 import servlets.DbConnection;
+import servlets.querySets.*;
 
 /**
  * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
@@ -92,7 +93,7 @@ public class ClusterRecord implements Record
     
     public static Map getData(DbConnection dbc, List ids)
     {
-        return getData(dbc,ids,"accession_id","ASC");
+        return getData(dbc,ids,null,"ASC");
     }
     
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
@@ -100,11 +101,8 @@ public class ClusterRecord implements Record
         if(ids==null || ids.size()==0)
             return new HashMap();
         
-       String query="SELECT * "+                 
-        "   FROM unknowns.cluster_info_and_counts_mv " +        
-        "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
-        "   ORDER BY "+sortCol+" "+sortDir;
-        
+        String query=QuerySetProvider.getRecordQuerySet().getClusterRecordQuery(ids, sortCol,sortDir);
+                
         List data=null;
                 
         try{        

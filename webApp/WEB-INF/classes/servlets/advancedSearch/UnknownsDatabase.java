@@ -21,6 +21,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletContext;
 import java.io.*;
 import servlets.dataViews.*;
+import servlets.querySets.*;
 
 public class UnknownsDatabase extends DefaultSearchableDatabase
 {

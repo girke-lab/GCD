@@ -15,6 +15,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.Common;
 import servlets.DbConnection;
+import servlets.querySets.*;
 
 /**
  * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
@@ -77,18 +78,15 @@ public class ExternalUnknownRecord implements Record
     
     public static Map getData(DbConnection dbc, List ids)
     {
-        return getData(dbc,ids,"source","ASC");
+        return getData(dbc,ids,null,"ASC");
     }
     
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
         if(ids==null || ids.size()==0)
             return new HashMap();
-        String query="SELECT accession_id,is_unknown,source "+                 
-        "   FROM unknowns.external_unknowns " +        
-        "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
-        "   ORDER BY "+sortCol+" "+sortDir;
         
+        String query=QuerySetProvider.getRecordQuerySet().getExternlUnknwownsRecordQuery(ids, sortCol, sortDir);
         List data=null;
         try{            
             data=dbc.sendQuery(query);            

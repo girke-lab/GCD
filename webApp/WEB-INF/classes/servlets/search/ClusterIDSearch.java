@@ -11,6 +11,7 @@ package servlets.search;
 import java.util.*; 
 import servlets.search.Search;
 import servlets.Common;
+import servlets.querySets.*;
 
 public class ClusterIDSearch extends AbstractSearch
 {   
@@ -21,25 +22,10 @@ public class ClusterIDSearch extends AbstractSearch
     }
 
     void loadData()
-    {
-        ListIterator in=input.listIterator();
-        StringBuffer conditions=new StringBuffer();
-        List rs=null;
-        int count=0;
-                
-        
-        //conditions.append(Common.buildIdListCondition("Cluster_Info.filename",input,true));
-        
-        conditions.append("(");
-        while(in.hasNext() && count++ < limit)
-        {
-            conditions.append("Cluster_Info.filename ilike '"+in.next()+"'");
-            if(in.hasNext() && count < limit)
-                conditions.append(" OR ");
-        }
-        conditions.append(")");
-        
-        seqId_query=buildClusterStatement(conditions.toString(),limit,db);
+    {        
+        List rs=null;        
+               
+        seqId_query=QuerySetProvider.getSearchQuerySet().getClusterIDSearchQuery(input, limit, db);
         rs=Common.sendQuery(seqId_query);
         
         Set al=new HashSet();

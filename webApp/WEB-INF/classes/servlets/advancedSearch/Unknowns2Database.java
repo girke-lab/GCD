@@ -22,6 +22,7 @@ import java.io.*;
 import servlets.dataViews.*;
 import servlets.advancedSearch.queryTree.*;
 import servlets.advancedSearch.visitors.*;
+import servlets.querySets.*;
 
 public class Unknowns2Database extends DefaultSearchableDatabase
 {

@@ -11,6 +11,7 @@ package servlets.search;
 import java.util.*;
 import servlets.search.Search;
 import servlets.Common;
+import servlets.querySets.*;
 
 public class ClusterNameSearch extends AbstractSearch
 {   
@@ -22,33 +23,9 @@ public class ClusterNameSearch extends AbstractSearch
     
     void loadData()
     {
-        Iterator in=input.iterator();
-        StringBuffer conditions=new StringBuffer();
         List rs;
-        int wasOp=1;
-       
-        while(in.hasNext())
-        { //create conditions string
-            String temp=(String)in.next();//use temp becuase sucsesive calls to nextToken
-                                                    //advace the pointer
-            if(temp.compareToIgnoreCase("and")!=0 && temp.compareToIgnoreCase("or")!=0 
-                    && temp.compareToIgnoreCase("not")!=0 && temp.compareTo("(")!=0
-                    && temp.compareTo(")")!=0)
-            //no keywords or parinths
-            {
-                if(wasOp==0)//last token was not an operator, but we must have an operator between every word
-                    conditions.append(" and ");
-                conditions.append(" ( Cluster_Info.Name "+Common.ILIKE+" '%"+temp+"%') ");
-
-                wasOp=0;
-            }
-            else //must be a keyword or a parinth
-            {
-                conditions.append(" "+temp+" ");    
-                wasOp=1;
-            }    
-        }
-        seqId_query=buildIdStatement(conditions.toString(),limit,db);
+        
+        seqId_query=QuerySetProvider.getSearchQuerySet().getClusterNameSearchQuery(input, limit,db);
         rs=Common.sendQuery(seqId_query);
         
         ArrayList al=new ArrayList();

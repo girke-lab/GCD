@@ -18,7 +18,7 @@ import javax.servlet.*;
 import servlets.*;
 import org.apache.log4j.Logger;
 import servlets.advancedSearch.queryTree.*;
-
+import servlets.querySets.*;
 /**
  * 
  */
@@ -121,8 +121,38 @@ public class CommonDatabase extends DefaultSearchableDatabase
 //        return null;
 //    }
 
-    
     void defineOptions()
+    {   
+        Map cn=QuerySetProvider.getSearchableDatabaseQuerySet().getCommonColumnNames();
+        
+        rootTableName=(String)cn.get("rootTableName");
+        primaryKey=(String)cn.get("primaryKey");
+        defaultColumn=(String)cn.get("defaultColumn");
+        
+        //don't set column names here
+        fields=new Field[]{ new Field("Loci Id","",List.class), 
+                            new Field("Loci Description",""),
+                            new Field("Cluster Id","",List.class),
+                            new Field("Cluster Name",""),                            
+                            new Field("Cluster Size","",Integer.class),
+                            new Field("Clustering Method","",
+                                new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
+                            new Field("# arab keys in cluster","",Integer.class),
+                            new Field("# rice keys in cluster","",Integer.class),
+                            new Field("Database","",new String[]{"arab","rice"}),
+                            new Field("GO Number","",List.class)
+        };
+        int[] sortableFields=new int[]{0,1};
+        for(int i=0;i<sortableFields.length;i++)        
+            fields[sortableFields[i]].setSortable(true);
+        for(int i=0;i<fields.length;i++) //set column names from map
+            fields[i].dbName=(String)cn.get(fields[i].displayName);
+        
+        operators=new String[]{"=","!=","<",">","<=",">=",Common.ILIKE,"NOT "+Common.ILIKE};
+        booleans=new String[]{"and","or"};        
+    }
+    
+    void defineOptions2()
     {   
         rootTableName="sequences";
         primaryKey="seq_id";

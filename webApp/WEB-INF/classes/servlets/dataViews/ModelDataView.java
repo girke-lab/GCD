@@ -18,6 +18,7 @@ import java.util.*;
 import javax.servlet.http.*;
 import java.io.*;
 import org.apache.log4j.Logger;
+import servlets.querySets.*;
 
 public class ModelDataView implements DataView
 {
@@ -161,21 +162,11 @@ public class ModelDataView implements DataView
                 fieldCount++;
             }
 
-        feildCombo.append(", Genome"); //always query genome so we know where to put titles
+        feildCombo.append(", "+fullNames[10]); //always query genome so we know where to put titles
         fieldCount++;
-        //StringTokenizer in=new StringTokenizer(inputKey);
-        ListIterator in=keys.listIterator();
-        
-        conditions.append("Sequences.Seq_id in (");
-        while(in.hasNext())
-        {
-            conditions.append("'"+in.next()+"'");
-            if(in.hasNext() )
-                conditions.append(",");
-        }
-        conditions.append(")");
-        
-        rs=Common.sendQuery(buildGeneralStatement(feildCombo.toString(),conditions.toString()));
+
+        rs=Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getModelDataViewQuery(keys,feildCombo.toString()));                
+           
         return rs;   
     }       
     private void printFasta(PrintWriter out,List rs,int[] currentFeildNums,int length,int format)
@@ -300,13 +291,8 @@ public class ModelDataView implements DataView
      private void defineNames()
     {
         //assign names for later lookup
-        fullNames=new String[]{        
-            "Sequences.Primary_Key",    "Models.Model_accession",
-            "Sequences.Description",    "Models.TU",
-            "Sequences.Intergenic",     "Models.UTR3",
-            "Sequences.Intergenic",     "Models.CDS",
-            "Models.UTR5",              "Models.Protein"};
-        
+        fullNames=QuerySetProvider.getDataViewQuerySet().getModelColumns();
+                        
         //names to be printed on the screen
         printNames=new String[fieldCount];
         printNames[0]="Id 1";printNames[1]="Id 2";printNames[2]="Description";printNames[3]="Transcription Model";

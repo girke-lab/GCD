@@ -11,6 +11,7 @@ package servlets.search;
 import java.util.*;
 import servlets.search.Search;
 import servlets.Common;
+import servlets.querySets.*;
 
 public class GoSearch extends AbstractSearch
 {
@@ -23,21 +24,9 @@ public class GoSearch extends AbstractSearch
       
     void loadData()
     {
-        ListIterator in=input.listIterator();
-        StringBuffer conditions=new StringBuffer();
         List rs=null;
-        int count=0;
         
-        conditions.append("Go.Go in (");
-        while(in.hasNext() && count++ < limit)
-        {
-            conditions.append("'"+in.next()+"'");
-            if(in.hasNext() && count < limit)
-                conditions.append(",");
-        }
-        conditions.append(")");
-        
-        seqId_query=buildIdStatement(conditions.toString(),limit,db);
+        seqId_query=QuerySetProvider.getSearchQuerySet().getGoSearchQuery(input, limit);
         rs=Common.sendQuery(seqId_query);
 
         Set al=new HashSet();

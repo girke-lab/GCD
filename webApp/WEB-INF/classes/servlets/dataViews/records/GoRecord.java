@@ -15,6 +15,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.Common;
 import servlets.DbConnection;
+import servlets.querySets.*;
 
 /**
  * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
@@ -77,19 +78,15 @@ public class GoRecord implements Record
     
     public static Map getData(DbConnection dbc, List ids)
     {
-        return getData(dbc,ids,"go_number","ASC");
+        return getData(dbc,ids,null,"ASC");
     }
     
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
         if(ids==null || ids.size()==0)
             return new HashMap();
-        String query="SELECT  accession_id, go_number,function,text"+                 
-        "   FROM general.accessions as a, go.go_numbers as gn, go.seq_gos as sg " +        
-        "   WHERE substring(a.accession from 1 for 9)=sg.accession AND sg.go_id=gn.go_id \n" +
-        "      AND "+Common.buildIdListCondition("accession_id",ids)+
-        "   ORDER BY "+sortCol+" "+sortDir;
         
+        String query=QuerySetProvider.getRecordQuerySet().getGoRecordQuery(ids, sortCol, sortDir);
         List data=null;
         try{
             data=dbc.sendQuery(query);

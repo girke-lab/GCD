@@ -26,7 +26,8 @@ public class QueryPageServlet extends HttpServlet
 {    
 
     private static Logger log; 
-    private static Properties searches=null,dataViews=null;
+    //private static Properties searches=null,dataViews=null;
+    private static Properties settings=null;
     
     public void init(ServletConfig config) throws ServletException
     {       
@@ -44,11 +45,15 @@ public class QueryPageServlet extends HttpServlet
         log=Logger.getLogger(QueryPageServlet.class);
         
         try{
-            searches=new Properties();
-            searches.load(this.getClass().getResourceAsStream("searches.properties"));
+            settings=new Properties();
+            settings.load(this.getClass().getResourceAsStream("queryPage.properties"));
             
-            dataViews=new Properties();
-            dataViews.load(this.getClass().getResourceAsStream("dataViews.properties"));
+            
+//            searches=new Properties();
+//            searches.load(this.getClass().getResourceAsStream("searches.properties"));
+//            
+//            dataViews=new Properties();
+//            dataViews.load(this.getClass().getResourceAsStream("dataViews.properties"));
         }catch(IOException e){
             log.error("could not load properites: "+e.getMessage());
         }
@@ -167,7 +172,8 @@ public class QueryPageServlet extends HttpServlet
             
             
             
-            String dataViewClass=dataViews.getProperty(displayType);
+            //String dataViewClass=dataViews.getProperty(displayType);
+            String dataViewClass=settings.getProperty("data_view."+displayType);
             if(dataViewClass==null)
                 return new SeqDataView();
             DataView dv=null;
@@ -212,7 +218,8 @@ public class QueryPageServlet extends HttpServlet
         else
         {
             type=type.replaceAll(" ","_");
-            String searchClass=searches.getProperty(type);
+            //String searchClass=searches.getProperty(type);
+            String searchClass=settings.getProperty("search."+type);
             if(searchClass==null)
                 return new IdSearch();
             Search s=null;
@@ -341,11 +348,12 @@ public class QueryPageServlet extends HttpServlet
     
     private void initQuerySets()
     {
-        DataViewQuerySet dvqs=new OrigDataViewQuerySet();
+        OrigDataViewQuerySet dvqs=new OrigDataViewQuerySet();
         SearchQuerySet sqs=new OrigSearchQuerySet();
         
         QuerySetProvider.setDataViewQuerySet(dvqs);
         QuerySetProvider.setSearchQuerySet(sqs);
+        QuerySetProvider.setRecordQuerySet(dvqs);
     }
     ///////////////////////////////////////////////////////////////////////////////////////////
    

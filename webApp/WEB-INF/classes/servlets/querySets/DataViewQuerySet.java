@@ -24,13 +24,13 @@ public interface DataViewQuerySet extends QuerySet
     public String getClusterDataViewQuery(Collection ids, String order, int[] DBs);
     
     // for ModelDataView
-    public String getModelDataViewQuery(Collection ids, String fields, String conditions);
+    public String getModelDataViewQuery(Collection ids, String fields);
     public String[] getModelColumns();
     
     // for SeqDataView
     public String getSeqDataViewQuery(Collection ids, String order, int[] DBs);
     
     // for UnknownsDataView
-    public String getUnknownsDataView(Collection ids, String sortCol, String sortDir);
+    public String getUnknownsDataViewQuery(Collection ids, String sortCol, String sortDir);
     public String[] getSortableUnknownsColumns();        
 }
