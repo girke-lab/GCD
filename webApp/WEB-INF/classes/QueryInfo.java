@@ -9,7 +9,9 @@
  * @author  khoran
  */
 import java.util.*;
-public class QueryInfo
+import java.io.Serializable;
+
+public class QueryInfo implements Serializable
 {
     public int dbsLength;
     public int[] dbNums;

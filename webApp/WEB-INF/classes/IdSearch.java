@@ -36,7 +36,7 @@ public class IdSearch implements Search {
         List rs=null;
         int count=0;
 
-        conditions.append("Id_Associations.Accession in (");
+        conditions.append("a.Accession in (");
         while(in.hasNext() && count++ < limit)
         {
             conditions.append("'"+in.next()+"'");
@@ -60,12 +60,12 @@ public class IdSearch implements Search {
 
     private String buildIdStatement(String conditions, int limit,int[] DBs)
     {
-        String id="SELECT DISTINCT Sequences.Seq_id, Accession from Sequences LEFT JOIN Id_Associations USING(Seq_id) "+
-                  "WHERE (";
+        String id="SELECT DISTINCT a.Seq_id, a.Accession FROM Sequences as s, Id_Associations as a "+
+                  "WHERE s.seq_id=a.seq_id AND ("; 
 
         for(int i=0;i<DBs.length;i++)
         {
-            id+=" Genome='"+Common.dbRealNames[DBs[i]]+"' ";
+            id+=" s.Genome='"+Common.dbRealNames[DBs[i]]+"' ";
             if(i < DBs.length-1)//not last iteration of loop
                 id+=" or ";
         }

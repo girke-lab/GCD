@@ -98,8 +98,7 @@ public class QueryPageServlet extends HttpServlet
         out.println("<head>");
         out.println("<title>Servlet</title>");
         Common.javaScript(out);
-        out.println("</head>");
-        out.println("<BODY bgcolor=\"#FFFFFF\" text=\"#000000\" link=\"#000000\" vlink=\"#000000\" alink=\"#000000\">");
+        out.println("</head>");      
         Common.printHeader(out);
         Common.navLinks(out);
         Common.printForm(out,hid);
@@ -150,7 +149,7 @@ public class QueryPageServlet extends HttpServlet
             return new IdSearch();   //default to id search
     }
    
-    public static void printCounts(PrintWriter out, int queried,List data)
+    public void printCounts(PrintWriter out, int queried,List data)
     {
         int models=0,keys=0;
         String lastKey="";
@@ -218,7 +217,7 @@ public class QueryPageServlet extends HttpServlet
         conditions.append(")");
         System.out.println("sending clusterNumbers query: "+buildClusterStatement(conditions.toString()));
         List results=Common.sendQuery(buildClusterStatement(conditions.toString()));
-        if(results.size()==0){
+        if(results==null || results.size()==0){
             System.out.println("no cluster numbers results");
             return null;
         }
@@ -267,12 +266,12 @@ public class QueryPageServlet extends HttpServlet
         StringBuffer keyList=new StringBuffer();
         int count=0;
         String[] colors=new String[2];
-        colors[0]=new String("29F599"); //00aa00
-        colors[1]=new String("26F5CC"); //00cc00
+        colors[0]=new String("AAAAAA"); //00aa00 //green  //"29F599"
+        colors[1]=new String("D3D3D3"); //00cc00 //cyan  //"26F5CC"
 
         printForms(out,data,goNumbers);
 
-        out.println("<TABLE align='center' border='0'>");
+        out.println("<TABLE width='100%' align='center' border='1' cellspacing='0'>");
         int lastDB=-1,currentDB;
         while(li.hasNext())
         {
@@ -280,38 +279,50 @@ public class QueryPageServlet extends HttpServlet
 
             currentDB=Common.getDBid((String)row.get(4));
             if(currentDB!=lastDB)//we have changed databases, so print the title of the new db
-                out.println("<TR><TH colspan='2'><H2 align='center'>"+dbPrintNames[currentDB]+" search results</H2></TH></TR>");
+                out.println("<TR><TH colspan='7'><H2 align='center'>"+dbPrintNames[currentDB]+" search results</H2></TH></TR>");
             lastDB=currentDB; //update lastDB
 
 
             key=(String)row.get(0);
-            out.println("<TR><TD colspan='2'>&nbsp</TD></TR>");
-            out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Links</TH>");
-            printLinks(out,key,clusterNum,hid,currentDB,clusterSize,(String)row.get(2),goNumbers);
+            out.println("<TR><TD colspan='7'>&nbsp</TD></TR>");
+            
+            //print key and description
+            out.println("<TR bgcolor='"+colors[0]+"'><TH>Key</TH><TH colspan='6'>Description</TH></TR>");            
+            out.println("<TR bgcolor='"+colors[1]+"'>");
+            out.println("<TD><A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+row.get(0)+"'>"+row.get(0)+"</A></TD>");
+            out.println("<TD colspan='6'>"+row.get(1)+"</TD>");
             out.println("</TR>");
-            out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Key</TH>");
-            out.println("<TD><A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+row.get(0)+"'>"+row.get(0)+"</A></TD></TR>");
-            out.println("<TR bgcolor='"+colors[count++%2]+"'><TH align='left'>Description</TH>");
-            out.println("<TD>"+row.get(1)+"</TD></TR>");
-            printClusters(out,(ArrayList)clusterNumbers.get(row.get(2)),hid,count++,colors);
+            
+            //print links
+            out.println("<TR bgcolor='"+colors[1]+"'><TH align='left'>Links</TH>");
+            out.println("\t\t<TD colspan='6'>");
+            printLinks(out,key,clusterNum,hid,currentDB,clusterSize,(String)row.get(2),goNumbers);
+            out.println("</TD>");
+            out.println("</TR>");
 
+            //print clusters table
+            printClusters(out,(ArrayList)clusterNumbers.get(row.get(2)),hid,count++,colors);
         }
         out.println("</TABLE>");
     }
-
     
     private void printClusters(PrintWriter out, ArrayList set,int hid,int count,String[] colors)
     {
         if(set==null)
             return;
+//        out.println("<TABLE border='0' width='100%'>");
+        out.println("\t<TR bgcolor='"+colors[0]+"'><TH>Clustering</TH><TH>Name</TH><TH>ID</TH><TH>Size</TH><TH>Members</TH><TH>Alignment</TH><TH>Tree</TH></TR>");
+        String clusterType;
         for(Iterator i=set.iterator();i.hasNext();)
-        {
+        {//one row per set
+             out.println("\t<TR bgcolor='"+colors[1]+"'>");
              ClusterSet cs=(ClusterSet)i.next();
-             out.println("<TR bgcolor='"+colors[count%2]+"'><TH align='left' nowrap >");
-
-             if(cs.clusterNum.matches("PF.*"))
-             {//print a link for each id in the hmm cluster name
-                 out.println("Hmm Cluster</TH><TD>Cluster Id");                 
+             clusterType=cs.clusterNum.matches("PF.*") ? "Domain Cluster" : "Blast Cluster";                          
+             out.println("\t\t<TD nowrap>"+clusterType+"</TD>");                                      
+             out.println("\t\t<TD>"+cs.name+"</TD>");
+             out.println("\t\t<TD>");
+             if(clusterType.equals("Domain Cluster"))
+             {
                  StringTokenizer tok=new StringTokenizer(cs.clusterNum,"_");
                  while(tok.hasMoreTokens())
                  {
@@ -319,26 +330,31 @@ public class QueryPageServlet extends HttpServlet
                      out.println("<a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+n.substring(0,n.indexOf('.'))+"'>"+n+"</a>");
                      if(tok.hasMoreTokens())
                          out.println("_");
-                 }
-                 out.println("&nbsp&nbsp");
-             }
-             else                 
-                 out.println("Blast Cluster</TH><TD>Cluster Id: "+cs.clusterNum+"&nbsp&nbsp");
-             out.println("Size: "+cs.size+"&nbsp&nbsp");
-             out.println("Name: "+cs.name+"&nbsp&nbsp");
-             out.println("<a href='/databaseWeb/ClusterServlet?hid="+hid+"&clusterID="+cs.clusterNum+"'>Query Ids</a>&nbsp&nbsp");
+                 }                 
+             }else
+                 out.println(cs.clusterNum);
+             out.println("\t\t</TD>");
+             out.println("\t\t<TD>"+cs.size+"</TD>");
+             //out.println("<a href='/databaseWeb/ClusterServlet?hid="+hid+"&clusterID="+cs.clusterNum+"'>Query Ids</a>&nbsp&nbsp");
+             out.println("\t\t<TD><a href='/databaseWeb/index.jsp?fieldName=Cluster Id&input="+cs.clusterNum+"'>Retrieve</a></TD>");
              if(!cs.size.equals("1"))
              {
                  String base="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
-                 if(cs.clusterNum.matches("PF.*"))
+                 if(clusterType.equals("Domain Cluster"))
                      base+="hmmClusters/";
                  else
                      base+="blastClusters/";
-                 out.println("<a href='"+base+cs.clusterNum+".html'>Alignment</a>&nbsp&nbsp");
-                 out.println("<a href='"+base+cs.clusterNum+".jpg'>Tree</a>&nbsp&nbsp");
-             }
-             out.println("</TD></TR>\n");
+                 out.println("\t\t<TD nowrap>");
+                 out.println("\t\t\t<a href='"+base+cs.clusterNum+".html'>Consensus shaded</a>&nbsp&nbsp");
+                 out.println("\t\t\t<a href='http://bioinfo.ucr.edu/cgi-bin/domainShader?cid="+cs.clusterNum+"'>Domain shaded</a>");
+                 out.println("\t\t</TD>");
+                 out.println("\t\t<TD><a href='"+base+cs.clusterNum+".jpg'>view</a></TD>");
+             }             
+             else
+                 out.println("<TD>&nbsp</TD><TD>&nbsp</TD>");
+             out.println("\t</TR>");
         }
+ //       out.println("</TABLE>");
     }
     private void printLinks(PrintWriter out,String key,String clusterNum,int hid,int currentDB,String size,String Seq_id,HashMap goNumbers)
     {//size is cluster size
@@ -347,7 +363,7 @@ public class QueryPageServlet extends HttpServlet
              db="ath1";
          else if(currentDB==rice)
              db="osa1";
-         out.println("\t\t<TD>");
+         
          if(currentDB==arab)
          {
              out.println("<a href='http://www.arabidopsis.org/servlets/TairObject?type=locus&name="+key+"'>TAIR</a>&nbsp&nbsp");
@@ -370,20 +386,21 @@ public class QueryPageServlet extends HttpServlet
             out.println("<a href='http://www.godatabase.org/cgi-bin/go.cgi?depth=0&advanced_query=&search_constraint=terms&"+querys+"action=replace_tree'>GO</a>&nbsp&nbsp");
 
          //does this link work for rice? no
-         out.println("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");
-         out.println("\t\t</TD>");
+         out.println("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");         
     }
 
     private void printForms(PrintWriter out, List data,Map goNumbers)
     {
         out.println("<TABLE><TR><TD>");
+        //gene structure form
         out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/multigene.pl'>\n");
         if(data.size() > 0) //don't print a button if thier is no data
             out.println("<INPUT type='submit' value='All Gene Structures'>\n");
         for(Iterator i=data.iterator();i.hasNext();)
             out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
         out.println("</FORM></TD><TD>");
-
+        
+        //chr form
         out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/chrplot.pl'>\n");
         out.println("<INPUT type=hidden name='database' value='all'/>");
         if(data.size() > 0)
@@ -392,6 +409,7 @@ public class QueryPageServlet extends HttpServlet
             out.println("<INPUT type=hidden name='accession' value='"+((ArrayList)i.next()).get(0)+"'/>\n");
         out.println("</FORM></TD><TD>");
         
+        //go slim form
         out.println("<FORM METHOD='POST' ACTION='http://bioinfo.ucr.edu/cgi-bin/goSlimCounts'>\n");
         if(goNumbers.size() > 0)
             out.println("<INPUT type='submit' value='Go Slim Counts'><BR>\n");
@@ -402,6 +420,8 @@ public class QueryPageServlet extends HttpServlet
             for(Iterator j=((ArrayList)entry.getValue()).iterator();j.hasNext();)            
                 out.println("<INPUT type=hidden name='go_numbers' value='"+entry.getKey()+"_"+j.next()+"'/>\n");
         }
+        out.println("<INPUT type=hidden name='total_seq_count' value='"+data.size()+"'/>\n");
+        out.println("<INPUT type=hidden name='used_seq_count' value='"+goNumbers.size()+"'/>\n");
         out.println("</FORM></TD></TR></TABLE>\n");
 
    
@@ -425,18 +445,18 @@ public class QueryPageServlet extends HttpServlet
     {
         StringBuffer general=new StringBuffer();
 
-        general.append("SELECT DISTINCT Primary_Key, Description,Sequences.Seq_id,count(Models.Model_id),Genome "+
-                       "FROM Sequences LEFT JOIN Models USING(Seq_id) "+
+        general.append("SELECT DISTINCT primary_key, description,sequences.seq_id,count(models.model_id),genome "+
+                       "FROM sequences LEFT JOIN models USING(seq_id) "+
                        "WHERE ( ");
 
         for(int i=0;i<DBs.length;i++)
         {
-            general.append(" Genome='"+Common.dbRealNames[DBs[i]]+"' ");
+            general.append(" genome='"+Common.dbRealNames[DBs[i]]+"' ");
             if(i < DBs.length-1)//not last iteration of loop
                 general.append(" or ");
         }
 
-        general.append(") and ( "+conditions+" ) GROUP BY Sequences.Seq_id,Primary_Key, Description, "+
+        general.append(") and ( "+conditions+" ) GROUP BY sequences.seq_id,primary_Key, description, "+
             "Genome ORDER BY Genome,Primary_Key");
         general.append(" limit "+limit);
         System.out.println("general Query: "+general);

@@ -37,8 +37,10 @@ public class Common {
 //        {//then connect
         Connection conn;
             try{
-                String url="jdbc:postgresql://138.23.191.152/common";
-                Class.forName("org.postgresql.Driver").newInstance();
+                //String url="jdbc:postgresql://138.23.191.152/common";
+                String url="jdbc:mysql://138.23.191.152/common_test";
+                //Class.forName("org.postgresql.Driver").newInstance();
+                Class.forName("org.gjt.mm.mysql.Driver").newInstance();
                 conn=DriverManager.getConnection(url,"servlet","512256");
             }catch(SQLException e){
                 System.out.println("could not coneect to database: "+e.getMessage());
@@ -49,6 +51,7 @@ public class Common {
                 return null;
             }
 //        }
+        q=q.toLowerCase();
         ArrayList data=new ArrayList();
         try{
             Statement stmt=conn.createStatement();
@@ -63,7 +66,7 @@ public class Common {
             conn.close();
         }catch(SQLException e){
             System.out.println("query errory: "+e.getMessage());
-            return null;
+            return new ArrayList();
         }
         return data;
     }
@@ -150,9 +153,10 @@ public class Common {
             "</script>\n");
     }
     public static void printHeader(PrintWriter out)
-    {   //print the CEPCEB header on the top of every page
+    {   //print the CEPCEB header on the top of every page        
         String header=""+ 
-        "<table width='900' border='0' cellspacing='0' cellpadding='0'>"+
+        "<table width='100%' border='0' cellspacing='0' cellpadding='0'>"+
+        "<tr bgcolor='AAAAAA'><td colspan='3'>&nbsp</td></tr>"+
         "<tr>"+
         "<td width='210' rowspan='2'><a href='http://www.cepceb.ucr.edu/' target='_blank'><img src='images/cepceb.jpg' alt='cepceb' width='210' height='90' border='0'></a></td>"+
         "<td width='590' align='center' colspan='2'><h1>Genome Cluster Database</h1></td>"+
@@ -161,18 +165,18 @@ public class Common {
         "    <td height='29' valign='top' colspan='2'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.ucr.edu/' target='_blank'>"+
         "        UC Riverside</a></font></div></td>"+
         "</tr>"+
-        "<tr>"+
-        "    <td colspan='3'><hr></td>"+
-        "</tr>"+
+        "<tr bgcolor='AAAAAA'><td colspan='3'>&nbsp</td></tr>"+
+        "<tr><td>&nbsp</td></tr>"+
         "<tr>"+        
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>"+
         "        <b>About this Database</b></a></font></div></td>"+
         "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>"+
         "        <b>Cluster Table</b></a></font></div></td>"+
-"            <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>"+
-"                <b>Cluster Statistics</b></a></font></div></td>"+
+        "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>"+
+        "        <b>Cluster Statistics</b></a></font></div></td>"+
         "</tr>"+
-"        </table>";
+        "</table>";
+        out.println("<BODY bgcolor='#fefefe' text='#000000' link='#006699' vlink='#003366'>");  
         out.println(header);
     }
     public static void printHeaderOld(PrintWriter out)

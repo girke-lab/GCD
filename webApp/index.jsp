@@ -95,10 +95,13 @@ function MM_nbGroup(event, grpName) { //v6.0
 
      <% String input=request.getParameter("input");
         String limit=request.getParameter("limit");
+        String fieldName=request.getParameter("fieldName");
         if(input==null)
-            input=new String("");
+            input="";
         if(limit==null)
-            limit=new String("50");
+            limit="50";
+        if(fieldName==null)
+            fieldName="Id";
     %>   
 <!--  
 <table width="800" border="1" cellspacing="0" cellpadding="0">
@@ -200,11 +203,17 @@ function MM_nbGroup(event, grpName) { //v6.0
 
                         Search by
                         <SELECT name='searchType'>
-                            <OPTION>Id
-                            <OPTION>Description
-                            <OPTION>Cluster Id
-                            <OPTION>Cluster Name
-                            <OPTION>GO Number
+                            <OPTION <%if(fieldName.equals("Id"))
+                                        out.println("selected"); %>>Id
+                            <OPTION <%if(fieldName.equals("Description"))
+                                        out.println("selected"); %>>Description
+                            <OPTION <%if(fieldName.equals("Cluster Id"))
+                                        out.println("selected"); %>>Cluster Id
+                            <OPTION <%if(fieldName.equals("Cluster Name"))
+                                        out.println("selected"); %>>Cluster Name
+                            <OPTION <%if(fieldName.equals("GO Number"))
+                                        out.println("selected"); %>>GO Number
+
                         </SELECT>
 <!--
                        <INPUT type=radio name="searchType" value="k" CHECKED>

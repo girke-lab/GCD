@@ -59,7 +59,6 @@ public class SequenceServlet extends HttpServlet
         out.println("<title>Servlet</title>");
         Common.javaScript(out);
         out.println("</head>");
-        out.println("<BODY bgcolor=\"#FFFFFF\" text=\"#000000\" link=\"#000000\" vlink=\"#000000\" alink=\"#000000\">");
         Common.printHeader(out);
         Common.navLinks(out);
         Common.printForm(out,hid);
@@ -155,10 +154,7 @@ public class SequenceServlet extends HttpServlet
     }       
     private void printFasta(PrintWriter out,List rs,int currentDB,int[] currentFeildNums,int length,int format)
     {
-        /* The rs List is a two dimensional array which contains the id fields first, then the description, and then
-                 * the selected fields.  However, rice has 2 id's, and arab has only one, so we must find out
-                 * what the proper offset is to the selected fields.  This is done with the start variable.
-                 */
+        
         StringBuffer fastaOutput=new StringBuffer();//gets send to blast script
         StringBuffer record=new StringBuffer(); //these get sent to screen
         StringBuffer standard=new StringBuffer();
@@ -205,7 +201,10 @@ public class SequenceServlet extends HttpServlet
                         index++;
                         continue;                                        
                     }
-                    record.append("&gt "+key+" "+key2+" "+desc+": "+printNames[currentFeildNums[index]]+"\n");
+                    if(key2.startsWith(key))
+                        record.append(">"+key2+" "+desc+": "+printNames[currentFeildNums[index]]+"\n");
+                    else
+                        record.append(">"+key2+" "+key+" "+desc+": "+printNames[currentFeildNums[index]]+"\n");
                     
                     if(currentFeildNums[index]==4){ //deal with the promoter
                         if(data.length() > 3000) //only trim if it is greater than 3000
@@ -331,8 +330,8 @@ public class SequenceServlet extends HttpServlet
         
         //colors for each feilds for printing on web page
         colors=new String[fieldCount];
-        colors[0]="29F599";colors[1]="29F599";colors[2]="29F599";colors[3]="26F5CC";colors[4]="26F5CC";
-        colors[5]="26F5CC";colors[6]="26F5CC";colors[7]="26F5CC";colors[8]="26F5CC";colors[9]="26F5CC";
+        colors[0]="AAAAAA";colors[1]="AAAAAA";colors[2]="AAAAAA";colors[3]="D3D3D3";colors[4]="D3D3D3";
+        colors[5]="D3D3D3";colors[6]="D3D3D3";colors[7]="D3D3D3";colors[8]="D3D3D3";colors[9]="D3D3D3";
         //names for databases
         dbPrintNames=new String[dbCount];
         dbPrintNames[0]="Arabidopsis"; dbPrintNames[1]="Rice";
