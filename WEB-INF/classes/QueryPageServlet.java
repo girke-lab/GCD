@@ -120,17 +120,6 @@ public class QueryPageServlet extends HttpServlet
             s=getSearchObj(searchType);
             s.init(inputKeys,limit, dbNums[i]);
             returnedKeys=s.getResults();
-//            
-//            if(searchType.charAt(0)=='d') //descritption search
-//                returnedKeys=searchByDescription(inputKeys,limit,dbNums[i]);
-//            else if(searchType.charAt(0)=='c')
-//                returnedKeys=searchByClusterNum(inputKeys,limit,dbNums[i]);
-//            else 
-//            {
-//                returnedKeys=searchByKey(inputKeys,limit,dbNums[i]);
-//                //TODO: fix findMismatches
-//                //keysNotFound=findMismatches(inputKeys, main,dbNums[i]);
-//            }
             
              //these should be Seq_id numbers, not accession numbers.
             qi.addKeySet(returnedKeys);
@@ -151,20 +140,20 @@ public class QueryPageServlet extends HttpServlet
     }
     
     private Search getSearchObj(String type)
-    {
-        Search s=null;
-        if(type=="Description")
+    {        
+        System.out.println("Search type="+type);
+        if(type.equals("Description"))
             return new DescriptionSearch();
-        else if(type=="Id")
+        else if(type.equals("Id"))
             return new IdSearch();
-        else if(type=="Cluster Id")
+        else if(type.equals("Cluster Id"))
             return new ClusterIDSearch();
-        else if(type=="Cluster Name")
+        else if(type.equals("Cluster Name"))
             return new ClusterNameSearch();
-        else if(type=="Go Number")
+        else if(type.equals("GO Number"))
             return new GoSearch();
         else
-            return null;   
+            return new IdSearch();   //default to id search
     }
     private List getKeysReturned(List data)
     {
@@ -173,74 +162,9 @@ public class QueryPageServlet extends HttpServlet
             keys.add( ((ArrayList)i.next()).get(2));//get key from data  //use 2 for now, but we will need to change this later
         return keys;
     }
-    private List searchByDescription(List input,int limit,int db)
-    {
-        ListIterator in=input.listIterator();
-        StringBuffer conditions=new StringBuffer();
-        List rs;
-        int wasOp=1;
-       
-        while(in.hasNext())
-        { //create conditions string
-            String temp=(String)in.next();//use temp becuase sucsesive calls to nextToken
-                                                    //advace the pointer
-            if(temp.compareToIgnoreCase("and")!=0 && temp.compareToIgnoreCase("or")!=0 
-                    && temp.compareToIgnoreCase("not")!=0 && temp.compareTo("(")!=0
-                    && temp.compareTo(")")!=0)
-            //no keywords or parinths
-            {
-                if(wasOp==0)//last token was not an operator, but we must have an operator between every word
-                    conditions.append(" and ");
-                conditions.append(regExpression(temp,db));
-                wasOp=0;
-            }
-            else //must be a keyword or a parinth
-            {
-                conditions.append(" "+temp+" ");    
-                wasOp=1;
-            }    
-        }
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db),1);
-        ArrayList al=new ArrayList();
-        for(Iterator i=rs.iterator();i.hasNext();)        
-            al.add(((ArrayList)i.next()).get(0));
-        return al;
-    }
-    private List searchByKey(List input,int limit,int db)
-    {//takes a string of keys to search for, and the fields to return        
-        //returns a list of data from database
-        ListIterator in=input.listIterator();
-        StringBuffer conditions=new StringBuffer();
-        List rs=null;
-        int count=0;
-
-        while(in.hasNext() && count++ < limit) //build condtions
-            conditions.append(likeExpression((String)in.next(),db));
-        conditions.append(" 0=1 ");                 
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db),1);
-
-        ArrayList al=new ArrayList();
-        for(Iterator i=rs.iterator();i.hasNext();)        
-            al.add(((ArrayList)i.next()).get(0));
-        return al;
-    }
-    private List searchByClusterNum(List input, int limit, int db)
-    {
-        ListIterator in=input.listIterator();
-        StringBuffer conditions=new StringBuffer();
-        List rs=null;
-        int count=0;
-        
-        while(in.hasNext() && count++< limit)
-            conditions.append(clusterExpression((String)in.next()));
-        conditions.append("0=1");
-        rs=Common.sendQuery(buildClusterStatement(conditions.toString(),limit,db),1);
-        
-        ArrayList al=new ArrayList();
-        for(Iterator i=rs.iterator();i.hasNext();)
-            al.add(((ArrayList)i.next()).get(0));
-        return al;
-    }
+   
+   
+   
     private HashMap findGoNumbers(List data)
     {//query the go numbers from the GO table and organize them in a hashMap.
         StringBuffer conditions=new StringBuffer();
@@ -343,7 +267,6 @@ public class QueryPageServlet extends HttpServlet
     private void printLinks(PrintWriter out,String key,String clusterNum,int hid,int currentDB,String size,String Seq_id,HashMap goNumbers)
     {//size is cluster size
          String db=null;
-         System.out.println("currentDB="+currentDB);
     	 if(currentDB==arab)
              db="ath1";
          else if(currentDB==rice)
@@ -451,56 +374,9 @@ public class QueryPageServlet extends HttpServlet
     }            
     ////////////////////////////  Query stuff    ////////////////////////////////////////////////
     
-/*    
-    private String buildDescStatement(String conditions,int currentDB)
-    {//this should no longer be used
-        String desc=null;
-        desc=new String("SELECT "+fullNames[0]+" FROM Id_Associations LEFT JOIN "+
-                        "Sequences USING(Seq_id)  WHERE ");
-        
-        if(currentDB==arab)
-            desc+=" Genome='arab' and ";
-        else if(currentDB==rice)
-            desc+=" Genome='rice' and ";
-        desc+=conditions;
-       
-//        if(currentDB==arab)  //select TIGR_Data.Atnum from TIGR_Data where ...
-//            desc=new String("SELECT TIGR_Data.Atnum FROM TIGR_Data WHERE "+ conditions);
-//        else if(currentDB==rice)
-//            desc=new String("SELECT Rice.Rice_Data.Id1  FROM Rice.Rice_Data WHERE "+ conditions);
-//        else
-//            System.err.println("invalid DB name in buildDescStatement");
-//        
-        System.out.println("description query: "+desc);
-        return desc;      
-    }
-*/
-    private String buildIdStatement(String conditions, int limit,int currentDB)
-    {
-        String id="SELECT DISTINCT Sequences.Seq_id from Sequences LEFT JOIN Id_Associations USING(Seq_id) "+
-                  "WHERE ";
-        if(currentDB==arab)
-            id+=" Genome='arab' and ";
-        else if(currentDB==rice)
-            id+=" Genome='rice' and ";
-        id+="("+conditions+")";
-        id+=" limit "+limit;
-        System.out.println("id query: "+id);   
-        return id;
-    }
-    private String buildClusterStatement(String conditions, int limit, int currentDB)
-    {
-        String q="SELECT Sequences.Seq_id from Sequences LEFT JOIN Clusters USING(Seq_id) "+
-                 "WHERE ";
-        if(currentDB==arab)
-            q+=" Genome='arab' and ";
-        else if(currentDB==rice)
-            q+=" Genome='rice' and ";
-        q+="("+conditions+")";
-        System.out.println("cluster query is:"+q);
-        
-        return q;
-    }
+
+  
+   
     private String buildKeyStatement(String conditions,int limit, int currentDB)
     {
         StringBuffer general=new StringBuffer();
@@ -534,54 +410,17 @@ public class QueryPageServlet extends HttpServlet
     {
         return "SELECT Seq_id, Go from Go WHERE "+conditions +" ORDER BY Seq_id";
     }
-    private String clusterExpression(String id)
-    {
-        return "Clusters.Cluster_id="+id+" OR ";
-    }
+   
     private String Seq_idExpression(String id)
     {
         return "Sequences.Seq_id="+id+" OR ";
-    }
-    private String regExpression(String key,int currentDB)
-    {
-        return " ( "+fullNames[1]+" REGEXP \""+key+"\") ";
-        /*
-        if(currentDB==arab) //TIGR_Data.Description REGEXP ...
-            return " ( TIGR_Data.Description REGEXP \""+key+"\") ";
-        else if(currentDB==rice)
-            return " ( Rice.Rice_Data.Description REGEXP \""+key+"\") ";
-        else
-            System.err.println("invalid DB name in regExpression");
-        return null;
-         */
-    }
-    private String likeExpression(String key,int currentDB)
-    {
-        String exp=null;
-        exp=new String(fullNames[0]+" LIKE '"+key+"' OR ");
-        /*
-        if(currentDB==arab)  //TIGR_Data.Atnum
-            exp=new String("TIGR_Data.Atnum LIKE '"+key+"%' OR ");
-        else if(currentDB==rice)
-            exp=new String("Rice.Rice_Data.Id1 LIKE '"+key+"%' OR "+
-                           "Rice.Rice_Data.Id2 LIKE '"+key+"%' OR ");
-        else
-            System.err.println("invalid DB name in likeExpression");
-         */
-        return exp;         
-    }
-    
+    }       
+   
     private void defineNames()
     {
         //assign names for later lookup
         fullNames=new String[feildCount];
-        //names for old database setup
-//        fullNames[0]="TIGR_Data.Atnum";fullNames[1]="TIGR_Data.Description";fullNames[2]="TIGR_Data.Promoter";
-//        fullNames[3]="TIGR_Data.TU";fullNames[4]="TIGR_Data.5UTR";fullNames[5]="Rice.Rice_Data.Intergenic";
-//        fullNames[6]="TIGR_Data.ORF";fullNames[7]="Rice.Rice_Data.Promoter";fullNames[8]="TIGR_Data.3UTR";
-//        fullNames[9]="TIGR_Data.Protein";fullNames[10]="Rice.Rice_Data.Id1";fullNames[11]="Rice.Rice_Data.Id2";
-//        fullNames[12]="Rice.Rice_Data.Description";fullNames[13]="Rice.Rice_Data.Protein";fullNames[14]="Rice.Rice_Data.CDS";
-//        fullNames[15]="TIGR_Data.Intergenic";fullNames[16]="Rice.Rice_Data.TU";
+ 
         fullNames[0]="Id_Associations.Accession";fullNames[1]="Sequences.Description";fullNames[2]="Sequences.Intergenic";
         fullNames[3]="Models.TU";fullNames[4]="Models.5UTR";fullNames[5]="Sequences.Intergenic";
         fullNames[6]="Models.CDS";fullNames[7]="Sequences.Intergenic";fullNames[8]="Models.3UTR";
