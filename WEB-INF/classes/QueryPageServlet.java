@@ -115,15 +115,21 @@ public class QueryPageServlet extends HttpServlet
         {
             out.println("<P><H3 align='center'>"+dbPrintNames[dbNums[i]]+" search results:</H3>");
             if(searchType.charAt(0)=='d') //descritption search
-                actualKeys=searchByDescription(inputKeys,limit,dbNums[i]);
-            main=searchByKey(actualKeys,limit,dbNums[i]);
-
+                main=searchByDescription(inputKeys,limit,dbNums[i]);
+            else 
+            {
+                main=searchByKey(inputKeys,limit,dbNums[i]);
+                keysNotFound=findMismatches(inputKeys, main,dbNums[i]);
+            }
+            Common.printList(out,main);
             returnedKeys=getKeysReturned(main); //gets the actual keys returned by the DB
+             //these shoule be Seq_id numbers, not accession numbers.
             qi.addKeySet(returnedKeys);
-            keysNotFound=findMismatches(actualKeys, main,dbNums[i]);
+            
             Common.blastLinks(out,dbNums[i],hid);
             printSummary(out,main,dbNums[i],hid);
-            printMismatches(out,keysNotFound);
+            if(keysNotFound!=null)
+                printMismatches(out,keysNotFound);
         }
         out.println("</body>");
         out.println("</html>");
@@ -135,7 +141,7 @@ public class QueryPageServlet extends HttpServlet
     {
         List keys=new ArrayList();
         for(Iterator i=data.iterator();i.hasNext();)
-            keys.add( ((ArrayList)i.next()).get(0));//get key from data
+            keys.add( ((ArrayList)i.next()).get(2));//get key from data  //use 2 for now, but we will need to change this later
         return keys;
     }
     private List searchByDescription(List input,int limit,int db)
@@ -166,10 +172,10 @@ public class QueryPageServlet extends HttpServlet
             }    
         }
         
-        conditions.append(" limit "+limit);//set max number of records to return
-        rs=Common.sendQuery(buildDescStatement(conditions.toString(),db),1);
-        for(int i=0;i<rs.size();i++)  //restructure rs from an  array of array of keys                                    
-            rs.set(i,(String)((ArrayList)rs.get(i)).get(0));//to just an array of keys.
+//        conditions.append(" limit "+limit);//set max number of records to return
+        rs=Common.sendQuery(buildKeyStatement(conditions.toString(),limit,db),3);
+//        for(int i=0;i<rs.size();i++)  //restructure rs from an  array of array of keys                                    
+//            rs.set(i,(String)((ArrayList)rs.get(i)).get(0));//to just an array of keys.
         return rs;
     }
     private List searchByKey(List input,int limit,int db)
@@ -324,7 +330,7 @@ public class QueryPageServlet extends HttpServlet
     
     
     private String buildDescStatement(String conditions,int currentDB)
-    {
+    {//this should no longer be used
         String desc=null;
         desc=new String("SELECT "+fullNames[0]+" FROM Id_Associations LEFT JOIN "+
                         "Sequences USING(Seq_id) WHERE ");
@@ -348,8 +354,8 @@ public class QueryPageServlet extends HttpServlet
     private String buildKeyStatement(String conditions,int limit, int currentDB)
     {
         StringBuffer general=new StringBuffer();
-                                //Accession                     //description
-        general.append("SELECT "+fullNames[0]+", "+fullNames[1]+",Sequences.Seq_id FROM Id_Associations LEFT JOIN "+
+                                //Accession                               //description
+        general.append("SELECT Sequences.Primary_Key, "+fullNames[1]+",Sequences.Seq_id FROM Id_Associations LEFT JOIN "+
                         "Sequences USING(Seq_id) WHERE ");
         
         if(currentDB==arab)

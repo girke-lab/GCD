@@ -102,7 +102,7 @@ public class SequenceServlet extends HttpServlet
         {
             System.out.println("i="+i);
             out.println("<P><H3 align='center'>"+dbPrintNames[qi.dbNums[i]]+" search results:</H3>");
-            keySet=qi.getKeySet(i);
+            keySet=qi.getKeySet(i); //keySet will be a list of Seq_id numbers, not Accession numbers
 //            keySet=(ArrayList)keys.get(i);
             main=searchByKey(keySet,qi.limit,qi.dbNums[i],fieldNums,fieldsLength);
             Common.blastLinks(out,qi.dbNums[i],hid);
@@ -128,14 +128,16 @@ public class SequenceServlet extends HttpServlet
         int fieldCount=2; //we add id and description, and maybe Id2
         int count=0; //used to limit number of keys actually sent to database
         
+        currentDB=0;//we no longer need to distiguish between databases, so just use 0
+        
         //always add the key field, then, if we have the rice DB, add the second key field
         //then append the description field
         feildCombo.append(fullNames[currentDB][0]);
-        if(currentDB==rice)
-        {
-            feildCombo.append(", "+fullNames[currentDB][1]);
-            fieldCount++;
-        }
+//        if(currentDB==rice)
+//        {
+//            feildCombo.append(", "+fullNames[currentDB][1]);
+//            fieldCount++;
+//        }
         feildCombo.append(", "+fullNames[currentDB][2]);
         for(int i=0;i<fieldsLength;i++)
             if(fullNames[currentDB][fields[i]].length()!=0)
@@ -263,7 +265,7 @@ public class SequenceServlet extends HttpServlet
     private String likeExpression(String key,int currentDB)
     {
         String exp=null;
-        exp=new String(fullNames[0][0]+" LIKE '"+key+"%' OR ");
+        exp=new String("Sequences.Seq_id ='"+key+"' OR ");
         /*
         if(currentDB==arab)  //TIGR_Data.Atnum
             exp=new String("TIGR_Data.Atnum LIKE '"+key+"%' OR ");
