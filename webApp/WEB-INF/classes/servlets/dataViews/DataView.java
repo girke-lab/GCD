@@ -19,4 +19,5 @@ public interface DataView
      *the data.
      */
     void printData(java.io.PrintWriter out);
-}
+    void printHeader(java.io.PrintWriter out);
+} 

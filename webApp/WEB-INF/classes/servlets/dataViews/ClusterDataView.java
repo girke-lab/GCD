@@ -28,25 +28,33 @@ public class ClusterDataView implements DataView
                       SIZE_COL=4;
     private final int PFAM=0,BLAST=1;
     
-    /** Creates a new instance of ClusterDataView */
+    /** Creates a new instance of ClusterDataView       */
     public ClusterDataView() {
     }
+
     
+    public void printHeader(java.io.PrintWriter out) 
+    {
+    }
     public void printData(java.io.PrintWriter out) 
     {
         List data=getData(seq_ids, sortCol, limit, dbNums);
+        printCounts(out,data);
         printSummary(out,data,dbNums,hid);
     }
     
     public void setData(java.util.List ids, String sortCol, int limit, int[] dbList, int hid) 
-    {
+    {//this class expexts cluster_id numbers as input
         this.seq_ids=ids;
         this.limit=limit;
         this.sortCol=sortCol;
         this.hid=hid;
         this.dbNums=dbList;
     }
-    
+    private void printCounts(PrintWriter out,List data)
+    {
+        out.println("clusters found: "+data.size()+"<br>");
+    }
     private void printSummary(PrintWriter out, List data, int[] dbNums, int hid)
     {
         String titleColor="AAAAAA", dataColor="D3D3D3";
@@ -55,7 +63,7 @@ public class ClusterDataView implements DataView
         for(Iterator i=data.iterator();i.hasNext();)
         {
             List row=(List)i.next();
-            System.out.println(row);
+            //System.out.println(row);
             
             clusterType=((String)row.get(CLUSTER_ID_COL)).startsWith("PF")? PFAM:BLAST;
                         
@@ -80,7 +88,7 @@ public class ClusterDataView implements DataView
                 out.println("<TD>"+row.get(CLUSTER_ID_COL)+"</TD>");
             out.println("<TD colspan='6'>"+row.get(CLUSTER_NAME_COL)+"</TD>");
             out.println("</TR>");
-            out.println("<TR bgcolor='"+titleColor+"'><TH>Method</TH><TH>Total Size</TH>" +
+            out.println("<TR bgcolor='"+titleColor+"'><TH>Method</TH><TH nowrap>Total Size</TH>" +
                         "<TH nowrap>Arabidopsis Count</TH><TH nowrap>Rice Count</TH><TH>Memebers</TH>" +
                         "<TH>Alignment</TH><TH>Tree</TH></TR>");
             out.println("<TR>");
@@ -117,7 +125,7 @@ public class ClusterDataView implements DataView
         List rs=null;
         int count=0;
 
-        conditions.append("clusters.seq_id in (");
+        conditions.append("cluster_info.cluster_id in (");
         for(Iterator it=input.iterator();it.hasNext() && count++ < limit;)
         {
             conditions.append((String)it.next());
@@ -138,13 +146,13 @@ public class ClusterDataView implements DataView
 //                "WHERE ci.cluster_id=c.cluster_id AND c.seq_id=s.seq_id ");
   
         query.append("SELECT DISTINCT filename, name,arab_count,rice_count,size " +
-            "FROM cluster_info,clusters " +
-            "WHERE clusters.cluster_id=cluster_info.cluster_id ");
-        query.append(" AND ("+conditions+" )");
+            "FROM cluster_info " +
+            "WHERE ");
+        query.append(" ("+conditions+" )");
                 
         query.append("ORDER BY "+order);
         //query.append(" LIMIT "+limit);
         System.out.println("cluster view query: "+query);
         return query.toString();        
-    }
+    }          
 }

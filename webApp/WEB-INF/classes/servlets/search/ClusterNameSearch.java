@@ -57,7 +57,7 @@ public class ClusterNameSearch implements Search {
                 wasOp=1;
             }    
         }
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db),1);
+        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
         ArrayList al=new ArrayList();
         for(Iterator i=rs.iterator();i.hasNext();)        
             al.add(((ArrayList)i.next()).get(0));

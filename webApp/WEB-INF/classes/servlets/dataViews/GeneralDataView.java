@@ -27,6 +27,9 @@ public class GeneralDataView implements DataView
     /** Creates a new instance of GeneralDataView */
     public GeneralDataView() {    
     }
+    public void printHeader(java.io.PrintWriter out) {
+        Common.printForm(out,hid); 
+    }
     
     public void printData(java.io.PrintWriter out) {
         List data=getData(seq_ids, sortCol,limit,dbNums);
@@ -372,6 +375,7 @@ public class GeneralDataView implements DataView
         return "SELECT DISTINCT Seq_id, Cluster_Info.filename,size,name FROM Clusters,cluster_info WHERE "+
             "Clusters.cluster_id=Cluster_Info.Cluster_id AND "+conditions;
     }
+    
     
     class ClusterSet {
         public String clusterNum, size,name;

@@ -47,7 +47,7 @@ public class ClusterIDSearch implements Search {
         }
         conditions.append(")");
         
-        rs=Common.sendQuery(buildClusterStatement(conditions.toString(),limit,db),2);
+        rs=Common.sendQuery(buildClusterStatement(conditions.toString(),limit,db));
         
         ArrayList al=new ArrayList();
         ArrayList t;

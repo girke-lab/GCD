@@ -39,11 +39,11 @@ public class Common {
 //        {//then connect
         Connection conn;
             try{
-                String url="jdbc:postgresql://138.23.191.152/common";
-                Class.forName("org.postgresql.Driver").newInstance();
+                //String url="jdbc:postgresql://138.23.191.152/common";
+                //Class.forName("org.postgresql.Driver").newInstance();
 
-                //String url="jdbc:mysql://138.23.191.152/common_test";
-                //Class.forName("org.gjt.mm.mysql.Driver").newInstance();
+                String url="jdbc:mysql://138.23.191.152/common_test";
+                Class.forName("org.gjt.mm.mysql.Driver").newInstance();
                 conn=DriverManager.getConnection(url,"servlet","512256");
             }catch(SQLException e){
                 System.out.println("could not coneect to database: "+e.getMessage());
@@ -117,7 +117,7 @@ public class Common {
     }
     public static void printForm(PrintWriter out,int hid)
     {
-        out.println("<FORM method=post name='form1'>\n"+
+        out.println("\n<FORM method=post name='form1' action='SequenceServlet'>\n"+
             "<INPUT type=hidden name='hid' value='"+hid+"'>"+
             "<TABLE align='center' border='0'>\n"+
             "\t<TR>\n"+
@@ -136,14 +136,14 @@ public class Common {
             "</TR></TABLE>\n"+ 
             "<TABLE align='center' border='0'>\n"+
             "\t<TR>\n"+
-            "\t\t<TD><INPUT type=submit value='Sequence Data' onClick='getSequences();'>\n"+
+            "\t\t<TD><INPUT type=submit value='Sequence Data' >\n"+
             //"\t\t<TD><INPUT type=submit value='Annotation Data' onClick='getDetails();'>\n"+
             "\t</TR>\n"+            
             "</TABLE>\n"+
             "</FORM>\n");
     }
     public static void javaScript(PrintWriter out)
-    {
+    { //no longer needed
         out.println("<script language='JavaScript' type='text/JavaScript'>\n"+
             "<!--\n"+
             "function getSequences()\n{\n"+

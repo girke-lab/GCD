@@ -55,6 +55,7 @@ public class QueryPageServlet extends HttpServlet
         String searchType=request.getParameter("searchType");
         String[] dbTemp=request.getParameterValues("dbs"); //list of databases to use
         String sortCol=request.getParameter("sortCol");
+        String displayType=request.getParameter("displayType");
 
         try{//test limit
             limit=Integer.parseInt(request.getParameter("limit"));
@@ -99,16 +100,11 @@ public class QueryPageServlet extends HttpServlet
         ////////////////////////// HTML headers  ////////////////////////////////////////////
         out.println("<html>");
         out.println("<head>");
-        out.println("<title>Servlet</title>");
-        Common.javaScript(out);
+        out.println("<title>Query Result Page</title>");
         out.println("</head>");      
         Common.printHeader(out);
-        Common.navLinks(out);
-        Common.printForm(out,hid);
         /////////////////////////// main   ////////////////////////////////////////////////////
-        List main;
         List returnedKeys;
-        HashMap goNumbers=null,clusterNumbers=null;
         Search s=null;
         DataView dv=null;
             
@@ -118,37 +114,39 @@ public class QueryPageServlet extends HttpServlet
         returnedKeys=s.getResults();
         qi.addKeySet(returnedKeys); //store this key set in the session variable    
         
-        dv=getDataView(sortCol);
-        //dv=new SeqDataView();
+        dv=getDataView(displayType,sortCol);
+
         dv.setData(returnedKeys, sortCol,limit, dbNums,hid);
+        dv.printHeader(out);
         printMismatches(out, s.notFound());
         out.println("Keys entered: "+inputKeys.size()+"<br>");
         dv.printData(out);
         
-/*         
-        goNumbers=findGoNumbers(returnedKeys);
-        clusterNumbers=findClusterNumbers(returnedKeys);
-
-        main=getData(returnedKeys,sortCol,limit,dbNums);
-        //Common.blastLinks(out,dbNums[i],hid);
-        printCounts(out,inputKeys.size(), main);
-        printMismatches(out,s.notFound());
-        printSummary(out,main,goNumbers,clusterNumbers,dbNums,hid);
-*/
         out.println("</body>");
         out.println("</html>");
 
         out.close();
         /////////////////////////////////  end of main  ////////////////////////////////////////////
     }
-    private DataView getDataView(String sortCol)
+    private DataView getDataView(String displayType,String sortCol)
     {        
-        if(sortCol==null || sortCol.startsWith("sequences"))
-            return new SeqDataView();
-        else if(sortCol.startsWith("cluster_info"))
-            return new ClusterDataView();
-        else
-            return new SeqDataView();        
+        System.out.println("display type="+displayType);
+        System.out.println("sortCol="+sortCol);
+        if(displayType!=null)
+        {
+            if(displayType.equals("clusterView"))
+                return new ClusterDataView();
+            else if(displayType.equals("seqView"))
+                return new SeqDataView();
+        }
+        else if(sortCol!=null)
+        {
+            if(sortCol.startsWith("sequences"))
+                return new SeqDataView();
+            else if(sortCol.startsWith("cluster_info"))
+                return new ClusterDataView();
+        }
+        return new SeqDataView();        
     }
     private Search getSearchObj(String type) 
     {        

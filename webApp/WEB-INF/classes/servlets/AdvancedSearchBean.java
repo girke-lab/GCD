@@ -190,7 +190,10 @@ public class AdvancedSearchBean {
             return;
         }
         StringBuffer query=new StringBuffer();
-        query.append("SELECT DISTINCT sequences.seq_id ");
+        if(fields[sortField].dbName.startsWith("cluster_info"))
+            query.append("SELECT DISTINCT cluster_info.cluster_id ");
+        else
+            query.append("SELECT DISTINCT sequences.seq_id ");
         query.append("FROM sequences , cluster_info, clusters , go ");
         query.append("WHERE sequences.seq_id=clusters.seq_id " +
                      "AND clusters.cluster_id=cluster_info.cluster_id "+
@@ -250,10 +253,16 @@ public class AdvancedSearchBean {
         mRequest.getParameterMap().put("searchType","seq_id");
         mRequest.getParameterMap().put("limit", limit);
         mRequest.getParameterMap().put("sortCol",fields[sortField].dbName);        
+                
+        if(fields[sortField].dbName.startsWith("cluster_info"))
+            mRequest.getParameterMap().put("displayType","clusterView");
+        else
+            mRequest.getParameterMap().put("displayType","seqView");
         
-        StringBuffer inputStr=new StringBuffer();        
+        StringBuffer inputStr=new StringBuffer();      
         for(Iterator i=results.iterator();i.hasNext();)
-            inputStr.append(((List)i.next()).get(0)+" ");
+            inputStr.append(((List)i.next()).get(0)+" ");       
+
         mRequest.getParameterMap().put("inputKey",inputStr.toString());
         
         try{

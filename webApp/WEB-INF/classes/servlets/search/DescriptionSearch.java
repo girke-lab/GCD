@@ -49,7 +49,7 @@ public class DescriptionSearch implements Search
             {
                 if(wasOp==0)//last token was not an operator, but we must have an operator between every word
                     conditions.append(" and ");
-                conditions.append(" ( Sequences.Description ILIKE '%"+temp+"%') ");
+                conditions.append(" ( Sequences.Description LIKE '%"+temp+"%') ");
                 wasOp=0;
             }
             else //must be a keyword or a parinth
@@ -58,7 +58,7 @@ public class DescriptionSearch implements Search
                 wasOp=1;
             }    
         }
-        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db),1);
+        rs=Common.sendQuery(buildIdStatement(conditions.toString(),limit,db));
         ArrayList al=new ArrayList();
         for(Iterator i=rs.iterator();i.hasNext();)        
             al.add(((ArrayList)i.next()).get(0));
