@@ -106,7 +106,7 @@ public class DefaultQueryWideView implements QueryWideView
     }    
    
     /**
-     * this method is empty
+     * this method is empty.     
      * @param out for output
      * @param search data source
      * @param position page position

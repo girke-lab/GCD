@@ -120,7 +120,7 @@ public class DbConnection
         password=pass;
         connectionURI=connectURI;
         //log.setLevel(org.apache.log4j.Level.WARN);
-        log.setLevel(org.apache.log4j.Level.DEBUG);
+        //log.setLevel(org.apache.log4j.Level.DEBUG);
         
         if(dataSource!=null)
             return;
@@ -203,7 +203,7 @@ public class DbConnection
     }    
     private List sendQuery(String q,int retryCount,SQLException origEx) throws SQLException 
     {
-        log.debug("retryCount="+retryCount);
+        log.warn("retryCount="+retryCount);
         if(retryCount >= MAX_RETRIES)
             throw origEx;            
         long startTime=0;        
@@ -237,6 +237,7 @@ public class DbConnection
             log.error("sql state:  "+e.getSQLState());
             log.error("embedded error: "+e.getNextException());
             log.error("conn.isClosed() ? "+conn.isClosed());
+            log.error("query: "+q);
             
 //            if(e.getMessage().indexOf("java.net.SocketException")!=-1) //found a socket exception
 //            {// reconnect pool

@@ -103,7 +103,7 @@ public class TextRecordVisitor implements RecordVisitor
     }
     public void printRecord(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
-        out.write(cr.size+"\\"+cr.cutoff+"\\");
+        out.write(cr.size+"\\"+cr.method+"\\");
     }                  
     public void printFooter(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {

@@ -132,10 +132,10 @@ public class UnknownRecord implements Record
         log.debug("got data for all sub records");
         
         //load the unknown records
-        if(!sortCol.startsWith("unknowns.unknown_keys."))
-            sortCol="key";
-        String query="SELECT 1, unknown_data.accession_id, a.accession, a.description " +
-                "               unknown_data.est_count, unknown_data.mfu, unknown_data.ccu " +
+        if(!sortCol.startsWith("unknowns.unknown_data."))
+            sortCol="accession";
+        String query="SELECT 1, unknown_data.accession_id, a.accession, a.description, " +
+                "               unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, " +
                 "               unknown_data.bpu "+
                 "   FROM unknowns.unknown_data JOIN general.accessions as a USING(accession_id) "+
                 "   WHERE "+Common.buildIdListCondition("accession_id",ids)+

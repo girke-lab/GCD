@@ -20,6 +20,11 @@ import servlets.advancedSearch.queryTree.*;
 import org.apache.log4j.Logger;
 
 
+/**
+ * This class traverses an AST and prints out the HTML required to
+ * display the search page.  It also tries to be somewhat intelligent
+ * abount not printing a million parinthasies.  
+ */
 public class HtmlVisitor implements QueryTreeVisitor
 {
      private static Logger log=Logger.getLogger(HtmlVisitor.class);
@@ -30,7 +35,11 @@ public class HtmlVisitor implements QueryTreeVisitor
      private int lastFieldUsedIndex,depth,fieldId,startParIndx,endParIndx;
      private boolean wasJoinExpression,printParinths,hasSubAdd;
      
-    /** Creates a new instance of HtmlVisitor */
+    /**
+     * Creates a new instance of HtmlVisitor
+     * @param out output stream
+     * @param db SearchableDatabase to get field info from
+     */
     public HtmlVisitor(PrintWriter out,SearchableDatabase db)
     {
         this.out=out;
@@ -38,6 +47,12 @@ public class HtmlVisitor implements QueryTreeVisitor
         printParinths=true;
         hasSubAdd=false;
     }
+    /**
+     * Takes a list of database names to display on webpage, sets the 
+     * currently selected one. 
+     * @param dbs list of db names
+     * @param db name of selected db.
+     */
     public void setDatabases(String dbs[],String db)
     {
         if(dbs.length > 1)
@@ -199,6 +214,11 @@ public class HtmlVisitor implements QueryTreeVisitor
         out.println("</td>");
     }
 
+    /**
+     * This method is the entry point of this visitor. Calling
+     * it with a valid Query object will result in HTML being printed
+     * to the output stream given in the constructor.
+     */
     public void visit(servlets.advancedSearch.queryTree.Query n)
     {
         //log.debug("rendering tree: "+n);

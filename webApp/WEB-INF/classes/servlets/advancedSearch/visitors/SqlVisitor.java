@@ -16,6 +16,11 @@ import servlets.advancedSearch.queryTree.*;
 import servlets.Common;
 import org.apache.log4j.Logger;
 
+/**
+ * This class generates sql strings from Query objects.  The
+ * visit methods should not be called directly,  despite the fact 
+ * that they are public.  
+ */
 public class SqlVisitor implements QueryTreeVisitor
 {
     private static Logger log=Logger.getLogger(SqlVisitor.class);
@@ -29,10 +34,22 @@ public class SqlVisitor implements QueryTreeVisitor
         sql=new StringBuffer();
         printParinths=true;
     }
+    /**
+     * Converts a Query object into an sql string.
+     * @param q Query object
+     * @return  sql string
+     */
     public String getSql(Query q)
     {        
         return getSql(q,true);
     }
+    /**
+     * Creates an sql statement from the given Query object with the 
+     * limit tacked on.  
+     * @param q a Query object
+     * @param printLimit true if limit is desired, else false
+     * @return sql string
+     */
     public String getSql(Query q, boolean printLimit)
     {
         this.printLimit=printLimit;

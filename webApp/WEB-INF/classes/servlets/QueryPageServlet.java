@@ -15,6 +15,7 @@ import org.apache.log4j.*;
 import servlets.search.*;
 import servlets.dataViews.*;
 import servlets.dataViews.Unknowns2DataView;
+import servlets.querySets.*;
 /**
  *
  * @author  Kevin Horan
@@ -51,6 +52,8 @@ public class QueryPageServlet extends HttpServlet
         }catch(IOException e){
             log.error("could not load properites: "+e.getMessage());
         }
+        
+        initQuerySets();
     }    
     public void destroy()
     {     
@@ -91,6 +94,7 @@ public class QueryPageServlet extends HttpServlet
         DataView dv=null;
         QueryInfo qi=null;        
          
+        //log.error("this is a test error");
         //parameters that need to be evaluated for each page should be grabbed
         //here, all others should be grabbed in the getInput() method and stored in
         //a QueryInfo object.
@@ -333,6 +337,15 @@ public class QueryPageServlet extends HttpServlet
             qi.setCurrentPos(pos);
         }catch(Exception e){ }      
         
+    }
+    
+    private void initQuerySets()
+    {
+        DataViewQuerySet dvqs=new OrigDataViewQuerySet();
+        SearchQuerySet sqs=new OrigSearchQuerySet();
+        
+        QuerySetProvider.setDataViewQuerySet(dvqs);
+        QuerySetProvider.setSearchQuerySet(sqs);
     }
     ///////////////////////////////////////////////////////////////////////////////////////////
    

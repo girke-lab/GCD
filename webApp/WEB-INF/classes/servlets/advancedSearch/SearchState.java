@@ -17,7 +17,9 @@ import org.apache.log4j.Logger;
 
 /**
  * Stores all information needed to store a query. Can also be serialized for
- * persistant storage (See {@link SearchStateManager }).
+ * persistant storage (See {@link SearchStateManager }) ( but really shouldn't since
+ * it stores index numbers which will likely change, invalidateing all these SearchState
+ * objects.  See {@link SearchTreeManager} for a better solution).
  */
 public class SearchState implements java.io.Serializable
 {

@@ -111,14 +111,14 @@ public class HtmlRecordVisitor implements RecordVisitor
     
     public void printHeader(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
-        out.write("<tr bgcolor='"+Common.titleColor+"'><th>Cluster Size(Cutoff value)</th></tr>\n");
+        out.write("<tr bgcolor='"+Common.titleColor+"'><th>Cluster Size(Method)</th></tr>\n");
         out.write("<tr><td>"); //all records go in one row
     }    
     public void printRecord(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
         String page="http://138.23.191.152:8080/databaseWeb/QueryPageServlet?searchType=unknownClusterId&" +
                     "displayType=seqView&inputKey="+cr.cluster_id;
-        out.write("<a href='"+page+"'>"+cr.size+"("+cr.cutoff+")</a> &nbsp&nbsp&nbsp ");
+        out.write("<a href='"+page+"'>"+cr.size+"("+cr.method+")</a> &nbsp&nbsp&nbsp ");
         if(cr.showClusterCentricView)
         { //print the list of keys that are in this cluster
             int colNum=3;

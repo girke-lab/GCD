@@ -15,7 +15,8 @@ import org.apache.log4j.Logger;
 
 /**
  * This class is responsable for managing stored
- *queries persistantly.
+ *queries persistantly. This class should not longer be used.
+ * Use SearchTreeManager to store sql strings instead.  
  * @author  khoran
  */
 public class SearchStateManager

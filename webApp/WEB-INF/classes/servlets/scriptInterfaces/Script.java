@@ -12,9 +12,15 @@ package servlets.scriptInterfaces;
  */
 public interface Script 
 {
-  public String getContentType();
-    //takes a list of seq_id's or cluster_id's, does a query
-    //to get desired data, and sends it to the script via post.
-   public void run(java.io.OutputStream out, java.util.List ids);
+    /**
+     * returns the content type of this script.
+     */
+    public String getContentType();
+  
+    /**
+     * takes a list of seq_id's or cluster_id's, does a query
+        to get desired data, and sends it to the script via post.
+     */    
+    public void run(java.io.OutputStream out, java.util.List ids);
     
 }

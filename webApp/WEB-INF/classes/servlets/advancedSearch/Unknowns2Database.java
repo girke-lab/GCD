@@ -43,7 +43,7 @@ public class Unknowns2Database extends DefaultSearchableDatabase
    
     public Unknowns2Database()
     {        
-        super(DbConnectionManager.getConnection("khoran"),stm);
+        super(DbConnectionManager.getConnection("khoran_test"),stm);
                 
         if(dbc==null)
             try{
@@ -60,9 +60,9 @@ public class Unknowns2Database extends DefaultSearchableDatabase
     void defineOptions()
     {   
         log.debug("defining options"); 
-        rootTableName="unknowns.unknown_keys";
-        primaryKey="key_id";
-        defaultColumn="key";
+        rootTableName="general.accessions";
+        primaryKey="accession_id";
+        defaultColumn="accession";
         
         String db="unknowns.";        
         String space=" &nbsp&nbsp ";
@@ -70,9 +70,9 @@ public class Unknowns2Database extends DefaultSearchableDatabase
         //we don't need any special cases in the query building code.
         
         fields=new Field[]{
-            new Field("At key",db+"unknown_keys.key",List.class),
-            new Field("Description",db+"unknown_keys.description"),
-            new Field("Number of ests",db+"unknown_keys.est_count",Integer.class),
+            new Field("At key","general.accessions.accession_id",List.class),
+            new Field("Description","general.accessions.description"),
+            new Field("Number of ests",db+"unknown_data.est_count",Integer.class),
                         
             new Field("Blast/Pfam Searches (best per db)",""),                        
             new Field(space+"database",db+"blast_summary_view.db_name",             
@@ -91,11 +91,11 @@ public class Unknowns2Database extends DefaultSearchableDatabase
             new Field(space+"description",db+"go_view.text"),
             new Field(space+"function",db+"go_view.function",
                         new String[]{"process","component","function"}),
-            new Field(space+"Molecular function unknown?",db+"unknown_keys.mfu",  //15
+            new Field(space+"Molecular function unknown?",db+"unknown_data.mfu",  //15
                         Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field(space+"Cellular component unknown?",db+"unknown_keys.ccu",
+            new Field(space+"Cellular component unknown?",db+"unknown_data.ccu",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field(space+"Biological process unknown?",db+"unknown_keys.bpu",
+            new Field(space+"Biological process unknown?",db+"unknown_data.bpu",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
                     
                         

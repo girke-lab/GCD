@@ -24,6 +24,11 @@ import servlets.dataViews.*;
 import servlets.advancedSearch.queryTree.*;
 import servlets.advancedSearch.visitors.*;
 
+/**
+ * This class is responsable for defining the options present on the 
+ * advanced search page, and also for createing sql trees from 
+ * {@link SearchState} objects. 
+ */
 public class DefaultSearchableDatabase implements SearchableDatabase
 {
     final static int rpp=25;
@@ -43,7 +48,11 @@ public class DefaultSearchableDatabase implements SearchableDatabase
     
     private int sp,ep,index;
     
-    /** Creates a new instance of DefaultSearchableDatabase */
+    /**
+     * Creates a new instance of DefaultSearchableDatabase
+     * @param dbc connection to use.
+     * @param stm manager to use for getting stored queries
+     */
     public DefaultSearchableDatabase(DbConnection dbc,SearchTreeManager stm)
     {
         log.debug("createing new DefauleSearchableDatabase");
@@ -53,6 +62,12 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         defineOptions();
     }
     
+    /**
+     * Takes a {@link SearchState} object and generates an AST.  The classes in
+     * the queryTree package are used to build the AST. 
+     * @param state set of parameters provided by web page
+     * @return a valid sql Query object.
+     */
     public servlets.advancedSearch.queryTree.Query buildQueryTree(SearchState state)
     {
         log.debug("building query tree");
@@ -89,7 +104,22 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         return query;
     }
 
-    public void displayResults(SearchState state, javax.servlet.ServletContext context, javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response)
+    /**
+     * Uses state to create an sql string, executes it, and forwards results
+     * to {@link QueryPageServlet}. The request object send with the forward
+     * is gotten from the {@link getNewRequest()} method, wich should be
+     * overridden by subclasses to specify the parameters they want sent.  
+     *  <P>
+     *  By defualt, it will set searchType to seq_id, dataView to 
+     *  'unknowns2View', and the origi_page to 'as2.jsp'.  
+     *
+     * @param state current state of query page
+     * @param context context of jsp page
+     * @param request jsp request
+     * @param response jsp response
+     */
+    public void displayResults(SearchState state, javax.servlet.ServletContext context, 
+            javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response)
     {
         List results;
         try{
@@ -112,6 +142,15 @@ public class DefaultSearchableDatabase implements SearchableDatabase
             e.printStackTrace();
         } 
     }
+    /**
+     * Generates a new request object to be send to QueryPageServlet to display
+     * the results.  The results list contains the infomation returned by the given 
+     * query, state and request can be used to retrieve any additional data needed.
+     * @param state state of query page
+     * @param request request from jsp page
+     * @param results list of data returned by query
+     * @return a new ServletRequest object
+     */
     protected ServletRequest getNewRequest(SearchState state,HttpServletRequest request,List results)
     { //this can be overridden by sub classes to send different parameters
         NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(
@@ -137,45 +176,50 @@ public class DefaultSearchableDatabase implements SearchableDatabase
     
     
     ////////////////////////  Accessors  ///////////////////////////////////////
+    
     public String[] getBooleans()
     {
         return booleans;
     }
+    
     public String getBoolean(int i)
     {
         return booleans[i];
-    }
+    }    
     public void setBoolean(int i,String s)
     {
         booleans[i]=s;
     }
 
+    
     public Field[] getFields()
     {
         return fields;
     }
+    
     public Field getField(int i)
     {
         return fields[i];
-    }
+    }    
     public void setField(int i,Field f)
     {
         fields[i]=f;
     }
-
+    
     public String[] getOperators()
     {
         return operators;
     }
+    
     public String getOperator(int i)
     {
         return operators[i];
-    }
+    }  
     public void setOperator(int i,String op)
     {
         operators[i]=op;
     }
-
+    
     public SearchTreeManager getSearchManager()
     {
         return stm;
@@ -184,9 +228,9 @@ public class DefaultSearchableDatabase implements SearchableDatabase
 //              Tree building methods    
 /////////////////////////////////////////////////////////////////////////
     
-    /**method for building trees. 
+    /**
+     * method for building trees. 
      * Tables should be an empty set to which the from tables are added.
-     * 
      */
     private Expression buildCondition(SearchState state,Set tables)
     {
@@ -230,6 +274,12 @@ public class DefaultSearchableDatabase implements SearchableDatabase
     { 
         return new ArrayList(0);
     }
+    /**
+     * 
+     * @param state 
+     * @param tables 
+     * @return 
+     */
     private ExpressionSet buildExpression(SearchState state,Set tables)
     {
         int fieldCount=state.getSelectedFields().size();
@@ -316,6 +366,13 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         }
         return new ExpressionSet(joins,restrictedValues);
     }
+    /**
+     * 
+     * @param currentJoins 
+     * @param tableName 
+     * @param tables 
+     * @return 
+     */
     private Expression updateJoin(Expression currentJoins,String tableName,Set tables)
     {
         log.debug("updateding join, tablename="+tableName+", existing tables:"+tables);
@@ -339,6 +396,12 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         }
         return newJoins;
     }
+    /**
+     * 
+     * @param f 
+     * @param v 
+     * @return 
+     */
     private LiteralValue getLiteralValue(Field f,String v)
     {
         if(f.type==String.class)
@@ -384,9 +447,14 @@ public class DefaultSearchableDatabase implements SearchableDatabase
             log.error("unknown type: "+f.type.getName());
         return null;
     }
+    /**
+     * str should be in form '[schema.]table.column', so this function
+        cuts off the column to get the [schema qualified] table name.
+     * @param str 
+     * @return 
+     */
     private String getTableName(String str)
-    {//str should be in form '[schema.]table.column', so this function
-        //cuts off the column to get the schema qualified table name.
+    {
         log.debug("getting table name from "+str);
         int i=str.lastIndexOf('.');
         if(i==-1)
@@ -394,6 +462,11 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         return str.substring(0,i);
     }
     
+    /**
+     * Builds a valid but empty tree.  This is used for the initial
+     * display of the query page.
+     * @return 
+     */
     private Query buildInitialTree()
     {
         log.debug("building initial tree");
@@ -418,16 +491,31 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         return query;
     }
 ////////////////////////////////////////////////////////////////////////    
+    /**
+     * 
+     * @param opId 
+     * @return 
+     */
     private boolean isUnaryOp(int opId)
     {
         return opId >= unaryBoundry;
     }
     
+    /**     
+     * This method defines the available fields, operators and values ranges
+     * that will be available to the user. It should be overidden by sub classes
+     * to define thier own options.
+     */
     void defineOptions()
     {   //this should be overridden to define the fields, booleans, and operator arrays.
         
     }
     
+    /**
+     * This  class mantains a separation of expressions in the where clause 
+     * between expressions used for joining tables, and expressions used
+     * for restricting the query.  They are combined in the last step.
+     */
     class ExpressionSet
     {
         private Expression joins,restrictedValues;

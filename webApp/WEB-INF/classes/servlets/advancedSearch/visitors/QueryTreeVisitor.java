@@ -12,6 +12,10 @@ package servlets.advancedSearch.visitors;
  */
 import servlets.advancedSearch.queryTree.*;
 
+/**
+ * This is a visitor object for traversing the AST classes in 
+ * the queryTree package.  
+ */
 public interface QueryTreeVisitor
 {
     

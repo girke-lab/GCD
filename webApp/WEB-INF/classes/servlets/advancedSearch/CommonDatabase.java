@@ -19,6 +19,9 @@ import servlets.*;
 import org.apache.log4j.Logger;
 import servlets.advancedSearch.queryTree.*;
 
+/**
+ * 
+ */
 public class CommonDatabase extends DefaultSearchableDatabase
 {
 //    public Field[] fields;
@@ -29,7 +32,10 @@ public class CommonDatabase extends DefaultSearchableDatabase
 //    private static SearchStateManager ssm=new SearchStateManager("CommonDatabase.sss");
     private static SearchTreeManager stm=new SearchTreeManager("CommonDatabase.properties");
     
-    /** Creates a new instance of CommonDatabase */
+    /** Creates a new instance of CommonDatabase 
+        passes a db connection and a {@link SearchTreeManager} to 
+     *  {@link DefaultSearchableDatabase}.
+     */
     public CommonDatabase() 
     {
         super(DbConnectionManager.getConnection("common"),stm);
@@ -115,6 +121,7 @@ public class CommonDatabase extends DefaultSearchableDatabase
 //        return null;
 //    }
 
+    
     void defineOptions()
     {   
         rootTableName="sequences";
@@ -148,6 +155,7 @@ public class CommonDatabase extends DefaultSearchableDatabase
 //        return Common.sendQuery(query);
 //    }
       
+    
     public Query buildQueryTree(SearchState state)
     {
         Query q=super.buildQueryTree(state);
@@ -177,12 +185,14 @@ public class CommonDatabase extends DefaultSearchableDatabase
         return q;
         
     }
+    
     protected List additionalJoins()
     {
         List j=new ArrayList(1);
         j.add("models");
         return j;
     }
+    
     protected ServletRequest getNewRequest(SearchState state,HttpServletRequest request,List results)
     { //this can be overridden by sub classes to send different parameters
         NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(

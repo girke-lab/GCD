@@ -24,6 +24,11 @@ import servlets.*;
 import servlets.advancedSearch.queryTree.Query;
 import servlets.advancedSearch.visitors.*;
 
+/**
+ * This class is the interface between a jsp webpage, and the classes
+ * that manage queries.  It is responsable for createing a SearchState
+ * object that can be used to create an sql string.
+ */
 public class AdvancedSearchBean2
 {
     private static Logger log=Logger.getLogger(AdvancedSearchBean2.class);
@@ -57,10 +62,19 @@ public class AdvancedSearchBean2
     {
         defaultDb=db;
     }
+    /**
+     * sets wether this page will display query administration 
+     * controls
+     * @param b true to display controls, false otherwise 
+     */
     public void setPrintAmdinControls(boolean b)
     {
         printAdminControls=b;
     }
+    /**
+     * Will print generated sql on screen if set to true
+     * @param b prints sql if true, nothing if false
+     */
     public void setPrintSql(boolean b)
     {
         printSql=b;
@@ -86,10 +100,21 @@ public class AdvancedSearchBean2
         else //default to common
             setDatabase(defaultDb);
     }
+    /**
+     * Returns database currently being used
+     * @return name of database
+     */
     public String getDatabase()
     {
         return currentState.getDatabase();
     }
+    /**
+     * Should be called once per jsp page. Just stores some
+     * servlet info for later use.
+     * @param sc 
+     * @param rq 
+     * @param rs 
+     */
     public void initPage(ServletContext sc,HttpServletRequest rq,HttpServletResponse rs)
     {
         servletContext=sc;
@@ -98,6 +123,10 @@ public class AdvancedSearchBean2
         buildState(request);
         processCommands(request);
     }
+    /**
+     * This will print an error message in red.
+     * @param out the output stream to print to.
+     */
     public void printMessage(JspWriter out)
     {
         try{
@@ -106,10 +135,21 @@ public class AdvancedSearchBean2
                         message+"</font></span>");
         }catch(IOException e){}
     }
+    /**
+     * This will draw the entire search form.
+     * @param out stream to print to.
+     */
     public void drawSearchForm(JspWriter out)
     {
         drawSearchForm(out,new String[]{});
     }
+    /**
+     * This will draw the search form, plus a database selector.
+     * An array of database names can be passed in and the user
+     * will be able to switch between them.
+     * @param out output stream.
+     * @param dbs list of valid database names, see  {@link setDefaultDatabase(java.lang.String db)}.
+     */
     public void drawSearchForm(JspWriter out,String[] dbs)
     {
         if(!drawForm)
@@ -149,10 +189,11 @@ public class AdvancedSearchBean2
         }
         
     }
-    //public void draw
+    
     
     /**
-     * read in data from jsp page
+     * read in data from jsp page. This will update the value of
+     * currentState to reflect the users input.
      * @param request servlet request object, used to get parameters
      */
     private void buildState(HttpServletRequest request)
@@ -183,6 +224,12 @@ public class AdvancedSearchBean2
         //    selectedQueryName=(String)db.getSearchManager().getSearchStateList().iterator().next();
     }
     
+    /**
+     * Dispatches commands from user.  This will read a parameter called
+     * 'action' for an command.  If a command requires further parameters,
+     * they will be queried also.  
+     * @param request 
+     */
     private void processCommands(HttpServletRequest request)
     {        
         String action=request.getParameter("action");
@@ -253,18 +300,34 @@ public class AdvancedSearchBean2
         
     }
     
+    /**
+     * This sends the currentState to the current database, 
+     * which will create the sql, perform the query, and send
+     * a redirect to the dataview with the resulting id numbers
+     */
     private void doQuery()
     {         
         log.debug("submitting query");
         drawForm=false;
         db.displayResults(currentState, servletContext,request,response);        
     }
+    
+    /**
+     * Adds a new row to end the search page.
+     */
     private void addExpression()
     {
         currentState.getSelectedFields().add(new Integer(0));
         currentState.getSelectedOps().add(new Integer(0));
         currentState.getSelectedBools().add(new Integer(0));
     }
+    /**
+     * Inserts a new row at the location given by row. Requires
+     * the index of the last parinthasis of this sub expression so
+     * that it can adjust it accordingly.
+     * @param row location to insert row.
+     * @param endParIndx location of first end parinth after this row.
+     */
     private void addExpression(int row,int endParIndx)
     {
         
@@ -294,8 +357,15 @@ public class AdvancedSearchBean2
         log.debug("new bools: "+currentState.getSelectedBools());
         
     }
+    /**
+     * Any parinth with a value greater than threshold gets shiftAmt added to it. 
+     * Starts looking at startIndx. 
+     * @param startIndx start position of search
+     * @param threshold 
+     * @param shiftAmt number of rows to shift parinth down
+     */
     private void shiftParinths(int startIndx,int threshold,int shiftAmt)
-    { //and parinth with a value greater than threshold gets shiftAmt added to it.
+    { 
         
         log.debug("shifting parinths after field "+threshold+" down by "+shiftAmt+" starting at index "+startIndx);
         List[] listRefs=new List[]{
@@ -311,8 +381,12 @@ public class AdvancedSearchBean2
             log.debug("list after: "+l);
         }        
     }
+    /**
+     * Remove entry row from fields, ops, values, and bools
+     * @param row index of row
+     */
     private void removeExpression(int row)
-    { //remove entry row from fields, ops, values, and bools
+    { 
         
         log.debug("removing expression at row "+row);
         currentState.getSelectedFields().remove(row);
@@ -338,6 +412,13 @@ public class AdvancedSearchBean2
         
     }
      
+    /**
+     * Creates a new set of parinths and puts two new expressions inside them.
+     * The operator used will be the opposite of whatever comes before it. 
+     * (otherwise the parinths will be removed since they would be unessasary).
+     * @param row 
+     * @param endParIndx 
+     */
     private void addSubExp(int row,int endParIndx)
     { //add the length of fields at the end of startPars
         
@@ -364,6 +445,10 @@ public class AdvancedSearchBean2
         
         //currentState.getEndParinths().add(new Integer(row+2));                
     }
+    
+    /**
+     * no longer used.
+     */
     private void endSubExp()
     { //add the length of fields at end of endPars
         currentState.getEndParinths().add(new Integer(currentState.getSelectedFields().size()));                
@@ -440,6 +525,7 @@ public class AdvancedSearchBean2
         return out.toString();
     }
      
+    
     private List getIntList(String[] strings)
     {
         if(strings==null)
@@ -449,6 +535,7 @@ public class AdvancedSearchBean2
             ints.add(Integer.decode(strings[i]));
         return ints;
     }
+    
     private List getList(String[] strings)
     {
         if(strings==null)
@@ -460,6 +547,7 @@ public class AdvancedSearchBean2
             strs.add(strings[i]);
         return strs;
     }
+    
     private int[] getIntArray(String[] strings)
     {
         if(strings==null)

@@ -18,6 +18,10 @@ import org.apache.log4j.Logger;
 import servlets.advancedSearch.queryTree.Query;
 import servlets.advancedSearch.visitors.SqlVisitor;
 
+/**
+ * This class manages the persistant storage of Query objects as sql strings.
+ * 
+ */
 public class SearchTreeManager 
 {
     private static Logger log=Logger.getLogger(SearchTreeManager.class);
@@ -55,12 +59,23 @@ public class SearchTreeManager
         file=temp; //make it final.        
         readQueries();
     }    
+    /**
+     * Create a new SearchTreeManager that reads queries from the 
+     * given URL. Can write them also if the URL is a local file.
+     * @param file 
+     */
     public SearchTreeManager(URL file)
     {
         queries=new Properties();
         this.file=file;
         readQueries();
     }
+    /**
+     * Retrievies a Query object by its given name. Reads the
+     * sql string from file and parses it to create a Query object.
+     * @param name assigned name of query
+     * @return new Query object
+     */
     public Query getSearchState(String name)
     {
         //log.debug("queries are: "+queries);
@@ -88,11 +103,22 @@ public class SearchTreeManager
         q.setLimit(limit);
         return q;
     }
+    /**
+     * Returns the description if this query
+     * @param name name of query
+     * @return description string
+     */
     public String getDescription(String name)
     {        
         return queries.getProperty(name+".description");
     }
 
+    /**
+     * Returns a list of available queries.  Queries are
+     * assigned a name when they are stored, so this provides a list
+     * of names that can be used to retrieve further info later. 
+     * @return a sorted collection of Strings
+     */
     public Collection getSearchStateList()
     {
         log.debug("getting search list: "+queries.keySet());
@@ -111,6 +137,10 @@ public class SearchTreeManager
         return l;
     }
 
+    /**
+     * Removes given query from storage.  Changes are written immediatly.
+     * @param name name of query
+     */
     public void removeSearchState(String name)
     {
         queries.remove(name+".sql");
@@ -119,6 +149,14 @@ public class SearchTreeManager
         writeQueries();
     }
    
+    /**
+     * Add a new Query to storge.  A description can also be
+     * passed and stored. A random name is assigned to the 
+     * query for later lookup. A list of current names
+     * can be retrieved from {@link getSearchStateList()}.
+     * @param q a Query object
+     * @param description description of query
+     */
     public void addSearchState(Query q,String description)
     {
         log.debug("adding search state");
@@ -134,6 +172,13 @@ public class SearchTreeManager
         writeQueries();
     }
 
+    /**
+     * Update the given query name with a new Query object.  The Query
+     * object is converted to sql first and written to the properties file 
+     * immediatly.
+     * @param name name of query to update 
+     * @param q new query to store
+     */
     public void setSearchState(String name,Query q)
     {        
         SqlVisitor sv=new SqlVisitor();
@@ -141,11 +186,20 @@ public class SearchTreeManager
         queries.setProperty(name+".limit",q.getLimit().toString());
         writeQueries();
     }
+    /**
+     * Update the description of a given query
+     * @param name query name
+     * @param desc new description
+     */
     public void setDescription(String name,String desc)
     {
         queries.setProperty(name+".description",desc);
         writeQueries();
     } 
+    /**
+     * Read in properties file. Uses the file variable to get a path to a 
+     * properties file which it then reads in to the queries object.
+     */
     private void readQueries()
     {
         try{     
@@ -159,6 +213,10 @@ public class SearchTreeManager
             log.error("could not read queries from file "+file+": "+e);
         }
     }
+    /**
+     * Write queries in memory to properties file. Uses path from file object
+     * to find properties file and writes data. 
+     */
     private void writeQueries()
     {
         log.debug("writing tree queries");
@@ -179,6 +237,10 @@ public class SearchTreeManager
         }
     }
     
+    /**
+     * This Comparator orders query entries by thier description field, 
+     * so that the query listing looks nice on the web page.  
+     */
     class QueryComparator implements Comparator
     {
         public int compare(Object o1,Object o2)

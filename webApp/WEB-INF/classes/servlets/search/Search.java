@@ -69,12 +69,12 @@ public interface Search extends java.io.Serializable
      */
     int getDbCount();
     /**
-     * Should return a list with model count and cluster count.
-     * The first element must be the model count, and the second
-     * element must be the cluster count.
-     *
-     * If not stats can be found, an empty list should be returned.
-     * @return A list with at most 2 elements.
+     * Should return a Map containing the names of various
+     * statistics thier values.  Currently used values are:
+     * 'models' for model count
+     * 'BLASTCLUST_35' or _50 or _70 for the number of this type of cluster
+     * 'Domain Composition' for number of this type of cluster.
+     * @return A Map containing all relevent statistics.
      */    
     Map getStats();
     

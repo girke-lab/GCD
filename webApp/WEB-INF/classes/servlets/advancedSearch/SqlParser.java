@@ -17,6 +17,21 @@ import java.util.*;
 import java.io.*;
 import org.apache.log4j.Logger;
 
+
+/**
+ * Uses the Zql API to parse sql.  An sql string is parsed
+ * into Zql objects, and then converted to another AST composed of
+ * objects from the queryTree package.  This way I can use the classes
+ * I made, but not have to implement a parser myself.  
+ * <P>
+ * Zql does not support all sql, in particular, it does no support
+ * a LIMIT clause, and it doesn't like postgres's ILIKE keyword. 
+ * Because of this, sql strings should not use LIMIT, and all occurences of 
+ * ILIKE (case insensitive) will be converted to LIKE while Zql parses it, then
+ * all occurences of LIKE will be converted to ILIKE when the second AST is
+ * built.  So if you have LIKE in the initial sql, it will become ILIKE in the
+ * Query object.  So just use postgreSQL and life will be simple.  
+ */
 public class SqlParser
 {
     private static Logger log=Logger.getLogger(SqlParser.class);

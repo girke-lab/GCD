@@ -16,6 +16,9 @@ import java.io.*;
 import servlets.Common;
 import servlets.dataViews.queryWideViews.*;
 
+/**
+ * this class is old an is no longer used.
+ */
 public class GeneralDataView implements DataView
 {
 

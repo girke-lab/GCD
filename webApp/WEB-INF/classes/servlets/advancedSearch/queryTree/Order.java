@@ -12,6 +12,7 @@ package servlets.advancedSearch.queryTree;
  */
 import servlets.advancedSearch.visitors.QueryTreeVisitor;
 
+
 public class Order extends QueryTreeNode
 {
     private Expression order;

@@ -77,8 +77,8 @@ public class DbConnectionManager
         
         //add some default connections
         try{
-            Class.forName("org.postgresql.Driver").newInstance();
-            connections.put("common",new DbConnection()); //connect to postgres            
+            Class.forName("org.postgresql.Driver").newInstance();            
+            connections.put("common",new DbConnection("jdbc:postgresql://bioinfo.ucr.edu/khoran_loading","servlet","512256")); //connect to postgres                        
         }catch(Exception e){            
             log.warn("failed to connect to common database: "+e.getMessage());
         }

@@ -21,18 +21,18 @@ import servlets.DbConnection;
  */
 public class ClusterRecord implements Record
 {
-    int size, cutoff,cluster_id;
-    String name;
+    int size,cluster_id;
+    String name,method;
     List keys=null;
     boolean showClusterCentricView;
     private static Logger log=Logger.getLogger(ClusterRecord.class);
     
     /** Creates a new instance of ClusterRecord */
-    public ClusterRecord(String name,int size, int cutoff,int cluster_id)
+    public ClusterRecord(String name,int size, String method,int cluster_id)
     {//used for key centric view
         this.name=name;
         this.size=size;
-        this.cutoff=cutoff;
+        this.method=method;
         this.cluster_id=cluster_id;
         showClusterCentricView=false;
     }
@@ -46,16 +46,16 @@ public class ClusterRecord implements Record
             return;
         }
         name=(String)values.get(0);
-        size=Integer.parseInt((String)values.get(1));
-        cutoff=Integer.parseInt((String)values.get(2));
+        size=Integer.parseInt((String)values.get(1));        
+        method=(String)values.get(2);        
         cluster_id=Integer.parseInt((String)values.get(3));
         showClusterCentricView=false;
     }
-    public ClusterRecord(String name,int size,int cutoff,int cluster_id,List keys)
+    public ClusterRecord(String name,int size,String method,int cluster_id,List keys)
     {//used for cluster centric view
         this.name=name;
         this.size=size;
-        this.cutoff=cutoff;
+        this.method=method;
         this.keys=keys;
         this.cluster_id=cluster_id;
         showClusterCentricView=true;
@@ -68,11 +68,11 @@ public class ClusterRecord implements Record
         if(!(o instanceof ClusterRecord))
             return false;
         ClusterRecord rec=(ClusterRecord)o;        
-        return rec.size==size && rec.cutoff==cutoff;
+        return rec.size==size && rec.method.equals(method);
     }
     public int hashCode()
     {
-        return new Integer(size+cutoff).hashCode();
+        return cluster_id;
     }
     
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
@@ -92,7 +92,7 @@ public class ClusterRecord implements Record
     
     public static Map getData(DbConnection dbc, List ids)
     {
-        return getData(dbc,ids,"cutoff","ASC");
+        return getData(dbc,ids,"accession_id","ASC");
     }
     
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
@@ -119,22 +119,8 @@ public class ClusterRecord implements Record
                 return new ClusterRecord(l);
             }
         };                
-        return RecordGroup.buildRecordMap(rb,data,1,5);     
-        
-//        List row,l;
-//        Map output=new HashMap(); //need to maintain order here
-//        for(Iterator i=data.iterator();i.hasNext();)
-//        {
-//            row=(List)i.next();
-//            l=(List)output.get(row.get(0));
-//            if(l==null)
-//            {
-//                l=new LinkedList();
-//                output.put(row.get(0),l);
-//            }            
-//            l.add(new ClusterRecord(row.subList(1,5)));            
-//        }
-//        return output;
+        log.debug("cluster data, data="+data);
+        return RecordGroup.buildRecordMap(rb,data,1,5);             
     }
     
    

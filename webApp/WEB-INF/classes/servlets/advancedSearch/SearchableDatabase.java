@@ -37,9 +37,6 @@ public interface SearchableDatabase
      */
     public String[] getBooleans();    
     
-//    public String buildQuery(SearchState state);
-//    public String getDestination(); 
-//    public java.util.List sendQuery(String query);
     
     /**
      * Takes the current SearchState and creates the corresponding query, sends if
@@ -54,8 +51,8 @@ public interface SearchableDatabase
     
     public servlets.advancedSearch.queryTree.Query buildQueryTree(SearchState state);
     /**
-     * returns a SearchStateManager for manages searchStates for this database.
-     * @return a SearchStateManager
+     * returns a SearchTreeManager for manages sql queries for this database.
+     * @return a SearchTreeManager
      */
     public SearchTreeManager getSearchManager();
 }
