@@ -12,17 +12,18 @@ package GO.goGetter;
  */
 
 import java.util.*;
+import java.io.*;
 import khoran.debugPrint.Debug;
 
-public class GoNode
+public class GoNode implements Serializable
 {
-    private ArrayList parents;
-    private ArrayList children;
+    transient ArrayList parents;
+    ArrayList children;
     
     private int goNumber;
     private String text;
     private int maxDepth; //the length of the longest route from the root to this node
-    private Debug d;
+    private transient Debug d;
     
     /** Creates a new instance of GoNode */
     public GoNode(int num,String t) 
@@ -30,13 +31,14 @@ public class GoNode
         parents=new ArrayList();
         children=new ArrayList();
         d=new Debug();
-        //d.setPrintLevel(1);//turn on printing
+//        d.setPrintLevel(2);//turn on printing
         goNumber=num;
         text=t;
         maxDepth=0;
     }    
     public void addParent(ParentLink n)
     {
+        d.print(2,"parentLink depth="+n.getDepth()+", current maxDepth="+maxDepth);
         if(n.getDepth() > maxDepth)
             maxDepth=n.getDepth();
         d.print("adding parent "+n.getLink().getGoNumber()+" to "+goNumber);
@@ -46,6 +48,16 @@ public class GoNode
     {
         d.print("adding child "+n.getGoNumber()+" to "+goNumber);
         children.add(n);
+    }
+    public boolean isChildOf(GoNode gn)
+    {
+        for(Iterator i=parents.iterator();i.hasNext();)
+        {
+            ParentLink pl=(ParentLink)i.next();
+            if(pl.getLink()==gn || pl.getLink().isChildOf(gn))
+                return true;
+        }
+        return false;
     }
     public int getMaxDepth()
     {
@@ -72,7 +84,7 @@ public class GoNode
         StringBuffer out=new StringBuffer();
         out.append( in+"Node{\n"+in+"   GO:"+goNumber+"\n"+
                     in+"   text: "+text+"\n"+
-                    in+"   maxDepth="+maxDepth+"\n"+
+                    in+"   maxDepth="+maxDepth+"\n"+                    
                     in+"   parent count: "+parents.size()+"\n"+
                     in+"   child count: "+children.size()+"\n"+
                     in+"}\n");

@@ -10,7 +10,10 @@ package GO.goGetter;
  *
  * @author  khoran
  */
-public class ParentLink 
+
+import java.io.Serializable;
+
+public class ParentLink implements Serializable
 {
     public final static int PART_OF=0;
     public final static int IS_A=1;
@@ -24,7 +27,7 @@ public class ParentLink
         link=l;
         relation=r;
         depth=d;
-    }
+    }        
     public GoNode getLink()
     {
         return link;

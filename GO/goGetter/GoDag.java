@@ -12,7 +12,7 @@ package GO.goGetter;
  */
 
 import java.util.*;
-import java.io.File;
+import java.io.*;
 import java.util.regex.*;
 
 import javax.xml.bind.*;
@@ -20,13 +20,13 @@ import GO.go_jaxb.*;
 import khoran.debugPrint.Debug;
 
 
-public class GoDag 
+public class GoDag implements Serializable
 {
     private GoNode root; //first node in GO DAG.
     private HashMap index;     
-    private HashMap tempMap; //temp storage used while loading the data
-    private Pattern goPattern;
-    private Debug d;
+    private transient HashMap tempMap; //temp storage used while loading the data
+    private transient Pattern goPattern;
+    private transient Debug d;
     
     /** Creates a new instance of GoDag */
     public GoDag(String xmlFilename) 
@@ -34,21 +34,72 @@ public class GoDag
         goPattern=Pattern.compile(".*GO:(\\d{7})");
         index=new HashMap();        
         d=new Debug();
-//        d.setPrintLevel(1);
+        d.setPrintLevel(0);
         buildDag(xmlFilename);         
+    }
+    public GoDag(GoDag dg,int subNode)
+    {//build a new dag as a sub dag of the given dag, staring at the given node
+        goPattern=Pattern.compile(".*GO:(\\d{7})");
+        index=new HashMap();        
+        d=new Debug();
+        d.setPrintLevel(0);
+        
+        //first find this node
+        //TODO:  this will return a reference from the dg dag.  We should
+        //make a copy of it, or have find return a copy, so that we don't end
+        //up with two seperate dag objects with links between them.
+        GoNode gn=dg.find(subNode);
+        root=gn; //set new root node
+        if(gn==null)
+        {
+            index=null;
+            return;
+        }//else we have a valid node
+        
+        addToSubDag(gn,dg);
+        
     }
     
     public GoNode find(int goNumber)
-    {        
+    {//return a copy of the node        
         return (GoNode)index.get(new Integer(goNumber));
     }
     public GoNode find(Integer goNum)
+    {//return a copy of the node
+        return find(goNum.intValue());
+    }
+    public static void store(String file,GoDag dag)
     {
-        return (GoNode)index.get(goNum);
+        try{
+            ObjectOutputStream oos=new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+            oos.writeObject(dag);        
+            oos.close();
+        }catch(IOException e){
+            System.out.println("could not write to file "+file+", "+e.getMessage());
+        }            
+    }
+    public static GoDag load(String file)
+    {
+        try{
+            ObjectInputStream ois=new ObjectInputStream(new FileInputStream(file));        
+            return (GoDag)ois.readObject();
+        }catch(IOException e){
+            System.out.println("could not read from file "+file+", "+e.getMessage());
+        }catch(ClassNotFoundException e){
+            System.out.println("could not find a GoDag object in "+file+": "+e.getMessage());
+        }
+        return null;
     }
     public String toString()
     {
         return root.toString();
+    }
+    public GoDag getSubDag(int goNum)
+    { //return a dag that consists of just this node and all its children.
+        //problem: some child may have a parent outside this sub dag.
+        
+        
+        return null;
     }
 //////////////////////////////////////////////////////////    
     private void buildDag(String file)
@@ -64,7 +115,7 @@ public class GoDag
             tempMap=new HashMap();
             readTerms((List)goRoot.getTerm()); //load tempMap            
             connectTerms(); //load index
-            d.print("size of tempMap: "+tempMap.size()+", size of index: "+index.size());
+            d.print(-1,"size of tempMap: "+tempMap.size()+", size of index: "+index.size());
             //delete tempMap
             tempMap=null;
             
@@ -109,7 +160,7 @@ public class GoDag
         //setup parent and child links        
         for(Iterator linkItr=((List)t.getPartOfOrIsA()).iterator();linkItr.hasNext();)
         {//for each parent of this node
-            d.print(1,"\t adding parent to "+goNum);                   
+                               
             String resource="";
             Object next=linkItr.next();
             int relation=-1;
@@ -134,7 +185,7 @@ public class GoDag
                 Term term=(Term)tempMap.get(parentGO);
                 if(term==null)// if term is not found here, this is an error
                 {
-                    d.print("node "+parentGO+", parent of "+goNum+", was not found anywhere");
+                    d.print(-1,"node "+parentGO+", parent of "+goNum+", was not found anywhere");
                     continue;
                 }
                 else
@@ -142,9 +193,9 @@ public class GoDag
             }
                 
             parentNode.addChild(gn);
-
+            d.print(2,"\t adding parent to "+goNum+": "+parentNode);
             //set parentNode as a parent of this node                    
-            gn.addParent(new ParentLink(parentNode, parentNode.getMaxDepth()+1,relation));                            
+            gn.addParent(new ParentLink(parentNode, relation, parentNode.getMaxDepth()+1));                            
         }                          
         
         if(!gn.hasParent())
@@ -152,6 +203,19 @@ public class GoDag
         d.print("adding "+gn.getGoNumber()+" to index");
         index.put(new Integer(goNum), gn);        
         return gn;
+    }
+    private void addToSubDag(GoNode gn,GoDag dg)
+    {
+        //to add a node, first remove all links to nodes which
+        //do not have root as their parent in the dg dag
+        
+        for(Iterator i=gn.parents.iterator();i.hasNext();)
+        {
+            ParentLink pl=(ParentLink)i.next();
+            if(!pl.getLink().isChildOf(root))
+                gn.parents.remove(pl);
+        }
+        
     }
     private int getGo(String r)
     {
