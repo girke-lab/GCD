@@ -22,7 +22,7 @@ public class UnknownsDataView implements DataView
 {
     List seq_ids;
     int hid;
-    String sortCol;
+    String sortCol,sortDir;
     int[] dbNums;    
     File tempDir;
     DbConnection dbc=null;
@@ -31,6 +31,7 @@ public class UnknownsDataView implements DataView
     /** Creates a new instance of UnknownsDataView */
     public UnknownsDataView() 
     {        
+        sortDir="asc"; //default sort direction
         dbc=DbConnectionManager.getConnection("unknowns");
         if(dbc==null)
             log.error("could not get db connection to unknowns");
@@ -42,7 +43,7 @@ public class UnknownsDataView implements DataView
     }
     public UnknownsDataView(String tempPath) 
     {
-        
+        sortDir="asc"; //default sort direction
         dbc=DbConnectionManager.getConnection("unknowns");
         if(dbc==null)
             log.error("could not get db connection to unknowns");
@@ -78,6 +79,11 @@ public class UnknownsDataView implements DataView
     {
          this.seq_ids=ids;   
     }   
+    public void setSortDirection(String dir)
+    {//make sure dir is valid before we assign it
+        if(dir!=null && (dir.equals("asc") || dir.equals("desc")))
+            sortDir=dir;    
+    }
     public QueryWideView getQueryWideView() 
     {
         return new DefaultQueryWideView(){
@@ -129,10 +135,16 @@ public class UnknownsDataView implements DataView
             out.println(" &nbsp&nbsp&nbsp <A href='/databaseWeb/temp/"+tempFile.getName()+"'>download in excel format</A>");
          out.println("<TABLE border='1' cellspacing='0' cellpadding='0' bgcolor='"+dataColor+"'>");
          out.println("<TR bgcolor='"+titleColor+"'>");
-         out.print("<th>Unknown_id</th>");         
-         for(int i=0;i<printNames.length;i++) //print titles
+         
+         //print titles
+         String newDir;
+         for(int i=0;i<printNames.length;i++)
          {
-             out.print("<th>"+printNames[i]+"</th>");
+             newDir="asc"; //default to asc
+             if(sortCol.equals(dbColNames[i])) 
+                 newDir=(sortDir.equals("asc"))? "desc":"asc"; //flip direction
+             out.println("<th><a href='QueryPageServlet?hid="+hid+"&sortCol="+dbColNames[i]+
+                "&sortDirection="+newDir+"'>"+printNames[i]+"</a></th>");             
              fileOutput.append(printNames[i]+", ");
          }
          //out.println("<th colspan='5'>"+printNames[printNames.length-1]+"</th>");
@@ -151,13 +163,18 @@ public class UnknownsDataView implements DataView
                 lastId=(String)row.get(0);
                 out.println("</td></tr><tr>");
                 fileOutput.append("\n");
-                for(Iterator j=row.iterator();j.hasNext();)
+                int c=0;
+                for(Iterator j=row.iterator();j.hasNext();c++)
                 {
                     String t=(String)j.next();
+                    out.print("<td>");
                     if(t==null || t.equals(""))
-                        out.print("<td>&nbsp");                          
+                        out.print("&nbsp");   
+                    else if(c==1) //second column is at number
+                        out.println("<a href='http://www.arabidopsis.org/servlets/TairObject?type=locus&name="+
+                        t.subSequence(0,t.indexOf('.'))+"'>"+t+"</a>&nbsp&nbsp");
                     else
-                        out.print("<td>"+t);             
+                        out.print(t);             
                     if(j.hasNext()) //don't print last td, so we can put more treatments in cell
                         out.println("</td>");
                     
@@ -196,13 +213,16 @@ public class UnknownsDataView implements DataView
         String query="SELECT unknowns.*,treats.treat " +
             " FROM unknowns LEFT JOIN treats USING(unknown_id) " +
             " WHERE unknowns.unknown_id in ("+conditions+") " +
-            " ORDER BY "+sortCol+",unknowns.unknown_id";
+            " ORDER BY "+sortCol+" "+sortDir+",unknowns.unknown_id ";
         
         log.info("query is: "+query);
         return query;
     }
     
+   
+    
     String[] printNames=new String[]{
+            "Unknown id",
             "At Key" ,
             "Description" ,
             "Unknown Method TIGR" ,
@@ -233,5 +253,38 @@ public class UnknownsDataView implements DataView
             "Multiple selects" ,
             "Occurrence in treaments",        
             "Treatments"
+        };
+        String[] dbColNames=new String[]{
+            "unknown_id",
+            "At_Key ",
+            "Description ",
+            "Unknown_Method_TIGR ",
+            "Unknown_Method_SWP_BLAST ",
+            "Unknown_Method_GO_MFU_OR_CCU_OR_BPU ",
+            "Unknown_Method_GO_MFU ",
+            "Unknown_Method_InterPro ",
+            "Unknown_Method_Pfam ",
+            "Citosky_Small_List ",
+            "SALK_tDNA_Insertion ",
+            "EST_avail ",
+            "avail ",
+            "flcDNA_TIGR_XML_avail ",
+            "Nottingham_Chips_3x_90 ",
+            "Rice_Orth_Evalue ",
+            "HumanRatMouse_Orth_Evalue ",
+            "S_cerevisiae_Evalue ",
+            "Gene_Family_Size_35_50_70_perc_ident ",
+            "Pet_Gene_from ",
+            "Targeting_Ipsort ",
+            "Targeting_Predotar ",
+            "Targeting_Targetp ",
+            "Membr_dom_Hmmtop ",
+            "Membr_dom_Thumbup ",
+            "Membr_dom_TMHMM ",
+            "Focus_list_of_grant ",
+            "Selected_by ",
+            "Multiple_selects ",
+            "Occurrence_in_treaments",
+            "treat"
         };
 }

@@ -389,6 +389,9 @@ public class GeneralDataView implements DataView
         return new DefaultQueryWideView();
     }    
    
+    public void setSortDirection(String dir)
+    {
+    }    
     
     class ClusterSet {
         public String clusterNum, size,name;

@@ -180,6 +180,9 @@ public class ClusterDataView implements DataView
          Common.printStatsTable(out,"On This Page", new String[]{"Clusters"},new Object[]{new Integer(seq_ids.size())});         
      }
      
+     public void setSortDirection(String dir)
+     {
+     }     
      
       
      

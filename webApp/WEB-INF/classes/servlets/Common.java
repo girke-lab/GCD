@@ -36,6 +36,7 @@ public class Common {
     
     public static List sendQuery(String q)
     {
+        //System.out.println("sending query "+q);
         List rs=null;
         DbConnection dbc;
         try{
@@ -48,8 +49,11 @@ public class Common {
             rs=dbc.sendQuery(q);        
             log.info("Stats: "+dbc.getStats());
         }catch(Exception e){
+            System.out.println("query error: "+e.getMessage());
             log.error("query error: "+e.getMessage());         
         }
+        if(rs==null)
+            System.out.println("null rs");
         return rs;
     }       
     

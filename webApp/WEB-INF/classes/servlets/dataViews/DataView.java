@@ -73,4 +73,6 @@ public interface DataView
      * @return A QueryWideView object for this class.
      */    
     public QueryWideView getQueryWideView();
+    
+    public void setSortDirection(String dir);
 } 

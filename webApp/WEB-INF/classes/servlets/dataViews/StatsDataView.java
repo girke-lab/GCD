@@ -48,4 +48,8 @@ public class StatsDataView implements DataView
         };
     }
     
+    public void setSortDirection(String dir)
+    {
+    }
+    
 }

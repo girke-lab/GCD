@@ -190,6 +190,9 @@ public class SeqDataView implements DataView
         return query.toString();
     }
     
+    public void setSortDirection(String dir)
+    {
+    }    
     
    
     

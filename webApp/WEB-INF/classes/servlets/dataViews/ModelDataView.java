@@ -313,6 +313,9 @@ public class ModelDataView implements DataView
         printNames[8]="5`UTR";printNames[9]="Protein";        
     }
      
+     public void setSortDirection(String dir)
+     {
+     }     
     
      
     class ModelQueryInfo implements java.io.Serializable

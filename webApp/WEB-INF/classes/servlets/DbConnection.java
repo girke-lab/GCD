@@ -106,6 +106,10 @@ public class DbConnection
         Statement stmt=conn.createStatement();        
         ResultSet rs=stmt.executeQuery(q);        
         List l=reformat(rs);
+        if(l==null)
+            System.out.println("null list in sendQuery of dbc");
+        else
+            System.out.println("list is not null in sendQuery of dbc");
         conn.close();
         return l;
     }

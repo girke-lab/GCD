@@ -77,7 +77,7 @@ public class QueryPageServlet extends HttpServlet
             }
             qi=(QueryInfo)((ArrayList)session.getAttribute("history")).get(hid);                    
         }catch(Exception e){ //no hid, so start a new search       
-            qi=getInput(request);
+            qi=getStaticSettings(request);
             if(qi==null)
             {
                Common.quit(out,"no results found");
@@ -87,21 +87,12 @@ public class QueryPageServlet extends HttpServlet
             session.setAttribute("hid",new Integer(hid+1));
             ((ArrayList)session.getAttribute("history")).add(qi);            
         }
-        try{
-            pos=Integer.parseInt(request.getParameter("pos"));
-            if(pos < 0)
-                pos=0;
-            qi.setCurrentPos(pos);
-        }catch(Exception e){
-            pos=qi.getCurrentPos();
-        }
+        getDynamicSettings(qi,request); //update qi with any given info
+        
         rpp=((Integer)qi.getObject("rpp")).intValue();
+        pos=qi.getCurrentPos();
         s=qi.getSearch(); 
-        
-        String displayType=request.getParameter("displayType");
-        if(displayType!=null) //if a display type was given, save it
-            qi.setDisplayType(displayType);
-        
+                        
         if(s.getResults()==null || s.getResults().size()==0){
             Common.quit(out,"no matches found");
             return;
@@ -113,6 +104,7 @@ public class QueryPageServlet extends HttpServlet
                 
         dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);
         dv.setData(qi.getSortCol(),qi.getDbs(),hid);
+        dv.setSortDirection((String)qi.getObject("sortDirection"));
         ResultPage page=new ResultPage(dv, s, pos, hid, rpp); 
         page.dipslayPage(out);
                         
@@ -164,7 +156,11 @@ public class QueryPageServlet extends HttpServlet
             return new IdSearch();   //default to id search
     }   
     
-    private QueryInfo getInput(HttpServletRequest request)
+    /**
+     *This method is used for getting settings that must remain constant for the duration
+     *of a search.  It uses these to create a new QueryInfo object.
+     */
+    private QueryInfo getStaticSettings(HttpServletRequest request)
     {
         int[] dbNums;
         int limit;
@@ -175,7 +171,6 @@ public class QueryPageServlet extends HttpServlet
         String input=request.getParameter("inputKey"); //actual input from form feild
         String searchType=request.getParameter("searchType");
         String[] dbTemp=request.getParameterValues("dbs"); //list of databases to use
-        String sortCol=request.getParameter("sortCol");
 
         try{//test limit
             limit=Integer.parseInt(request.getParameter("limit"));
@@ -201,20 +196,48 @@ public class QueryPageServlet extends HttpServlet
             while(tok.hasMoreTokens())
                 inputKeys.add(tok.nextToken());
         }
-        qi=new QueryInfo(dbNums,sortCol,"");        
+        qi=new QueryInfo(dbNums,"",""); //sortCol and displayType should be set later
         s=getSearchObj(searchType);        
         s.init(inputKeys,limit, dbNums);              
         qi.setSearch(s);
         qi.setInputCount(inputKeys.size());
         
+        
+        return qi;
+    }   
+    /**
+     *This method is used to get settings that can change after the initial query has 
+     *been made. It can only modify an existing QueryInfo object.
+     */
+    private void getDynamicSettings(QueryInfo qi, HttpServletRequest request)
+    {
+        String sortCol=request.getParameter("sortCol");
+        if(sortCol!=null)
+            qi.setSortCol(sortCol);
+        
+        String displayType=request.getParameter("displayType");
+        if(displayType!=null) //if a display type was given, save it
+            qi.setDisplayType(displayType);
+        
         try{            
             qi.setObject("rpp", new Integer(request.getParameter("rpp")));            
         }catch(Exception e){
-            qi.setObject("rpp", new Integer(50));            
+            if(qi.getObject("rpp")==null) //set to a default value if it has not been set yet
+                qi.setObject("rpp", new Integer(50));            
         }
-        return qi;
-    }   
-    
+        try{
+            qi.setObject("sortDirection",request.getParameter("sortDirection"));
+        }catch(Exception e){
+            if(qi.getObject("sortDirection")==null)
+                qi.setObject("sortDirection","asc");
+        }
+        try{
+            int pos=Integer.parseInt(request.getParameter("pos"));
+            if(pos < 0)
+                pos=0;
+            qi.setCurrentPos(pos);
+        }catch(Exception e){ }        
+    }
     ///////////////////////////////////////////////////////////////////////////////////////////
    
     /** Handles the HTTP <code>GET</code> method.
