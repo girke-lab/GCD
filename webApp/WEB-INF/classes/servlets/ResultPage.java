@@ -61,8 +61,9 @@ public class ResultPage
             positions[i]=search.getDbStartPos(i);
                 
         dv.printHeader(out);
-        printControls(out);
+        printControls(out);        
         printGotoLinks(out, Common.dbPrintNames, positions);
+        out.println("<br>");
         dv.getQueryWideView().printButtons(out, hid, pos, search.getResults().size(), rpp);
                     
         List ids=search.getResults();
@@ -109,12 +110,16 @@ public class ResultPage
         
         out.println("<table align='left' border='0'>");
         out.println("<tr>");        
-        out.println("<td><a href='"+action+"&pos=0'>Start</a></td>");
+        //out.println("<td><a href='"+action+"&pos=0'>Start</a></td>");
+        out.println("<td><a href='"+action+"&pos=0'><img src='images/right_right_arrow.jpg' border='0'/></a></td>");
         if(pos-rpp >= 0)        
-            out.println("<td><a href='"+action+"&pos="+(pos-rpp)+"'>Previous</a></td>");
+            //out.println("<td><a href='"+action+"&pos="+(pos-rpp)+"'>Previous</a></td>");
+            out.println("<td><a href='"+action+"&pos="+(pos-rpp)+"'><img src='images/right_arrow.jpg' border='0'/></a></td>");
         if(pos+rpp < end)
-            out.println("<td><a href='"+action+"&pos="+(pos+rpp)+"'>Next</a></td>");        
-        out.println("<td><a href='"+action+"&pos="+(end-(end%rpp))+"'>End</a></td>");
+            //out.println("<td><a href='"+action+"&pos="+(pos+rpp)+"'>Next</a></td>");        
+            out.println("<td><a href='"+action+"&pos="+(pos+rpp)+"'><img src='images/left_arrow.jpg' border='0' /></a></td>");        
+        //out.println("<td><a href='"+action+"&pos="+(end-(end%rpp))+"'>End</a></td>");
+        out.println("<td><a href='"+action+"&pos="+(end-(end%rpp))+"'><img src='images/left_left_arrow.jpg' border='0' /></a></td>");
   
         out.println("</tr>");
         out.println("</table>");

@@ -84,13 +84,15 @@ public class ProteomicsRecord implements Record
     }     
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
-           String query="SELECT * "+                 
+        if(ids==null || ids.size()==0)
+            return new HashMap();
+        String query="SELECT * "+                 
         "   FROM unknowns.proteomics_stats " +        
         "   WHERE "+Common.buildIdListCondition("key_id",ids);
         
         List data=null;
-        try{
-            data=dbc.sendQuery(query);
+        try{            
+            data=dbc.sendQuery(query);            
         }catch(java.sql.SQLException e){
             log.error("could not send ProteomicsRecord query: "+e.getMessage());
             return new HashMap();

@@ -91,14 +91,18 @@ public class ClusterRecord implements Record
     
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
-           String query="SELECT * "+                 
-        "   FROM unknowns.cluster_info_and_counts_view " +        
+        if(ids==null || ids.size()==0)
+            return new HashMap();
+        
+       String query="SELECT * "+                 
+        "   FROM unknowns.cluster_info_and_counts_mv " +        
         "   WHERE "+Common.buildIdListCondition("key_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
         
         List data=null;
-        try{
-            data=dbc.sendQuery(query);
+                
+        try{        
+            data=dbc.sendQuery(query);        
         }catch(java.sql.SQLException e){
             log.error("could not send ClusterRecord query: "+e.getMessage());
             return new HashMap();

@@ -79,7 +79,9 @@ public class GoRecord implements Record
     
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
-         String query="SELECT  key_id, go_number,function,text"+                 
+        if(ids==null || ids.size()==0)
+            return new HashMap();
+        String query="SELECT  key_id, go_number,function,text"+                 
         "   FROM unknowns.unknown_keys as uk, go.go_numbers as gn, go.seq_gos as sg " +        
         "   WHERE substring(uk.key from 1 for 9)=sg.accession AND sg.go_id=gn.go_id \n" +
         "      AND "+Common.buildIdListCondition("key_id",ids)+

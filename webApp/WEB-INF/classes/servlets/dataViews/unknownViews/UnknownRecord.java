@@ -117,6 +117,9 @@ public class UnknownRecord implements Record
     }    
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
+        if(ids==null || ids.size()==0)
+            return new HashMap();
+        
         if(!sortCol.startsWith("unknowns.unknown_keys."))
             sortCol="key";
         String query="SELECT * " +
@@ -124,7 +127,7 @@ public class UnknownRecord implements Record
         "   WHERE "+Common.buildIdListCondition("key_id",ids)+ 
         "   ORDER BY "+sortCol+" "+sortDir;
         List data=null;
-        log.info("unknownRecord query: "+query);
+
         try{
             data=dbc.sendQuery(query);
         }catch(java.sql.SQLException e){

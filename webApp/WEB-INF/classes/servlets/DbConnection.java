@@ -31,10 +31,11 @@ public class DbConnection
     ObjectPool connectionPool=null;
     private String hostname="";
     static Logger log=Logger.getLogger(DbConnection.class);    
+        
     
     /** Creates a new instance of DbConnection */
     public DbConnection() throws Exception
-    {
+    {        
         connect("jdbc:postgresql://138.23.191.152/common","servlet","512256");
         hostname="localhost";        
     }
@@ -69,7 +70,10 @@ public class DbConnection
     }
    
     public void connect(String connectURI,String name,String password)  throws Exception 
-    {
+    {        
+        log.setLevel(org.apache.log4j.Level.WARN);
+        //log.setLevel(org.apache.log4j.Level.INFO);
+        
         if(dataSource!=null)
             return;
         Class.forName ("org.postgresql.Driver").newInstance ();
@@ -101,30 +105,42 @@ public class DbConnection
     }
     public List sendQuery(String q) throws SQLException 
     {
-        //log.info("sending query "+q);
-        Connection conn=dataSource.getConnection();
-        Statement stmt=conn.createStatement();        
-        ResultSet rs=stmt.executeQuery(q);        
-        List l=reformat(rs);       
-        conn.close();
+        long startTime=0;
+        if(log.isInfoEnabled())
+        {
+            startTime=System.currentTimeMillis();
+            StackTraceElement[] stes=new Exception("").getStackTrace();
+            if(stes.length > 1)
+            {
+                String className=stes[1].getClassName();
+                log.info("query from "+className.substring(className.lastIndexOf('.')==-1?0:className.lastIndexOf('.')+1)+
+                    ":"+stes[1].getMethodName()+": "+q);            
+            }                
+        }
+        List l=null;
+        Connection conn=null;
+        ResultSet rs=null;
+        Statement stmt=null;
+        try{
+            conn=dataSource.getConnection();
+            stmt=conn.createStatement();       
+            rs=stmt.executeQuery(q);                    
+            l=reformat(rs);
+        }catch(SQLException e){
+            throw e;
+        }finally{ //make sure the connection if closed if an error occurs, or the pool empties.            
+            if(rs!=null)
+                rs.close();
+            if(stmt!=null)
+                stmt.close();
+            if(conn!=null)
+                conn.close();
+        }
+        if(log.isInfoEnabled())
+            log.info("time: "+((System.currentTimeMillis()-startTime)/1000.0));
         return l;
     }
-    
-    // these are bad becuase the ResultSet closes with the connection,
-    //but the connection must be closed or it is not returned to pool;
-//    public ResultSet sendQueryRS(String q) throws SQLException
-//    {
-//        log.info("sending query "+q);
-//        Connection conn=dataSource.getConnection();
-//        Statement stmt=conn.createStatement();
-//        ResultSet rs=stmt.executeQuery(q);        
-//        conn.close();
-//        return rs;
-//    }
-//    public ResultSet sendPreparedQueryRS(String sql, String[] values) throws SQLException
-//    {
-//        
-//    }
+      
     public List sendPreparedQuery(String sql, String[] values) throws SQLException
     {
         //log.info("sending query "+sql);
@@ -140,6 +156,8 @@ public class DbConnection
     }        
     private List reformat(ResultSet rs) throws SQLException
     {        
+        if(rs==null)
+            return null;
         ArrayList list=new ArrayList(); 
         int size=rs.getMetaData().getColumnCount();
 

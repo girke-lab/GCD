@@ -44,7 +44,7 @@
                                         <option <%=bean.selectedDb("unknowns2")%> >Unknowns (new)</option>
                                     </select>
                                 </td>
-                                <td>
+                                <td nowrap>
                                     <a href='statusQueries.jsp'>Status Queries</a>
                                 </td>
                             </tr>

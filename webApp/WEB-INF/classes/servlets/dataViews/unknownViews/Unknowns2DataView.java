@@ -193,7 +193,7 @@ public class Unknowns2DataView implements DataView
     private void printData(PrintWriter out,Collection data)
     {    //recieves a list of Records        
         
-        log.debug("printing "+data.size()+" records");
+        //log.debug("printing "+data.size()+" records");
         out.println("<TABLE bgcolor='"+Common.dataColor+"' width='100%'" +
             " align='center' border='1' cellspacing='0' cellpadding='0'>");
         Record rec;

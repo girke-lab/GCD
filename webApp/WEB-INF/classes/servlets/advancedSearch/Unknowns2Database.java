@@ -150,7 +150,7 @@ public class Unknowns2Database implements SearchableDatabase
         query.append(" ORDER BY "+order);
         query.append(" LIMIT "+state.getLimit());
         
-        log.info("unknowns2 query: "+query);
+        //log.info("unknowns2 query: "+query);
         return query.toString();
     }    
     private Set buildTableSet(SearchState state,String order)

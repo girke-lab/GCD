@@ -79,14 +79,16 @@ public class ExternalUnknownRecord implements Record
     
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
-           String query="SELECT key_id,is_unknown,source "+                 
+        if(ids==null || ids.size()==0)
+            return new HashMap();
+        String query="SELECT key_id,is_unknown,source "+                 
         "   FROM unknowns.external_unknowns " +        
         "   WHERE "+Common.buildIdListCondition("key_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
         
         List data=null;
-        try{
-            data=dbc.sendQuery(query);
+        try{            
+            data=dbc.sendQuery(query);            
         }catch(java.sql.SQLException e){
             log.error("could not send ExternalUnknownRecord query: "+e.getMessage());
             return new HashMap();

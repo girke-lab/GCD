@@ -121,12 +121,14 @@ public class BlastRecord implements Record
     }    
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
+        if(ids==null || ids.size()==0)
+            return new HashMap();
+        
         String query="SELECT * " +
-        "   FROM unknowns.blast_summary_view " +
+        "   FROM unknowns.blast_summary_mv " +
         "   WHERE "+Common.buildIdListCondition("key_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
-        
-        log.info("blastRecord query: "+query);
+                
         List data=null;
         try{
             data=dbc.sendQuery(query);
@@ -135,7 +137,7 @@ public class BlastRecord implements Record
             return new HashMap();
         }
         List row,l;
-        Map output=new HashMap(); //need to maintain order here
+        Map output=new HashMap(); 
         for(Iterator i=data.iterator();i.hasNext();)
         {
             row=(List)i.next();
