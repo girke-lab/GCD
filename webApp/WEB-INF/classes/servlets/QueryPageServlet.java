@@ -357,6 +357,7 @@ public class QueryPageServlet extends HttpServlet
         QuerySetProvider.setSearchQuerySet(qs);
         QuerySetProvider.setRecordQuerySet(qs);
         QuerySetProvider.setDatabaseQuerySet(qs);
+        QuerySetProvider.setScriptQuerySet(qs);
     }
     ///////////////////////////////////////////////////////////////////////////////////////////
    

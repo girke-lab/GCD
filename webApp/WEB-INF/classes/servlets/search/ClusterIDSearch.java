@@ -28,7 +28,7 @@ public class ClusterIDSearch extends AbstractSearch
         seqId_query=QuerySetProvider.getSearchQuerySet().getClusterIDSearchQuery(input, limit, db);
         rs=Common.sendQuery(seqId_query);
         
-        Set al=new HashSet();
+        Set al=new LinkedHashSet();
         String lastDb="";
         int c=0;
         for(Iterator i=rs.iterator();i.hasNext();c++)
@@ -41,51 +41,10 @@ public class ClusterIDSearch extends AbstractSearch
             al.add(t.get(0));
             keysFound.add(t.get(1));
         }
-        data=new ArrayList(al);
-//        if(data.size() > Common.MAX_QUERY_KEYS)         
-//            stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
+        data=new ArrayList(al);    
     }
     
-    private String buildClusterStatement(String conditions, int limit, int[] DBs)
-    {
-        String q="SELECT distinct  Sequences.Seq_id, Cluster_Info.filename,sequences.genome "+
-                 "FROM Sequences, Cluster_Info, Clusters "+
-                 "WHERE Cluster_Info.cluster_id=Clusters.cluster_id AND Sequences.seq_id=Clusters.seq_id AND (";
-        for(int i=0;i<DBs.length;i++)
-        {
-            q+=" Genome='"+Common.dbRealNames[DBs[i]]+"' ";
-            if(i < DBs.length-1)//not last iteration of loop
-                q+=" or ";
-        }
-
-        q+=") and ("+conditions+")";
-        q+=" order by Genome ";
-        q+=" limit "+limit;
-        log.info("ClusterID query is:"+q);
-
-        return q;
-    }
-    private String buildStatsStatement(String conditions,int[] dbs)
-    {
-        conditions="( "+conditions+") AND (";
-        for(int i=0;i<dbs.length;i++)
-        {
-            conditions+=" Genome='"+Common.dbRealNames[dbs[i]]+"' ";
-            if(i < dbs.length-1)//not last iteration of loop
-                conditions+=" or ";
-        }
-        conditions+=" )";
-        String query= //This is a hopeless mess.
-                "select 'models', count(distinct m.model_id) from sequences as s, models as m, clusters as c, cluster_info" +
-                " where s.seq_id=m.seq_id and s.seq_id=c.seq_id and c.cluster_id=cluster_info.cluster_id and "+conditions +
-                " UNION "+
-                "select count(distinct c2.cluster_id) from sequences as s, clusters as c, clusters as c2, cluster_info as ci" +
-                " where s.seq_id=c.seq_id and s.seq_id=c2.seq_id and c.cluster_id=ci.cluster_id and "+conditions+
-                " ";
-                
-        log.info("ClusterID stats query: "+query);
-        return query;
-    }
+   
     public List notFound() 
     {//find the intersection of inputKeys and keysFound.
         List temp=new ArrayList();

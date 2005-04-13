@@ -31,7 +31,7 @@ public class DisplayKeysScript implements Script
     public void run(java.io.OutputStream out, java.util.List ids) 
     {
         List data=getData(ids);
-        log.debug("got data: "+data);
+        //log.debug("got data: "+data);
         if(data==null)
             return;
         printData(new PrintWriter(out),data);
@@ -47,6 +47,8 @@ public class DisplayKeysScript implements Script
     }
     private List getData(List ids)
     {
+        if(QuerySetProvider.getScriptQuerySet()==null)
+            log.error("no sript query set in QuerySetProvider");
         return Common.sendQuery(QuerySetProvider.getScriptQuerySet().getDisplayKeysQuery(ids));
     }
     

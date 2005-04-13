@@ -306,7 +306,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         String query="SELECT a.accession, gn.go_number " +
                 " FROM general.accessions as a JOIN common.sequence_data as sd USING(accession_id)" +
                 "   JOIN general.accession_gos as ag ON(ag.accession_id=sd.accession_id) " +
-                "   JOIN general.go_numbers as gn USING(go_id) " +
+                "   JOIN general.go_numbers as gn ON(gn.go_id=ag.go_id) " +
                 " WHERE "+Common.buildIdListCondition("sd.accession_id",ids);
         logQuery(query);
         return query;
@@ -326,7 +326,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         String query="SELECT c.method, a.accession " +
                 " FROM general.clusters as c JOIN general.cluster_members as cm USING(cluster_id) " +
                 "   JOIN general.accessions as a USING(accession_id) " +
-                " WHERE c.cluster_id="+clusterId;
+                " WHERE c.key='"+clusterId+"'";
         logQuery(query);
         return query;
     }
@@ -349,9 +349,12 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     public String getClusterIDSearchQuery(java.util.Collection input, int limit, int[] DBs)
     {
         String q="SELECT distinct accessions.accession_id,clusters.key, genome_databases.db_name " +
-                "FROM general.accessions JOIN general.cluster_members USING(accession_id) " +
-                "   JOIN general.clusters USING(cluster_id) JOIN general.genome_databases USING(genome_db_id) " +
-                "WHERE accessions.is_model=FALSE AND (";                       
+                " FROM    general.clusters" +
+                "        JOIN general.cluster_members USING(cluster_id)" +
+                "        JOIN common.model_data USING(accession_id)" +
+                "        JOIN general.accessions ON(accessions.accession_id=model_data.sequence_accession_id)" +
+                "        JOIN general.genome_databases USING(genome_db_id)" +
+                " WHERE  NOT accessions.is_model AND (";                       
         
         for(int i=0;i<DBs.length;i++)
         {
@@ -424,12 +427,12 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getGoTextSearchQuery(java.util.Collection input, int limit)
     {
-        String query="SELECT DISTINCT accessions.accession_id, go_numbers.go_number, " +
+        String query="SELECT DISTINCT accessions.accession_id,  " +
                 "       genome_databases.db_name" +
                 " FROM general.accessions JOIN general.genome_databases USING(genome_db_id) " +
                 "   JOIN general.accession_gos USING(accession_id) " +
                 "   JOIN general.go_numbers USING(go_id) " +
-                " WHERE "+Common.buildIdListCondition("go_numbers.text",input,true,limit)+
+                " WHERE "+Common.buildDescriptionCondition("go_numbers.text",input)+
                 " ORDER BY genome_databases.db_name "+
                 " limit "+limit;
         logQuery(query);
@@ -438,26 +441,31 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getIdSearchQuery(java.util.Collection input, int limit, int[] DBs)
     {        
-        String id="SELECT DISTINCT accessions.accession_id, accessions.accession, genome_databases.db_name "+
-                " FROM general.accessions JOIN general.genome_databases USING(genome_db_id) " +
-                " WHERE accessions.is_model=FALSE AND (";
+        String id="SELECT DISTINCT accessions.accession_id, other_accessions.other_accession, genome_databases.db_name "+
+                " FROM general.genome_databases " +
+                "       JOIN general.accessions USING(genome_db_id) " +
+                "       JOIN general.other_accessions USING(accession_id) "+
+                " WHERE NOT accessions.is_model AND (";
+                
+//                " FROM general.accessions JOIN general.genome_databases USING(genome_db_id) " +
+//                " WHERE accessions.is_model=FALSE AND (";
         for(int i=0;i<DBs.length;i++)
         {
-            id+=" genome_databaes.db_name='"+Common.dbRealNames[DBs[i]]+"' ";
+            id+=" genome_databases.db_name='"+Common.dbRealNames[DBs[i]]+"' ";
             if(i < DBs.length-1)//not last iteration of loop
                 id+=" or ";
         }
         
         String condition;
         if(input.size()!=0 && ((String)input.iterator().next()).equals("exact") )
-        {//if first element is 'exaxt', then use an exact match condition, which is a bit faster.
+        {//if first element is 'exact', then use an exact match condition, which is a bit faster.
             Iterator i=input.iterator();
             i.next();
             i.remove(); //remove first elemtent
-            condition=Common.buildIdListCondition("accessions.accession",input,true,limit);
+            condition=Common.buildIdListCondition("other_accessions.other_accession",input,true,limit);
         }
         else
-            condition=Common.buildLikeCondtion("accessions.accession",input,limit);
+            condition=Common.buildLikeCondtion("other_accessions.other_accession",input,limit);
         
         
         id+=") and ("+condition+")";

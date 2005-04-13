@@ -42,15 +42,15 @@ public class CommonDatabaseV2 extends DefaultSearchableDatabase
         
         fields=new Field[]{ new Field("Loci Id", "general.accessions.accession",List.class), 
                             new Field("Loci Description","general.accessions.description"),
-                            new Field("Cluster Id","general.clusters_and_info.key",List.class),
-                            new Field("Cluster Name","general.clusters_and_info.name"),                            
-                            new Field("Cluster Size","general.clusters_and_info.size",Integer.class),
-                            new Field("Clustering Method","general.clusters_and_info.method",
+                            new Field("Cluster Id","common.sequence_clusters.key",List.class),
+                            new Field("Cluster Name","common.sequence_clusters.name"),                            
+                            new Field("Cluster Size","common.sequence_clusters.size",Integer.class),
+                            new Field("Clustering Method","common.sequence_clusters.method",
                                 new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
-                            new Field("# arab keys in cluster","general.clusters_and_info.arab_count",Integer.class),
-                            new Field("# rice keys in cluster","general.clusters_and_info.rice_count",Integer.class),
-                            new Field("Database","general.genome_databases_view",new String[]{"arab","rice"}),
-                            new Field("GO Number","general.go_view",List.class)
+                            new Field("# arab keys in cluster","common.sequence_clusters.arab_count",Integer.class),
+                            new Field("# rice keys in cluster","common.sequence_clusters.rice_count",Integer.class),
+                            new Field("Database","general.genome_databases_view.db_name",new String[]{"arab","rice"}),
+                            new Field("GO Number","general.go_view.go_number",List.class)
         };
         int[] sortableFields=new int[]{0,1};
         for(int i=0;i<sortableFields.length;i++)
