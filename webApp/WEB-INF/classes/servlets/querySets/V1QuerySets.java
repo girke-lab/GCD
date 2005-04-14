@@ -224,7 +224,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     }
     public String getProteomicsRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
     {
-        String query="SELECT * "+
+        String query="SELECT key_id, mol_weight, ip, charge, prob_in_body, prob_is_neg "+
         "   FROM unknowns.proteomics_stats " +
         "   WHERE "+Common.buildIdListCondition("key_id",ids);
 

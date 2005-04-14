@@ -86,7 +86,7 @@ public class DbConnectionManager
             Class.forName("org.gjt.mm.mysql.Driver").newInstance();
             connections.put("unknowns",new DbConnection("jdbc:mysql://138.23.191.152/unknowns","servlet","512256"));            
         }catch(Exception e){
-            log.warn("failed to connect to unknonws database: "+e.getMessage());
+            log.warn("failed to connect to unknowns database: "+e.getMessage());
         }
         try{
             Class.forName("org.postgresql.Driver").newInstance();

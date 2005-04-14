@@ -15,6 +15,7 @@ import java.util.*;
 import servlets.Common;
 import servlets.DbConnection;
 import servlets.DbConnectionManager;
+import servlets.advancedSearch.queryTree.*;
 
 public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
 {       
@@ -38,13 +39,37 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
 
         log.debug("fields.length="+fields.length);
     }
-    
+    public Query buildQueryTree(SearchState state)
+    {
+        Query q=super.buildQueryTree(state);
+
+        //modify select list and order by.
+        List fields=new LinkedList();
+                        
+        fields.add("general.to_model_accessions.model_accession_id");        
+        fields.add(getField(state.getSortField()).dbName);
+        
+        q.setFields(fields);
+        
+        return q;
+        
+    }        
+     protected List additionalJoins()
+    {
+        List j=new ArrayList(1);    
+        j.add("general.to_model_accessions");
+        return j;
+    }
     void defineOptions()
     {   
         log.debug("defining options"); 
-        rootTableName="general.accessions";
+//        rootTableName="general.accessions";
+//        primaryKey="accession_id";
+//        defaultColumn="accession";
+        
+        rootTableName="general.to_model_accessions";
         primaryKey="accession_id";
-        defaultColumn="accession";
+        defaultColumn="other_accession";
         
         String db="unknowns.";        
         String space=" &nbsp&nbsp ";
@@ -52,7 +77,7 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         //we don't need any special cases in the query building code.
         
         fields=new Field[]{
-            new Field("At key","general.accessions.accession_id",List.class),
+            new Field("At key","general.other_accessions.other_accession",List.class),
             new Field("Description","general.accessions.description"),
             new Field("Number of ests",db+"unknown_data.est_count",Integer.class),
                         

@@ -35,7 +35,7 @@ public class UnknownsDataView implements DataView
     public UnknownsDataView() 
     {        
         sortDir="asc"; //default sort direction
-        dbc=DbConnectionManager.getConnection("unknowns");
+        dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection to unknowns");
         //try to use the system temp dir, though this will not always work
@@ -47,7 +47,7 @@ public class UnknownsDataView implements DataView
     public UnknownsDataView(String tempPath) 
     {
         sortDir="asc"; //default sort direction
-        dbc=DbConnectionManager.getConnection("unknowns");
+        dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection to unknowns");
         log.debug("temp dir in UnknownsDataview is "+tempPath);        
@@ -250,16 +250,7 @@ public class UnknownsDataView implements DataView
         }
         return null;
     }
-    private String buildQuery(String conditions)
-    {
-        String query="SELECT unknowns.*,treats.treat " +
-            " FROM unknowns LEFT JOIN treats USING(unknown_id) " +
-            " WHERE unknowns.unknown_id in ("+conditions+") " +
-            " ORDER BY "+sortCol+" "+sortDir+",unknowns.unknown_id ";
-        
-        log.info("query is: "+query);
-        return query;
-    }
+    
     
    
     

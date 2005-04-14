@@ -31,7 +31,7 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
     /** Creates a new instance of UnknownsDatabase */
     public UnknownsDatabase() 
     {
-        super(dbc=DbConnectionManager.getConnection("khoran"),stm);
+        super(DbConnectionManager.getConnection("khoran"),stm);
     }
     void defineOptions()
     {                

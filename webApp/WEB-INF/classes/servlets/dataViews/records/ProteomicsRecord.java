@@ -106,7 +106,7 @@ public class ProteomicsRecord implements Record
                 return new ProteomicsRecord(l);
             }
         };                
-        return RecordGroup.buildRecordMap(rb,data,2,7);     
+        return RecordGroup.buildRecordMap(rb,data,1,6);     
         
 //        List row,l;
 //        Map output=new HashMap(); //need to maintain order here

@@ -235,7 +235,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 //                general.accession_gos as ag ON(seq.accession_id=ag.accession_id) JOIN general.go_numbers as gn USING(go_id) 
 //                where md.accession_id=236;
 
-        String query="SELECT accession_gos.accession_id,go_numbers.go_number, go_numbers.function,go_numbers.text " +
+        String query="SELECT md.accession_id, go_numbers.go_number, go_numbers.function,go_numbers.text " +
                 " FROM common.model_data as md JOIN general.accessions as seq ON(md.sequence_accession_id=seq.accession_id) " +
                 "   JOIN general.accession_gos ON(seq.accession_id=accession_gos.accession_id) " +
                 "   JOIN general.go_numbers USING(go_id) " +
@@ -248,7 +248,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getProteomicsRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
     {
-        String query="SELECT * "+
+        String query="SELECT accession_id, mol_weight, ip, charge, prob_in_body, prob_is_neg "+
         "   FROM "+uSchema+".proteomics_stats " +
         "   WHERE "+Common.buildIdListCondition("accession_id",ids);
 
