@@ -10,7 +10,7 @@
 
         <%
             bean.setDefaultDatabase("unknowns");
-            bean.setDatabase("unknowns");
+            //bean.setDatabase("unknowns");
             bean.initPage(application,request,response);
         %>
 
