@@ -176,11 +176,16 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         if(sortCol==null)
             sortCol="accession";
-         String query="SELECT 1, accessions.accession_id, accessions.accession, accessions.description, " +
+        else if(sortCol.equals("unknowns.other_accessions_view.other_accession"))
+            sortCol="accessions.accession";
+        
+        String query="SELECT 1, ma.accession_id, accessions.accession, accessions.description, " +
                  " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
                  " unknown_data.version" +
-        "   FROM general.accessions JOIN "+uSchema+".unknown_data USING(accession_id) " +
-        "   WHERE "+Common.buildIdListCondition("accessions.accession_id",ids)+
+        "   FROM general.accessions " +
+        "       JOIN general.to_model_accessions as ma ON(accessions.accession_id=ma.model_accession_id) " +
+        "       JOIN "+uSchema+".unknown_data ON(ma.model_accession_id=unknown_data.accession_id) " +
+        "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
                 
         logQuery(query);
@@ -191,9 +196,11 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
          if(sortCol==null)
             sortCol="purpose";
-        String query="SELECT * " +
+        String query="SELECT ma.accession_id, blast_id, accession, description, " +
+                " e_value, score, identities, length, positives, gaps, db_name, link, method, purpose    "+                
         "   FROM "+uSchema+".blast_summary_view " +
-        "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
+                "JOIN general.to_model_accessions as ma ON(blast_summary_view.accession_id=ma.model_accession_id)" +
+        "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
 
         logQuery(query);
@@ -204,9 +211,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         if(sortCol==null)
             sortCol="name";
-        String query="SELECT accession_id, name, size, 'cutoff', cluster_id "+                 
-        "   FROM "+uSchema+".cluster_info_and_counts_view " +        
-        "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
+        String query="SELECT ma.accession_id, name, size, 'cutoff', cluster_id "+                 
+        "   FROM "+uSchema+".cluster_info_and_counts_view " +
+                "JOIN general.to_model_accessions as ma ON(cluster_info_and_counts_view.accession_id=ma.model_accession_id)" +        
+        "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
         logQuery(query);
         return query;
@@ -216,9 +224,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         if(sortCol==null)
             sortCol="source";
-        String query="SELECT accession_id,is_unknown,source "+
+        String query="SELECT ma.accession_id,is_unknown,source "+
         "   FROM "+uSchema+".external_unknowns " +
-        "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
+                "JOIN general.to_model_accessions as ma ON(external_unknowns.accession_id=ma.model_accession_id)" +
+        "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
 
         logQuery(query);
@@ -235,11 +244,11 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 //                general.accession_gos as ag ON(seq.accession_id=ag.accession_id) JOIN general.go_numbers as gn USING(go_id) 
 //                where md.accession_id=236;
 
-        String query="SELECT md.accession_id, go_numbers.go_number, go_numbers.function,go_numbers.text " +
-                " FROM common.model_data as md JOIN general.accessions as seq ON(md.sequence_accession_id=seq.accession_id) " +
-                "   JOIN general.accession_gos ON(seq.accession_id=accession_gos.accession_id) " +
+        String query="SELECT sa.accession_id, go_numbers.go_number, go_numbers.function,go_numbers.text " +
+                " FROM  general.to_sequence_accessions as sa "+
+                "   JOIN general.accession_gos ON(sa.sequence_accession_id=accession_gos.accession_id) " +
                 "   JOIN general.go_numbers USING(go_id) " +
-                " WHERE "+Common.buildIdListCondition("md.accession_id",ids)+
+                " WHERE "+Common.buildIdListCondition("sa.accession_id",ids)+
                 " ORDER BY "+sortCol+" "+sortDir;
 
         logQuery(query);
@@ -248,9 +257,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getProteomicsRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
     {
-        String query="SELECT accession_id, mol_weight, ip, charge, prob_in_body, prob_is_neg "+
+        String query="SELECT ma.accession_id, mol_weight, ip, charge, prob_in_body, prob_is_neg "+
         "   FROM "+uSchema+".proteomics_stats " +
-        "   WHERE "+Common.buildIdListCondition("accession_id",ids);
+                "JOIN general.to_model_accessions as ma ON(proteomics_stats.accession_id=ma.model_accession_id)" +
+        "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids);
 
         logQuery(query);
         return query;
