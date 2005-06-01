@@ -235,7 +235,9 @@ public class DbConnection
             l=reformat(rs);
         }catch(SQLException e){            
             //some how we should check for a java.net.SocketException here, and 
-            //reset all the connections if we find one.             
+            //reset all the connections if we find one. 
+            
+            //got error code 08S01 at least once for a db disconnect.
             log.error("error message: "+e.getMessage());
             log.error("error code: "+e.getErrorCode());
             log.error("sql state:  "+e.getSQLState());

@@ -432,7 +432,7 @@ public class SeqDataView implements DataView
                             cs.arab_size+" Ath &nbsp&nbsp "+cs.rice_size+" Osa</a></TD>");
                  if(!cs.size.equals("1") && !cs.method.endsWith("_50") && !cs.method.endsWith("_70"))
                  {
-                    String webBase="http://bioinfo.ucr.edu/cgi-bin/getClusterFiles.pl?cid="+cs.clusterNum+ 
+                    String webBase="http://bioinfo.ucr.edu/cgi-bin/getClusterFiles-testing.pl?cid="+cs.clusterNum+ 
                          "&cluster_type="+cs.method+"&file_type=";
 
                     out.println("\t\t<TD nowrap>");

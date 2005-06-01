@@ -30,7 +30,7 @@ public class CommonDatabaseV2 extends DefaultSearchableDatabase
      */
     public CommonDatabaseV2() 
     {
-        super(DbConnectionManager.getConnection("common"),stm);
+        super(DbConnectionManager.getConnection("khoran"),stm);
        
     }
     

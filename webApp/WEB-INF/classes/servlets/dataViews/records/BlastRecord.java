@@ -64,7 +64,8 @@ public class BlastRecord implements Record
                 log.error("recieved list of size "+values.size()+", but expected size of 12");
             return;
         }
-        if(values.get(0)==null) //this is a no hit
+        
+        if(values.get(0)==null || values.get(0).equals("no hit")) //this is a no hit
         {
             target="no hit";
         }

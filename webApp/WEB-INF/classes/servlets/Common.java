@@ -39,7 +39,7 @@ public class Common {
         List rs=null;
         DbConnection dbc;
         try{
-            dbc=DbConnectionManager.getConnection("common");
+            dbc=DbConnectionManager.getConnection("khoran");
 //            if(dbc==null)
 //            {
 //                dbc=new DbConnection(); //use default connection
@@ -181,11 +181,11 @@ public class Common {
             "            	<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
             "                   <td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='advancedSearch.jsp'>Advanced</a>&nbsp;]</font></td>" +
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>Table</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size' target='_blank'>Table</a>&nbsp;]</font></td>" +
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>Stats</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl' >Stats</a>&nbsp;]</font></td>" +
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='ftp.jsp'>FTP</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/projects/ClusterDB/data'>Downloads</a>&nbsp;]</font></td>" +
             "		</tr>" +           
             "	</table>" +
              (!subTitle.equals("")?

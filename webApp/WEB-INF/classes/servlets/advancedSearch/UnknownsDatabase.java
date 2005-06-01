@@ -55,8 +55,6 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
             "flcDNA TIGR (XML) avail" ,
             "Nottingham Chips: 3x >90" ,
             "Rice Orth E-value" ,
-            "HumanRatMouse Orth E-value" ,
-            "S. cerevisiae E-value" ,
             "Gene Family Size 35%_50%_70% ident" ,
             "Pet Gene from" ,
             "Targeting Ipsort" ,
@@ -69,6 +67,8 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
             "Selected by" ,
             "Multiple selects" ,
             "Occurrence in treaments",        
+            "HumanRatMouse Orth E-value" ,
+            "S. cerevisiae E-value" ,                    
             "Treatments"
         };
         String[] dbNames=new String[]{
@@ -86,9 +86,7 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
             rootTableName+".avail",
             rootTableName+".flcDNA_TIGR_XML_avail",
             rootTableName+".Nottingham_Chips_3x_90",
-            rootTableName+".Rice_Orth_Evalue",
-            rootTableName+".HumanRatMouse_Orth_Evalue",
-            rootTableName+".S_cerevisiae_Evalue",
+            rootTableName+".Rice_Orth_Evalue",            
             rootTableName+".Gene_Family_Size_35_50_70_perc_ident",
             rootTableName+".Pet_Gene_from",
             rootTableName+".Targeting_Ipsort",
@@ -101,6 +99,8 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
             rootTableName+".Selected_by",
             rootTableName+".Multiple_selects",
             rootTableName+".Occurrence_in_treaments",
+            rootTableName+".HumanRatMouse_Orth_Evalue",
+            rootTableName+".S_cerevisiae_Evalue",
             "old_unknowns.treats.treat"
         };
         fields=new Field[dbNames.length];

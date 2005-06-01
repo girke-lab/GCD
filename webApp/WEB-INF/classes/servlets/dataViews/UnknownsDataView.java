@@ -271,8 +271,6 @@ public class UnknownsDataView implements DataView
             "flcDNA TIGR (XML) avail" ,
             "Nottingham Chips: 3x >90" ,
             "Rice Orth E-value" ,
-            "HumanRatMouse Orth E-value" ,
-            "S. cerevisiae E-value" ,
             "Gene Family Size 35%_50%_70% ident" ,
             "Pet Gene from" ,
             "Targeting Ipsort" ,
@@ -285,6 +283,8 @@ public class UnknownsDataView implements DataView
             "Selected by" ,
             "Multiple selects" ,
             "Occurrence in treaments",        
+            "HumanRatMouse Orth E-value" ,
+            "S. cerevisiae E-value" ,                    
             "Treatments"
         };
 }

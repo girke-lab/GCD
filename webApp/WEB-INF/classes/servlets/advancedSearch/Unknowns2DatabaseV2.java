@@ -82,16 +82,16 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
             new Field("Number of ests",db+"unknown_data.est_count",Integer.class),
                         
             new Field("Blast/Pfam Searches (best per db)",""),                        
-            new Field(space+"database",db+"blast_summary_view.db_name",             
+            new Field(space+"database","general.blast_summary_mv.db_name",             
                         new String[]{"swp","pfam","rice","yeast","human/rat/mouse"}),
-            new Field(space+"method",db+"blast_summary_view.method",
+            new Field(space+"method","general.blast_summary_mv.method",
                         new String[]{"BLASTP","hmmPfam"}),
-            new Field(space+"Blast target accession",db+"blast_summary_view.target_accessicd" +
+            new Field(space+"Blast target accession","general.blast_summary_mv.target_accessicd" +
             "cdon"),
-            new Field(space+"Blast target description",db+"blast_summary_view.target_description"),    
-            new Field(space+"best e_value",db+"blast_summary_view.e_value",Float.class),       
-            new Field(space+"score",db+"blast_summary_view.score"),
-            new Field(space+"identities",db+"blast_summary_view.identities"),            
+            new Field(space+"Blast target description","general.blast_summary_mv.target_description"),    
+            new Field(space+"best e_value","general.blast_summary_mv.e_value",Float.class),       
+            new Field(space+"score","general.blast_summary_mv.score"),
+            new Field(space+"identities","general.blast_summary_mv.identities"),            
             
             new Field("GO",""),
             new Field(space+"number",db+"go_view.go_number",List.class),
@@ -107,9 +107,9 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
                     
                         
             new Field("Clusters",""),
-            new Field(space+"Score Threshold",db+"cluster_info_and_counts_view.cutoff",Integer.class,
+            new Field(space+"Score Threshold","general.clusters_and_info.cutoff",Integer.class,
                         new String[]{"35","50","70"}),
-            new Field(space+"Size",db+"cluster_info_and_counts_view.size",Integer.class),
+            new Field(space+"Size","general.clusters_and_info.size",Integer.class),
             
             new Field("Proteomic Stats",""),   //21         
             new Field(space+"Molecular Weight",db+"proteomics_stats.mol_weight"),

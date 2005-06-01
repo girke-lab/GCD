@@ -54,10 +54,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     }
     public String getClusterDataViewQuery(java.util.Collection ids, String order, int[] DBs)
     {
-        order=order.replaceAll("(general\\.)?cluster_sizes_by_model", "csm");
+        order=order.replaceAll("(general\\.)?cluster_sizes_by_model_mv", "csm");
         String query="SELECT DISTINCT clusters.key, clusters.name,csm.arab_count," +
                 "           csm.rice_count,csm.size,clusters.method " +
-            " FROM general.clusters JOIN general.cluster_sizes_by_model as csm USING(cluster_id) " +
+            " FROM general.clusters JOIN general.cluster_sizes_by_model_mv as csm USING(cluster_id) " +
             " WHERE "+Common.buildIdListCondition("clusters.cluster_id",ids)+
             " ORDER BY "+order;        
         logQuery(query);
@@ -143,7 +143,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 "        ) as amg" +
                 "        LEFT JOIN general.cluster_members as cm ON(amg.model_accession_id=cm.accession_id)" +
                 "        LEFT JOIN general.clusters ON (cm.cluster_id=clusters.cluster_id)" +
-                "        LEFT JOIN general.cluster_sizes_by_model as csm ON(clusters.cluster_id=csm.cluster_id)" +
+                "        LEFT JOIN general.cluster_sizes_by_model_mv as csm ON(clusters.cluster_id=csm.cluster_id)" +
                 " WHERE   " 
                 );                
                 
@@ -198,8 +198,8 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             sortCol="purpose";
         String query="SELECT ma.accession_id, blast_id, accession, description, " +
                 " e_value, score, identities, length, positives, gaps, db_name, link, method, purpose    "+                
-        "   FROM "+uSchema+".blast_summary_view " +
-                "JOIN general.to_model_accessions as ma ON(blast_summary_view.accession_id=ma.model_accession_id)" +
+        "   FROM general.blast_summary_mv " +
+                "JOIN general.to_model_accessions as ma ON(blast_summary_mv.accession_id=ma.model_accession_id)" +
         "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
 
@@ -211,9 +211,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         if(sortCol==null)
             sortCol="name";
-        String query="SELECT ma.accession_id, name, size, 'cutoff', cluster_id "+                 
-        "   FROM "+uSchema+".cluster_info_and_counts_view " +
-                "JOIN general.to_model_accessions as ma ON(cluster_info_and_counts_view.accession_id=ma.model_accession_id)" +        
+        String query="SELECT ma.accession_id, name, size, method, cluster_id "+                 
+        "   FROM general.clusters_and_info " +
+                "JOIN general.to_model_accessions as ma ON(clusters_and_info.accession_id=ma.model_accession_id)" +        
         "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
         logQuery(query);
@@ -382,10 +382,17 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getClusterNameSearchQuery(java.util.Collection input, int limit, int[] DBs)
     {
-        String q="SELECT distinct accessions.accession_id,clusters.name, genome_databases.db_name " +
-                "FROM general.accessions JOIN general.cluster_members USING(accession_id) " +
-                "   JOIN general.clusters USING(cluster_id) JOIN general.genome_databases USING(genome_db_id) " +
-                "WHERE accessions.is_model=FALSE AND (";                       
+        String q="SELECT distinct accessions.accession_id, genome_databases.db_name " +
+                " FROM  general.clusters " +
+                "       JOIN general.cluster_members USING(cluster_id) " +
+                "       JOIN general.to_sequence_accessions USING(accession_id) " +
+                "       JOIN general.accessions ON(to_sequence_accessions.sequence_accession_id=accessions.accession_id) " +
+                "       JOIN general.genome_databases USING(genome_db_id) " +
+                " WHERE NOT accessions.is_model AND (";
+                
+//                "FROM general.accessions JOIN general.cluster_members USING(accession_id) " +
+//                "   JOIN general.clusters USING(cluster_id) JOIN general.genome_databases USING(genome_db_id) " +
+//                "WHERE accessions.is_model=FALSE AND (";                       
         
         for(int i=0;i<DBs.length;i++)
         {
@@ -394,7 +401,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 q+=" or ";
         }
 
-        q+=") and ("+Common.buildLikeCondtion("clusters.name",input,limit)+")";
+        q+=") and ("+Common.buildDescriptionCondition("clusters.name",input)+")";
         q+=" order by genome_databases.db_name ";
         q+=" limit "+limit;
         logQuery(q);        
@@ -451,17 +458,23 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getIdSearchQuery(java.util.Collection input, int limit, int[] DBs)
     {        
-        String id="SELECT DISTINCT accessions.accession_id, other_accessions.other_accession, genome_databases.db_name "+
-                " FROM general.genome_databases " +
-                "       JOIN general.accessions USING(genome_db_id) " +
-                "       JOIN general.other_accessions USING(accession_id) "+
-                " WHERE NOT accessions.is_model AND (";
+        String id="SELECT DISTINCT a.accession_id, oa.other_accession, gd.db_name "+
+                " FROM  general.other_accessions as oa " +
+                "       JOIN general.to_sequence_accessions sa USING(accession_id) " +
+                "       JOIN general.accessions as a ON(sa.sequence_accession_id=a.accession_id) " +
+                "       JOIN general.genome_databases as gd USING(genome_db_id) " +
+                " WHERE NOT a.is_model AND ( ";
+                
+//                " FROM general.genome_databases " +
+//                "       JOIN general.accessions USING(genome_db_id) " +
+//                "       JOIN general.other_accessions USING(accession_id) "+
+//                " WHERE NOT accessions.is_model AND (";
                 
 //                " FROM general.accessions JOIN general.genome_databases USING(genome_db_id) " +
 //                " WHERE accessions.is_model=FALSE AND (";
         for(int i=0;i<DBs.length;i++)
         {
-            id+=" genome_databases.db_name='"+Common.dbRealNames[DBs[i]]+"' ";
+            id+=" gd.db_name='"+Common.dbRealNames[DBs[i]]+"' ";
             if(i < DBs.length-1)//not last iteration of loop
                 id+=" or ";
         }
@@ -472,14 +485,14 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             Iterator i=input.iterator();
             i.next();
             i.remove(); //remove first elemtent
-            condition=Common.buildIdListCondition("other_accessions.other_accession",input,true,limit);
+            condition=Common.buildIdListCondition("oa.other_accession",input,true,limit);
         }
         else
-            condition=Common.buildLikeCondtion("other_accessions.other_accession",input,limit);
+            condition=Common.buildLikeCondtion("oa.other_accession",input,limit);
         
         
         id+=") and ("+condition+")";
-        id+=" order by genome_databases.db_name";
+        id+=" order by gd.db_name";
         id+=" limit "+limit;
         logQuery(id);
         return id;
@@ -536,7 +549,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getStatsByQuery(String idQuery)
     {
-        String condition="md.sequence_accession_id in ("+idQuery+")";
+        String condition="md.sequence_accession_id in ( select accession_id from ("+idQuery+") as t )";
         String query=
                 "SELECT 'models', count(distinct md.accession_id) "+
                 " FROM common.model_data as md" +

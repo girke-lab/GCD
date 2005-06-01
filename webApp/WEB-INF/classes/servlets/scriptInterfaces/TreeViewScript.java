@@ -23,7 +23,7 @@ public class TreeViewScript implements Script
 {
     private static Logger log=Logger.getLogger(TreeViewScript.class);
     URL url;
-    String dndBase="http://bioinfo.ucr.edu/projects/ClusterDB/clusters.d/";
+    String dndBase="http://bioinfo.ucr.edu/projects/ClusterDB/clusters_B/";
     String clusterId;
     HttpServletResponse response; 
     
@@ -62,46 +62,7 @@ public class TreeViewScript implements Script
         printData(out, keys);
     }
     
-    private void printForm(OutputStream out,List data)
-    {// this is ugly but works
-        PrintWriter pw=new PrintWriter(out);
-        StringBuffer dndData=new StringBuffer();
-        
-        String dnd,link,lastMethod=null;            
-        //link="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Id&input=";
-        link="http://138.23.191.152:8080/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
-        //log.debug("number of rows: "+data.size());
-        //log.debug("data="+data);
-        try{
-            for(Iterator i=data.iterator();i.hasNext();)
-            {
-                List row=(List)i.next();
-          //      log.debug("row="+row);
-                if(lastMethod==null || !lastMethod.equals(row.get(0)))
-                {//new cluster
-                    //log.debug("new cluster");
-                    //dndData.append("data=3434");                
-                    dnd=getDnd(clusterId,(String)row.get(0));
-                    dndData.append(dnd+"\n");
-                }                
-                dndData.append(row.get(1)+"\t"+row.get(1)+"\tblue\t\t"+link+row.get(1)+"\n");
-                lastMethod=(String)row.get(0);
-            }            
-        }catch(IOException e){
-            log.error("io error: "+e.getMessage());
-            Common.quit(pw, "no dnd file exists for this cluster");
-            return;
-        }
-        //log.debug("dndData="+dndData);
-        
-        pw.println("<html><head/><body onLoad=\"form1.submit()\">");
-        pw.println("<form name='form1' action='"+url+"' method='post' >");
-        pw.println("<input type=hidden name='action' value='upload'>");
-        pw.println("<input type=hidden name='data' value='"+dndData+"'>");
-        pw.println("<input type=submit >");
-        pw.println("</form></body></html>");
-        pw.flush();
-    }
+  
     
     private void printData(OutputStream out,List data)
     {//this is better, but does not preserve the context of the other page,
@@ -113,9 +74,18 @@ public class TreeViewScript implements Script
             conn.setDoInput(true);
             conn.setDoOutput(true);            
             DataOutputStream dos=new DataOutputStream(conn.getOutputStream());
+           
+//            String testData="(((At2g31360.1:0.17120,At1g06080.1:0.12539):0.15959,((At1g06350.1:0.11652,At1g06360.1:0.11664):0.08670,((At1g06090.1:0.05493,At1g06120.1:0.06737):0.05045,At1g06100.1:0.13378):0.05571):0.1506):0.11621,(At3g15850.1:0.35574,At3g15870.1:0.46298):0.00718);\n" +
+//                    "row.get(1)+\t+row.get(1)+\tblue\t\t+link+row.get(1)+\n";
+//               
+//            dos.writeBytes("data=");
+//            dos.writeBytes(URLEncoder.encode(testData,"UTF-8"));
+//            dos.writeBytes("&action=machine_upload");
+//            dos.close();
+            
             
             String dnd,link,lastMethod=null;            
-            link="http://138.23.191.152:8080/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
+            link="http://bioweb.ucr.edu:8180/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
             log.debug("number of rows: "+data.size());
             log.debug("data="+data);
             for(Iterator i=data.iterator();i.hasNext();)
@@ -134,27 +104,25 @@ public class TreeViewScript implements Script
                         return;
                     }
                     dos.writeBytes(URLEncoder.encode(dnd+"\n","UTF-8"));
+                    //log.debug(URLEncoder.encode(dnd+"\n","UTF-8"));
                 } 
                 //log.debug("writing: "+row.get(1)+"\t"+row.get(1)+"\tblue\t\t"+link+row.get(1)+"\n");
                 dos.writeBytes(URLEncoder.encode(row.get(1)+"\t"+row.get(1)+"\tblue\t\t"+link+row.get(1)+"\n","UTF-8"));
+                //log.debug(URLEncoder.encode(row.get(1)+"\t"+row.get(1)+"\tblue\t\t"+link+row.get(1)+"\n","UTF-8"));
                 lastMethod=(String)row.get(0);
             }            
             dos.writeBytes("&action=machine_upload");
+            //log.debug("&action=machine_upload");
             dos.close();
-                                                           
+                                   
+            
+            
             BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String newUrl=br.readLine();
             br.close();
             log.debug("newUrl="+newUrl);
-            response.sendRedirect(newUrl);
-            
-            
-//            byte[] bytes=new byte[1024];
-//            int read;
-//            while((read=is.read(bytes))!=-1)
-//                out.write(bytes,0,read);
-//                
-//             is.close();   
+            response.sendRedirect(newUrl);                        
+
         }catch(IOException e){
             new PrintWriter(out).println("could no open connection to "+url.getFile()+":"+e.getMessage());
             log.error("could no open connection to "+url.getFile()+":"+e.getMessage());
@@ -169,9 +137,9 @@ public class TreeViewScript implements Script
         log.debug("getting dnd for cluster "+clusterId+", of method "+method);
         String clusterType;
         if(method.startsWith("BLASTCLUST"))
-            clusterType="blastClusters/";
+            clusterType="blastClusters/data/";
         else if(method.startsWith("Domain Composition"))
-            clusterType="hmmClusters/";
+            clusterType="hmmClusters/data/";
         else
         {
             log.error("invalid cluster method: "+method);

@@ -35,35 +35,31 @@
                                 <dt><b>Cluster, Alignment and Tree Data</b></dt>
                                 <dd>
                                 Accurate clustering of entire proteomes is a complex task. Currently, GCD provides data of high quality for most but not all families. Due to this limitation, clusters and trees in GCD should only be used after quality inspection of the corresponding alignments using the available consensus and domain shading tools.<p>				    </dd>
-                                <dt><b>Rice Data</b></dt>
-                                <dd>
-				All rice sequences and features in GCD are currently based on TIGR's Version 2 annotation. The full upgrade to Version 3 will occur soon.
-                                </dd>
                         </dl>
                 <p>
 
 		<li type=I><b>Search Functions</b></li><p>
                         <dl>
                                 <a name="search"></a>
-                                <dt><b><a href="http://138.23.191.152:8080/databaseWeb/index.jsp">Basic Searches in Single or Batch Mode</a></b></dt>
+                                <dt><b><a href="http://bioweb.ucr.edu:8180/databaseWeb/index.jsp">Basic Searches in Single or Batch Mode</a></b></dt>
                                 <dd>
 
                                 Database searches can be performed against the following five field categories:					
                                         <ol>
-                                                <li>Functional descriptions (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Description&limit=0&input=desaturase%20AND%20fatty%20acid">desaturase AND fatty acid</a>'). Boolean query connectors can be included here: 'AND' &nbsp; 'OR' &nbsp; 'NOT'. </li>
-                                                <li>Cluster names (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Name&limit=0&input=oxidoreductase%20activity">oxidoreductase activity</a>)'</li>
+                                                <li>Functional descriptions (<i>e.g.</i> '<a href="http://bioweb.ucr.edu:8180/databaseWeb/index.jsp?fieldName=Description&limit=0&input=desaturase%20AND%20fatty%20acid">desaturase AND fatty acid</a>'). Boolean query connectors can be included here: 'AND' &nbsp; 'OR' &nbsp; 'NOT'. </li>
+                                                <li>Cluster names (<i>e.g.</i> '<a href="http://bioweb.ucr.edu:8180/databaseWeb/index.jsp?fieldName=Cluster%20Name&limit=0&input=oxidoreductase%20activity">oxidoreductase activity</a>)'</li>
 
-                                                <li>One or many locus IDs from Arabidopsis or rice (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Id%20Id&limit=0&input=At1g01190%20At3g62720%209631.m01858">At1g01190 &nbsp; At3g62720 &nbsp; 9631.m01858</a>')</li> 
-                                                <li>Cluster or Pfam ID numbers (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=53">53</a>' or '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF00067">PF00067</a>')</li>
+                                                <li>One or many locus IDs from Arabidopsis or rice (<i>e.g.</i> '<a href="http://bioweb.ucr.edu:8180/databaseWeb/index.jsp?fieldName=Id%20Id&limit=0&input=At1g01190%20At3g62720%209631.m01858">At1g01190 &nbsp; At3g62720 &nbsp; 9631.m01858</a>')</li> 
+                                                <li>Cluster or Pfam ID numbers (<i>e.g.</i> '<a href="http://bioweb.ucr.edu:8180/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=53">53</a>' or '<a href="http://bioweb.ucr.edu:8180/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF00067">PF00067</a>')</li>
 
-                                                <li>Gene Ontology keys (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=GO%20Number&limit=0&input=GO:0019825">GO:0019825</a>')</li>
+                                                <li>Gene Ontology keys (<i>e.g.</i> '<a href="http://bioweb.ucr.edu:8180/databaseWeb/index.jsp?fieldName=GO%20Number&limit=0&input=GO:0019825">GO:0019825</a>')</li>
                                         </ol>
-                                Before submitting a query, the correct <b>search category</b> needs to be selected in the drop down menu on the bottom of the search page. The maximum number of query hits can be specified in a separate field. In addition, all searches can be delimited against one organism by selecting/de-selecting one of them. A user-friendly 'Loop Query' system on the resulting <a href="http://138.23.191.152:8080/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=At1g18690">List Page</a> allows quick retrieval of all members of a family of interest by clicking on the organism distribution links (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF05637">7 Ath &nbsp; 8 Osa</a>'). A similar facility is in place to quickly retrieve all proteins containing a Pfam domain of interest by clicking on its link under domain cluster ID. This action will loop through the Advanced Search Page.
+                                Before submitting a query, the correct <b>search category</b> needs to be selected in the drop down menu on the bottom of the search page. The maximum number of query hits can be specified in a separate field. In addition, all searches can be delimited against one organism by selecting/de-selecting one of them. A user-friendly 'Loop Query' system on the resulting <a href="http://bioweb.ucr.edu:8180/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=At1g18690">List Page</a> allows quick retrieval of all members of a family of interest by clicking on the organism distribution links (<i>e.g.</i> '<a href="http://bioweb.ucr.edu:8180/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF05637">7 Ath &nbsp; 8 Osa</a>'). A similar facility is in place to quickly retrieve all proteins containing a Pfam domain of interest by clicking on its link under domain cluster ID. This action will loop through the Advanced Search Page.
 
                                 </dd>
 
                                 <p>
-                                <dt><b><a href="http://138.23.191.152:8080/databaseWeb/advancedSearch.jsp">Advanced Searches</a></b></dt>
+                                <dt><b><a href="http://bioweb.ucr.edu:8180/databaseWeb/advancedSearch.jsp">Advanced Searches</a></b></dt>
                                 <dd>
                                 Combinatorial queries of expandable complexity can be constructed on the Advanced Search Page. Several predefined queries are available here to retrieve organism-restricted clusters within certain size intervalls.	
                                 </dd>
@@ -82,7 +78,7 @@
                         <dl>
                                 <dt><b>General</b></dt>
                                 <dd>
-                                All of the above query types return a Result List page that provides the <i>A. thaliana</i> members on the top and the <i>O. sativa</i> members on the bottom. The cluster association of the entries is provided by their cluster identifiers (ID) and the cluster sizes are specified by the cluster size links, <i>e.g.</i>: '<u>7 Ath 15 Osa</u>' stands for a cluster with 7 <i>A. thaliana</i> and 15 <i>O. sativa</i> members. The result statistics on the beginning of the page lists the number of loci, gene models and clusters returned by a query. To restrict a query to a protein family of interest, users can simply click on the organism distribution links (<i>e.g.</i> '<a href="http://138.23.191.152:8080/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF05637">7 Ath &nbsp; 8 Osa</a>'). This actions sends the correct query syntax back to the main page which returns the requested entries upon submission.  
+                                All of the above query types return a Result List page that provides the <i>A. thaliana</i> members on the top and the <i>O. sativa</i> members on the bottom. The cluster association of the entries is provided by their cluster identifiers (ID) and the cluster sizes are specified by the cluster size links, <i>e.g.</i>: '<u>7 Ath 15 Osa</u>' stands for a cluster with 7 <i>A. thaliana</i> and 15 <i>O. sativa</i> members. The result statistics on the beginning of the page lists the number of loci, gene models and clusters returned by a query. To restrict a query to a protein family of interest, users can simply click on the organism distribution links (<i>e.g.</i> '<a href="http://bioweb.ucr.edu:8180/databaseWeb/index.jsp?fieldName=Cluster%20Id&limit=0&input=PF05637">7 Ath &nbsp; 8 Osa</a>'). This actions sends the correct query syntax back to the main page which returns the requested entries upon submission.  
                                 </dd>
 
                                 <p>
@@ -118,13 +114,13 @@
                                                 <ul>
 
                                                         <li><i>A. thaliana</i>: <a href="ftp://ftp.tigr.org/pub/data/a_thaliana/ath1/SEQUENCES">ATH1.pep</a></li>
-                                                        <li><i>O. sativa spp. japonica</i>: <a href="ftp://ftp.tigr.org/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_2.0/all_chrs/">all.pep</a></li>
+                                                        <li><i>O. sativa spp. japonica</i>: <a href="ftp://ftp.tigr.org/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_3.0/all_chrs/">all.pep</a></li>
                                                 </ul>
                                                         <li type=i>TIGR pseudochromosomes for feature download and viewing</li> 
                                                 <ul>
                                                         <li><i>A. thaliana</i>: <a href="ftp://ftp.tigr.org/pub/data/a_thaliana/ath1/PSEUDOCHROMOSOMES">*.xml</a></li>
 
-                                                        <li><i>O. sativa spp. japonica</i>: <a href="ftp://ftp.tigr.org/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_2.0">*.xml</a></li>
+                                                        <li><i>O. sativa spp. japonica</i>: <a href="ftp://ftp.tigr.org/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_3.0/">*.xml</a></li>
                                                 </ul>
                                                         <li type=i>Ortholog identification in other kingdoms</li> 
                                                 <ul>

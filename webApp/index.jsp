@@ -1,7 +1,7 @@
 <%@page contentType="text/html"%>
 <html>
 <head>
-    <title>GDC</title>
+    <title>GCD</title>
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 
@@ -33,13 +33,16 @@
                         
                         <!--<font color='#FF0000'>News:</font> Version 3 rice gene IDs and interactive tree view implemented.-->
                         &nbsp<P>
-                        GCD is a database for genome-wide sequence <BR> family mining in Arabidopsis and rice.
+                        GCD is a database for genome-wide sequence <BR> family mining in Arabidopsis and Rice.
+                        Detailed information about this resource is available on the <a href='about.jsp'>ReadMe</a> page
+                        and the associated publication in <a href='http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=pubmed&dopt=Abstract&list_uids=15888677&query_hl=2'>
+                        Plant Physiology: 138, 47-54</a>.
+                        <P>
+                        <font color='#FF0000'>News: data upgraded to TIGR's version 3 rice annotation.</font>
                         <P>
                         <A href='about.jsp#search'>
                             How to Search GCD</A>
-                        <P>
-                        <A href='about.jsp#limitations'>
-                            Limitations of Data Sets </A>
+                        
                     </TD>                    
                 </TR>
                 <TR>
@@ -98,7 +101,14 @@
                                
                     </TD>
                 </TR>   
-                
+                <TR>
+                    <TD  align='center'>
+                        &nbsp<P>
+                        <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html'>
+                        This Project is partially funded by the NSF 2010 grant # IOB-0420152
+                        </a>
+                   </td>
+                </TR>
             </TABLE> 
             <P>      
 	</FORM>

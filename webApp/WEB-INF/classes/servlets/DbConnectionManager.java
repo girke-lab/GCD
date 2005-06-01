@@ -76,28 +76,18 @@ public class DbConnectionManager
         connections=new HashMap();
         
         //add some default connections
-        try{
-            Class.forName("org.postgresql.Driver").newInstance();            
-            connections.put("common",new DbConnection("jdbc:postgresql://bioinfo.ucr.edu/khoran_test","servlet","512256")); //connect to postgres                        
-        }catch(Exception e){            
-            log.warn("failed to connect to common database: "+e.getMessage());
-        }
 //        try{
-//            Class.forName("org.gjt.mm.mysql.Driver").newInstance();
-//            connections.put("unknowns",new DbConnection("jdbc:mysql://138.23.191.152/unknowns","servlet","512256"));            
-//        }catch(Exception e){
-//            log.warn("failed to connect to unknowns database: "+e.getMessage());
+//            Class.forName("org.postgresql.Driver").newInstance();            
+//            connections.put("common",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu/khoran_loading","servlet","512256")); //connect to postgres                        
+//        }catch(Exception e){            
+//            log.warn("failed to connect to common database: "+e.getMessage());
 //        }
+
         try{
             Class.forName("org.postgresql.Driver").newInstance();
-                connections.put("khoran",new DbConnection("jdbc:postgresql://bioinfo.ucr.edu/khoran_test","servlet","512256")); //connect to postgres            
+                connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu/khoran_loading","servlet","512256")); //connect to postgres            
         }catch(Exception e){            
             log.warn("failed to connect to khoran database: "+e.getMessage());
-        }
-        try{         
-            connections.put("khoran_test",new DbConnection("jdbc:postgresql://bioinfo.ucr.edu/khoran_test","servlet","512256")); //connect to postgres            
-        }catch(Exception e){            
-            log.warn("failed to connect to khoran_test database: "+e.getMessage());
         }
         
     }
