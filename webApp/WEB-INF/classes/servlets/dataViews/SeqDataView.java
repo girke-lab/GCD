@@ -432,12 +432,12 @@ public class SeqDataView implements DataView
                             cs.arab_size+" Ath &nbsp&nbsp "+cs.rice_size+" Osa</a></TD>");
                  if(!cs.size.equals("1") && !cs.method.endsWith("_50") && !cs.method.endsWith("_70"))
                  {
-                    String webBase="http://bioinfo.ucr.edu/cgi-bin/getClusterFiles-testing.pl?cid="+cs.clusterNum+ 
+                    String webBase="http://bioweb.bioinfo.ucr.edu/scripts/getClusterFiles.pl?cid="+cs.clusterNum+ 
                          "&cluster_type="+cs.method+"&file_type=";
 
                     out.println("\t\t<TD nowrap>");
                     out.println("\t\t\t<a href='"+webBase+"html'>Consensus shaded</a>&nbsp&nbsp");
-                    out.println("\t\t\t<a href='http://bioinfo.ucr.edu/cgi-bin/domainShader?cid="+cs.clusterNum+"'>Domain shaded</a>");
+                    out.println("\t\t\t<a href='http://bioweb.bioinfo.ucr.edu/scripts/domainShader?cid="+cs.clusterNum+"'>Domain shaded</a>");
                     out.println("\t\t</TD>");
                     
                     String treeViewLink="DispatchServlet?hid="+hid+"&script=treeViewer.pl&range=0&clusterId="+cs.clusterNum;
