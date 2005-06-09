@@ -165,7 +165,9 @@ public class QueryPageServlet extends HttpServlet
         if(displayType!=null)
         {
             //special cases (need arguments to constructor)
-            if(displayType.equals("modelView"))
+            if(displayType.equals("unknownsView"))
+                return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));
+            else if(displayType.equals("modelView"))
                 return new ModelDataView(request);
             
 

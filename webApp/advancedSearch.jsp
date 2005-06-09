@@ -13,7 +13,7 @@
             bean.setDatabase("common");
             bean.initPage(application,request,response);
         %>
-        <p align='center'><a href='as2.jsp?database=<%=bean.getDatabase()%>'>Admin Page</a></p>
+        <p align='center'><a href='QueryAdmin?database=<%=bean.getDatabase()%>'>Admin Page</a></p>
         <%
             bean.printMessage(out);
                         

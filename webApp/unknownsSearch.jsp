@@ -39,7 +39,7 @@
                         <%  bean.printMessage(out); %>
                         <p align='center'>
                             <a href='statusQueries.jsp'>Difference Tracking</a> &nbsp&nbsp&nbsp&nbsp 
-                            <a href='as2.jsp?database=<%=bean.getDatabase()%>'>Admin Page</a>                        
+                            <a href='QueryAdmin?database=<%=bean.getDatabase()%>'>Admin Page</a>                        
                         </p>
                         <%  bean.drawSearchForm(out,new String[]{"unknowns","unknowns2"}); %>
 		
