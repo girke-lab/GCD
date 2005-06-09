@@ -38,7 +38,7 @@ public class UnknownsTextScript implements Script
     }
     
     private Collection getRecords(List ids)
-    { //method 2, multiple queries
+    { 
         
         Map records=UnknownRecord.getData(dbc,ids);
         return records.values();                        
@@ -54,20 +54,7 @@ public class UnknownsTextScript implements Script
             
             for(Iterator i=data.iterator();i.hasNext();)
                 ((RecordGroup)i.next()).printRecords(out,visitor);  
-
-            
-//            //print title row
-//            Record rec;
-//            boolean isFirst=true;
-//            for(Iterator i=data.iterator();i.hasNext();)
-//            {
-//                rec=(Record)i.next();
-//                if(isFirst){
-//                    rec.printHeader(fw, visitor);
-//                    isFirst=false;
-//                }
-//                rec.printRecord(fw,visitor);
-//            }                        
+                   
             out.close();
         }catch(IOException e){
             log.error("could not write output: "+e.getMessage());

@@ -26,7 +26,7 @@ public class GoSlimCountsScript implements Script
     public GoSlimCountsScript() 
     {
         try{
-            url=new URL("http://bioinfo.ucr.edu/cgi-bin/goSlimCounts");        
+            url=new URL("http://bioweb.ucr.edu/scripts/goSlimCounts");        
         }catch(MalformedURLException e){e.printStackTrace();}
     }
     

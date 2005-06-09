@@ -165,14 +165,12 @@ public class QueryPageServlet extends HttpServlet
         if(displayType!=null)
         {
             //special cases (need arguments to constructor)
-            if(displayType.equals("unknownsView"))
-                return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));   
-            else if(displayType.equals("modelView"))
+            if(displayType.equals("modelView"))
                 return new ModelDataView(request);
             
-            
-            
-            //String dataViewClass=dataViews.getProperty(displayType);
+
+            //look up the given displayType to get a class name,
+            // then instantiate that class with a parameterless constructor
             String dataViewClass=settings.getProperty("data_view."+displayType);
             if(dataViewClass==null)
                 return new SeqDataView();
@@ -187,20 +185,6 @@ public class QueryPageServlet extends HttpServlet
                 return new SeqDataView();
             }
             return dv;
-//            if(displayType.equals("clusterView"))
-//                return new ClusterDataView();
-//            else if(displayType.equals("seqView"))
-//                return new SeqDataView();
-//            else if(displayType.equals("modelView"))
-//                return new ModelDataView(request);
-//            else if(displayType.equals("statsView"))
-//                return new StatsDataView();
-//            else if(displayType.equals("unknownsView"))
-//                return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));
-//            else if(displayType.equals("unknowns2View"))
-//                return new Unknowns2DataView(this.getServletContext().getRealPath("/temp"));
-//            else if(displayType.equals("blastView"))
-//                return new BlastDataView();
         }
         else if(sortCol!=null)
         {
@@ -230,32 +214,7 @@ public class QueryPageServlet extends HttpServlet
                 return new IdSearch();
             }
             return s;
-        }
-        
-//        else if(type.equals("Description"))
-//            return new DescriptionSearch();
-//        else if(type.equals("Id"))
-//            return new IdSearch();
-//        else if(type.equals("Cluster Id"))
-//            return new ClusterIDSearch();
-//        else if(type.equals("Cluster Name"))
-//            return new ClusterNameSearch();
-//        else if(type.equals("GO Number"))
-//            return new GoSearch();
-//        else if(type.equals("seq_id"))
-//            return new SeqIdSearch();
-//        else if(type.equals("query"))
-//            return new QuerySearch();
-//        else if(type.equals("query_comp"))
-//            return new QueryCompSearch();
-//        else if(type.equals("unknownClusterId"))
-//            return new UnknownClusterIdSearch(); 
-//        else if(type.equals("blast"))
-//            return new BlastSearch();
-//        else if(type.equals("seq_model"))
-//            return new SeqModelSearch();
-//        else
-//            return new IdSearch();   //default to id search
+        }        
     }   
     
     /**

@@ -43,7 +43,8 @@ import org.apache.log4j.Logger;
         private Object[] list;
         private static Map validOps;  //maps types to operations
         private static Logger log=Logger.getLogger(Field.class);
-        private boolean sortable=false; //fields are only sortable if the are in a 1-1 relation with primary key.
+        private boolean sortable=false; //fields are only sortable if they are in a 1-1 relation with the primary key.
+        private boolean hidden=false; //hidden fields are not displayed to user
         
         /**
          * 
@@ -148,4 +149,15 @@ import org.apache.log4j.Logger;
      {
          this.sortable = sortable;
      }
+
+     public boolean isHidden()
+     {
+         return hidden;
+     }
+
+     public void setHidden(boolean hidden)
+     {
+         this.hidden = hidden;
+     }
+     
     }

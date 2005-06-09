@@ -29,7 +29,7 @@ public class AlignToHmmScript implements Script
     public AlignToHmmScript() 
     {
         try{
-            url=new URL("http://bioinfo.ucr.edu/cgi-bin/alignToHmm");        
+            url=new URL("http://bioweb.ucr.edu/scripts/alignToHmm");        
         }catch(MalformedURLException e){e.printStackTrace();}
     }
     
@@ -59,7 +59,7 @@ public class AlignToHmmScript implements Script
             for(Iterator i=data.iterator();i.hasNext();)
             {
                 List row=(List)i.next(); //should be 2 elements per row
-                if(row.size()!=2)
+                if(row.size()!=2 || row.get(0).equals("") || row.get(1).equals(""))
                     continue;
                 dos.writeBytes(">"+row.get(0)+"\n"+row.get(1)+"\n");
             }                        

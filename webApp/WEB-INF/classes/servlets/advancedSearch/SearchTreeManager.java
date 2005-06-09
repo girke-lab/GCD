@@ -166,7 +166,7 @@ public class SearchTreeManager
             key="query_"+Integer.toString((int)(Math.random()*1000));
         }while(queries.containsKey(key+".sql"));
         log.debug("key="+key);
-        queries.setProperty(key+".sql", new SqlVisitor().getSql(q,false));
+        queries.setProperty(key+".sql", new SqlVisitor().getSql(q,true));
         queries.setProperty(key+".description",description);
         queries.setProperty(key+".limit",q.getLimit().toString());
         writeQueries();
@@ -182,7 +182,7 @@ public class SearchTreeManager
     public void setSearchState(String name,Query q)
     {        
         SqlVisitor sv=new SqlVisitor();
-        queries.setProperty(name+".sql", sv.getSql(q,false));
+        queries.setProperty(name+".sql", sv.getSql(q,true));
         queries.setProperty(name+".limit",q.getLimit().toString());
         writeQueries();
     }

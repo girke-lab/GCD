@@ -25,14 +25,20 @@ public class SqlVisitor implements QueryTreeVisitor
 {
     private static Logger log=Logger.getLogger(SqlVisitor.class);
     StringBuffer sql;
-    boolean printParinths,printLimit=true;
+    boolean printParinths;
+
+    /**
+     * Set to true when generating sql that should be parsable
+     * later by the zql library.
+     */
+    boolean zqlOutput = true;
     
     /** Creates a new instance of SqlVisitor */
     public SqlVisitor()
     {
         log.debug("built new SqlVisitor");
         sql=new StringBuffer();
-        printParinths=true;
+        printParinths=false;
     }
     /**
      * Converts a Query object into an sql string.
@@ -41,18 +47,19 @@ public class SqlVisitor implements QueryTreeVisitor
      */
     public String getSql(Query q)
     {        
-        return getSql(q,true);
+        return getSql(q,false);
     }
     /**
      * Creates an sql statement from the given Query object with the 
      * limit tacked on.  
      * @param q a Query object
-     * @param printLimit true if limit is desired, else false
+     * @param zqlOutput true if zql parsable sql is desired
      * @return sql string
      */
-    public String getSql(Query q, boolean printLimit)
+    public String getSql(Query q, boolean zqlOutput)
     {
-        this.printLimit=printLimit;
+        log.debug("getting sql, for zql? "+zqlOutput);
+        this.zqlOutput=zqlOutput;
         q.accept(this);
         //log.debug("sql="+sql);
         return sql.toString();
@@ -151,7 +158,7 @@ public class SqlVisitor implements QueryTreeVisitor
         n.getCondition().accept(this); //add condtion to sql string
         log.debug("adding order");
         n.getOrder().accept(this);
-        if(printLimit)
+        if(!zqlOutput)
             sql.append("\nLIMIT "+n.getLimit()); 
         sql.append(";");
     }
@@ -246,7 +253,8 @@ public class SqlVisitor implements QueryTreeVisitor
     }
     private void printDistinct(Query n)
     {
-        if(n.isDistinct())
+        log.debug("zqlOutput="+zqlOutput);
+        if(n.isDistinct() && !zqlOutput)
         {
             sql.append("DISTINCT ");
             if(n.getDistinctFields().size()!=0)            

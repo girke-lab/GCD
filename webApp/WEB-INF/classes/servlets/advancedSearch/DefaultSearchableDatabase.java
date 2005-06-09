@@ -106,12 +106,12 @@ public class DefaultSearchableDatabase implements SearchableDatabase
 
     /**
      * Uses state to create an sql string, executes it, and forwards results
-     * to {@link QueryPageServlet}. The request object send with the forward
+     * to {@link QueryPageServlet}. The request object sent with the forward
      * is gotten from the {@link getNewRequest()} method, wich should be
      * overridden by subclasses to specify the parameters they want sent.  
      *  <P>
      *  By defualt, it will set searchType to seq_id, dataView to 
-     *  'unknowns2View', and the origi_page to 'as2.jsp'.  
+     *  'unknowns2View', and the orig_page to 'as2.jsp'.  
      *
      * @param state current state of query page
      * @param context context of jsp page

@@ -23,7 +23,7 @@ public class TreeViewScript implements Script
 {
     private static Logger log=Logger.getLogger(TreeViewScript.class);
     URL url;
-    String dndBase="http://bioinfo.ucr.edu/projects/ClusterDB/clusters_B/";
+    String dndBase="http://bioweb.ucr.edu/databaseWeb/clusters/";
     String clusterId;
     HttpServletResponse response; 
     
@@ -85,7 +85,7 @@ public class TreeViewScript implements Script
             
             
             String dnd,link,lastMethod=null;            
-            link="http://bioweb.ucr.edu:8180/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
+            link="http://bioweb.ucr.edu/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
             log.debug("number of rows: "+data.size());
             log.debug("data="+data);
             for(Iterator i=data.iterator();i.hasNext();)

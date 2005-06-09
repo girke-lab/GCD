@@ -17,6 +17,10 @@ import servlets.DbConnection;
 import servlets.DbConnectionManager;
 import servlets.advancedSearch.queryTree.*;
 
+import javax.servlet.http.*;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletContext;
+
 public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
 {       
  
@@ -39,25 +43,28 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
 
         log.debug("fields.length="+fields.length);
     }
-//    public Query buildQueryTree(SearchState state)
-//    {
-//        Query q=super.buildQueryTree(state);
-//
-//        //modify select list and order by.
-//        List fields=new LinkedList();
-//                        
-//        fields.add("general.to_model_accessions.model_accession_id");        
-//        fields.add(getField(state.getSortField()).dbName);
-//        
-//        q.setFields(fields);
-//        
-//        return q;
-//        
-//    }        
+    public Query buildQueryTree(SearchState state)
+    {          
+        Query q=super.buildQueryTree(state);
+        
+        q.setDistinct(true);
+        q.addDistinctField("unknowns.arab_accessions.accession_id");
+        
+        // all distinct fields must appear first in order
+        Order o=q.getOrder();
+        
+        if(o.getOrder() instanceof DbField)
+        {
+            String oldOrder=((DbField)o.getOrder()).getName();
+            o=new Order(new DbField("arab_accessions.accession_id, "+oldOrder, String.class), "asc");
+        }
+        q.setOrder(o);
+        return q;
+    }        
      protected List additionalJoins()
     {
         List j=new ArrayList(1);    
-        j.add("general.accessions");
+        j.add("unknowns.arab_accessions");
         return j;
     }
     void defineOptions()
@@ -67,7 +74,7 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
 //        primaryKey="accession_id";
 //        defaultColumn="accession";
         
-        rootTableName="general.accessions";
+        rootTableName="unknowns.arab_accessions";
         primaryKey="accession_id";
         defaultColumn="accession";
         
@@ -78,7 +85,7 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         
         fields=new Field[]{
             new Field("At key",db+"other_accessions_view.other_accession",List.class),
-            new Field("Description","general.accessions.description"),
+            new Field("Description","unknowns.arab_accessions.description"),
             new Field("Number of ests",db+"unknown_data.est_count",Integer.class),
                         
             new Field("Blast/Pfam Searches (best per db)",""),                        
@@ -86,9 +93,8 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
                         new String[]{"swp","pfam","rice","yeast","human/rat/mouse"}),
             new Field(space+"method","general.blast_summary_mv.method",
                         new String[]{"BLASTP","hmmPfam"}),
-            new Field(space+"Blast target accession","general.blast_summary_mv.target_accessicd" +
-            "cdon"),
-            new Field(space+"Blast target description","general.blast_summary_mv.target_description"),    
+            new Field(space+"Blast target accession","general.blast_summary_mv.accession"),
+            new Field(space+"Blast target description","general.blast_summary_mv.description"),    
             new Field(space+"best e_value","general.blast_summary_mv.e_value",Float.class),       
             new Field(space+"score","general.blast_summary_mv.score"),
             new Field(space+"identities","general.blast_summary_mv.identities"),            
@@ -107,8 +113,10 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
                     
                         
             new Field("Clusters",""),
-            new Field(space+"Score Threshold","general.clusters_and_info.cutoff",Integer.class,
-                        new String[]{"35","50","70"}),
+//            new Field(space+"Score Threshold","general.clusters_and_info.cutoff",Integer.class,
+//                        new String[]{"35","50","70"}),
+            new Field(space+"Method","general.clusters_and_info.method",
+                        new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
             new Field(space+"Size","general.clusters_and_info.size",Integer.class),
             
             new Field("Proteomic Stats",""),   //21         
@@ -128,12 +136,34 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         
         int[] sortableFields=new int[]{0,1,2,11,15,16,17}; //,21,22,23,24,25,26,27,28,29};
         for(int i=0;i<sortableFields.length;i++)
-            fields[sortableFields[i]].setSortable(true);
+            fields[sortableFields[i]].setSortable(true);        
         
         operators=new String[]{"=","!=","<",">","<=",">=",
                 "ILIKE","NOT ILIKE","IS NULL","IS NOT NULL"};
         unaryBoundry=8; //index of first unary op.
         booleans=new String[]{"and","or"};                
     }
-    
+ 
+    protected ServletRequest getNewRequest(SearchState state,HttpServletRequest request,List results)
+    { //this can be overridden by sub classes to send different parameters
+        NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(
+                    (HttpServletRequest)request,new HashMap(),false,"POST");
+        
+        mRequest.getParameterMap().put("searchType","seq_id");
+        mRequest.getParameterMap().put("limit", state.getLimit());
+        mRequest.getParameterMap().put("sortCol",getFields()[state.getSortField()].dbName);  
+        mRequest.getParameterMap().put("rpp",new Integer(rpp).toString());
+                
+        mRequest.getParameterMap().put("displayType","unknowns2View");
+        mRequest.getParameterMap().put("origin_page","unknownsSearch.jsp");
+        
+        StringBuffer inputStr=new StringBuffer();      
+        for(Iterator i=results.iterator();i.hasNext();)
+            inputStr.append(((List)i.next()).get(0)+" ");       
+
+        mRequest.getParameterMap().put("inputKey",inputStr.toString());
+        
+        return mRequest;
+    }
+
 }

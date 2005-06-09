@@ -20,6 +20,8 @@ import servlets.querySets.*;
  * Takes a unknowns db cluster_id and returns a list of common db seq_ids which
  * correspond to the keys that are in the given cluster, according to the unknowns
  * database.
+ *
+ *This class is not used for version2 quries.
  */
 public class UnknownClusterIdSearch implements Search
 {

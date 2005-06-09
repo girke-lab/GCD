@@ -27,7 +27,7 @@ public class ChrPlotScript  implements Script
     public ChrPlotScript() 
     {
         try{
-            url=new URL("http://bioinfo.ucr.edu/cgi-bin/chrplot2.pl");        
+            url=new URL("http://bioweb.ucr.edu/scripts/chrplot.pl");        
         }catch(MalformedURLException e){e.printStackTrace();}
     }
     

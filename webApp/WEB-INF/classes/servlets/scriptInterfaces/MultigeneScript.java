@@ -27,7 +27,7 @@ public class MultigeneScript  implements Script
     public MultigeneScript()
     {
         try{
-            url=new URL("http://bioinfo.ucr.edu/cgi-bin/multigene.pl");        
+            url=new URL("http://bioweb.ucr.edu/scripts/multigene.pl");        
         }catch(MalformedURLException e){e.printStackTrace();}
     }
     
@@ -41,6 +41,7 @@ public class MultigeneScript  implements Script
     }
     private void printData(PrintWriter out,List data)
     {      
+        //log.debug("got data: "+data);
         try{
             HttpURLConnection conn=(HttpURLConnection)url.openConnection();
             conn.setRequestMethod("POST");
@@ -71,7 +72,7 @@ public class MultigeneScript  implements Script
         return Common.sendQuery(QuerySetProvider.getScriptQuerySet().getMultigeneQuery(ids,Common.SCRIPT_LIMIT));
     }
     
-    public String getContentType() {
+    public String getContentType() {    
         return "text/html";
     }
     

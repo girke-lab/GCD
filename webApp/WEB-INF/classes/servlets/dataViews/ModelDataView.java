@@ -253,12 +253,13 @@ public class ModelDataView implements DataView
                 standard.append("<FORM method=post action='http://138.23.191.152/blast/blastSearch.cgi'>"+
                     "<INPUT type=hidden name='input' value=\""+record+"\">\n");
                 standard.append("\t<TR bgcolor='"+Common.titleColor+"'><TH>Links</TH>"+
-                    "<TD><a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+key+
-                    "'>MIPS</a>&nbsp&nbsp"+
-                    "<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+
-                    "ORF_infopage.cgi?db="+tigrDb+"&orf="+key+"'>TIGR</a></TD></TR>");      
+                    "<TD>" +
+                        ((currentDB!=Common.rice)?"<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+key+"'>MIPS</a>&nbsp&nbsp":"")+
+                        "<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+
+                            "ORF_infopage.cgi?db="+tigrDb+"&orf="+key+"'>TIGR</a>" +
+                    "</TD></TR>");      
                 standard.append("\t<TR bgcolor='"+Common.titleColor+"'><TH align='left'>Accession</TH><TD>"+
-                    "<A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?db=all&accession="+key+"'>"+key+"</A>"+
+                    "<A href='http://bioweb.ucr.edu/scripts/seqview.pl?db=all&accession="+key+"'>"+key+"</A>"+
                     "&nbsp&nbsp<INPUT type=submit value='Blast it'></TD></TR>"+
                     "\t<TR bgcolor='"+Common.titleColor+"'><TH align='left'>Model Accession</TH><TD>"+key2+"</TD></TR>"+
                     "\t<TR bgcolor='"+Common.titleColor+"'><TH align='left'>Description</TH><TD>"+desc+"</TD></TR>\n");

@@ -30,7 +30,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 //        log.info("query from "+source+" is: "+q); // use reflection to get calling method here
     }
     
-    
+    // <editor-fold defaultstate="collapsed" desc=" DataView queries ">
     public String getBlastDataViewQuery(java.util.Collection ids, String sortCol, String sortDir)
     {
         String query=
@@ -165,9 +165,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query.toString();
     }
 
- 
+    //   </editor-fold> 
 
-    
+    // <editor-fold defaultstate="collapsed" desc=" Record queries "> 
     ///////////////////////////////
     //////// RecordQuerySet methods
     ///////////////////////////////
@@ -178,6 +178,8 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             sortCol="accession";
         else if(sortCol.equals("unknowns.other_accessions_view.other_accession"))
             sortCol="accessions.accession";
+        else if(sortCol.equals("unknowns.arab_accessions.description"))
+            sortCol="accessions.description";
         
         String query="SELECT 1, ma.accession_id, accessions.accession, accessions.description, " +
                  " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
@@ -210,8 +212,8 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     public String getClusterRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
     {
         if(sortCol==null)
-            sortCol="name";
-        String query="SELECT ma.accession_id, name, size, method, cluster_id "+                 
+            sortCol="method";
+        String query="SELECT ma.accession_id, name, size, method, cluster_id, key "+                 
         "   FROM general.clusters_and_info " +
                 "JOIN general.to_model_accessions as ma ON(clusters_and_info.accession_id=ma.model_accession_id)" +        
         "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
@@ -265,7 +267,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
+// </editor-fold>
    
+    // <editor-fold defaultstate="collapsed" desc=" Database methods ">
     /////////////////////////////////
     //////// DatabaseQuerySet methods
     /////////////////////////////////
@@ -281,8 +285,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         return new UnknownsDatabase();
     }    
+    // </editor-fold>
     
-     /////////////////////////////////
+    // <editor-fold defaultstate="collapsed" desc=" Script queries ">
+    /////////////////////////////////
     //////// ScriptQuerySet methods
     /////////////////////////////////
     public String getAlignToHmmQuery(Collection ids, int limit)
@@ -340,6 +346,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Search queries ">
      /////////////////////////////////
     //////// SearchQuerySet methods
     /////////////////////////////////
@@ -569,8 +578,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         //TODO: should not be used for version 2.
         String query="SELECT DISTINCT accessions.accession" +
                 " FROM general.accessions JOIN general.cluster_members USING(accession_id) " +
-                " WHERE cluster_member.cluster_id="+cluster_id;
+                " WHERE cluster_members.cluster_id="+cluster_id;
         logQuery(query);
         return query;
     }
+    //</editor-fold>
 }

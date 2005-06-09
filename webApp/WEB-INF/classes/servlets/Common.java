@@ -181,11 +181,11 @@ public class Common {
             "            	<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
             "                   <td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='advancedSearch.jsp'>Advanced</a>&nbsp;]</font></td>" +
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size' target='_blank'>Table</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioweb.ucr.edu/scripts/clusterSummary.pl?sort_col=Size' target='_blank'>Table</a>&nbsp;]</font></td>" +
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl' >Stats</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioweb.ucr.edu/scripts/clusterStats.pl' >Stats</a>&nbsp;]</font></td>" +
             "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioinfo.ucr.edu/projects/ClusterDB/data'>Downloads</a>&nbsp;]</font></td>" +
+            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioweb.ucr.edu/databaseWeb/data'>Downloads</a>&nbsp;]</font></td>" +
             "		</tr>" +           
             "	</table>" +
              (!subTitle.equals("")?
@@ -243,8 +243,9 @@ public class Common {
         }
     }
     
-    public static void printUnknownHeader(PrintWriter out)
+    public static void printUnknownHeader(Writer w)
     {
+        PrintWriter out=new PrintWriter(w);
         String base="http://bioinfo.ucr.edu/projects/internal/Unknowns/external";
         out.println(
         "  <font face='sans-serif, Arial, Helvetica, Geneva'>"+

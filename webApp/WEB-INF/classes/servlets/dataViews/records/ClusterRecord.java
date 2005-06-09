@@ -23,42 +23,45 @@ import servlets.querySets.*;
 public class ClusterRecord implements Record
 {
     int size,cluster_id;
-    String name,method;
+    String name,method,key;
     List keys=null;
     boolean showClusterCentricView;
     private static Logger log=Logger.getLogger(ClusterRecord.class);
     
     /** Creates a new instance of ClusterRecord */
-    public ClusterRecord(String name,int size, String method,int cluster_id)
+    public ClusterRecord(String name,int size, String method,int cluster_id,String key)
     {//used for key centric view
         this.name=name;
         this.size=size;
         this.method=method;
         this.cluster_id=cluster_id;
+        this.key=key;
         showClusterCentricView=false;
     }
     public ClusterRecord(List values)
     {//used for key centric view
-        if(values==null || values.size()!=4)
+        if(values==null || values.size()!=5)
         {
             log.error("invalid list in ClusterRecord constructor");
             if(values!=null)
-                log.error("recieved list of size "+values.size()+", but expected size of 3");
+                log.error("recieved list of size "+values.size()+", but expected size of 5");
             return;
         }
         name=(String)values.get(0);
         size=Integer.parseInt((String)values.get(1));        
         method=(String)values.get(2);        
         cluster_id=Integer.parseInt((String)values.get(3));
+        key=(String)values.get(4);
         showClusterCentricView=false;
     }
-    public ClusterRecord(String name,int size,String method,int cluster_id,List keys)
+    public ClusterRecord(String name,int size,String method,int cluster_id,String key,List keys)
     {//used for cluster centric view
         this.name=name;
         this.size=size;
         this.method=method;
         this.keys=keys;
         this.cluster_id=cluster_id;
+        this.key=key;
         showClusterCentricView=true;
     }
     
@@ -118,7 +121,7 @@ public class ClusterRecord implements Record
             }
         };                
         log.debug("cluster data, data="+data);
-        return RecordGroup.buildRecordMap(rb,data,1,5);             
+        return RecordGroup.buildRecordMap(rb,data,1,6);             
     }
     
    

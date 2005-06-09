@@ -353,7 +353,7 @@ public class SeqDataView implements DataView
         public void printRecord(PrintWriter out)
         {            
             out.println("<TR bgcolor='"+titleColor+"'><TH align='"+align+"'>Key</TH><TH colspan='6' align='"+align+"'>Description</TH></TR>");
-            out.println("<TR><TD><A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+key+"'>"+key+"</A>");
+            out.println("<TR><TD><A href='http://bioweb.ucr.edu/scripts/seqview.pl?database=all&accession="+key+"'>"+key+"</A>");
             if(v3Key!=null)
                 //out.println("&nbsp&nbsp v3: <A href='http://bioinfo.ucr.edu/cgi-bin/seqview.pl?database=all&accession="+v3Key+"'>"+v3Key+"</a>");
                 out.println("&nbsp&nbsp v3: "+v3Key);
@@ -432,12 +432,12 @@ public class SeqDataView implements DataView
                             cs.arab_size+" Ath &nbsp&nbsp "+cs.rice_size+" Osa</a></TD>");
                  if(!cs.size.equals("1") && !cs.method.endsWith("_50") && !cs.method.endsWith("_70"))
                  {
-                    String webBase="http://bioweb.bioinfo.ucr.edu/scripts/getClusterFiles.pl?cid="+cs.clusterNum+ 
+                    String webBase="http://bioweb.ucr.edu/scripts/getClusterFiles.pl?cid="+cs.clusterNum+ 
                          "&cluster_type="+cs.method+"&file_type=";
 
                     out.println("\t\t<TD nowrap>");
                     out.println("\t\t\t<a href='"+webBase+"html'>Consensus shaded</a>&nbsp&nbsp");
-                    out.println("\t\t\t<a href='http://bioweb.bioinfo.ucr.edu/scripts/domainShader?cid="+cs.clusterNum+"'>Domain shaded</a>");
+                    out.println("\t\t\t<a href='http://bioweb.ucr.edu/scripts/domainShader?cid="+cs.clusterNum+"'>Domain shaded</a>");
                     out.println("\t\t</TD>");
                     
                     String treeViewLink="DispatchServlet?hid="+hid+"&script=treeViewer.pl&range=0&clusterId="+cs.clusterNum;
@@ -464,7 +464,7 @@ public class SeqDataView implements DataView
                  out.println("<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+ key+"'>MIPS</a>&nbsp&nbsp");
              }
              out.println("<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+ "ORF_infopage.cgi?db="+db+"&orf="+(v3Key==null?key:v3Key)+"'>TIGR</a>&nbsp&nbsp");
-             out.println("<a href='http://bioinfo.ucr.edu/cgi-bin/geneview.pl?accession="+key+"'>GeneStructure*</a>&nbsp&nbsp");
+             out.println("<a href='http://bioweb.ucr.edu/scripts/geneview.pl?accession="+key+"'>GeneStructure*</a>&nbsp&nbsp");
              //expression link goes here
              if(g==Common.arab)
                 out.println("<a href='http://signal.salk.edu/cgi-bin/tdnaexpress?GENE="+key+"&FUNCTION=&JOB=HITT&DNA=&INTERVAL=10'>KO</a>&nbsp&nbsp");

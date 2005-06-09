@@ -38,8 +38,8 @@ public class UnknownsDataView implements DataView
         dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection to unknowns");
-        //try to use the system temp dir, though this will not always work
-        tempDir=new File(System.getProperty("java.io.tempdir"));
+        //try to use the system temp dir, though this will not always work  
+        tempDir=new File(System.getProperty("java.io.tmpdir"));
         TempFileCleaner.getInstance().setDirectory(tempDir);
         if(!TempFileCleaner.getInstance().isAlive())
             TempFileCleaner.getInstance().start();
@@ -50,6 +50,7 @@ public class UnknownsDataView implements DataView
         dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection to unknowns");
+        
         log.debug("temp dir in UnknownsDataview is "+tempPath);        
         tempDir=new File(tempPath);
         TempFileCleaner.getInstance().setDirectory(tempDir);
@@ -103,7 +104,7 @@ public class UnknownsDataView implements DataView
                 if(tempFile==null)
                 { //create temp file for entire query.            
                     log.debug("generating a new temp file");
-                    List temp=seq_ids; //bakup old id list
+                    List temp=seq_ids; //backup old id list
                     setIds(search.getResults());
                     tempFile=writeTempFile(getData());
                     storage.put("unknowns.tempfile", tempFile);
