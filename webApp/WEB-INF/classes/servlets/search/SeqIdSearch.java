@@ -14,6 +14,7 @@ package servlets.search;
 import java.util.List;
 import java.util.ArrayList;
 import servlets.search.AbstractSearch;
+import servlets.querySets.SearchQuerySet;
 
 public class SeqIdSearch extends AbstractSearch //implements Search, java.io.Serializable
 {    
@@ -40,4 +41,5 @@ public class SeqIdSearch extends AbstractSearch //implements Search, java.io.Ser
     void loadData() {       
     }
     
+   
 }

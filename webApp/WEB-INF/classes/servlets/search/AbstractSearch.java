@@ -29,7 +29,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     String seqId_query=null;
     int limit;
     int[] db=null;
-    int[] dbStartPositions;  //index of firs occurance of each database in dataset
+    int[] dbStartPositions;  //index of first occurance of each database in dataset
     /**
      * This logger may be used by all subclasses, so we don't have to
      * declare a million loggers.
@@ -122,13 +122,13 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
         else
             log.info(data.size()+" is too many keys, and no predefind seq_id query, skipping the stats");
         
-        
+        log.debug("stats are: "+stats);
         return stats;
     }
     private Map statsById()
     {
         log.debug("getting stats with id numbers");
-        String query=QuerySetProvider.getSearchQuerySet().getStatsById(data);
+        String query=QuerySetProvider.getSearchQuerySet().getStatsById(data, getStatTypes());
         
         Map sMap=new HashMap();                       
         for(Iterator i=Common.sendQuery(query).iterator();i.hasNext();)
@@ -142,7 +142,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     {
         log.debug("getting stats with query");
         
-        String query=QuerySetProvider.getSearchQuerySet().getStatsByQuery(seqId_query);
+        String query=QuerySetProvider.getSearchQuerySet().getStatsByQuery(seqId_query,getStatTypes() );
 
         Map sMap=new HashMap();                       
         for(Iterator i=Common.sendQuery(query).iterator();i.hasNext();)
@@ -151,5 +151,9 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
             sMap.put(row.get(0),row.get(1));
         }        
         return sMap;
+    }
+    protected int getStatTypes()
+    {
+        return SearchQuerySet.STAT_CLUSTERS | SearchQuerySet.STAT_MODELS;
     }
 }

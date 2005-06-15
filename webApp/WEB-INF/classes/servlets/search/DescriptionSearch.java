@@ -47,18 +47,7 @@ public class DescriptionSearch extends AbstractSearch
             al.add(row.get(0));
         }
         data=al;     
-        
-        
-//        if(data.size() > Common.MAX_QUERY_KEYS) 
-//        {
-//            stats=new HashMap();
-//            for(Iterator i=Common.sendQuery(buildStatsStatement(conditions.toString(),db)).iterator();
-//                i.hasNext();)
-//            {
-//                row=(List)i.next();
-//                stats.put(row.get(0),row.get(1));
-//            }
-//        }
+                
     }
     private String printList(int[] a)
     {
@@ -66,45 +55,5 @@ public class DescriptionSearch extends AbstractSearch
         for(int i=0;i<a.length;i++)
             out+=a[i]+",";
         return out+"]";
-    }
-    private String buildIdStatement(String conditions, int limit,int[] DBs)
-    {
-        String id="SELECT DISTINCT Sequences.Seq_id, sequences.genome from Sequences "+
-                  "WHERE (";
-        
-        for(int i=0;i<DBs.length;i++)
-        {
-            id+=" Genome='"+Common.dbRealNames[DBs[i]]+"' ";
-            if(i < DBs.length-1)//not last iteration of loop
-                id+=" or ";
-        }
-        
-        id+=") and ("+conditions+")";
-        id+=" order by Genome ";
-        id+=" limit "+limit;
-        log.info("Description query: "+id);   
-        return id;
-    }        
-//    private String buildStatsStatement(String conditions,int[] dbs)
-//    {
-//        conditions="( "+conditions+") AND (";
-//        for(int i=0;i<dbs.length;i++)
-//        {
-//            conditions+=" Genome='"+Common.dbRealNames[dbs[i]]+"' ";
-//            if(i < dbs.length-1)//not last iteration of loop
-//                conditions+=" or ";
-//        }
-//        conditions+=" )";
-//        String query="SELECT t1.count as model_count, t2.count as cluster_count "+
-//            "FROM " +
-//                "select 'models', count(distinct m.model_id) from sequences , models as m" +
-//                " where sequences.seq_id=m.seq_id and "+conditions +
-//                " UNION "+
-//                " (select ci.method, count(distinct c.cluster_id) from sequences , clusters as c, cluster_info as ci " +
-//                " where sequences.seq_id=c.seq_id and c.cluster_id=ci.cluster_id and "+conditions+
-//                " group by ci.method)";
-//                
-//        log.info("Description stats query: "+query);
-//        return query;
-//    }
+    }   
 }

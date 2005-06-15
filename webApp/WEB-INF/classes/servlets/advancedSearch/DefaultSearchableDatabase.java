@@ -162,7 +162,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         mRequest.getParameterMap().put("rpp",new Integer(rpp).toString());
                 
         mRequest.getParameterMap().put("displayType","unknowns2View");
-        mRequest.getParameterMap().put("origin_page","as2.jsp");
+        mRequest.getParameterMap().put("origin_page","index.jsp");
         
         StringBuffer inputStr=new StringBuffer();      
         for(Iterator i=results.iterator();i.hasNext();)

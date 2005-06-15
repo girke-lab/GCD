@@ -489,7 +489,15 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         logQuery(q);
         return q;
     }
+    public String getStatsById(Collection data, int stats)
+    {
+        return getStatsById(data);
+    }
 
+    public String getStatsByQuery(String query, int stats)
+    {
+        return getStatsByQuery(query);
+    }
     public String getUnknownClusterIdSearchQuery(int cluster_id)
     {
         String query="SELECT key " +
@@ -498,4 +506,6 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         logQuery(query);
         return query;
     }
+
+    
 }

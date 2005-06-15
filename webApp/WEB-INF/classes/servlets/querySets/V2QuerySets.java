@@ -538,41 +538,83 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getStatsById(java.util.Collection data)
     {
-        String condition=Common.buildIdListCondition("md.sequence_accession_id",data);
-        String query=
-                "SELECT 'models', count(distinct md.accession_id) "+
-                " FROM common.model_data as md" +
-                " WHERE "+condition+
-            " UNION "+
-                "SELECT c.method, count(distinct cm.cluster_id) " +
-                " FROM common.model_data md JOIN general.accessions as a ON(md.accession_id=a.accession_id)" +
-                "   JOIN general.cluster_members as cm ON(a.accession_id=cm.accession_id) JOIN general.clusters as c USING(cluster_id) " +
-                " WHERE "+condition+
-                " GROUP BY c.method";
-                
-//select c.method, count(distinct cm.cluster_id) from common.model_data as md JOIN general.accessions as a ON(md.accession_id=a.accession_id) JOIN general.cluster_members as cm USING(accession_id) JOIN general.clusters as c USING(cluster_id)  where md.sequence_accession_id in  (683939,683217) group by c.method;
-        logQuery(query);
-        return query;
-                
+        return getStatsById(data, SearchQuerySet.STAT_CLUSTERS | SearchQuerySet.STAT_MODELS);
     }
-
     public String getStatsByQuery(String idQuery)
     {
+        return getStatsByQuery(idQuery, SearchQuerySet.STAT_CLUSTERS | SearchQuerySet.STAT_MODELS);
+    }
+    public String getStatsById(java.util.Collection data, int stats)
+    {
+        String condition=Common.buildIdListCondition("md.sequence_accession_id",data);
+        String query=buildStatsQuery(condition, stats);
+
+        logQuery(query);
+        return query;                
+    }
+    public String getStatsByQuery(String idQuery, int stats)
+    {
         String condition="md.sequence_accession_id in ( select accession_id from ("+idQuery+") as t )";
-        String query=
-                "SELECT 'models', count(distinct md.accession_id) "+
-                " FROM common.model_data as md" +
-                " WHERE "+condition+
-            " UNION "+
-                "SELECT c.method, count(distinct cm.cluster_id) " +
-                " FROM common.model_data md JOIN general.accessions as a ON(md.accession_id=a.accession_id)" +
-                "   JOIN general.cluster_members as cm ON(a.accession_id=cm.accession_id) JOIN general.clusters as c USING(cluster_id) " +
-                " WHERE "+condition+
-                " GROUP BY c.method";
+        String query=buildStatsQuery(condition, stats);
+        
         logQuery(query);
         return query;
     }
+    private String buildStatsQuery(String condition,int stats)
+    {
+//        log.debug("clusters="+SearchQuerySet.STAT_CLUSTERS);
+//        log.debug("models="+SearchQuerySet.STAT_MODELS);
+//        log.debug(" or ="+(SearchQuerySet.STAT_CLUSTERS | SearchQuerySet.STAT_MODELS));
+        log.debug("stats="+stats);
+        StringBuffer query=new StringBuffer();
+        
+        if((stats & SearchQuerySet.STAT_MODELS) != 0)
+            query.append(getModelCountQuery(condition));
+        
+        if((stats & SearchQuerySet.STAT_CLUSTERS) != 0)
+        {
+            if(query.length() > 0)
+                query.append(" UNION ");
+            query.append(getClusterCountsQuery(condition));
+        }
+        
+        if((stats & SearchQuerySet.STAT_GENOMES) !=0 )
+        {
+            if(query.length() > 0)
+                query.append(" UNION ");
+            query.append(getGenomeCountsQuery(condition));
+        }
+        return query.toString();
+    }
 
+    private String getModelCountQuery(String condition)
+    {
+        return "SELECT 'models', count(distinct md.accession_id) "+
+               " FROM common.model_data as md" +
+               " WHERE "+condition;
+    }
+    private String getClusterCountsQuery(String condition)
+    {
+//        return "SELECT c.method, count(distinct cm.cluster_id) " +
+//               " FROM common.model_data md JOIN general.accessions as a ON(md.accession_id=a.accession_id)" +
+//               "   JOIN general.cluster_members as cm ON(a.accession_id=cm.accession_id) JOIN general.clusters as c USING(cluster_id) " +
+//               " WHERE "+condition+
+//               " GROUP BY c.method";
+        
+        return "SELECT c.method, count(distinct cm.cluster_id) " +
+               " FROM common.model_data md JOIN general.cluster_members as cm USING(accession_id)" +
+               "    JOIN general.clusters as c USING(cluster_id) " +
+               " WHERE "+condition+
+               " GROUP BY c.method";
+    }
+    private String getGenomeCountsQuery(String condition)
+    {
+        return "SELECT gd.db_name, count(md.accession_id) " +
+               "FROM common.model_data AS md JOIN general.accessions USING(accession_id) " +
+               "   JOIN general.genome_databases AS gd USING(genome_db_id) " +
+               "WHERE gd.db_name IN ('arab','rice') AND " +condition+
+               "GROUP BY gd.db_name";                                
+    }
     public String getUnknownClusterIdSearchQuery(int cluster_id)
     {
         //TODO: should not be used for version 2.

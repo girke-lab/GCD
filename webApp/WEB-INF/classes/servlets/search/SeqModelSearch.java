@@ -61,7 +61,8 @@ public class SeqModelSearch implements Search
     }
 
     public Map getStats()
-    {
+    {        
+        
         if(stats!=null)
             return stats;
         if(model_ids.size() >= Common.MAX_QUERY_KEYS)
@@ -84,8 +85,11 @@ public class SeqModelSearch implements Search
         }
         return stats;
     }
-
-
+    
+    protected int getStatTypes()
+    {
+        return SearchQuerySet.STAT_CLUSTERS | SearchQuerySet.STAT_GENOMES;
+    }
 
     public int getDbCount()
     {

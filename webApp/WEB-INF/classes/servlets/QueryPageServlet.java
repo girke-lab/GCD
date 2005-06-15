@@ -36,7 +36,6 @@ public class QueryPageServlet extends HttpServlet
         //setup logger
         Properties props=new Properties();
         try{        
-            //props.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("log4j.properties"));
             props.load(this.getClass().getResourceAsStream("log4j.properties"));
             PropertyConfigurator.configure(props);
         }catch(IOException e){
@@ -46,14 +45,7 @@ public class QueryPageServlet extends HttpServlet
         
         try{
             settings=new Properties();
-            settings.load(this.getClass().getResourceAsStream("queryPage.properties"));
-            
-            
-//            searches=new Properties();
-//            searches.load(this.getClass().getResourceAsStream("searches.properties"));
-//            
-//            dataViews=new Properties();
-//            dataViews.load(this.getClass().getResourceAsStream("dataViews.properties"));
+            settings.load(this.getClass().getResourceAsStream("queryPage.properties"));                        
         }catch(IOException e){
             log.error("could not load properites: "+e.getMessage());
         }
@@ -87,7 +79,18 @@ public class QueryPageServlet extends HttpServlet
         {//session was just created.
             session.setAttribute("hid",new Integer(0));
             session.setAttribute("history",new ArrayList());            
-        }                        
+        }
+        else
+        { //make sure we don't get too many sessions
+            List history=(List)session.getAttribute("history");
+            if(history != null && history.size() > Common.MAX_SESSIONS) 
+            {
+                for(int i=0;i< history.size()-Common.MAX_SESSIONS;i++)
+                    //set old elments to null se we free up some memory.
+                    history.set(i, null);
+            }
+        }
+        
         ////////////////////////// HTML headers  ////////////////////////////////////////////
         out.println("<html>");
         out.println("<head>");
@@ -99,7 +102,7 @@ public class QueryPageServlet extends HttpServlet
         DataView dv=null;
         QueryInfo qi=null;        
          
-        //log.error("this is a test error");
+        
         //parameters that need to be evaluated for each page should be grabbed
         //here, all others should be grabbed in the getInput() method and stored in
         //a QueryInfo object.
@@ -108,7 +111,8 @@ public class QueryPageServlet extends HttpServlet
             origin="index.jsp";
         try{
             hid=Integer.parseInt(request.getParameter("hid"));           
-            if(hid < 0 || hid >= ((ArrayList)session.getAttribute("history")).size())
+            if(hid < 0 || hid >= ((ArrayList)session.getAttribute("history")).size() ||
+                    ((List)session.getAttribute("history")).get(hid)==null)
             {
                 Common.sendError(response,origin,"hid "+hid+" out of bounds");
                 return;

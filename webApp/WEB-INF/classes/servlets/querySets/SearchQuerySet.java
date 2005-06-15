@@ -16,8 +16,14 @@ public interface SearchQuerySet extends QuerySet
 {
 
     // for AbstractSearch
+    public static final int STAT_MODELS   = 1;
+    public static final int STAT_CLUSTERS = 2;
+    public static final int STAT_GENOMES  = 4;
+
     public String getStatsById(Collection data);
     public String getStatsByQuery(String query);
+    public String getStatsById(Collection data,int stats);
+    public String getStatsByQuery(String query,int stats);
     
     // for BlastSearch
     public String getBlastSearchQuery(String blastDb, Collection keys);
