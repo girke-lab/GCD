@@ -45,7 +45,7 @@ public class UnknownClusterIdSearch implements Search
         if(data==null || data.size() < 1 || !(data.get(0) instanceof String))
         {
             log.warn("invalid input data");
-            seqIdSearch.init(new ArrayList(),limit,dbID);
+            seqIdSearch.init(new ArrayList(),limit,dbID);            
             return;
         }
         int cluster_id=Integer.parseInt((String)data.get(0));        
@@ -87,5 +87,19 @@ public class UnknownClusterIdSearch implements Search
     public java.util.Map getStats()
     {
         return seqIdSearch.getStats();
+    }
+    public int getKeyType()
+    {
+        return seqIdSearch.getKeyType();
+    }
+
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{Common.KEY_TYPE_ACC};
+    }
+
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    {
+        seqIdSearch.setKeyType(keyType);
     }
 }

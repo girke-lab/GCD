@@ -26,7 +26,7 @@ public class DescriptionSearch extends AbstractSearch
         //set stats to null so that data will be loaded before we use it.
         stats=null;
     }
-    void loadData()
+    public void loadData()
     {
         List rs;
         
@@ -55,5 +55,9 @@ public class DescriptionSearch extends AbstractSearch
         for(int i=0;i<a.length;i++)
             out+=a[i]+",";
         return out+"]";
+    }   
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL};
     }   
 }

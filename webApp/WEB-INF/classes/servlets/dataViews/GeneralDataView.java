@@ -26,6 +26,7 @@ public class GeneralDataView implements DataView
     List seq_ids;
     String sortCol;
     int limit,hid;
+    int keyType;
     int[] dbNums;
     
     /** Creates a new instance of GeneralDataView */
@@ -46,7 +47,7 @@ public class GeneralDataView implements DataView
         this.sortCol=sortCol;
         this.limit=1000;        
         this.dbNums=dbList;        
-        this.hid=hid;
+        this.hid=hid;        
     }
     
     private void printSummary(PrintWriter out,List data,HashMap goNumbers,HashMap clusterNumbers,int[] DBs,int hid)
@@ -395,6 +396,30 @@ public class GeneralDataView implements DataView
     public void setSortDirection(String dir)
     {
     }    
+
+    public int[] getSupportedKeyTypes()
+    {
+         return new int[]{Common.KEY_TYPE_SEQ};
+    }
+
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    {
+        boolean isValid=false;
+        int[] keys=getSupportedKeyTypes();
+        for(int i=0;i<keys.length;i++)
+            if(keyType == keys[i]){
+                isValid=true;
+                break;
+            }
+        if(!isValid)
+            throw new servlets.exceptions.UnsupportedKeyType(keys,keyType);
+        this.keyType=keyType;
+    }
+
+    public int getKeyType()
+    {
+        return keyType;
+    }
     
     class ClusterSet {
         public String clusterNum, size,name;

@@ -5,16 +5,8 @@
  */
 
 package servlets.search;
-
-/**
- *
- * @author  khoran
- */
-
-import java.util.List;
 import java.util.ArrayList;
-import servlets.search.AbstractSearch;
-import servlets.querySets.SearchQuerySet;
+import servlets.Common;
 
 public class SeqIdSearch extends AbstractSearch //implements Search, java.io.Serializable
 {    
@@ -26,8 +18,9 @@ public class SeqIdSearch extends AbstractSearch //implements Search, java.io.Ser
         return data;
     }
     
-    public void init(java.util.List data, int limit, int[] dbID) {
+    public void init(java.util.List data, int limit, int[] dbID, int keyType) {
         this.data=data;
+        this.keyType=keyType;
     }
     
     public java.util.List notFound() {
@@ -38,8 +31,12 @@ public class SeqIdSearch extends AbstractSearch //implements Search, java.io.Ser
         return 0;
     }
       
-    void loadData() {       
+    public void loadData() {       
     }
-    
-   
+    public int[] getSupportedKeyTypes()
+    { //fix this
+        return new int[]{Common.KEY_TYPE_ACC};
+    }
+
+ 
 }

@@ -67,6 +67,15 @@
                         <INPUT type=checkbox name='dbs' value='1' checked>
                         Rice     
                     </TD> 
+                    <TD>
+                        Result View:                        
+                        <SELECT name='displayType'>
+                            <OPTION value='seqView'>GCD
+                            <OPTION value='unknowns2View'>POND                            
+                        </SELECT>
+                        <BR>
+                    </TD>                        
+                            
                 </TR>
                 <TR>                    
                     <TD  align='center' >

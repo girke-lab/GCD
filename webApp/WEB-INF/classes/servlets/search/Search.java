@@ -21,7 +21,7 @@ import java.util.*;
  * Most classes wishing to implement this interface should extend
  * {@link AbstractSearch }, and implement the loadData() method.
  */
-public interface Search extends java.io.Serializable
+public interface Search extends java.io.Serializable, servlets.KeyTypeUser
 {
     
     /**
@@ -34,7 +34,7 @@ public interface Search extends java.io.Serializable
      * @param dbID array contiain ids for genomes. Should use Common.arab
      * or Common.rice.
      */    
-    void init(List data,int limit,int[] dbID);
+    void init(List data,int limit,int[] dbID);   
     
     
     /**
@@ -76,6 +76,5 @@ public interface Search extends java.io.Serializable
      * 'Domain Composition' for number of this type of cluster.
      * @return A Map containing all relevent statistics.
      */    
-    Map getStats();
-    
+    Map getStats();    
 }

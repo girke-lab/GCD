@@ -52,4 +52,6 @@ public class GoTextSearch extends AbstractSearch {
         log.info("GoTextSearch Query: " + query);
         return query;
     }
+
+ 
 }

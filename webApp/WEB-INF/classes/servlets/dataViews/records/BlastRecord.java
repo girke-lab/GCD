@@ -86,6 +86,7 @@ public class BlastRecord implements Record
     }
     private String buildLink(String link,String key)
     {                
+        //should no longer be neccasary
         if(dbname.equals("pfam"))  //must make sure that this name always matches the value in the db_name field of unknowns.blast_databases
         { //ugly hack to chop off end of pfam keys since the pfam search page does not accept them.
             int i=key.lastIndexOf('.');
@@ -126,7 +127,7 @@ public class BlastRecord implements Record
      */
     public String toString()
     {
-        return "target="+target+",evalue="+evalue;
+        return "target="+target+",evalue="+evalue+",dbname="+dbname+",purpose="+purpose;
     }
     
     /**
@@ -163,10 +164,10 @@ public class BlastRecord implements Record
     
     /**
      * This method is used to allow BlastRecords to load themselves. The list should
-     * be a list of key_id numbers to get information for.
+     * be a list of id numbers to get information for.
      * @param dbc a database connection to the proper database
-     * @param ids list of key_id values
-     * @return a map of key_ids to BlastRecords.
+     * @param ids list of id values
+     * @return a map of ids to BlastRecords.
      */
     public static Map getData(DbConnection dbc, List ids)
     {
@@ -175,10 +176,10 @@ public class BlastRecord implements Record
     /**
      * Allows one to also specify a sort field and a direction
      * @param dbc a connection to the proper db.
-     * @param ids list of key_ids
+     * @param ids list of ids
      * @param sortCol column name to sort by
      * @param sortDir sort direction, should be either "ASC", or "DESC".
-     * @return a map of key_ids to BlastRecords
+     * @return a map of ids to BlastRecords
      */
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
@@ -217,13 +218,16 @@ class BlastRecordGroup extends RecordGroup
         boolean firstRecord=true;
         String lastPurpose=null;
         
-        Map titles=new HashMap();
+        Map titles=new HashMap(); 
         titles.put("UD","Unknown Searches");
         titles.put("orthologs","Ortholog Searches");
+        
         
         for(Iterator i=records.iterator();i.hasNext();)
         {
             rec=(BlastRecord)i.next();
+            if(rec.target.equals("no hit"))
+                continue; //skip no hits
             if(firstRecord)
             {
                 rec.printHeader(out, visitor);

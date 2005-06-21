@@ -31,6 +31,7 @@ public class ModelDataView implements DataView
     String sortCol;
     int[] dbs;
     int hid;
+    int keyType;
     HttpSession session;
     HttpServletRequest request;
     List data=null;
@@ -72,6 +73,7 @@ public class ModelDataView implements DataView
         this.sortCol=sortCol;
         this.dbs=dbList;
         this.hid=hid;
+        
         //store the data we got from request in the session object
         QueryInfo qi=(QueryInfo)((List)session.getAttribute("history")).get(hid);
         ModelQueryInfo mqi_temp=(ModelQueryInfo)qi.getObject("ModelQueryInfo");
@@ -304,6 +306,31 @@ public class ModelDataView implements DataView
      public void setSortDirection(String dir)
      {
      }     
+
+    public int[] getSupportedKeyTypes()
+    {
+         return new int[]{Common.KEY_TYPE_MODEL};
+    }
+
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    {
+        boolean isValid=false;
+        int[] keys=getSupportedKeyTypes();
+        for(int i=0;i<keys.length;i++)
+            if(keyType == keys[i]){
+                isValid=true;
+                break;
+            }
+        if(!isValid)
+            throw new servlets.exceptions.UnsupportedKeyType(keys,keyType);
+        this.keyType=keyType;
+    }
+
+
+    public int getKeyType()
+    {
+        return keyType;
+    }
     
      
     class ModelQueryInfo implements java.io.Serializable

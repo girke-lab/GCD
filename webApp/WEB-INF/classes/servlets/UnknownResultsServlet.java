@@ -67,7 +67,7 @@ public class UnknownResultsServlet extends HttpServlet {
         StringTokenizer tok=new StringTokenizer(inputKeys);
         while(tok.hasMoreTokens())
            ids.add(tok.nextToken());
-        dv.setData(sortCol, new int[]{},0);
+        dv.setData(sortCol, new int[]{},0,Common.KEY_TYPE_MODEL);
         dv.setIds(ids);
         dv.printHeader(out);
         dv.printStats(out);

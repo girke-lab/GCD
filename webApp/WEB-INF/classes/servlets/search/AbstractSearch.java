@@ -27,7 +27,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     List input,keysFound,data=null;
     Map stats=null;
     String seqId_query=null;
-    int limit;
+    int limit,keyType;
     int[] db=null;
     int[] dbStartPositions;  //index of first occurance of each database in dataset
     /**
@@ -43,7 +43,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
      * @param i id number of genome.
      * @return index of first occurance of this genome in results list.
      */    
-    public int getDbStartPos(int i) {
+    public int getDbStartPos(int i) {        
          if(i < 0 || i > dbStartPositions.length)
             return 0;
         return dbStartPositions[i];
@@ -76,7 +76,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     public void init(java.util.List data, int limit, int[] dbID) {
         this.input=data;
         this.limit=limit;
-        this.db=dbID;
+        this.db=dbID;        
         dbStartPositions=new int[Common.dbCount];
         keysFound=new ArrayList();
         //stats=new ArrayList();
@@ -156,4 +156,28 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     {
         return SearchQuerySet.STAT_CLUSTERS | SearchQuerySet.STAT_MODELS;
     }
+
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{Common.KEY_TYPE_SEQ};
+    }
+
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    {
+        boolean isValid=false;
+        int[] keys=getSupportedKeyTypes();
+        for(int i=0;i<keys.length;i++)
+            if(keyType == keys[i]){
+                isValid=true;
+                break;
+            }
+        if(!isValid)
+            throw new servlets.exceptions.UnsupportedKeyType(keys,keyType);
+        this.keyType=keyType;
+    }
+    public int getKeyType()
+    {
+        return keyType;
+    }
+
 }

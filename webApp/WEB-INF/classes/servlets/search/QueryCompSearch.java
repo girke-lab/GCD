@@ -104,5 +104,18 @@ public class QueryCompSearch implements Search
     {
         return new ArrayList();
     }
-    
+    public int getKeyType()
+    {
+        return Common.KEY_TYPE_ACC;
+    }
+
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{Common.KEY_TYPE_ACC};
+    }
+
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    {
+        
+    }
 }

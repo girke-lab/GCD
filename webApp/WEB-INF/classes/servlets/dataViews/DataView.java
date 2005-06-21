@@ -28,8 +28,9 @@ import servlets.dataViews.queryWideViews.QueryWideView;
  * should be printed, and return the object in the getQueryWideView()
  * method.
  */
-public interface DataView 
+public interface DataView extends servlets.KeyTypeUser
 {
+    
     /**
      * Used to set the list of id numbers.  Also sets the field that should
      * be used to sort the results, this should be a fully qualified

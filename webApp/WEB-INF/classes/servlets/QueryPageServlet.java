@@ -11,6 +11,7 @@ import java.util.*;
 import java.net.*;
 import java.sql.*;
 import org.apache.log4j.*;
+import servlets.exceptions.UnsupportedKeyType;
 
 import servlets.search.*;
 import servlets.dataViews.*;
@@ -134,8 +135,21 @@ public class QueryPageServlet extends HttpServlet
         
         rpp=((Integer)qi.getObject("rpp")).intValue();
         pos=qi.getCurrentPos();
+        
+        //get search and dataview objects
         s=qi.getSearch(); 
-                        
+        dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);
+        //find a common search key to use
+        int commonKeyType=findCommonKeyType(s.getSupportedKeyTypes(), dv.getSupportedKeyTypes());
+        
+        try{//try setting the key, if a key type is unsupported, an exception is thrown.
+            s.setKeyType(commonKeyType);
+            dv.setKeyType(commonKeyType);
+        }catch(UnsupportedKeyType e){
+            log.error("bad key type: "+e);
+        }
+        
+        //the first call of getResults performs the search
         if(s.getResults()==null || s.getResults().size()==0){
             Common.sendError(response,origin,"No matches found");
             return;
@@ -145,7 +159,7 @@ public class QueryPageServlet extends HttpServlet
             return;
         }
                 
-        dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);
+        //finish setting up the dataview
         dv.setData(qi.getSortCol(),qi.getDbs(),hid);
         dv.setSortDirection((String)qi.getObject("sortDirection"));
         
@@ -207,8 +221,7 @@ public class QueryPageServlet extends HttpServlet
             return new IdSearch();
         else
         {
-            type=type.replaceAll(" ","_");
-            //String searchClass=searches.getProperty(type);
+            type=type.replaceAll(" ","_");            
             String searchClass=settings.getProperty("search."+type);
             if(searchClass==null)
                 return new IdSearch();
@@ -310,7 +323,15 @@ public class QueryPageServlet extends HttpServlet
         }catch(Exception e){ }      
         
     }
-    
+    private int findCommonKeyType(int[] searchKeys,int[] dataviewKeys)
+    {
+        //simple method
+        for(int i=0;i<searchKeys.length;i++) //prefer search keys
+            for(int j=0;j<dataviewKeys.length;j++)
+                if(searchKeys[i]==dataviewKeys[i])
+                    return searchKeys[i];
+        return -1; //indicates an error, will eventually cause an UnsupportedKeyType exception.
+    }
     private void initQuerySets()
     {
         //V1QuerySets qs=new V1QuerySets();

@@ -17,6 +17,9 @@ import org.apache.log4j.Logger;
 public class Common {
     public final static int arab=0, rice=1;    
     public final static int dbCount=2;
+    public static final int KEY_TYPE_SEQ=0,     KEY_TYPE_MODEL=1,
+                            KEY_TYPE_CLUSTER=2, KEY_TYPE_BLAST=3,
+                            KEY_TYPE_ACC=4,     KEY_TYPE_QUERY=5;
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
     public final static String dataColor="D3D3D3",titleColor="AAAAAA";        

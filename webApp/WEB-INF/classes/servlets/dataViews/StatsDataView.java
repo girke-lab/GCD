@@ -71,5 +71,21 @@ public class StatsDataView implements DataView
     public void setSortDirection(String dir)
     {
     }
+
+    public int[] getSupportedKeyTypes()
+    {
+         return new int[]{};
+    }
+
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    {
+       
+    }
+
+
+    public int getKeyType()
+    {
+        return -1;
+    }
     
 }

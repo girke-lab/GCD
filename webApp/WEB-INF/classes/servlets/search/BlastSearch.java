@@ -96,4 +96,17 @@ public class BlastSearch implements Search
     {
         return 0;
     }
+    public int getKeyType()
+    {
+        return Common.KEY_TYPE_BLAST;
+    }
+
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{Common.KEY_TYPE_BLAST};
+    }
+
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    {
+    }
 }

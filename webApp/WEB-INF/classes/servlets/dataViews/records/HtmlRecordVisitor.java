@@ -62,7 +62,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         if(!target.equals("no hit") && br.link!=null)
             target="<a href='"+br.link+"'>"+br.target+"</a>";
          out.write("<tr><td>"+target+"</td><td>"+br.evalue+"</td><td>"+
-                    (br.score.equals("")?"&nbsp":br.score)+"</td>" +
+                    (br.score==null || br.score.equals("")?"&nbsp":br.score)+"</td>" +
                     "<td>"+br.dbname+"/"+br.method+"</td></tr>\n");
     }    
     public void printRecord(java.io.Writer out, UnknownRecord ur) throws java.io.IOException

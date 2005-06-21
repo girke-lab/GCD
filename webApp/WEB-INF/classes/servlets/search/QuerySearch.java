@@ -91,4 +91,17 @@ public class QuerySearch implements Search
         for(Iterator i=results.iterator();i.hasNext();)
             data.add(((List)i.next()).get(0));        
     }
+    public int getKeyType()
+    {
+        return Common.KEY_TYPE_QUERY;
+    }
+
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{Common.KEY_TYPE_QUERY};
+    }
+
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    {
+    }
 }

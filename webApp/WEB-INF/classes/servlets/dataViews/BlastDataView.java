@@ -24,6 +24,8 @@ public class BlastDataView implements DataView
     
     List seq_ids;
     int hid;
+    int keyType;
+
     String sortCol,sortDir;
     
     private static String[] titles=new String[] {"Hit ID","Description","Organism","E Value","Score","% Identity","Length"};
@@ -160,5 +162,29 @@ public class BlastDataView implements DataView
             log.error("could not send query: "+e.getMessage());
         }
         return null;
+    }
+
+    public int[] getSupportedKeyTypes()
+    {
+         return new int[]{Common.KEY_TYPE_BLAST};
+    }
+
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    {
+        boolean isValid=false;
+        int[] keys=getSupportedKeyTypes();
+        for(int i=0;i<keys.length;i++)
+            if(keyType == keys[i]){
+                isValid=true;
+                break;
+            }
+        if(!isValid)
+            throw new servlets.exceptions.UnsupportedKeyType(keys,keyType);
+        this.keyType=keyType;
+    }
+
+    public int getKeyType()
+    {
+        return keyType;
     }
 }
