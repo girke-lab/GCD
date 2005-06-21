@@ -22,7 +22,7 @@ public class DescriptionSearch extends AbstractSearch
     {
     }
     public void init(java.util.List data, int limit, int[] dbID) {
-        super.init(data,limit, dbID);
+        super.init(data,limit, dbID); 
         //set stats to null so that data will be loaded before we use it.
         stats=null;
     }

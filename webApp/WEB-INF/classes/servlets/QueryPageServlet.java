@@ -325,10 +325,16 @@ public class QueryPageServlet extends HttpServlet
     }
     private int findCommonKeyType(int[] searchKeys,int[] dataviewKeys)
     {
+        if(searchKeys==null)
+            log.debug("no search keys");
+        if(dataviewKeys==null)
+            log.debug("no dataview keys");
+        //log.debug("searchKeys="+searchKeys+", dataviewKeys="+dataviewKeys);
+        
         //simple method
         for(int i=0;i<searchKeys.length;i++) //prefer search keys
             for(int j=0;j<dataviewKeys.length;j++)
-                if(searchKeys[i]==dataviewKeys[i])
+                if(searchKeys[i]==dataviewKeys[j])
                     return searchKeys[i];
         return -1; //indicates an error, will eventually cause an UnsupportedKeyType exception.
     }
