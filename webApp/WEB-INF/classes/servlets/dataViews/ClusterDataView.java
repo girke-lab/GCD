@@ -159,7 +159,7 @@ public class ClusterDataView implements DataView
        
     private List getData(List input, String order, int[] db)
     {
-        return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getClusterDataViewQuery(input, order, db));         
+        return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getClusterDataViewQuery(input, order, db, -1));         
     }
     
      private String buildClusterViewStatement(String conditions, String order, int[] DBs)

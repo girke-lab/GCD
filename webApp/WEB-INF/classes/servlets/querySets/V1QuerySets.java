@@ -37,7 +37,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         log.info("query from is: "+q); // use reflection to get calling method here
     }
     
-    public String getBlastDataViewQuery(java.util.Collection ids, String sortCol, String sortDir)
+    public String getBlastDataViewQuery(java.util.Collection ids, String sortCol, String sortDir, int keyType)
     {
         String query=
             "SELECT query.accession,target.accession,gd.link,target.description, " +
@@ -54,7 +54,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return query;
     }
     
-    public String getClusterDataViewQuery(java.util.Collection ids, String order, int[] DBs)
+    public String getClusterDataViewQuery(java.util.Collection ids, String order, int[] DBs, int keyType)
     {
         StringBuffer query=new StringBuffer();        
   
@@ -68,7 +68,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return query.toString();    
     }   
 
-    public String getModelDataViewQuery(Collection ids, String fields)
+    public String getModelDataViewQuery(Collection ids, String fields, int keyType)
     {
         String query="SELECT "+fields+" FROM Sequences "+
                        " LEFT JOIN Models USING(Seq_id) WHERE "+Common.buildIdListCondition("sequences.seq_id",ids)+
@@ -77,7 +77,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return query;
     }
 
-    public String getSeqDataViewQuery(java.util.Collection ids, String order, int[] DBs)
+    public String getSeqDataViewQuery(java.util.Collection ids, String order, int[] DBs, int keyType)
     {            
         StringBuffer query=new StringBuffer();
         
@@ -106,7 +106,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return query.toString();
     
     }
-    public String getUnknownsDataViewQuery(Collection ids, String sortCol, String sortDir)
+    public String getUnknownsDataViewQuery(Collection ids, String sortCol, String sortDir, int keyType)
     {
          String query="SELECT unknowns.*,treats.treat " +
             " FROM unknowns LEFT JOIN treats USING(unknown_id) " +
@@ -308,7 +308,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     //////////////////////////////////////////////////
     //////////////// SearchQuerySet methods
     //////////////////////////////////////////////////   
-    public String getBlastSearchQuery(String blastDb, java.util.Collection keys)
+    public String getBlastSearchQuery(String blastDb, java.util.Collection keys, int keyType)
     {
         String query=
             "SELECT br.blast_id " +
@@ -321,7 +321,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return query;
     }
 
-    public String getClusterIDSearchQuery(java.util.Collection input, int limit, int[] DBs)
+    public String getClusterIDSearchQuery(java.util.Collection input, int limit, int[] DBs, int keyType)
     {
         
         String q="SELECT distinct  Sequences.Seq_id, Cluster_Info.filename,sequences.genome "+
@@ -343,7 +343,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return q;
     }
 
-    public String getClusterNameSearchQuery(java.util.Collection input, int limit, int[] DBs)
+    public String getClusterNameSearchQuery(java.util.Collection input, int limit, int[] DBs, int keyType)
     {
         String id="SELECT DISTINCT Sequences.Seq_id,sequences.genome from Cluster_Info, Clusters, Sequences "+
                   "WHERE Cluster_Info.cluster_id=Clusters.cluster_id AND "+
@@ -364,7 +364,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return id;
     }
 
-    public String getDescriptionSearchQuery(java.util.Collection input, int limit, int[] DBs)
+    public String getDescriptionSearchQuery(java.util.Collection input, int limit, int[] DBs, int keyType)
     {
         String id="SELECT DISTINCT Sequences.Seq_id, sequences.genome from Sequences "+
                   "WHERE (";
@@ -383,7 +383,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return id;
     }
 
-    public String getGoSearchQuery(java.util.Collection input, int limit)
+    public String getGoSearchQuery(java.util.Collection input, int limit, int keyType)
     {
         String id="SELECT DISTINCT go.Seq_id,Go.Go,sequences.genome from Go,sequences "+
                   "WHERE sequences.seq_id=go.seq_id AND ";
@@ -393,7 +393,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return id;
     }
 
-    public String getGoTextSearchQuery(java.util.Collection input, int limit)
+    public String getGoTextSearchQuery(java.util.Collection input, int limit, int keyType)
     {
         String query = "SELECT DISTINCT s.Seq_id, s.genome from go AS g, sequences AS s " + 
                 "where g.seq_id = s.seq_id AND ";
@@ -404,7 +404,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return query;
     }
     
-    public String getIdSearchQuery(java.util.Collection input, int limit, int[] DBs)
+    public String getIdSearchQuery(java.util.Collection input, int limit, int[] DBs, int keyType)
     {
         String id="SELECT DISTINCT a.Seq_id, a.Accession,s.genome FROM Sequences as s, Id_Associations as a "+
                   "WHERE s.seq_id=a.seq_id AND ("; 
@@ -435,7 +435,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return id;
     }
    
-    public String getQueryCompSearchQuery(String comp_id, String status)
+    public String getQueryCompSearchQuery(String comp_id, String status, int keyType)
     {
         String query="SELECT key_id FROM updates.diffs " +
                      "WHERE comp_id="+comp_id+" AND difference='"+status+"'";
@@ -443,14 +443,14 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return query;
     }
 
-    public String getQuerySearchQuery(String queries_id)
+    public String getQuerySearchQuery(String queries_id, int keyType)
     {
         String query="select sql from updates.queries where queries_id="+queries_id;
         logQuery(query);
         return query;
     }
 
-    public String getSeqModelSearchQuery(java.util.Collection model_ids)
+    public String getSeqModelSearchQuery(java.util.Collection model_ids, int keyType)
     {
         String query="SELECT ci.method, count(distinct c.cluster_id) " +
             "FROM clusters as c, cluster_info as ci " +
@@ -498,7 +498,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     {
         return getStatsByQuery(query);
     }
-    public String getUnknownClusterIdSearchQuery(int cluster_id)
+    public String getUnknownClusterIdSearchQuery(int cluster_id, int keyType)
     {
         String query="SELECT key " +
         "   FROM unknowns.unknown_keys as uk, unknowns.clusters as c " +

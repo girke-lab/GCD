@@ -24,7 +24,7 @@ public class GoTextSearch extends AbstractSearch {
     void loadData(){
         List rs = null;
         
-        seqId_query=QuerySetProvider.getSearchQuerySet().getGoTextSearchQuery(input, limit);
+        seqId_query=QuerySetProvider.getSearchQuerySet().getGoTextSearchQuery(input, limit, keyType);
         rs = Common.sendQuery(seqId_query);
         
         List al = new ArrayList();
@@ -52,6 +52,9 @@ public class GoTextSearch extends AbstractSearch {
         log.info("GoTextSearch Query: " + query);
         return query;
     }
-
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL};
+    }  
  
 }

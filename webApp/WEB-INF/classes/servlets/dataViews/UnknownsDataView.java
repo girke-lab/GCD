@@ -246,7 +246,7 @@ public class UnknownsDataView implements DataView
     private List getData()
     {        
         try{
-            return dbc.sendQuery(QuerySetProvider.getDataViewQuerySet().getUnknownsDataViewQuery(seq_ids,sortCol,sortDir));
+            return dbc.sendQuery(QuerySetProvider.getDataViewQuerySet().getUnknownsDataViewQuery(seq_ids,sortCol,sortDir, -1));
         }catch(Exception e){
             log.error("could not send query: "+e.getMessage());
         }

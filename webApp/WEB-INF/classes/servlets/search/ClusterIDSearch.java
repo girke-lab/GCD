@@ -25,7 +25,7 @@ public class ClusterIDSearch extends AbstractSearch
     {        
         List rs=null;        
                
-        seqId_query=QuerySetProvider.getSearchQuerySet().getClusterIDSearchQuery(input, limit, db);
+        seqId_query=QuerySetProvider.getSearchQuerySet().getClusterIDSearchQuery(input, limit, db, keyType);
         rs=Common.sendQuery(seqId_query);
         
         Set al=new LinkedHashSet();
@@ -58,6 +58,9 @@ public class ClusterIDSearch extends AbstractSearch
         temp.removeAll(keysFound);
         return temp;        
     }                 
-
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL};
+    }   
  
 }

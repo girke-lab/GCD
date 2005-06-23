@@ -60,7 +60,7 @@ public class BlastSearch implements Search
             return;
         }
                 
-        String query=QuerySetProvider.getSearchQuerySet().getBlastSearchQuery(blastDb,keys);
+        String query=QuerySetProvider.getSearchQuerySet().getBlastSearchQuery(blastDb,keys, -1);
 
         List results=null;
         try{

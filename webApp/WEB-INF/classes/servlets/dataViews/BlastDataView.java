@@ -154,7 +154,7 @@ public class BlastDataView implements DataView
     private List getData()
     {
                 
-        String query=QuerySetProvider.getDataViewQuerySet().getBlastDataViewQuery(seq_ids, sortCol, sortDir);
+        String query=QuerySetProvider.getDataViewQuerySet().getBlastDataViewQuery(seq_ids, sortCol, sortDir, -1);
         
         try{
             return dbc.sendQuery(query);            

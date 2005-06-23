@@ -167,7 +167,7 @@ public class ModelDataView implements DataView
         feildCombo.append(", "+fullNames[10]); //always query genome so we know where to put titles
         fieldCount++;
 
-        rs=Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getModelDataViewQuery(keys,feildCombo.toString()));                
+        rs=Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getModelDataViewQuery(keys,feildCombo.toString(), -1));                
            
         return rs;   
     }       

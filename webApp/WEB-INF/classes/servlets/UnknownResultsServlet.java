@@ -7,7 +7,6 @@
 package servlets;
 
 import java.io.*;
-import java.net.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -67,7 +66,12 @@ public class UnknownResultsServlet extends HttpServlet {
         StringTokenizer tok=new StringTokenizer(inputKeys);
         while(tok.hasMoreTokens())
            ids.add(tok.nextToken());
-        dv.setData(sortCol, new int[]{},0,Common.KEY_TYPE_MODEL);
+        dv.setData(sortCol, new int[]{},0);
+        try{
+            dv.setKeyType(Common.KEY_TYPE_MODEL);
+        }catch(servlets.exceptions.UnsupportedKeyType e){
+            log.error(e);
+        }
         dv.setIds(ids);
         dv.printHeader(out);
         dv.printStats(out);

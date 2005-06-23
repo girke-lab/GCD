@@ -80,7 +80,7 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         
         String db="unknowns.";        
         String space=" &nbsp&nbsp ";
-        //as long as we only use fields from tables that have a 'key_id' column,
+        //as long as we only use fields from tables that have an 'accession_id' column,
         //we don't need any special cases in the query building code.
         
         fields=new Field[]{

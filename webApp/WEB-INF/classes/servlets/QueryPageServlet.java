@@ -143,7 +143,9 @@ public class QueryPageServlet extends HttpServlet
         int commonKeyType=findCommonKeyType(s.getSupportedKeyTypes(), dv.getSupportedKeyTypes());
         
         try{//try setting the key, if a key type is unsupported, an exception is thrown.
+            log.debug("setting search key type to "+commonKeyType);
             s.setKeyType(commonKeyType);
+            log.debug("setting dataview key type to "+commonKeyType);
             dv.setKeyType(commonKeyType);
         }catch(UnsupportedKeyType e){
             log.error("bad key type: "+e);
@@ -252,6 +254,7 @@ public class QueryPageServlet extends HttpServlet
         String searchType=request.getParameter("searchType");
         String[] dbTemp=request.getParameterValues("dbs"); //list of databases to use
 
+        log.debug("searchType="+searchType);
         try{//test limit
             limit=Integer.parseInt(request.getParameter("limit"));
             if(limit>=Common.MAXKEYS || limit==0) //cap limit at MAXKEYS
@@ -277,8 +280,8 @@ public class QueryPageServlet extends HttpServlet
                 inputKeys.add(tok.nextToken());
         }
         qi=new QueryInfo(dbNums,"",""); //sortCol and displayType should be set later
-        s=getSearchObj(searchType);        
-        s.init(inputKeys,limit, dbNums);              
+        s=getSearchObj(searchType); 
+        s.init(inputKeys,limit, dbNums);  
         qi.setSearch(s);
         qi.setInputCount(inputKeys.size());
         qi.setObject("general_storage",new HashMap());
@@ -299,6 +302,7 @@ public class QueryPageServlet extends HttpServlet
         }            
         
         String displayType=request.getParameter("displayType");
+        log.debug("displayType="+displayType);
         if(displayType!=null) //if a display type was given, save it
             qi.setDisplayType(displayType);
         
@@ -325,18 +329,17 @@ public class QueryPageServlet extends HttpServlet
     }
     private int findCommonKeyType(int[] searchKeys,int[] dataviewKeys)
     {
-        if(searchKeys==null)
-            log.debug("no search keys");
-        if(dataviewKeys==null)
-            log.debug("no dataview keys");
-        //log.debug("searchKeys="+searchKeys+", dataviewKeys="+dataviewKeys);
-        
+        int common=-1;
         //simple method
         for(int i=0;i<searchKeys.length;i++) //prefer search keys
             for(int j=0;j<dataviewKeys.length;j++)
                 if(searchKeys[i]==dataviewKeys[j])
-                    return searchKeys[i];
-        return -1; //indicates an error, will eventually cause an UnsupportedKeyType exception.
+                {
+                    common=searchKeys[i];
+                    break;
+                }
+        log.debug("found common key "+common);
+        return common; // -1 indicates an error, will eventually cause an UnsupportedKeyType exception.
     }
     private void initQuerySets()
     {

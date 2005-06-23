@@ -5,33 +5,19 @@
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 
-
-
 </head>
 <body bgcolor="#FFFFFF" leftmargin="1" topmargin="1" marginwidth="1" marginheight="1" >
-
-     <% String input=request.getParameter("input");
-        String limit=request.getParameter("limit");
-        String fieldName=request.getParameter("fieldName");
-        String errMessage=request.getParameter("error_message");
-        
-        if(input==null)
-            input="";
-        if(limit==null)
-            limit="0";
-        if(fieldName==null)
-            fieldName="Description";
-    %>   
-
 <jsp:useBean id='common' class='servlets.Common' scope='application'/>
-<% common.printHeader(out,"Single or Batch Search"); %>
+<jsp:useBean id='bean'   class='servlets.SimpleSearchBean' scope='page'/>
+
+    <% bean.initPage(application,request,response); %>   
+
+    <% common.printHeader(out,"Single or Batch Search"); %>
 
 	<FORM NAME='form1' METHOD=POST ACTION='/databaseWeb/QueryPageServlet'   >   
             <TABLE width='70%' align='center' border='0'>
                 <TR>
-                    <TD  align='center'>
-                        
-                        <!--<font color='#FF0000'>News:</font> Version 3 rice gene IDs and interactive tree view implemented.-->
+                    <TD  align='center'>                                              
                         &nbsp<P>
                         GCD is a database for genome-wide sequence <BR> family mining in Arabidopsis and Rice.
                         Detailed information about this resource is available on the <a href='about.jsp'>ReadMe</a> page
@@ -41,73 +27,17 @@
                         <font color='#FF0000'>News: data upgraded to TIGR's version 3 rice annotation.</font>
                         <P>
                         <A href='about.jsp#search'>
-                            How to Search GCD</A>
-                        
+                            How to Search GCD</A>                        
                     </TD>                    
                 </TR>
                 <TR>
                     <TD align='center'>
-                        <% if(errMessage!=null && !errMessage.equals("")){ %>
-                            <font color='#FF0000' size=+1><%=errMessage%></font>
-                        <%}%>                                
+                        <% bean.printMessage(out); %>
                     </TD>
                 </TR>
-                <TR >
-                    <TD  align='center'>
-                        <B>Search string</B>                      
-                        <BR>
-                        <TEXTAREA NAME="inputKey" cols='40' rows='10'><%=input%></TEXTAREA>                                                                 
-                    </TD>    
+                <TR>
                     <TD>
-                        Databases to use:
-                        <BR>
-                        <INPUT type=checkbox name='dbs' value='0' checked>
-                        Arabidopsis
-                        <BR>
-                        <INPUT type=checkbox name='dbs' value='1' checked>
-                        Rice     
-                    </TD> 
-                    <TD>
-                        Result View:                        
-                        <SELECT name='displayType'>
-                            <OPTION value='seqView'>GCD
-                            <OPTION value='unknowns2View'>POND                            
-                        </SELECT>
-                        <BR>
-                    </TD>                        
-                            
-                </TR>
-                <TR>                    
-                    <TD  align='center' >
-
-                        Search by
-                        <SELECT name='searchType'>
-                            <OPTION <%if(fieldName.equals("Id"))
-                                        out.println("selected"); %>>Id
-                            <OPTION <%if(fieldName.equals("Description"))
-                                        out.println("selected"); %>>Description
-                            <OPTION <%if(fieldName.equals("Cluster Id"))
-                                        out.println("selected"); %>>Cluster Id
-                            <OPTION <%if(fieldName.equals("Cluster Name"))
-                                        out.println("selected"); %>>Cluster Name
-                            <OPTION <%if(fieldName.equals("GO Number"))
-                                        out.println("selected"); %>>GO Number
-                            <OPTION <%if(fieldName.equals("GO Text"))
-                                        out.println("selected"); %>>GO Text
-
-                        </SELECT>
-                        <BR>                       
-                    </TD>
-                    <TD>
-                        Records per page:&nbsp&nbsp 
-                        <INPUT name="rpp" value="50" size='5'>
-                    </TD>
-
-                </TR>    
-                <TR >                    
-                    <TD  align='center'>
-                       <INPUT TYPE=submit value='Submit Query' ><!-- onClick="send();"> -->
-                               
+                        <% bean.drawForm(out); %>
                     </TD>
                 </TR>   
                 <TR>

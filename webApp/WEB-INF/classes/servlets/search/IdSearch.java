@@ -30,7 +30,7 @@ public class IdSearch extends AbstractSearch
     {
         List rs=null;
         
-        seqId_query=QuerySetProvider.getSearchQuerySet().getIdSearchQuery(input,limit, db);
+        seqId_query=QuerySetProvider.getSearchQuerySet().getIdSearchQuery(input,limit, db, keyType);
         rs=Common.sendQuery(seqId_query);
         
         Set al=new HashSet();
@@ -62,5 +62,8 @@ public class IdSearch extends AbstractSearch
         temp.removeAll(keysFound);
         return temp;        
     }
-
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL};
+    }  
 }

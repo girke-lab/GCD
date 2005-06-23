@@ -27,35 +27,35 @@ public interface SearchQuerySet extends QuerySet
     public String getStatsByQuery(String query,int stats);
     
     // for BlastSearch
-    public String getBlastSearchQuery(String blastDb, Collection keys);
+    public String getBlastSearchQuery(String blastDb, Collection keys, int keyType);
     
     //for ClusterIDSearch
-    public String getClusterIDSearchQuery(Collection input, int limit, int[] DBs);
+    public String getClusterIDSearchQuery(Collection input, int limit, int[] DBs, int keyType);
     
     // for ClusterNameSearch
-    public String getClusterNameSearchQuery(Collection input, int limit, int[] DBs);
+    public String getClusterNameSearchQuery(Collection input, int limit, int[] DBs, int keyType);
     
     // for DescriptionSearch
-    public String getDescriptionSearchQuery(Collection input, int limit, int[] DBs);
+    public String getDescriptionSearchQuery(Collection input, int limit, int[] DBs, int keyType);
     
     // for GoSearch 
-    public String getGoSearchQuery(Collection input, int limit);
+    public String getGoSearchQuery(Collection input, int limit, int keyType);
     
     // for GoTextSearch
-    public String getGoTextSearchQuery(Collection input, int limit);
+    public String getGoTextSearchQuery(Collection input, int limit, int keyType);
     
     // for IdSearch
-    public String getIdSearchQuery(Collection input, int limit, int[] DBs);
+    public String getIdSearchQuery(Collection input, int limit, int[] DBs, int keyType);
     
     // for QueryCompSearch
-    public String getQueryCompSearchQuery(String comp_id, String status);
+    public String getQueryCompSearchQuery(String comp_id, String status, int keyType);
     
     // for QuerySearch
-    public String getQuerySearchQuery(String queries_id);        
+    public String getQuerySearchQuery(String queries_id, int keyType);        
     
     // for SeqModelSearch
-    public String getSeqModelSearchQuery(Collection model_ids);
+    public String getSeqModelSearchQuery(Collection model_ids, int keyType);
     
     // for UnknowclusterIdSearch
-    public String getUnknownClusterIdSearchQuery(int cluster_id);
+    public String getUnknownClusterIdSearchQuery(int cluster_id, int keyType);
 }

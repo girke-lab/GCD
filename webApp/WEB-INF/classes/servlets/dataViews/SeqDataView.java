@@ -191,7 +191,7 @@ public class SeqDataView implements DataView
     
     private List getData(List input, String order, int[] db)
     {
-        return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getSeqDataViewQuery(input,order,db));
+        return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getSeqDataViewQuery(input,order,db, -1));
     }
     private String buildSeqViewStatement(String conditions,String order, int[] DBs)
     {

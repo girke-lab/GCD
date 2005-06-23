@@ -26,7 +26,7 @@ public class GoSearch extends AbstractSearch
     {
         List rs=null;
         
-        seqId_query=QuerySetProvider.getSearchQuerySet().getGoSearchQuery(input, limit);
+        seqId_query=QuerySetProvider.getSearchQuerySet().getGoSearchQuery(input, limit, keyType);
         rs=Common.sendQuery(seqId_query);
 
         Set al=new HashSet();

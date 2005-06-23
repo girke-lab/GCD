@@ -53,7 +53,7 @@ public class UnknownClusterIdSearch implements Search
     }
     private List getKeys(int cluster_id)
     {
-        String query=QuerySetProvider.getSearchQuerySet().getUnknownClusterIdSearchQuery(cluster_id);
+        String query=QuerySetProvider.getSearchQuerySet().getUnknownClusterIdSearchQuery(cluster_id, seqIdSearch.getKeyType());
         List results=null;
         try{
             results=dbc.sendQuery(query);

@@ -30,7 +30,7 @@ public class DescriptionSearch extends AbstractSearch
     {
         List rs;
         
-        seqId_query=QuerySetProvider.getSearchQuerySet().getDescriptionSearchQuery(input,limit, db);
+        seqId_query=QuerySetProvider.getSearchQuerySet().getDescriptionSearchQuery(input,limit, db, keyType);
         rs=Common.sendQuery(seqId_query);
         
         ArrayList al=new ArrayList();
