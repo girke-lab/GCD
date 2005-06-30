@@ -22,7 +22,7 @@ public class GoGetter
     Debug d;
     
     
-    /** Creates a new instance of SelectGo */
+    
     public GoGetter() 
     {
         connect("khoran_loading");
@@ -32,8 +32,8 @@ public class GoGetter
     
     /**
      *input: if -x is specified, a xml file should be given, if -d is specified, a serielized GoDag file
-     *should be given.  The rest of the input needed is read from the mySql database
-     *output: output is written directly to the mySql database.
+     *should be given.  The rest of the input needed is read from the database
+     *output: output is written directly to the database.
      *
      * @param args the command line arguments
      */
@@ -90,13 +90,15 @@ public class GoGetter
         //ArrayList inputData=getInput("SELECT Seq_id,Go from Go order by Seq_id",
          //                            "SELECT count(Seq_id) from Go group by Seq_id order by seq_id");        
         ArrayList inputData=getInput("SELECT sd.accession_id, gn.go_number "+
-				" FROM common.sequence_data as sd JOIN general.acession_gos as ag USING(accession_id) "+
+				" FROM common.sequence_data as sd JOIN general.accession_gos as ag USING(accession_id) "+
 				" 	JOIN general.go_numbers as gn ON(gn.go_id=ag.go_id)"+
+                                " WHERE gn.function='function'"+
 				" ORDER BY sd.accession_id",
 
 				"SELECT count(sd.accession_id)"+
-				" FROM common.sequence_data as sd JOIN general.acession_gos as ag USING(accession_id) "+
+				" FROM common.sequence_data as sd JOIN general.accession_gos as ag USING(accession_id) "+
 				" 	JOIN general.go_numbers as gn ON(gn.go_id=ag.go_id)"+
+                                " WHERE gn.function='function'"+
 				" GROUP BY sd.accession_id"+
 				" ORDER BY sd.accession_id");
         for(Iterator i=inputData.iterator();i.hasNext();)
@@ -131,12 +133,14 @@ public class GoGetter
 				" FROM general.cluster_members as cm JOIN common.model_data as md USING(accession_id)"+
 				"	JOIN common.sequence_data as sd ON(sd.accession_id=md.sequence_accession_id)"+
 				"	JOIN general.go_numbers as gn ON(sd.go_id=gn.go_id)"+
+                                " WHERE gn.function='function'"+
 				" ORDER BY cm.cluster_id",
 
 				"SELECT count(cm.cluster_id)"+
 				" FROM general.cluster_members as cm JOIN common.model_data as md USING(accession_id)"+
 				"	JOIN common.sequence_data as sd ON(sd.accession_id=md.sequence_accession_id)"+
 				"	JOIN general.go_numbers as gn ON(sd.go_id=gn.go_id)"+
+                                " WHERE gn.function='function'"+
 				" GROUP BY cm.cluster_id"+
 				" ORDER BY cm.cluster_id");
 	
@@ -268,11 +272,11 @@ public class GoGetter
         //open a connnection with the database server
         //String url="jdbc:mysql://138.23.191.152/"+DB+"?autoReconnect=false"; //was true
         //String url="jdbc:postgresql://138.23.191.152/"+DB;
-        String url="jdbc:postgresql://bioinfo.ucr.edu/"+DB;
+        String url="jdbc:postgresql://bioweb.bioinfo.ucr.edu/"+DB;
         try{
             //Class.forName("org.gjt.mm.mysql.Driver").newInstance();        
             Class.forName("org.postgresql.Driver").newInstance();
-            con=DriverManager.getConnection(url,"updater","");
+            con=DriverManager.getConnection(url,"updater","1024");
         }catch(SQLException e){
             System.out.println("connection error:"+e.getMessage());
             con=null;       

@@ -15,7 +15,7 @@ import java.util.*;
 import java.io.*;
 import java.util.regex.*;
 
-import javax.xml.bind.*;
+import javax.xml.bind.*; 
 import GO.go_jaxb.*;
 import khoran.debugPrint.Debug;
 
@@ -25,30 +25,34 @@ public class GoDag implements Serializable
     private GoNode root; //first node in GO DAG.
     private HashMap index;     
     private int subNode;
+    private static final int ALL_NODE=-2; //this is the go peoples root node.
     private transient HashMap tempMap; //temp storage used while loading the data
-    private transient Pattern goPattern;
+    private transient Pattern goPattern,allPattern;
     private transient Debug d;
     
     /** Creates a new instance of GoDag */
     public GoDag(String xmlFilename) 
     {//open and parse the xml file
-        goPattern=Pattern.compile(".*GO:(\\d{7})");
-        index=new HashMap();        
-        d=new Debug();
-        d.setPrintLevel(1);
+        init();
         subNode=-1; //no sub node given
         buildDag(xmlFilename);         
     }
     public GoDag(String xmlFilename,int subNode) 
     {//open and parse the xml file
-        goPattern=Pattern.compile(".*GO:(\\d{7})");
-        index=new HashMap();        
-        d=new Debug();
-        d.setPrintLevel(0);
+        init();
         this.subNode=subNode;
         buildDag(xmlFilename);         
     }
 
+    private void init()
+    {
+        goPattern=Pattern.compile(".*GO:(\\d{7})");
+        allPattern=Pattern.compile(".*(all)");
+        index=new HashMap();        
+        d=new Debug();
+        d.setPrintLevel(0);
+        
+    }
     //this is bad.
 //    public GoDag(GoDag dg,int subNode)
 //    {//build a new dag as a sub dag of the given dag, staring at the given node
@@ -248,6 +252,9 @@ public class GoDag implements Serializable
         Matcher m=goPattern.matcher(r);             
         if(m.matches())
             return Integer.parseInt(m.group(1));
+        if(allPattern.matcher(r).matches())
+            return ALL_NODE;
+        System.out.println("no match found for "+r);
         return 0;
     }
         
