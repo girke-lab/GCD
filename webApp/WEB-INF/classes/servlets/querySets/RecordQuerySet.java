@@ -6,12 +6,16 @@
 
 package servlets.querySets;
 
+import java.util.*;
+
 /**
- *
+ * This is a QuerySet that provides queries for Record objects.
+ * It is used by classes in the servlets.dataViews.records package.
+ * 
  * @author khoran
  */
 
-import java.util.*;
+
 
 public interface RecordQuerySet extends QuerySet
 {

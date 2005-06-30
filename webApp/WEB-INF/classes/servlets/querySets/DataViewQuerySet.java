@@ -6,12 +6,15 @@
 
 package servlets.querySets;
 
+import java.util.*;
+
 /**
- *
+ * Provides queries for DataView objects. Also provides some 
+ * misc data about queries, such as column names.
  * @author khoran
  */
 
-import java.util.*;
+
 
 public interface DataViewQuerySet extends QuerySet
 {
@@ -33,4 +36,8 @@ public interface DataViewQuerySet extends QuerySet
     // for UnknownsDataView
     public String getUnknownsDataViewQuery(Collection ids, String sortCol, String sortDir, int keyType);
     public String[] getSortableUnknownsColumns();        
+    
+    // for the pfamOptions.jsp page. No, this is not a DataView but I'm
+    // putting here anyway. 
+    public String getPfamOptionsQuery(String clusterName);
 }

@@ -51,17 +51,18 @@
       <role-name>query_admin</role-name>
     </auth-constraint>
   </security-constraint>
-  <!--
+  
   <security-constraint>
     <web-resource-collection>
-      <web-resource-name> all </web-resource-name>
-      <url-pattern>/*</url-pattern>
+      <web-resource-name> unknowns </web-resource-name>
+      <url-pattern>/unknownsSearch.jsp</url-pattern>
+      <url-pattern>/unknownsBasicSearch.jsp</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>database</role-name>
     </auth-constraint>
   </security-constraint>
-  -->
+  
   <login-config>
     <auth-method>BASIC</auth-method>
     <realm-name>UserDatabase</realm-name>

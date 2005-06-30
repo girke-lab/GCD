@@ -1,22 +1,21 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
 <html>
-    <head><title>Plant Unknowns</title></head>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+    </head>
     <body>
+        <jsp:useBean id='common' class='servlets.Common' scope='application'/>
+        <jsp:useBean id='bean'   class='servlets.SimpleSearchBean' scope='page'/>
 
-        <jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean2' scope='page'/>
-        <jsp:useBean id='common' class='servlets.Common' />
+        <% bean.initPage("unknownsBasicSearch.jsp",application,request,response); %>           
 
-
-        <%
-            bean.setDefaultDatabase("unknowns2");
-            //bean.setDatabase("unknowns");
-            bean.initPage(application,request,response);
-        %>
-
-
-
-        <p><p>  
         <font face="sans-serif, Arial, Helvetica, Geneva">
             <img alt="Unknown Database" src="images/unknownspace3.png">		
             <table border ='0'>
@@ -39,26 +38,17 @@
                         <%  common.printUnknownsSearchLinks(out); %>
                         <P>
                         <%  bean.printMessage(out); %>
-                        <p align='center'>
-                            <a href='statusQueries.jsp'>Difference Tracking</a> &nbsp&nbsp&nbsp&nbsp 
-                            <a href='QueryAdmin?database=<%=bean.getDatabase()%>'>Admin Page</a>                        
-                        </p>
-                        <%  bean.drawSearchForm(out,new String[]{"unknowns","unknowns2"}); %>
-		
                         
-
-                        <h4> Usage: </h4>
-                        <p>
-                        Most operators work as expected.  The LIKE and NOT LIKE operators can be used
-                        to match patterns.  The symbol '%' will match any number of characters,
-                        while the '_' will match any one character. 
-                        <p>                    
-                        The limit field determines the total number of results returned.                    
+                        
+                        <%  bean.drawForm(out,new String[]{"unknowns2View"},new String[]{"POND"}); %>		                                                                 
                     
                     </td>                
                 </tr>
             </table>
 
         </font>
+    
+   
+    
     </body>
 </html>

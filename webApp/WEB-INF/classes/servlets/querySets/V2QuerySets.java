@@ -6,17 +6,20 @@
 
 package servlets.querySets;
 
-/**
- *
- * @author khoran
- */
-
-
 import java.util.Collection;
 import java.util.Iterator;
 import org.apache.log4j.Logger;
 import servlets.Common;
 import servlets.advancedSearch.*;
+
+
+/**
+ * This class implements all the different QuerySet objects to
+ * provide an implementation for version 2 of the databse (now the current db).
+ * @author khoran
+ */
+
+
 
 public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , DatabaseQuerySet, ScriptQuerySet, SearchQuerySet
 {
@@ -166,7 +169,16 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query.toString());
         return query.toString();
     }
-
+    public String getPfamOptionsQuery(String clusterKey)
+    {
+        String query=" SELECT DISTINCT ON(d.key) d.key,d.description " +
+                "FROM general.clusters as c JOIN general.cluster_domains as cd USING(cluster_id)" +
+                "       JOIN general.domains as d USING(domain_id) "+
+                "WHERE c.key='"+clusterKey+"'" +
+                "ORDER BY d.key";
+        logQuery(query);
+        return query;
+    }
     //   </editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc=" Record queries "> 
@@ -176,7 +188,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     String uSchema="unknowns";
     public String getUnknownRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
     {
-        log.debug("sort col for unknown data query: "+sortCol);
+        log.error("sort col for unknown data query:"+sortCol+":");
         if(sortCol==null || sortCol.equals(""))
             sortCol="accession";
         else if(sortCol.equals("unknowns.other_accessions_view.other_accession"))
@@ -703,4 +715,6 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
     //</editor-fold>
+
+   
 }

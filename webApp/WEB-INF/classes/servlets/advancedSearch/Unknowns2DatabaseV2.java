@@ -48,7 +48,7 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         Query q=super.buildQueryTree(state);
         
         q.setDistinct(true);
-        q.addDistinctField("unknowns.arab_accessions.accession_id");
+        q.addDistinctField("general.accessions.accession_id");
         
         // all distinct fields must appear first in order
         Order o=q.getOrder();
@@ -56,25 +56,25 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         if(o.getOrder() instanceof DbField)
         {
             String oldOrder=((DbField)o.getOrder()).getName();
-            o=new Order(new DbField("arab_accessions.accession_id, "+oldOrder, String.class), "asc");
+            o=new Order(new DbField("accessions.accession_id, "+oldOrder, String.class), "asc");
         }
         q.setOrder(o);
         return q;
     }        
-     protected List additionalJoins()
+    protected List additionalJoins()
     {
         List j=new ArrayList(1);    
-        j.add("unknowns.arab_accessions");
+        j.add("general.accessions");
         return j;
     }
     void defineOptions()
     {   
         log.debug("defining options"); 
-//        rootTableName="general.accessions";
+        rootTableName="general.accessions";
 //        primaryKey="accession_id";
 //        defaultColumn="accession";
         
-        rootTableName="unknowns.arab_accessions";
+//        rootTableName="unknowns.arab_accessions";
         primaryKey="accession_id";
         defaultColumn="accession";
         
@@ -85,7 +85,9 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         
         fields=new Field[]{
             new Field("At key",db+"other_accessions_view.other_accession",List.class),
-            new Field("Description","unknowns.arab_accessions.description"),
+            new Field("Description","general.accessions.description"),
+            new Field("Genome","general.genome_databases_view.db_name", 
+                        new String[]{"arab","rice"}),
             new Field("Number of ests",db+"unknown_data.est_count",Integer.class),
                         
             new Field("Blast/Pfam Searches (best per db)",""),                        

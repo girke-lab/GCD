@@ -17,15 +17,19 @@ import javax.servlet.http.*;
 import org.apache.log4j.Logger;
 
 import servlets.advancedSearch.SearchState;
+import servlets.querySets.QuerySetProvider;
 
 public class PfamOptionsBean 
 {
     private static Logger log=Logger.getLogger(PfamOptionsBean.class);
     
     private String accession;
+    private Map domainDescriptions;
+    
     /** Creates a new instance of PfamOptionsBean */
     public PfamOptionsBean() 
     {
+        domainDescriptions=new HashMap();
     }
     
     
@@ -35,13 +39,21 @@ public class PfamOptionsBean
         setAccession(request.getParameter("accession"));
         if(getAccession()==null)
             setAccession("");
+        List data=Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getPfamOptionsQuery(getAccession()));
+         
+        for(Iterator i=data.iterator();i.hasNext();)
+        {
+            List row=(List)i.next();         
+            domainDescriptions.put(row.get(0),row.get(1));
+        }
+        
     }
 
     public void printPfamLinks(Writer w)
     {
         PrintWriter out=new PrintWriter(w);
         Set domains=getUniqueDomains();
-        String n;
+        String n,desc;
         
         for(Iterator i=domains.iterator();i.hasNext();)
         {
@@ -53,16 +65,20 @@ public class PfamOptionsBean
                 int j=n.indexOf('.');
                 if(j!=-1)
                     n=n.substring(0,j);
+                desc=(String)domainDescriptions.get(n);
+                if(desc==null)
+                    desc="";
                 out.println("<li><a href='http://www.sanger.ac.uk/cgi-bin/Pfam/getacc?"+
-                        n+"'>"+n+"</a></li>");
+                        n+"'>"+n+"</a>&nbsp&nbsp "+desc+"</li>");
             }
+            
         }              
     }
     public void printDomainSearchLinks(Writer w)
     {
         PrintWriter out=new PrintWriter(w);
         Set domains=getUniqueDomains(); 
-        String domain;
+        String domain,desc;
         
         SearchState domainSearch=new SearchState();
         
@@ -93,8 +109,11 @@ public class PfamOptionsBean
                 List l=new ArrayList(1);
                 l.add("%"+domain+"%");
                 domainSearch.setValues(l);
+                desc=(String)domainDescriptions.get(domain);
+                if(desc==null)
+                    desc="";
                 out.println("<li><a href='advancedSearch.jsp?"+domainSearch.getParameterString()+"'>"+
-                        domain+"</a></li>");
+                        domain+"</a>:&nbsp&nbsp "+desc+"</li>");
             }
         }
         

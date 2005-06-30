@@ -10,17 +10,17 @@
 <jsp:useBean id='common' class='servlets.Common' scope='application'/>
 <jsp:useBean id='bean'   class='servlets.SimpleSearchBean' scope='page'/>
 
-    <% bean.initPage(application,request,response); %>   
+    <% bean.initPage("index.jsp",application,request,response); %>   
 
     <% common.printHeader(out,"Single or Batch Search"); %>
 
-	<FORM NAME='form1' METHOD=POST ACTION='/databaseWeb/QueryPageServlet'   >   
+	
             <TABLE width='70%' align='center' border='0'>
                 <TR>
                     <TD  align='center'>                                              
                         &nbsp<P>
                         GCD is a database for genome-wide sequence <BR> family mining in Arabidopsis and Rice.
-                        Detailed information about this resource is available on the <a href='about.jsp'>ReadMe</a> page
+                        Detailed information about this resource <BR> is available on the <a href='about.jsp'>ReadMe</a> page
                         and the associated publication in <a href='http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=pubmed&dopt=Abstract&list_uids=15888677&query_hl=2'>
                         Plant Physiology: 138, 47-54</a>.
                         <P>
@@ -49,7 +49,6 @@
                    </td>
                 </TR>
             </TABLE> 
-            <P>      
-	</FORM>
+            <P>      	
 </body>
 </html>

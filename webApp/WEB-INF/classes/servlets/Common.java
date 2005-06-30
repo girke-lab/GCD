@@ -44,18 +44,13 @@ public class Common {
         DbConnection dbc;
         try{
             dbc=DbConnectionManager.getConnection("khoran");
-//            if(dbc==null)
-//            {
-//                dbc=new DbConnection(); //use default connection
-//                DbConnectionManager.setConnection("common", dbc);
-//            }
             rs=dbc.sendQuery(q);        
             log.info("Stats: "+dbc.getStats());
         }catch(Exception e){            
             log.error("query error: "+e.getMessage());         
         }
         if(rs==null)
-            System.out.println("null rs");
+            log.debug("null rs");
         return rs;
     }       
     
@@ -270,6 +265,14 @@ public class Common {
         "  <td>&nbsp;&nbsp;&nbsp;</td>"+
         "  <td valign='top'' width=600> ");
     }
+    public static void printUnknownsSearchLinks(Writer w)
+    {
+        PrintWriter out=new PrintWriter(w);
+        out.println("<A href='unknownsBasicSearch.jsp'>Basic Search</A>" +
+                "&nbsp&nbsp&nbsp" +
+                "<A href='unknownsSearch.jsp'>Advanced Search</A>");
+    }
+    
     public static int getDBid(String name)
     {//takes a Genome string from database and reutrn an integer id number for it
         if(name.equals("arab"))

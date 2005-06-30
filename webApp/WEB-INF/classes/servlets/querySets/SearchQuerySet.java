@@ -6,11 +6,15 @@
 
 package servlets.querySets;
 
+import java.util.*;
+
 /**
- *
+ * This QuerySet provides queries for Search objects. It also
+ * defines some constants ued for setting the type of statistics
+ * desired. 
  * @author khoran
  */
-import java.util.*;
+
 
 public interface SearchQuerySet extends QuerySet
 {

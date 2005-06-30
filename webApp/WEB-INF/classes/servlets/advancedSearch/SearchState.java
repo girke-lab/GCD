@@ -173,10 +173,10 @@ public class SearchState implements java.io.Serializable
     public void setValues(List l)
     {
         if(l==null)
-            System.out.println("values list is null");
+            log.debug("values list is null");
         if(l==null)
             l=new ArrayList();
-        System.out.println("setting values list to : "+l);
+        log.debug("setting values list to : "+l);
         values=l;        
     }
     public List getValues()

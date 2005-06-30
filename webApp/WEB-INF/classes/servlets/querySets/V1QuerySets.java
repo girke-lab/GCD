@@ -507,5 +507,10 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return query;
     }
 
+    public String getPfamOptionsQuery(String clusterName)
+    {
+        return "";
+    }
+
     
 }

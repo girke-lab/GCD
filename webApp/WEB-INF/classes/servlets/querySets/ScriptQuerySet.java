@@ -6,11 +6,14 @@
 
 package servlets.querySets;
 
+import java.util.*;
+
 /**
- *
+ * This QuerySet provides queries for classes in the
+ * servlets.scriptInterfaces package.  
  * @author khoran
  */
-import java.util.*;
+
 
 public interface ScriptQuerySet extends QuerySet        
 {

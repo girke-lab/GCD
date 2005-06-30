@@ -8,7 +8,7 @@
         <jsp:useBean id='common' class='servlets.Common' />
 
         <%
-            common.printHeader(out,"Advanced Search 2");
+            common.printHeader(out,"Advanced Search");
             bean.setDefaultDatabase("common");
             bean.setDatabase("common");
             bean.initPage(application,request,response);
