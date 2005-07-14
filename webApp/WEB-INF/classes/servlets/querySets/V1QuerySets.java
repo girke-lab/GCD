@@ -308,8 +308,11 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     //////////////////////////////////////////////////
     //////////////// SearchQuerySet methods
     //////////////////////////////////////////////////   
-    public String getBlastSearchQuery(String blastDb, java.util.Collection keys, int keyType)
+    public String getBlastSearchQuery(Collection dbNames, java.util.Collection keys, int keyType)
     {
+        if(dbNames==null || dbNames.size()==0)
+            return "";
+        String blastDb=(String)dbNames.iterator().next();
         String query=
             "SELECT br.blast_id " +
             "FROM general.blast_results as br, general.accessions as query, " +

@@ -179,6 +179,27 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
+    public String getDiffTrackingDataViewQuery()
+    {
+        String query=
+            "SELECT" +
+            "   vi.version," +
+            "   q.queries_id, q.name,q.purpose," +
+            "   q.description, q.link," +
+            "   qc.count," +
+            "   csv.version_a,vi.updated_on,csv.added,csv.removed,csv.unchanged,csv.comp_id, " +
+            "   gd.db_name "+
+            " FROM    updates.queries as q" +
+            "   JOIN updates.query_counts as qc USING(queries_id)" +
+            "   JOIN unknowns.version_info as vi USING(version)" +
+            "   JOIN general.genome_databases as gd USING(genome_db_id) "+
+            "   LEFT JOIN updates.comparison_summary_view as csv" +
+            "       ON(qc.version=csv.version_b AND qc.genome_db_id=csv.genome_db_id_b)" +
+            " WHERE   (csv.queries_id_a is null OR qc.queries_id=csv.queries_id_a )" +
+            " ORDER BY qc.genome_db_id,vi.version desc,q.queries_id ";
+        logQuery(query);
+        return query;
+    }
     //   </editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc=" Record queries "> 
@@ -369,13 +390,13 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
      /////////////////////////////////
     //////// SearchQuerySet methods
     /////////////////////////////////
-    public String getBlastSearchQuery(String blastDb, java.util.Collection keys, int keyType)
+    public String getBlastSearchQuery(Collection dbNames, java.util.Collection keys, int keyType)
     {
         String query=
             "SELECT br.blast_id " +
             "FROM general.blast_results as br, general.accessions as query, " +
             "   general.accessions as target, general.genome_databases as gd " +
-            "WHERE gd.db_name='"+blastDb+"' and gd.genome_db_id=target.genome_db_id and " +
+            "WHERE "+Common.buildIdListCondition("gd.db_name",dbNames,true)+" and gd.genome_db_id=target.genome_db_id and " +
             "   query.accession_id=br.query_accession_id AND target.accession_id=br.target_accession_id AND "+
                 Common.buildIdListCondition("query.accession",keys,true);
         logQuery(query);
@@ -559,11 +580,11 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         String query;
         if(keyType==Common.KEY_TYPE_MODEL)
             query="SELECT model_accession_id " +
-                  "FROM updates.diffs JOIN to_model_accessions USING(accession_id) " +
+                  "FROM updates.diffs JOIN general.to_model_accessions USING(accession_id) " +
                   "WHERE comp_id="+comp_id+" AND difference='"+status+"'";
         else
             query="SELECT sequence_accession_id " +
-                  "FROM updates.diffs JOIN to_sequence_accessions USING(accession_id) " +
+                  "FROM updates.diffs JOIN general.to_sequence_accessions USING(accession_id) " +
                   "WHERE comp_id="+comp_id+" AND difference='"+status+"'";
             
         logQuery(query);

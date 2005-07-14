@@ -40,4 +40,6 @@ public interface DataViewQuerySet extends QuerySet
     // for the pfamOptions.jsp page. No, this is not a DataView but I'm
     // putting here anyway. 
     public String getPfamOptionsQuery(String clusterName);
+    
+    public String getDiffTrackingDataViewQuery();
 }

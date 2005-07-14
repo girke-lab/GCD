@@ -66,7 +66,18 @@ public class Unknowns2DataView implements DataView
      */
     public void printHeader(java.io.PrintWriter out)
     {
-        printUnknownHeader(out);
+        Common.printUnknownHeader(out);
+        Common.printUnknownsSearchLinks(out);
+        
+        out.println(
+                "<style type='text/css'>" +
+                    ".test a {color: #006699}\n" +
+//                    ".test a:visited {color: #00FF00}\n" +
+                    ".test a:hover {background-color: #AAAAAA}\n" +
+//                    ".test a:active {color: #0000FF}\n" +
+                "</style>");
+        out.println("<div class='test'>");
+        
     }
     
     /**
@@ -160,7 +171,7 @@ public class Unknowns2DataView implements DataView
             log.error("could not print to output: "+e.getMessage());
         }
         
-        out.println("</TABLE>");
+        out.println("</TABLE></div>");
     }
     
     private void printUnknownHeader(PrintWriter out)

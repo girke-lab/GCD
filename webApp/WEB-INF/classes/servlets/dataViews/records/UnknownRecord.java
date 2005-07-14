@@ -174,11 +174,11 @@ public class UnknownRecord implements Record
             for(int j=0;j<subRecordMaps.length;j++)
             {
                 o=subRecordMaps[j].get(""+ur.key_id);
-                if(o==null)
-                {
-                    log.debug("could not find key "+ur.key_id+" for dataset "+names[j]);
-                    log.debug(" in list "+subRecordMaps[j].keySet());
-                }
+//                if(o==null)
+//                {
+//                    log.debug("could not find key "+ur.key_id+" for dataset "+names[j]);
+//                    log.debug(" in list "+subRecordMaps[j].keySet());
+//                }
 
                 if(o==null)
                     o=new RecordGroup();                    

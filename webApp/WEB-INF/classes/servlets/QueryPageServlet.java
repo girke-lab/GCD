@@ -124,6 +124,7 @@ public class QueryPageServlet extends HttpServlet
             if(qi==null)
             {
                 //Common.quit(out,"no results found");
+                log.debug("qi was null");
                 Common.sendError(response,origin,"No results found");
                 return;
             }            
@@ -269,7 +270,7 @@ public class QueryPageServlet extends HttpServlet
         }catch(Exception e){
             dbNums=new int[]{0,1};              
         }
-        
+        //log.debug("input="+input);
         if(input==null || input.length()==0)
             return null;
         else

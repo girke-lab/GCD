@@ -512,7 +512,7 @@ public class SeqDataView implements DataView
              StringBuffer modelList=new StringBuffer();
              for(Iterator i=models.iterator();i.hasNext();)
                  modelList.append(i.next()+" ");
-             out.println("&nbsp&nbsp&nbsp<a href='QueryPageServlet?searchType=blast&displayType=blastView&inputKey=uniprot "+modelList+"'>" +
+             out.println("&nbsp&nbsp&nbsp<a href='QueryPageServlet?searchType=blast&displayType=blastView&inputKey=dbs: swp trembl keys: "+modelList+"'>" +
                          "<font color='red' >Cross-Species Profile</font></a>");
         }        
     }

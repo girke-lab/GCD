@@ -1,69 +1,52 @@
 /*
- * StatusQueriesBean.java
+ * DiffTrackingDataView.java
  *
- * Created on November 12, 2004, 9:33 AM
+ * Created on July 13, 2005, 11:24 AM
+ * 
  */
 
-package servlets;
+package servlets.dataViews;
 
 /**
- * This bean is used by the statusQueries jsp page.
- * @author  khoran
+ *
+ * @author khoran
  */
 
 import java.util.*;
 import servlets.*;
 import org.apache.log4j.Logger;
+import servlets.dataViews.queryWideViews.DefaultQueryWideView;
+import servlets.querySets.QuerySetProvider;
+import servlets.search.Search;
 
-public class StatusQueriesBean
+public class DiffTrackingDataView implements DataView
 {
-    private static Logger log=Logger.getLogger(StatusQueriesBean.class);
-    private static DbConnection dbc=DbConnectionManager.getConnection("khoran");
+    private static Logger log=Logger.getLogger(DiffTrackingDataView.class);    
     
     private static final int VERSION=0,     QUERIES_ID=1,   NAME=2,
                              PURPOSE=3,     DESCRIPTION=4,  LINK=5,
                              COUNT=6,       VERSION_A=7,    UPDATED_ON=8,
                              ADDED=9,       REMOVED=10,     UNCHANGED=11,
                              COMP_ID=12,    GENOME=13;
+    private int keyType;
     
-    /** Creates a new instance of StatusQueriesBean */
-    public StatusQueriesBean()
+    /** Creates a new instance of DiffTrackingDataView */
+    public DiffTrackingDataView()
     {
-        if(dbc==null)
-            log.error("could not get db connection");
     }
-    
-    public String printTrackingTable()
-    {
-        StringBuffer out=new StringBuffer();        
-        
-        String queryStr=
-            "SELECT" +
-            "   vi.version," +
-            "   q.queries_id, q.name,q.purpose," +
-            "   q.description, q.link," +
-            "   qc.count," +
-            "   csv.version_a,vi.updated_on,csv.added,csv.removed,csv.unchanged,csv.comp_id, " +
-            "   gd.db_name "+
-            " FROM    updates.queries as q" +
-            "   JOIN updates.query_counts as qc USING(queries_id)" +
-            "   JOIN unknowns.version_info as vi USING(version)" +
-            "   JOIN general.genome_databases as gd USING(genome_db_id) "+
-            "   LEFT JOIN updates.comparison_summary_view as csv" +
-            "       ON(qc.version=csv.version_b AND qc.genome_db_id=csv.genome_db_id_b)" +
-            " WHERE   (csv.queries_id_a is null OR qc.queries_id=csv.queries_id_a )" +
-            " ORDER BY qc.genome_db_id,vi.version desc,q.queries_id ";
 
+
+    public void printData(java.io.PrintWriter out)
+    {
         
+        List data=Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getDiffTrackingDataViewQuery());                 
         
-        List data=null;
-        try{
-            data=dbc.sendQuery(queryStr);
-        }catch(java.sql.SQLException e){
-            log.error("query failed: "+e.getMessage());
-        }
         if(data==null || data.size()==0)
-            return "No results found";
+        {
+            out.println("No results found");
+            return;
+        }
+            
         
         List row;                        
         Map genomes=new HashMap();
@@ -102,17 +85,75 @@ public class StatusQueriesBean
             query.stats.put(row.get(VERSION_A),stat);
         }
         
-        out.append("<table border='0' width='100%' >");
+        out.println("<table border='0' width='100%' >");
         for(Iterator i=genomes.entrySet().iterator();i.hasNext();)
         {
             Map.Entry set=(Map.Entry)i.next();
-            out.append(((Genome)set.getValue()).toHtml((String)set.getKey()));
+            out.println(((Genome)set.getValue()).toHtml((String)set.getKey()));
         }
-        out.append("</table>");
-        return out.toString();
+        out.println("</table>");               
+        Common.printUnknownFooter(out);
     }
+
     
- 
+    
+///////////////////////////////////////////////////////////    
+    public void printHeader(java.io.PrintWriter out)
+    {
+        out.println(
+                "<style type='text/css'>" +
+                "   .test a {color: #006699}" +
+                "   .test a:hover {background-color: #AAAAAA}" +
+                "</style>" );       
+        Common.printUnknownHeader(out);
+        out.println("<h1 align='center'>Difference Tracking Table</h1>   " +
+                    "<center>");
+        Common.printUnknownsSearchLinks(out); 
+        out.println("</center> <div class='test'>");
+
+    }
+
+    public void printStats(java.io.PrintWriter out)
+    {
+    }
+
+    public void setData(String sortCol, int[] dbList, int hid)
+    {
+    }
+
+    public void setIds(java.util.List ids)
+    {
+    }
+
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    {
+        this.keyType=keyType;
+    }
+
+    public void setSortDirection(String dir)
+    {
+    }
+    public int getKeyType()
+    {
+        return keyType;
+    }
+
+    public servlets.dataViews.queryWideViews.QueryWideView getQueryWideView()
+    {
+        return new DefaultQueryWideView(){
+            public void printStats(java.io.PrintWriter out,Search search){}
+            public void printButtons(java.io.PrintWriter out, int hid,int pos,int size,int rpp){}    
+            public boolean printAllData(){return true;}
+        };
+    }
+
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_ACC,Common.KEY_TYPE_BLAST,
+                        Common.KEY_TYPE_CLUSTER,Common.KEY_TYPE_MODEL,Common.KEY_TYPE_QUERY};
+    }
+///////////////////////////////////  CLASSES /////////////////////
+    
     class Genome
     {
         public String name;
@@ -222,4 +263,7 @@ public class StatusQueriesBean
             this.unchanged=unchanged;
         }
     }
+    
+    
+    
 }

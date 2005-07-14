@@ -63,24 +63,24 @@ public class SimpleSearchBean
     public void drawForm(Writer w,String[] displays,String[] names)
     {
         PrintWriter out=new PrintWriter(w);
-        out.println("<FORM NAME='form1' METHOD=POST ACTION='QueryPageServlet'   >   ");
+        out.println("<FORM  METHOD=POST ACTION='QueryPageServlet'   >   ");
         out.println("<INPUT type=hidden name='origin_page' value='"+pageName+"'>");
-        out.println("<TABLE border='0' width='100%' align='center'>" +
-        "            <TR>" +
-        "                    <TD  align='center'>" +
-        "                        <B>Search string</B>                      " +
-        "                        <BR>" +
-        "                        <TEXTAREA NAME='inputKey' cols='40' rows='10'>"+input+"</TEXTAREA>                                                                 " +
-        "                    </TD>    " +
-        "                    <TD>                                                " +
-        "                        Databases to use:" +
-        "                        <BR>" +
-        "                        <INPUT type=checkbox name='dbs' value='0' checked>" +
-        "                        Arabidopsis" +
-        "                        <BR>" +
-        "                        <INPUT type=checkbox name='dbs' value='1' checked>" +
-        "                        Rice     " +
-        "                        <P>"   );
+        out.println("<TABLE border='0' width='100%' align='center'>\n" + 
+        "            <TR>\n" +
+        "                    <TD  align='center'>\n" +
+        "                        <B>Search string</B>                      \n" +
+        "                        <BR>\n" +
+        "                        <TEXTAREA NAME='inputKey' cols='40' rows='10'>"+input+"</TEXTAREA>                                                                 \n" +
+        "                    </TD>    \n" +
+        "                    <TD>                                                \n" +
+        "                        Databases to use:\n" +
+        "                        <BR>\n" +
+        "                        <INPUT type=checkbox name='dbs' value='0' checked>\n" +
+        "                        Arabidopsis\n" +
+        "                        <BR>\n" +
+        "                        <INPUT type=checkbox name='dbs' value='1' checked>\n" +
+        "                        Rice     \n" +
+        "                        <P>\n"   );
         
         if(displays.length==1)
             out.println("<INPUT type=hidden name='displayType' value='"+displays[0]+"'>");
@@ -93,31 +93,31 @@ public class SimpleSearchBean
         }
             
         out.println(
-        "                    </TD> " +
-        "                </TR>" +
-        "                <TR>                    " +
-        "                    <TD  align='center' >" +
-        "                        Search by" +
-        "                        <SELECT name='searchType'>" +
-        "                            <OPTION "+(fieldName.equals("Id")?"selected":"")+">Id"+
-        "                            <OPTION "+(fieldName.equals("Description")?"selected":"")+">Description"+
-        "                            <OPTION "+(fieldName.equals("Cluster Id")?"selected":"")+">Cluster Id"+
-        "                            <OPTION "+(fieldName.equals("Cluster Name")?"selected":"")+">Cluster Name"+
-        "                            <OPTION "+(fieldName.equals("GO Number")?"selected":"")+">GO Number"+
-        "                            <OPTION "+(fieldName.equals("GO Text")?"selected":"")+">GO Text"+
-        "                        </SELECT>" +
-        "                        <BR> " +
-        "                    </TD>" +
-        "                    <TD>" +
-        "                        Records per page:&nbsp&nbsp " +
-        "                        <INPUT name='rpp' value='50' size='5'>" +
-        "                    </TD>" +
-        "                </TR>  " +
-        "                <TR >  " +
-        "                    <TD  align='center'>" +
-        "                       <INPUT TYPE=submit value='Submit Query' >" +
-        "                    </TD>" +
-        "                </TR> </TABLE></FORM>  " );
+        "                    </TD> \n" +
+        "                </TR>\n" +
+        "                <TR>                    \n" +
+        "                    <TD  align='center' >\n" +
+        "                        Search by\n" +
+        "                        <SELECT name='searchType'>\n" +
+        "                            <OPTION "+(fieldName.equals("Id")?"selected":"")+">Id\n"+
+        "                            <OPTION "+(fieldName.equals("Description")?"selected":"")+">Description\n"+
+        "                            <OPTION "+(fieldName.equals("Cluster Id")?"selected":"")+">Cluster Id\n"+
+        "                            <OPTION "+(fieldName.equals("Cluster Name")?"selected":"")+">Cluster Name\n"+
+        "                            <OPTION "+(fieldName.equals("GO Number")?"selected":"")+">GO Number\n"+
+        "                            <OPTION "+(fieldName.equals("GO Text")?"selected":"")+">GO Text\n"+
+        "                        </SELECT>\n" +
+        "                        <BR> \n" +
+        "                    </TD>\n" +
+        "                    <TD>\n" +
+        "                        Records per page:&nbsp&nbsp \n" +
+        "                        <INPUT name='rpp' value='50' size='5'>\n" +
+        "                    </TD>\n" +
+        "                </TR>  \n" +
+        "                <TR >  \n" +
+        "                    <TD  align='center'>\n" +
+        "                       <INPUT TYPE=submit value='Submit Query' >\n" +
+        "                    </TD>\n" +
+        "                </TR>\n </TABLE>\n</FORM>  " );
                         
     
     }

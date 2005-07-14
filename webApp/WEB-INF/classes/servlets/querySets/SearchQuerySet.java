@@ -31,7 +31,7 @@ public interface SearchQuerySet extends QuerySet
     public String getStatsByQuery(String query,int stats);
     
     // for BlastSearch
-    public String getBlastSearchQuery(String blastDb, Collection keys, int keyType);
+    public String getBlastSearchQuery(Collection dbNames, Collection keys, int keyType);
     
     //for ClusterIDSearch
     public String getClusterIDSearchQuery(Collection input, int limit, int[] DBs, int keyType);

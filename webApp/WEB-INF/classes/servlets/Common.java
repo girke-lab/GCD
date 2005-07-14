@@ -258,19 +258,27 @@ public class Common {
         "  <a href='"+base+"/interaction.html'><li>Protein Interaction</a></li>"+
         "  <a href='"+base+"/KO_cDNA.html'><li>KO & cDNA Results</a></li>"+
         "  <a href='"+base+"/profiling.html'><li>Chip Profiling</a></li>"+
-        "  <a href='"+base+"/tools.html'><li>Technical Tools</a></li>"+
-        "  <a href='"+base+"/external.html'><li>External Resources</a></li>"+
+        "  <a href='"+base+"/tools.html'><li>Protocols</a></li>"+
+        "  <a href='"+base+"/external.html'><li>Literature</a></li>"+
+        "  <a href='"+base+"/links.html'><li>Links</a></li>"+
         "  <a href='"+base+"/downloads.html'><li>Downloads</a></li>"+
         "  </font></td>"+
         "  <td>&nbsp;&nbsp;&nbsp;</td>"+
-        "  <td valign='top'' width=600> ");
+        "  <td valign='top'' > "); //width=600
+    }
+    public static void printUnknownFooter(Writer w)
+    {
+        PrintWriter out=new PrintWriter(w);
+        out.println("</td></tr></table></font>");
     }
     public static void printUnknownsSearchLinks(Writer w)
     {
         PrintWriter out=new PrintWriter(w);
         out.println("<A href='unknownsBasicSearch.jsp'>Basic Search</A>" +
                 "&nbsp&nbsp&nbsp" +
-                "<A href='unknownsSearch.jsp'>Advanced Search</A>");
+                "<A href='unknownsSearch.jsp'>Advanced Search</A>" +
+                "&nbsp&nbsp&nbsp" +
+                "<a href='QueryPageServlet?searchType=seq_id&displayType=diffTrackingView&inputKey=hello'>Difference Tracking</a>");
     }
     
     public static int getDBid(String name)

@@ -18,7 +18,8 @@ import servlets.querySets.*;
 
 public class BlastSearch implements Search
 {
-    String blastDb;
+    //String blastDb;
+    Collection blastDbs;
     List keys=null;
     List data=null;
     
@@ -37,13 +38,28 @@ public class BlastSearch implements Search
         if(data==null || data.size() < 2)
         {
             log.error("invalid inputKey list, " +
-                "required format: <blast db name> <list of accessions>");            
+                "required format: dbs: <blast db name> keys: <list of accessions>");            
             log.error("data="+data);            
             return;
         }
         log.debug("inputKey="+data);
-        blastDb=(String)data.get(0);
-        keys=data.subList(1,data.size());
+        blastDbs=new LinkedList();
+        keys=new LinkedList();
+        boolean onDbs=true;
+        for(Iterator i=data.iterator();i.hasNext();)
+        {
+            String el=(String)i.next();
+            if(el.equals("dbs:"))
+                onDbs=true;
+            else if(el.equals("keys:"))
+                onDbs=false;
+            else if(onDbs)
+                blastDbs.add(el);
+            else
+                keys.add(el);            
+        }
+        log.debug("dbs: "+blastDbs);
+        log.debug("keys: "+keys);
     }
     public List getResults()
     {
@@ -60,7 +76,7 @@ public class BlastSearch implements Search
             return;
         }
                 
-        String query=QuerySetProvider.getSearchQuerySet().getBlastSearchQuery(blastDb,keys, -1);
+        String query=QuerySetProvider.getSearchQuerySet().getBlastSearchQuery(blastDbs,keys, -1);
 
         List results=null;
         try{

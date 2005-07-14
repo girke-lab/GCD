@@ -116,7 +116,9 @@ public class HtmlRecordVisitor implements RecordVisitor
     }    
     public void printRecord(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
-        String page="QueryPageServlet?searchType=Cluster Id&displayType=seqView&inputKey="+cr.key;
+        //a relative url won't work here becuase we are under /unknowns/... , 
+        // but we need to link to pages under /databaseWeb/... .
+        String page="http://bioweb.ucr.edu/databaseWeb/QueryPageServlet?searchType=Cluster Id&displayType=seqView&inputKey="+cr.key;
         
         out.write("<a href='"+page+"'>"+cr.size+"("+cr.method+")</a> &nbsp&nbsp&nbsp ");
         if(cr.showClusterCentricView)
