@@ -248,7 +248,7 @@ public class DiffTrackingDataView implements DataView
             }
             
             return "<tr><td>"+name+"</td><td>"+purpose+"</td><td>"+linkedDesc+
-                "</td><td>"+count+"</td><td>"+unchanged+"</td><td>"+added+"</td><td>"+
+                "</td><td>"+count+"</td><td nowrap>"+unchanged+"</td><td nowrap>"+added+"</td><td nowrap>"+
                 removed+"</tr>";            
         }
     }

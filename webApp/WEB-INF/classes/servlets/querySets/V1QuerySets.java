@@ -153,7 +153,12 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         };
     }
 
-   
+    public String getDiffTrackingDataViewQuery()
+    {
+
+        return "";
+    }
+
     
     
     ////////////////////////////////////////
@@ -515,5 +520,6 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return "";
     }
 
+   
     
 }
