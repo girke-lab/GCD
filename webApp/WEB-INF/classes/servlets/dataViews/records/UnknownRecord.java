@@ -127,7 +127,8 @@ public class UnknownRecord implements Record
             BlastRecord.getData(dbc,ids),            
             ProteomicsRecord.getData(dbc,ids),
             ClusterRecord.getData(dbc,ids),
-            ExternalUnknownRecord.getData(dbc,ids)
+            ExternalUnknownRecord.getData(dbc,ids),
+            AffyRecord.getData(dbc,ids)
         };//array of maps of ids to RecordGroups
         
         log.debug("got data for all sub records");
@@ -163,7 +164,7 @@ public class UnknownRecord implements Record
             log.debug("unknownRG="+unknownRG);
         
         //these names must appear in the same order as the subRecordMaps array
-        String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters","externals"};
+        String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters","externals","affy"};
             
         log.debug("matching up child records with parent records");
         UnknownRecord ur;

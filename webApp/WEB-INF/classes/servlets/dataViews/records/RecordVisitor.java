@@ -43,6 +43,10 @@ public interface RecordVisitor
     public void printRecord(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException;
     public void printFooter(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException;
     
+    public void printHeader(java.io.Writer out, AffyRecord ar) throws java.io.IOException;
+    public void printRecord(java.io.Writer out, AffyRecord ar) throws java.io.IOException;
+    public void printFooter(java.io.Writer out, AffyRecord ar) throws java.io.IOException;
+    
     //public void printHeader(java.io.Writer out) throws java.io.IOException;
     //public void printRecord(java.io.Writer out) throws java.io.IOException;
     //public void printFooter(java.io.Writer out) throws java.io.IOException;

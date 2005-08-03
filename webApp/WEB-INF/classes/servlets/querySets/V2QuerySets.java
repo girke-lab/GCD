@@ -305,6 +305,18 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
+    public String getAffyRecordQuery(Collection ids, String sortcol, String sortDir)
+    {                        
+//        String fields="exp_key, es_desc, link, group_no, type_name, notes, " +
+//                "replicate_desc, replicate_number, cel_file_name";
+     
+//        String query="SELECT * FROM affy.affy_record_view " +
+//                " WHERE "+Common.buildIdListCondition("accession_id",ids);
+        String query="SELECT * FROM affy.experiment_set_summary_view "+
+                " WHERE "+Common.buildIdListCondition("accession_id",ids);
+        logQuery(query);
+        return query;
+    }
 // </editor-fold>
    
     // <editor-fold defaultstate="collapsed" desc=" Database methods ">
@@ -736,6 +748,8 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
     //</editor-fold>
+
+  
 
    
 }

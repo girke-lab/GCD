@@ -520,6 +520,11 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return "";
     }
 
+    public String getAffyRecordQuery(Collection ids, String sortcol, String sortDir)
+    {
+        return "";
+    }
+
    
     
 }

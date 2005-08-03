@@ -162,5 +162,27 @@ public class HtmlRecordVisitor implements RecordVisitor
     {
         out.write("</td></tr>");
     }
+
+    public void printHeader(Writer out, AffyRecord ar) throws IOException
+    {
+        out.write("<tr bgcolor='"+Common.titleColor+"'>");
+        out.write("<th>Experiment Set</th><th>Experiment</th><th>Replicate</th><th>Probe Set Key</th>" +
+                "<th>Intensity</th><th>PMA</th>");
+        out.write("</tr>\n");
+    }
+
+    public void printRecord(Writer out, AffyRecord ar) throws IOException
+    {
+        out.write("<tr>");
+        out.write("<td><a href='"+ar.esLink+"'>"+ar.esKey+"</a></td>");
+        out.write("<td>"+ar.groupNo+"</td><td>"+ar.celFilename+"</td>");
+        out.write("<td>"+ar.probeSetKey+"</td><td>"+ar.intensity+"</td>");
+        out.write("<td>"+ar.pma+"</td>");
+        out.write("</tr>");
+    }
+    public void printFooter(Writer out, AffyRecord ar) throws IOException
+    {
+    }
+
     
 }

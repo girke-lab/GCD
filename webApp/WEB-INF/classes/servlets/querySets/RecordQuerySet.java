@@ -36,4 +36,7 @@ public interface RecordQuerySet extends QuerySet
  
     // for UnknownRecord
     public String getUnknownRecordQuery(Collection ids, String sortCol, String sortDir);
+    
+    // for AffyRecord
+    public String getAffyRecordQuery(Collection ids, String sortcol, String sortDir);
 }
