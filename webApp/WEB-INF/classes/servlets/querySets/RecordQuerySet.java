@@ -37,6 +37,8 @@ public interface RecordQuerySet extends QuerySet
     // for UnknownRecord
     public String getUnknownRecordQuery(Collection ids, String sortCol, String sortDir);
     
-    // for AffyRecord
-    public String getAffyRecordQuery(Collection ids, String sortcol, String sortDir);
+    // for Affy*Record
+    public String getAffyDetailRecordQuery(Collection psk_ids,Collection es_ids, Collection groups, String sortcol, String sortDir);
+    public String getAffyCompRecordQuery(Collection psk_ids,Collection es_ids, String sortcol, String sortDir);
+    public String getAffyExpSetRecordQuery(Collection ids, String sortcol, String sortDir);
 }

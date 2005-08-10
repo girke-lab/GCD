@@ -65,7 +65,7 @@ public class UnknownRecord implements Record
                 str.compareToIgnoreCase("t")==0|| str.equals("1");
     }
    
-    public void setSubRecord(String name,Object o)
+    public void setSubRecord(Object name,Object o)
     {
         //log.debug("adding sub record: "+o);
         subRecords.put(name, o);
@@ -110,17 +110,12 @@ public class UnknownRecord implements Record
         visitor.printFooter(out,this);
     }    
     
-    public static Map getData(DbConnection dbc, List ids)
+    public static Map getData(DbConnection dbc, List ids) 
     {
         return getData(dbc,ids,null,"ASC");
     }    
     public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
     {
-        log.debug("getting data for unknownRecords");
-        Map unknownRecords,t;
-        RecordGroup unknownRG;
-        if(ids==null || ids.size()==0)
-            return new HashMap();
 
         Map[] subRecordMaps=new Map[]{
             GoRecord.getData(dbc,ids),
@@ -128,8 +123,18 @@ public class UnknownRecord implements Record
             ProteomicsRecord.getData(dbc,ids),
             ClusterRecord.getData(dbc,ids),
             ExternalUnknownRecord.getData(dbc,ids),
-            AffyRecord.getData(dbc,ids)
+            AffyExpSetRecord.getData(dbc,ids)
         };//array of maps of ids to RecordGroups
+        return getData(dbc,ids,sortCol,sortDir, subRecordMaps);
+    }
+    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir,Map[] subRecordMaps)
+    {
+        log.debug("getting data for unknownRecords");
+        Map unknownRecords,t;
+        RecordGroup unknownRG;
+        if(ids==null || ids.size()==0)
+            return new HashMap();
+
         
         log.debug("got data for all sub records");
         
@@ -155,16 +160,14 @@ public class UnknownRecord implements Record
         
         if(unknownRecords==null)
             log.debug("unknownRecords is null");
-        else
-            log.debug("unknownRecords="+unknownRecords);
+        
         unknownRG=(RecordGroup)unknownRecords.get("1");
+
         if(unknownRG==null)
             log.debug("unknownRG is null");
-        else 
-            log.debug("unknownRG="+unknownRG);
         
         //these names must appear in the same order as the subRecordMaps array
-        String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters","externals","affy"};
+        //String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters","externals","affyExpSet"};
             
         log.debug("matching up child records with parent records");
         UnknownRecord ur;
@@ -183,8 +186,8 @@ public class UnknownRecord implements Record
 
                 if(o==null)
                     o=new RecordGroup();                    
-                
-                ur.setSubRecord(names[j],o);               
+                                
+                ur.setSubRecord(new Integer(j),o);               
             }
         }
         log.debug("all done with UnknownRecords");

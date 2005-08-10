@@ -100,6 +100,8 @@ public class Common {
     }
     public static String printArray(Object[] a)
     {
+        if(a==null)
+            return null;
         String out="[";
         for(int i=0;i<a.length;i++){
             out+=a[i];
@@ -419,4 +421,16 @@ public class Common {
         return str.compareToIgnoreCase("true")==0 || str.compareToIgnoreCase("yes")==0 ||
                 str.compareToIgnoreCase("t")==0|| str.equals("1");
     }
+    
+    
+    public static boolean checkType(KeyTypeUser ktu,int keyType)
+    {
+        int[] keys=ktu.getSupportedKeyTypes();
+        
+        for(int i=0;i<keys.length;i++)
+            if(keyType == keys[i])
+                return true;
+        return false;
+    }
 }
+

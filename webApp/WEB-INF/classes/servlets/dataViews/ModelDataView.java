@@ -25,7 +25,7 @@ public class ModelDataView implements DataView
     final int fieldCount=10;        
     final int STANDARD=0, FASTA=1,ALL_FASTA=2;    
     final int LINE_SIZE=1000; //number of base pairs to print on a line
-                            //per database query
+                             //per database query
       
     List seq_ids;
     String sortCol;
@@ -281,15 +281,7 @@ public class ModelDataView implements DataView
         }
     }
 ///////////////////////////  Query stuff  ///////////////////////////////////////////////////////    
-    private String buildGeneralStatement(String feilds, String conditions)
-    {
-        StringBuffer general=new StringBuffer();
-        general.append("SELECT "+feilds+" FROM Sequences "+
-                       " LEFT JOIN Models USING(Seq_id) WHERE "+conditions+
-                       " ORDER BY Genome, "+fullNames[0]+","+fullNames[1]);
-        log.info("general Query: "+general);
-        return general.toString();
-    }    
+   
     
      private void defineNames()
     {

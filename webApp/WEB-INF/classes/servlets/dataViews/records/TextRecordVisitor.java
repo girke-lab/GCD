@@ -122,15 +122,39 @@ public class TextRecordVisitor implements RecordVisitor
         
     }
 
-    public void printFooter(Writer out, AffyRecord ar) throws IOException
+    public void printFooter(Writer out, AffyDetailRecord ar) throws IOException
     {
     }
 
-    public void printHeader(Writer out, AffyRecord ar) throws IOException
+    public void printHeader(Writer out, AffyDetailRecord ar) throws IOException
     {
     }
 
-    public void printRecord(Writer out, AffyRecord ar) throws IOException
+    public void printRecord(Writer out, AffyDetailRecord ar) throws IOException
+    {
+    }
+
+    public void printFooter(Writer out, AffyCompRecord ar) throws IOException
+    {
+    }
+
+    public void printFooter(Writer out, AffyExpSetRecord ar) throws IOException
+    {
+    }
+
+    public void printHeader(Writer out, AffyCompRecord ar) throws IOException
+    {
+    }
+
+    public void printHeader(Writer out, AffyExpSetRecord ar) throws IOException
+    {
+    }
+
+    public void printRecord(Writer out, AffyCompRecord ar) throws IOException
+    {
+    }
+
+    public void printRecord(Writer out, AffyExpSetRecord ar) throws IOException
     {
     }
     

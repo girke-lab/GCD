@@ -190,6 +190,8 @@ public class QueryPageServlet extends HttpServlet
                 return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));
             else if(displayType.equals("modelView"))
                 return new ModelDataView(request);
+            else if(displayType.equals("affyView"))
+                return new AffyDataView(request);
             
 
             //look up the given displayType to get a class name,

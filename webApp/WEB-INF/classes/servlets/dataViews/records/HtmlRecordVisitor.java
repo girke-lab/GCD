@@ -24,12 +24,16 @@ public class HtmlRecordVisitor implements RecordVisitor
 {
     
     private static Logger log=Logger.getLogger(HtmlRecordVisitor.class);
+    int hid;
     
     /** Creates a new instance of HtmlRecordVisitor */
     public HtmlRecordVisitor()
     {
     }
-    
+    public void setHid(int hid)
+    {
+        this.hid=hid;
+    }
     public void printHeader(java.io.Writer out, GoRecord gr) throws java.io.IOException
     {
          out.write("<tr bgcolor='"+Common.titleColor+"'><th>Go Number</th><th>Description</th><th>Function</th></tr>\n");
@@ -74,24 +78,25 @@ public class HtmlRecordVisitor implements RecordVisitor
         for(int i=0;i<ur.go_unknowns.length;i++)
             out.write("<b>"+names[i]+"</b>: "+ur.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
         out.write("</td></tr>\n");               
+                                
+        printSubRecords(out, ur.subRecords.values(),5,0);
         
-        RecordGroup rg;
-        Object o;
-        
-        for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
-        {
-//            o=i.next();
-//            if(o==null)
-//                log.debug("o is null");
-//            rg=(RecordGroup)o;
-            rg=(RecordGroup)i.next();
-            out.write("<tr><td colspan='5'><TablE bgcolor='"+Common.dataColor+"' width='100%'" +
-                " border='1' cellspacing='0' cellpadding='0'>\n");
-            rg.printRecords(out,this); 
-            out.write("</TablE></td></tr>\n");
-        }
+//        RecordGroup rg;
+//        for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
+//        {
+////            o=i.next();
+////            if(o==null)
+////                log.debug("o is null");
+////            rg=(RecordGroup)o;
+//            rg=(RecordGroup)i.next();
+//            out.write("<tr><td colspan='5'><TablE bgcolor='"+Common.dataColor+"' width='100%'" +
+//                " border='1' cellspacing='0' cellpadding='0'>\n");
+//            rg.printRecords(out,this); 
+//            out.write("</TablE></td></tr>\n");
+//        }
         out.write("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>\n");                
     }
+   
     public void printFooter(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {        
         
@@ -163,26 +168,118 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("</td></tr>");
     }
 
-    public void printHeader(Writer out, AffyRecord ar) throws IOException
+
+    public void printHeader(Writer out, AffyExpSetRecord ar) throws IOException
     {
-        out.write("<tr bgcolor='"+Common.titleColor+"'>");
-        out.write("<th>Experiment Set</th><th>Experiment</th><th>Replicate</th><th>Probe Set Key</th>" +
-                "<th>Intensity</th><th>PMA</th>");
-        out.write("</tr>\n");
+        out.write("<tr bgcolor='"+Common.titleColor+"'><td>&nbsp</td>");
+        String[] titles=new String[]{"AffyID","Exp","up 2x","down 2x","up 4x","down 4x","on","off"};
+        for(String title:titles)
+            out.write("<th>"+title+"</th>");
+        out.write("</tr>");
+    }
+    public void printRecord(Writer out, AffyExpSetRecord ar) throws IOException
+    {
+        String imageOptions="border='0' height='10' width='15'";
+        //String onClick=" onClick=\"psk_ids.value='"+ar.probeSetId+"'; es_ids.value='"+ar.expSetId+"'; submit();\" ";
+        String link="QueryPageServlet?hid="+hid+"&es_ids="+ar.expSetId;
+        out.write("<tr>");
+                
+        out.write("<td nowrap>\n" +
+//                "<input type=image src='images/arrow_down.png' "+imageOptions+onClick+" name='action' value='expand'>&nbsp&nbsp\n"+
+//                "<input type=image src='images/arrow_up.png' "+imageOptions+onClick+" name='action' value='collapse'>\n" +
+                "<a href='"+link+"&action=expand&psk_ids="+ar.probeSetId+"'><img src='images/arrow_down.png' "+imageOptions+" ></a>&nbsp&nbsp\n"+
+                "<a href='"+link+"&action=collapse'><img src='images/arrow_up.png' "+imageOptions+" ></a>\n"+
+                "</td>");
+        out.write("<td>"+ar.probeSetKey+"</td><td>"+ar.expSetKey+"</td>");
+        out.write("<td>"+ar.up2+"</td><td>"+ar.down2+"</td><td>"+ar.up4+"</td>");
+        out.write("<td>"+ar.down4+"</td><td>"+ar.on+"</td><td>"+ar.off+"</td>");
+        out.write("</tr>");
+        
+        //print sub records
+        printSubRecords(out, ar.subRecords,8,1);
+    }
+    public void printFooter(Writer out, AffyExpSetRecord ar) throws IOException
+    {
     }
 
-    public void printRecord(Writer out, AffyRecord ar) throws IOException
+    public void printHeader(Writer out, AffyCompRecord ar) throws IOException
     {
+        out.write("<tr bgcolor='"+Common.titleColor+"'><td>&nbsp</td>");
+        String[] titles=new String[]{"Comparison","Control mean","Treat mean",
+                                "control pma","treat pma","ratio (log2)"};
+        for(String title:titles)
+            out.write("<th>"+title+"</th>");
+        out.write("</tr>");
+        
+//        out.write("<input type=hidden name='psk_ids' value='"+ar.probeSetId+"'>");
+//        out.write("<input type=hidden name='es_ids'  value='"+ar.expSetId+"'>");
+    }
+    public void printRecord(Writer out, AffyCompRecord ar) throws IOException
+    {
+        String imageOptions="border='0' height='10' width='15'";
+        String link="QueryPageServlet?hid="+hid+"&groups="+ar.comparison;
+
         out.write("<tr>");
-        out.write("<td><a href='"+ar.esLink+"'>"+ar.esKey+"</a></td>");
-        out.write("<td>"+ar.groupNo+"</td><td>"+ar.celFilename+"</td>");
-        out.write("<td>"+ar.probeSetKey+"</td><td>"+ar.intensity+"</td>");
+        out.write("<td nowrap>"+
+                "<a href='"+link+"&action=expand'><img src='images/arrow_down.png' "+imageOptions+" ></a>&nbsp&nbsp\n"+
+                "<a href='"+link+"&action=collapse'><img src='images/arrow_up.png' "+imageOptions+" ></a>\n"+
+                "</td>");
+        
+        out.write("<td>"+ar.comparison+"</td><td>"+ar.controlMean+"</td>");
+        out.write("<td>"+ar.treatmentMean+"</td><td>"+ar.controlPMA+"</td>");
+        out.write("<td>"+ar.treatmentPMA+"</td><td>"+ar.ratio+"</td>");
+        out.write("</tr>");
+        
+        printSubRecords(out,ar.subRecords,6, 1);
+    }
+    public void printFooter(Writer out, AffyCompRecord ar) throws IOException
+    {
+    }
+    
+    public void printHeader(Writer out, AffyDetailRecord ar) throws IOException
+    {
+        out.write("<tr bgcolor='"+Common.titleColor+"'>");
+        out.write("<th>Type</th><th>Cel File</th>"+  //" <th>Description</th>" +
+                "<th>Intensity</th><th>PMA</th>");
+        out.write("</tr>\n");
+        
+//        out.write("<input type=hidden name='groups'  value='"+ar.comparison+"'>");        
+    }
+    public void printRecord(Writer out, AffyDetailRecord ar) throws IOException
+    {
+        out.write("<tr>");                
+        String desc=(ar.description==null || ar.description.equals(""))?"&nbsp":ar.description;
+        
+        out.write("<td>"+ar.type+"</td><td>"+ar.celFile+"</td>"); //"<td>"+desc+"</td>
+        out.write("<td>"+ar.intensity+"</td>");
         out.write("<td>"+ar.pma+"</td>");
         out.write("</tr>");
     }
-    public void printFooter(Writer out, AffyRecord ar) throws IOException
+    public void printFooter(Writer out, AffyDetailRecord ar) throws IOException
     {
     }
-
     
+    
+    ////////////////////////////////////////////////////////////////////////////
+    
+    private void printSubRecords(java.io.Writer out, Collection recordGroups,int span, int shift) throws java.io.IOException
+    {
+        if(recordGroups==null || recordGroups.size()==0)
+            return;
+        String spaces="";
+        for(int i=0;i<shift;i++)
+            spaces+="<td>&nbsp</td>";
+        RecordGroup rg;
+        for(Iterator i=recordGroups.iterator();i.hasNext();)
+        {
+            rg=(RecordGroup)i.next();
+            if(rg.records==null || rg.records.size()==0)
+                continue;
+            out.write("<tr>"+spaces);            
+            out.write("<td colspan='"+span+"'><TablE bgcolor='"+Common.dataColor+"' width='100%'" +
+                " border='1' cellspacing='0' cellpadding='0'>\n");
+            rg.printRecords(out,this);
+            out.write("</TablE></td></tr>\n");
+        }                    
+    }
 }
