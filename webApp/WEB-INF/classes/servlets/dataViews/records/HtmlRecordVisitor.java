@@ -79,21 +79,7 @@ public class HtmlRecordVisitor implements RecordVisitor
             out.write("<b>"+names[i]+"</b>: "+ur.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
         out.write("</td></tr>\n");               
                                 
-        printSubRecords(out, ur.subRecords.values(),5,0);
-        
-//        RecordGroup rg;
-//        for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
-//        {
-////            o=i.next();
-////            if(o==null)
-////                log.debug("o is null");
-////            rg=(RecordGroup)o;
-//            rg=(RecordGroup)i.next();
-//            out.write("<tr><td colspan='5'><TablE bgcolor='"+Common.dataColor+"' width='100%'" +
-//                " border='1' cellspacing='0' cellpadding='0'>\n");
-//            rg.printRecords(out,this); 
-//            out.write("</TablE></td></tr>\n");
-//        }
+        printSubRecords(out, ur.subRecords.values(),5,0);        
         out.write("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>\n");                
     }
    
@@ -179,15 +165,12 @@ public class HtmlRecordVisitor implements RecordVisitor
     }
     public void printRecord(Writer out, AffyExpSetRecord ar) throws IOException
     {
-        String imageOptions="border='0' height='10' width='15'";
-        //String onClick=" onClick=\"psk_ids.value='"+ar.probeSetId+"'; es_ids.value='"+ar.expSetId+"'; submit();\" ";
-        String link="QueryPageServlet?hid="+hid+"&es_ids="+ar.expSetId;
+        String imageOptions="border='0' height='10' width='15'";        
+        String link="QueryPageServlet?hid="+hid+"&es_ids="+ar.expSetId+"&psk_ids="+ar.probeSetId;
         out.write("<tr>");
                 
         out.write("<td nowrap>\n" +
-//                "<input type=image src='images/arrow_down.png' "+imageOptions+onClick+" name='action' value='expand'>&nbsp&nbsp\n"+
-//                "<input type=image src='images/arrow_up.png' "+imageOptions+onClick+" name='action' value='collapse'>\n" +
-                "<a href='"+link+"&action=expand&psk_ids="+ar.probeSetId+"'><img src='images/arrow_down.png' "+imageOptions+" ></a>&nbsp&nbsp\n"+
+                "<a href='"+link+"&action=expand'><img src='images/arrow_down.png' "+imageOptions+" ></a>&nbsp&nbsp\n"+
                 "<a href='"+link+"&action=collapse'><img src='images/arrow_up.png' "+imageOptions+" ></a>\n"+
                 "</td>");
         out.write("<td>"+ar.probeSetKey+"</td><td>"+ar.expSetKey+"</td>");
@@ -209,15 +192,13 @@ public class HtmlRecordVisitor implements RecordVisitor
                                 "control pma","treat pma","ratio (log2)"};
         for(String title:titles)
             out.write("<th>"+title+"</th>");
-        out.write("</tr>");
-        
-//        out.write("<input type=hidden name='psk_ids' value='"+ar.probeSetId+"'>");
-//        out.write("<input type=hidden name='es_ids'  value='"+ar.expSetId+"'>");
+        out.write("</tr>");        
     }
     public void printRecord(Writer out, AffyCompRecord ar) throws IOException
     {
         String imageOptions="border='0' height='10' width='15'";
-        String link="QueryPageServlet?hid="+hid+"&groups="+ar.comparison;
+        String link="QueryPageServlet?hid="+hid+"&es_ids="+ar.expSetId+
+                "&psk_ids="+ar.probeSetId+"&groups="+ar.comparison;
 
         out.write("<tr>");
         out.write("<td nowrap>"+
@@ -241,14 +222,12 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("<tr bgcolor='"+Common.titleColor+"'>");
         out.write("<th>Type</th><th>Cel File</th>"+  //" <th>Description</th>" +
                 "<th>Intensity</th><th>PMA</th>");
-        out.write("</tr>\n");
-        
-//        out.write("<input type=hidden name='groups'  value='"+ar.comparison+"'>");        
+        out.write("</tr>\n");        
     }
     public void printRecord(Writer out, AffyDetailRecord ar) throws IOException
     {
         out.write("<tr>");                
-        String desc=(ar.description==null || ar.description.equals(""))?"&nbsp":ar.description;
+        //String desc=(ar.description==null || ar.description.equals(""))?"&nbsp":ar.description;
         
         out.write("<td>"+ar.type+"</td><td>"+ar.celFile+"</td>"); //"<td>"+desc+"</td>
         out.write("<td>"+ar.intensity+"</td>");

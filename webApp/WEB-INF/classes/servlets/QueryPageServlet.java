@@ -74,12 +74,17 @@ public class QueryPageServlet extends HttpServlet
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         
+        if(wasPost)
+            log.info("POST request from "+request.getRemoteAddr());
+        else
+            log.info("GET request from "+request.getRemoteAddr());
         
         int hid,pos,rpp;
         if(session.getAttribute("hid")==null)
         {//session was just created.
             session.setAttribute("hid",new Integer(0));
             session.setAttribute("history",new ArrayList());            
+            
         }
         else
         { //make sure we don't get too many sessions
@@ -131,6 +136,7 @@ public class QueryPageServlet extends HttpServlet
             hid=((Integer)session.getAttribute("hid")).intValue();
             session.setAttribute("hid",new Integer(hid+1));
             ((ArrayList)session.getAttribute("history")).add(qi);            
+            log.info("new session for "+request.getRemoteAddr());
         }
         getDynamicSettings(qi,request); //update qi with any given info
         
