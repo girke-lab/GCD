@@ -38,18 +38,23 @@ public class RecordGroup implements  Iterable
     public void printRecords(Writer out, RecordVisitor visitor) 
         throws IOException
     {
+        printRecords(out,visitor,true,true);
+    }
+    public void printRecords(Writer out, RecordVisitor visitor,boolean printHeader,boolean printFooter) 
+        throws IOException
+    {
         Record rec;
         boolean firstRecord=true;
         for(Iterator i=records.iterator();i.hasNext();)
         {
             rec=(Record)i.next();
-            if(firstRecord)
-            {
+            if(printHeader && firstRecord)
                 rec.printHeader(out, visitor);
-                firstRecord=false;
-            }            
+            firstRecord=false;
+                        
             rec.printRecord(out, visitor);
-            if(!i.hasNext()) //last record
+            
+            if(printFooter && !i.hasNext()) //last record
                 rec.printFooter(out, visitor);
         }
     }

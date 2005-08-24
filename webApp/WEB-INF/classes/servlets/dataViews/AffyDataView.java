@@ -30,6 +30,7 @@ public class AffyDataView implements DataView
     private int[] dbNums;        
     private Set nodeSet=null;
     private List[] newIds;
+    private List accIds;
     DbConnection dbc=null;  
     
     //indexes into idLists list 
@@ -38,6 +39,7 @@ public class AffyDataView implements DataView
     /** Creates a new instance of AffyDataVew */
     public AffyDataView(HttpServletRequest request)
     {
+        sortCol="expset_probe_set_key";
         sortDir="ASC";        
         newIds=new List[4]; //temp storage.
         for(int i=0;i<4;i++)
@@ -68,28 +70,28 @@ public class AffyDataView implements DataView
             }          
             public void printGeneral(PrintWriter out, Search search, String position, Map storage)
             {
-                if(newIds[ACC].size()==0)
+                if(accIds.size()==0)
                 { //make sure setIds has been called first
                     log.error("no accession ids, has setIds() been called yet?");
                     nodeSet=null;
                     return;
                 }
                 
-                nodeSet=(Set)storage.get(newIds[ACC]); //use the accession_id list as a per-page key
+                nodeSet=(Set)storage.get(accIds); //use the accession_id list as a per-page key
                 if(nodeSet==null) //first page of query
                 {
                     nodeSet=new HashSet();
-                    storage.put(newIds[ACC],nodeSet);                    
+                    storage.put(accIds,nodeSet);                    
                 }                                
                 //now that we have a new/existing set of keys, add the ids for this request
-                log.debug("acc ids: "+newIds[ACC]);
+                log.debug("acc ids: "+accIds);
                 if(action==null)
-                    for(Iterator i=newIds[ACC].iterator();i.hasNext();)
-                        nodeSet.add(new Node(new Integer((String)i.next()),null,null));
+                    ;
+//                    for(Iterator i=newIds[ACC].iterator();i.hasNext();)
+//                        nodeSet.add(new AffyKey(new Integer((String)i.next()),null,null));
                 else 
                 {
-                    Iterator accItr,pskItr,esItr,groupItr;
-                    accItr=newIds[ACC].iterator();
+                    Iterator accItr,pskItr,esItr,groupItr;                    
                     pskItr=newIds[PSK].iterator();
                     esItr=newIds[ES].iterator();
                     groupItr=newIds[GROUP].iterator();
@@ -101,17 +103,14 @@ public class AffyDataView implements DataView
                         return;
                     }
                     
-                    while(accItr.hasNext() && pskItr.hasNext() && esItr.hasNext())
+                    log.debug("nodeSet before: "+nodeSet);
+                    while(pskItr.hasNext() && esItr.hasNext())
                     {
                         Integer group=null;
-                        Integer acc=new Integer((String)accItr.next());
                         
                         if(groupItr.hasNext())
                             group=(Integer)groupItr.next();
-                        Node n=new Node(acc, (Integer)pskItr.next(), (Integer)esItr.next(),group);
-                        
-                        //remove nodes with just an acc now that we have a psk and es.
-                        nodeSet.remove(new Node(acc,null,null));
+                        AffyKey n=new AffyKey(-1, (Integer)pskItr.next(), (Integer)esItr.next(),group);                        
                         
                         if(add)
                             nodeSet.add(n);
@@ -121,80 +120,15 @@ public class AffyDataView implements DataView
                     }
                     log.debug("nodeSet="+nodeSet);
                     
-//                    while(accItr.hasNext() && pskItr.hasNext())
-//                        updateTree(add, (Integer)accItr.next(), (Integer)pskItr.next(),
-//                                        (Integer)esItr.next(),(Integer)groupItr.next());
 
                 }
-            }
+                out.println(" &nbsp&nbsp&nbsp <a href='DispatchServlet?hid="+hid+
+                            "&script=affyText&range=0-"+search.getResults().size()+
+                            "'>download in text format</a>");
+            }            
          };
         
     }
-    private List getIdLists()
-    {
-        List lists=new ArrayList(4);
-        Node n;
-        lists.add(new LinkedList());
-        for(int i=PSK;i<=GROUP;i++)
-            lists.add(new HashSet()); //avoid duplicates
-        for(Iterator i=nodeSet.iterator();i.hasNext();)
-        {
-            n=(Node)i.next();
-            ((List)lists.get(ACC)).add(n.getAcc());
-            ((Collection)lists.get(PSK)).add(n.getPsk());
-            ((Collection)lists.get(ES)).add(n.getEs());
-            if(n.getGroup()!=null)
-                ((Collection)lists.get(GROUP)).add(n.getGroup());
-        }
-        return lists;
-    }
-//    private void updateTree(boolean add, Integer acc, Integer psk, Integer es, Integer group)            
-//    {
-//        Map accMap=(Map)idTree.get(acc);
-//        if(accMap==null)
-//        {
-//            accMap=new HashMap();
-//            idTree.put(acc,accMap);
-//        }
-//        
-//        Map pskMap=(Map)accMap.get(psk);
-//        if(pskMap==null)
-//        {
-//            pskMap=new HashMap();
-//            accMap.put(psk, pskMap);
-//        }
-//        
-//        // if add is false, we are removing.
-//        // if group is null, remove es, otherwise
-//        // remove the group
-//        if(!add && group==null)
-//        {
-//            pskMap.remove(es);
-//            return;
-//        }
-//        //else add es
-//        Map esMap=(Map)pskMap.get(es);
-//        if(esMap==null)
-//        {
-//            esMap=new HashMap();
-//            pskMap.put(es,esMap);
-//        }
-//        
-//        if(!add)
-//        { //remove group 
-//            esMap.remove(group);
-//            return;
-//        }        
-//        if(group==null) //don't add group if its null
-//            return;
-//        Map groupMap=(Map)esMap.get(group);
-//        if(groupMap==null)
-//        {
-//            groupMap=new HashMap();
-//            esMap.put(group,groupMap);
-//        }
-//        
-//    }
 
     public int[] getSupportedKeyTypes()
     {
@@ -203,14 +137,18 @@ public class AffyDataView implements DataView
    
     public void setData(String sortCol, int[] dbList, int hid)
     {
-        this.hid=hid;
-        this.sortCol=sortCol;
+        log.debug("hid in setData="+hid);
+        this.hid=hid;        
         this.dbNums=dbList;     
+        
+        if(sortCol!=null && sortCol.length() > 0)
+            this.sortCol=sortCol;
     }
 
     public void setIds(java.util.List ids)
     {
-        newIds[ACC]=ids;        
+        log.debug("setting ids to "+ids);
+        accIds=ids;        
     }
 
     public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
@@ -241,7 +179,7 @@ public class AffyDataView implements DataView
     public void printStats(java.io.PrintWriter out)
     {
          Common.printStatsTable(out, "On This Page", new String[]{"Records found"},
-            new Object[]{new Integer(newIds[ACC].size())});
+            new Object[]{new Integer(accIds.size())});
     }
     public void printData(java.io.PrintWriter out)
     {
@@ -283,12 +221,13 @@ public class AffyDataView implements DataView
         log.debug("newIds="+Common.printArray(newIds));
     }
     private Collection getRecords()
-    {        
-        List idLists=getIdLists();
+    {               
+        log.debug("sortCol="+sortCol);
+        //List idLists=getIdLists();
         Map[] subRecordMaps=new Map[]{
-            AffyExpSetRecord.getData(dbc,idLists)            
+            AffyExpSetRecord.getData(dbc,accIds,nodeSet, sortCol, sortDir)            
         };
-        Map records=UnknownRecord.getData(dbc,(List)idLists.get(ACC),sortCol,sortDir,subRecordMaps);
+        Map records=UnknownRecord.getData(dbc,accIds,"","asc",subRecordMaps);
         return records.values();                                 
     }        
     
@@ -300,7 +239,9 @@ public class AffyDataView implements DataView
             " align='center' border='1' cellspacing='0' cellpadding='0'>");
         RecordGroup rec;
         RecordVisitor visitor=new HtmlRecordVisitor();
+        log.debug("hid in printData="+hid);
         ((HtmlRecordVisitor)visitor).setHid(hid);
+        ((HtmlRecordVisitor)visitor).setSortInfo(sortCol, sortDir);
         try{
             for(Iterator i=data.iterator();i.hasNext();)
                 ((RecordGroup)i.next()).printRecords(out,visitor);  
@@ -309,65 +250,5 @@ public class AffyDataView implements DataView
         }
         
         out.println("</TABLE></div>");
-    }
-    
-    class Node
-    {
-        private Integer acc,psk,es,group;
-        
-        public Node(Integer acc,Integer psk, Integer es, Integer group)
-        {
-            this.acc=acc;
-            this.psk=psk;
-            this.es=es;
-            this.group=group;
-        }
-        public Node(Integer acc,Integer psk, Integer es)
-        {
-            this.acc=acc;
-            this.psk=psk;
-            this.es=es;
-            this.group=null;
-        }
-        public boolean equals(Object o)
-        {
-            if(this==o)
-                return true;
-            if(!(o instanceof Node))
-                return false;
-            Node n=(Node)o;
-            if(n.group==null) //if we don't have a group, don't use it
-                return n.acc==acc && n.psk==psk && n.es==es;
-            return n.acc==acc && n.psk==psk && n.es==es && n.group==group;
-        }
-        public int hashCode()
-        {            
-            if(psk==null || es==null)
-                return acc;
-            return acc+psk+es;
-        }
-        public String toString()
-        {
-            return acc+"_"+psk+"_"+es+"_"+group;
-        }
-
-        public Integer getAcc()
-        {
-            return acc;
-        }
-        public Integer getPsk()
-        {
-            return psk;
-        }
-        public Integer getEs()
-        {
-            return es;
-        }
-        public Integer getGroup()
-        {
-            return group;
-        }
-    }
-    
-    
+    }        
 }

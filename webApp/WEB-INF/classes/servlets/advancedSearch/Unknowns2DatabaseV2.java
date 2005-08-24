@@ -147,7 +147,7 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
             
             new Field("Affy Experiment Comparisions",""), //38
             new Field(space+"Description","affy.experiment_group_summary_mv.description"),
-            new Field(space+"Comparison","affy.experiment_group_summary_mv.comparision",Integer.class),
+            new Field(space+"Comparison","affy.experiment_group_summary_mv.comparison",Integer.class),
             new Field(space+"Control mean","affy.experiment_group_summary_mv.control_mean",Float.class),
             new Field(space+"Control PMA","affy.experiment_group_summary_mv.control_pma",Integer.class),
             new Field(space+"Treatment mean","affy.experiment_group_summary_mv.treatment_mean",Float.class),

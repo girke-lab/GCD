@@ -29,6 +29,7 @@ public class TextRecordVisitor implements RecordVisitor
     {
     }
     
+    //<editor-fold defaultstate="collapsed" desc="misc">
     public void printHeader(java.io.Writer out, GoRecord gr) throws java.io.IOException
     {
         //out.write("go_number,text,function,");
@@ -121,23 +122,15 @@ public class TextRecordVisitor implements RecordVisitor
     {
         
     }
+    //</editor-fold>
 
-    public void printFooter(Writer out, AffyDetailRecord ar) throws IOException
+    
+    public void printHeader(Writer out, AffyExpSetRecord ar) throws IOException
     {
     }
-
-    public void printHeader(Writer out, AffyDetailRecord ar) throws IOException
+    public void printRecord(Writer out, AffyExpSetRecord ar) throws IOException
     {
     }
-
-    public void printRecord(Writer out, AffyDetailRecord ar) throws IOException
-    {
-    }
-
-    public void printFooter(Writer out, AffyCompRecord ar) throws IOException
-    {
-    }
-
     public void printFooter(Writer out, AffyExpSetRecord ar) throws IOException
     {
     }
@@ -145,17 +138,21 @@ public class TextRecordVisitor implements RecordVisitor
     public void printHeader(Writer out, AffyCompRecord ar) throws IOException
     {
     }
-
-    public void printHeader(Writer out, AffyExpSetRecord ar) throws IOException
-    {
-    }
-
     public void printRecord(Writer out, AffyCompRecord ar) throws IOException
     {
     }
-
-    public void printRecord(Writer out, AffyExpSetRecord ar) throws IOException
+    public void printFooter(Writer out, AffyCompRecord ar) throws IOException
     {
     }
     
+    public void printHeader(Writer out, AffyDetailRecord ar) throws IOException
+    {
+    }
+    public void printRecord(Writer out, AffyDetailRecord ar) throws IOException
+    {
+    }
+    public void printFooter(Writer out, AffyDetailRecord ar) throws IOException
+    {
+    }
+
 }

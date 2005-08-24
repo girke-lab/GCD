@@ -10,7 +10,7 @@ package servlets.dataViews.records;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
-import servlets.dataViews.AffyDataView;
+import servlets.dataViews.AffyKey;
 import servlets.querySets.QuerySetProvider;
 
 /**
@@ -48,7 +48,7 @@ public class AffyDetailRecord implements Record
                 log.error("recieved list of size "+values.size()+", but expected size of "+reqSize);
             return;
         }
-        
+                
         probeSetId=new Integer((String)values.get(0));
         expSetId=new Integer((String)values.get(1));
         comparison=new Integer((String)values.get(2));
@@ -89,22 +89,32 @@ public class AffyDetailRecord implements Record
         visitor.printFooter(out,this); 
     }
     
-    
-    public static Map getData(DbConnection dbc, List ids)
+    public static Map getDataByAcc(DbConnection dbc, Collection ids)
+    {
+        //wrap accession_ids in AffyKey objects for the affy records
+        List affyKeys=new LinkedList();
+        for(Iterator i=ids.iterator();i.hasNext();)
+            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
+            
+        return getData(dbc,affyKeys,true,null,"asc");
+    }
+    public static Map getData(DbConnection dbc, Collection ids)
     {
         return getData(dbc,ids,null,"ASC");
     }
-    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+    public static Map getData(DbConnection dbc, Collection affyKeys, String sortCol, String sortDir)
     {
-        if(ids==null || ids.size()==0)
+        return getData(dbc,affyKeys,false,sortCol,sortDir);
+    }
+    public static Map getData(DbConnection dbc, Collection affyKeys, boolean allGroups, String sortCol, String sortDir)
+    {
+        if(affyKeys==null || affyKeys.size()==0)
             return new HashMap();
         
         String query=QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(
-                        (Collection)ids.get(AffyDataView.PSK),(Collection)ids.get(AffyDataView.ES),
-                        (Collection)ids.get(AffyDataView.GROUP),  sortCol,sortDir);
+                        affyKeys,allGroups, sortCol,sortDir);
                 
-        List data=null;
-                
+        List data=null;                
         try{        
             data=dbc.sendQuery(query);        
         }catch(java.sql.SQLException e){
@@ -117,8 +127,8 @@ public class AffyDetailRecord implements Record
                 return new AffyDetailRecord(l);
             }
         };                
-        log.debug("affy data, data="+data);
+        //log.debug("affy data, data="+data);
         
-        return RecordGroup.buildRecordMap(rb,data,new int[]{0,1,2},0,8);             
+        return RecordGroup.buildRecordMap(rb,data,new int[]{1,2,3},1,9);             
     }
 }

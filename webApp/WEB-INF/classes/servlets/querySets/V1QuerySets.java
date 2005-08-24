@@ -520,7 +520,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return "";
     }
 
-    public String getAffyDetailRecordQuery(Collection ids, String sortcol, String sortDir)
+    public String getAffyDetailRecordQuery(Collection ids, boolean allGroups, String sortcol, String sortDir)
     {
         return "";
     }
@@ -533,4 +533,10 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     {
         return "";
     }
+
+    public String[][] getSortableAffyColumns()
+    {
+        return new String[][] {{}}; //return empty list to avoid null pointer exceptions
+    }
+  
 }

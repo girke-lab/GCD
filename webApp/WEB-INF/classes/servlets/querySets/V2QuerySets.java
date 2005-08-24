@@ -8,11 +8,10 @@ package servlets.querySets;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import org.apache.log4j.Logger;
 import servlets.Common;
 import servlets.advancedSearch.*;
-import servlets.dataViews.AffyDataView;
+import servlets.dataViews.AffyKey;
 
 
 /**
@@ -202,6 +201,17 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
+    public String[][] getSortableAffyColumns()
+    {
+        return new String[][] {
+                //experiment_set_summary_mv fields used
+                {"probe_set_key","experiment_set_key","up2x","down2x","up4x","down4x","pma_on","pma_off"},
+                //experiment_group_summary_mv fields used
+                {"comparison","control_mean","treatment_mean","control_pma","treatment_pma","t_c_ratio_lg"},
+                // detail_view fields used
+                {"type_name","file_name","intensity","pma"}
+            };
+    }
     //   </editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc=" Record queries "> 
@@ -278,7 +288,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     public String getGoRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
     {
         if(sortCol==null)
-            sortCol="go_numbers.go_number";
+            sortCol="go_numbers.go_number";  
         
 //        select seq.accession_id, seq.accession,gn.go_number 
 //        from common.model_data as md JOIN general.accessions as seq ON(md.sequence_accession_id=seq.accession_id) JOIN 
@@ -307,31 +317,49 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
-    public String getAffyDetailRecordQuery(Collection psk_ids,Collection es_ids, Collection groups, String sortcol, String sortDir)
+    public String getAffyDetailRecordQuery(Collection affyKeys, boolean allGroups, String sortcol, String sortDir)
     {                        
-        String query="SELECT * FROM affy.detail_view " +
-                " WHERE "+Common.buildIdListCondition("probe_set_key_id",psk_ids)+
-                    " AND "+Common.buildIdListCondition("experiment_set_id",es_ids)+
-                    " AND "+Common.buildIdListCondition("group_no",groups)+
-                " ORDER BY probe_set_key_id, experiment_set_id,group_no ";
+        if(sortcol!=null && sortcol.startsWith("detail_"))
+            sortcol=sortcol.replaceFirst("detail_", "");
+        else
+            sortcol="type_name";
+        String query="SELECT DISTINCT ON (file_name) * FROM affy.detail_view " +
+                " WHERE "+ AffyKey.buildIdSetCondition(affyKeys, !allGroups) +                    
+                " ORDER BY file_name,probe_set_key_id asc, experiment_set_id asc, group_no asc, "+
+                    sortcol+" "+sortDir;
         logQuery(query);
         return query;
     }
-    public String getAffyCompRecordQuery(Collection psk_ids,Collection es_ids, String sortcol, String sortDir)
+    public String getAffyCompRecordQuery(Collection affyKeys, String sortcol, String sortDir)
     {
+        if(sortcol!=null && sortcol.startsWith("comp_"))
+            sortcol=sortcol.replaceFirst("comp_", "");
+        else
+            sortcol="comparison";
+//        String feilds="probe_set_key_id, probe_set_key, " +
+//                "experiment_set_id, experiment_set_key, description, comparison, " +
+//                "control_mean, treatment_mean, control_pma, treatment_pma, t_c_ratio_lg";
+        String feilds="probe_set_key_id, probe_set_key, " +
+                "experiment_set_id, experiment_set_key, comparison, " +
+                "control_mean, treatment_mean, control_pma, treatment_pma, t_c_ratio_lg";
 
-        String query="SELECT DISTINCT * FROM affy.experiment_group_summary_mv " +
-                " WHERE "+Common.buildIdListCondition("probe_set_key_id",psk_ids)+
-                    " AND "+Common.buildIdListCondition("experiment_set_id",es_ids)+
-                " ORDER BY probe_set_key_id, experiment_set_id,comparison";        
+        String query="SELECT DISTINCT "+feilds+" FROM affy.experiment_group_summary_mv " +
+                " WHERE "+ AffyKey.buildIdSetCondition(affyKeys,false) +
+                " ORDER BY probe_set_key_id asc, experiment_set_id asc, "+
+                    sortcol+" "+sortDir;           
         logQuery(query);
         return query;
     }            
     public String getAffyExpSetRecordQuery(Collection ids, String sortcol, String sortDir)
     {
+        if(sortcol!=null && sortcol.startsWith("expset_"))
+            sortcol=sortcol.replaceFirst("expset_", "");
+        else 
+            sortcol="probe_set_key"; 
+        
         String query="SELECT DISTINCT * FROM affy.experiment_set_summary_mv "+
                 " WHERE "+Common.buildIdListCondition("accession_id",ids)+
-                " ORDER BY probe_set_key_id, experiment_set_id";
+                " ORDER BY "+sortcol+" "+sortDir; 
         
         logQuery(query);
         return query;        
@@ -767,6 +795,8 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
     //</editor-fold>
+
+   
 
   
 

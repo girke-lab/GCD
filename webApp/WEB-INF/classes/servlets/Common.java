@@ -282,6 +282,21 @@ public class Common {
                 "&nbsp&nbsp&nbsp" +
                 "<a href='QueryPageServlet?searchType=seq_id&displayType=diffTrackingView&inputKey=hello'>Difference Tracking</a>");
     }
+    public static void printUnknownDownloadLinks(Writer w,int hid,int end)
+    {
+        
+        PrintWriter out=new PrintWriter(w);
+        String link="DispatchServlet?hid="+hid+"&script=uknownsText&range=0-"+end;
+        String[] dataTypes=new String[]{"Unknown","Go","Blast","Proteomics","Cluster",
+                "ExternalUnknown","AffyExpSet","AffyComp","AffyDetail"};
+        String[] linkNames=new String[]{"Keys","Go","Blast","Proteomics","Clusters",
+                "External Sources","Experiment Sets","Comparisons",
+                "Cel"};
+        for(int i=0;i<linkNames.length;i++)
+            out.println("&nbsp<a href='"+link+"&dataType="+dataTypes[i]+"'>"+
+                    linkNames[i]+"</a>");
+    }
+    
     
     public static int getDBid(String name)
     {//takes a Genome string from database and reutrn an integer id number for it
@@ -416,6 +431,7 @@ public class Common {
         }
         return conditions.toString();
     }
+   
     public static boolean getBoolean(String str)
     {
         return str.compareToIgnoreCase("true")==0 || str.compareToIgnoreCase("yes")==0 ||

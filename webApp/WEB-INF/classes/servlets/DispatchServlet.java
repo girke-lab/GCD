@@ -81,7 +81,7 @@ public class DispatchServlet extends HttpServlet {
         if(scriptRunner==null){
              response.getWriter().println("invalid script name");
             return;
-        } 
+        }         
         response.setContentType(scriptRunner.getContentType());
         scriptRunner.run(response.getOutputStream(), ids);
         
@@ -100,9 +100,11 @@ public class DispatchServlet extends HttpServlet {
         else if(script.equals("alignToHmm"))
             return new AlignToHmmScript();
         else if(script.equals("unknownsText"))
-            return new UnknownsTextScript();
+            return new UnknownsTextScript(request.getParameterMap());
         else if(script.equals("treeViewer.pl"))
             return new TreeViewScript(request,response); 
+        else if(script.equals("affyText"))
+            return new AffyTextScript(); 
         return null;
     }
         

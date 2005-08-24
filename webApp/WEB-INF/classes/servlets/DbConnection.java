@@ -203,7 +203,7 @@ public class DbConnection
     }    
     private List sendQuery(String q,int retryCount,SQLException origEx) throws SQLException 
     {
-        log.warn("retryCount="+retryCount);
+        log.debug("retryCount="+retryCount);
         if(retryCount >= MAX_RETRIES)
             throw origEx;            
         long startTime=0;        

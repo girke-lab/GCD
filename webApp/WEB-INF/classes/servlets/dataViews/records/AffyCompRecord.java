@@ -10,7 +10,7 @@ package servlets.dataViews.records;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
-import servlets.dataViews.AffyDataView;
+import servlets.dataViews.AffyKey;
 import servlets.querySets.QuerySetProvider;
 
 /**
@@ -20,7 +20,7 @@ import servlets.querySets.QuerySetProvider;
 public class AffyCompRecord implements Record
 {
     
-    String probeSetKey,expSetKey,description,controlPMA,treatmentPMA;
+    String probeSetKey,expSetKey,controlPMA,treatmentPMA;
     Integer comparison;
     Float controlMean, treatmentMean,ratio;
     Integer probeSetId, expSetId;
@@ -32,7 +32,7 @@ public class AffyCompRecord implements Record
     /** Creates a new instance of AffyCompRecord */
     public AffyCompRecord(List values)
     {
-        int reqSize=11;
+        int reqSize=10;
         if(values==null || values.size()!=reqSize)
         {
             log.error("invalid list in AffyCompRecord constructor");
@@ -43,14 +43,13 @@ public class AffyCompRecord implements Record
         probeSetId=new Integer((String)values.get(0));
         probeSetKey=(String)values.get(1);
         expSetId=new Integer((String)values.get(2));
-        expSetKey=(String)values.get(3);
-        description=(String)values.get(4);
-        comparison=new Integer((String)values.get(5));
-        controlMean=new Float((String)values.get(6));
-        treatmentMean=new Float((String)values.get(7));
-        controlPMA=(String)values.get(8);
-        treatmentPMA=(String)values.get(9);
-        ratio=new Float((String)values.get(10));
+        expSetKey=(String)values.get(3);        
+        comparison=new Integer((String)values.get(4));
+        controlMean=new Float((String)values.get(5));
+        treatmentMean=new Float((String)values.get(6));
+        controlPMA=(String)values.get(7);
+        treatmentPMA=(String)values.get(8);
+        ratio=new Float((String)values.get(9));
         
     }
      public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
@@ -90,17 +89,31 @@ public class AffyCompRecord implements Record
     }
     
     
-    public static Map getData(DbConnection dbc, List ids)
+    
+    public static Map getDataByAcc(DbConnection dbc, Collection ids)
     {
-        return getData(dbc,ids,null,"ASC");
+        //wrap accession_ids in AffyKey objects for the affy records
+        List affyKeys=new LinkedList();
+        for(Iterator i=ids.iterator();i.hasNext();)
+            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
+            
+        return getData(dbc,affyKeys,true,null,"asc");
     }
-    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+    public static Map getData(DbConnection dbc, Collection ids)
     {
-        if(ids==null || ids.size()==0)
-            return new HashMap();
+        return getData(dbc,ids,false,null,"ASC");
+    }
+    public static Map getData(DbConnection dbc, Collection affyKeys, String sortCol, String sortDir)
+    {
+        return getData(dbc,affyKeys, false,sortCol,sortDir);
+    }
+    public static Map getData(DbConnection dbc, Collection affyKeys,boolean allGroups, String sortCol, String sortDir)
+    {
+        if(affyKeys==null || affyKeys.size()==0)
+            return new HashMap();                
         
-        String query=QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(
-                        (Collection)ids.get(AffyDataView.PSK),(Collection)ids.get(AffyDataView.ES), sortCol,sortDir);
+        String query=QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(                       
+                        affyKeys, sortCol,sortDir);
                 
         List data=null;
                 
@@ -111,7 +124,7 @@ public class AffyCompRecord implements Record
             return new HashMap();
         }
         Map[] subRecordMaps=new Map[]{
-            AffyDetailRecord.getData(dbc,ids)
+            AffyDetailRecord.getData(dbc,affyKeys,allGroups ,sortCol, sortDir)
         };
         RecordBuilder rb=new RecordBuilder(){
             public Record buildRecord(List l){
@@ -119,10 +132,10 @@ public class AffyCompRecord implements Record
             }
         };                
         
-        log.debug("affy data, data="+data);        
-        Map rgMap= RecordGroup.buildRecordMap(rb,data,new int[]{1,3},1,12);             
+        //log.debug("affy data, data="+data);        
+        Map rgMap= RecordGroup.buildRecordMap(rb,data,new int[]{0,2},0,10);             
         
-        log.debug("rgMap=\n"+rgMap);
+       
         RecordGroup rg;
         AffyCompRecord compRecord;
         log.debug("matching up affyComp records");

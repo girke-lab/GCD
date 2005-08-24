@@ -12,9 +12,12 @@ package servlets.dataViews.records;
  */
 
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.*;
 import servlets.Common;
 import org.apache.log4j.Logger;
+import servlets.querySets.DataViewQuerySet;
+import servlets.querySets.QuerySetProvider;
 /**
  * This class implements RecordVisitor so that it can print Records in 
  * html format.  Each record gets its own table, which can be nested inside
@@ -25,6 +28,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     
     private static Logger log=Logger.getLogger(HtmlRecordVisitor.class);
     int hid;
+    String sortDir,sortCol;
     
     /** Creates a new instance of HtmlRecordVisitor */
     public HtmlRecordVisitor()
@@ -33,6 +37,11 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void setHid(int hid)
     {
         this.hid=hid;
+    }
+    public void setSortInfo(String col,String dir)
+    {
+        sortCol=col;
+        sortDir=dir;
     }
     public void printHeader(java.io.Writer out, GoRecord gr) throws java.io.IOException
     {
@@ -45,7 +54,7 @@ public class HtmlRecordVisitor implements RecordVisitor
                 "<th>Target Key</th><th>E-value</th>" +
                 "<th>Score</th><th>DB/Method</th></tr>\n");
     }
-    
+    // <editor-fold defaultstate="collapsed" desc=" misc records ">
     public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {
         out.write("<tr bgcolor='"+Common.titleColor+"'><th>Key</th><th>Description</th></tr>\n");
@@ -153,27 +162,33 @@ public class HtmlRecordVisitor implements RecordVisitor
     {
         out.write("</td></tr>");
     }
-
-
+    //</editor-fold>
+    
+    // <editor-fold desc=" Affy record stuff ">
+    ///////////////////////// Affy stuff  ////////////////////////////////////
     public void printHeader(Writer out, AffyExpSetRecord ar) throws IOException
     {
-        out.write("<tr bgcolor='"+Common.titleColor+"'><td>&nbsp</td>");
+
         String[] titles=new String[]{"AffyID","Exp","up 2x","down 2x","up 4x","down 4x","on","off"};
-        for(String title:titles)
-            out.write("<th>"+title+"</th>");
+        String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.EXPSET]; 
+        
+        out.write("<tr bgcolor='"+Common.titleColor+"'><td><a name='"+ar.probeSetId+"'>&nbsp</a></td>");        
+        printTableTitles(new PrintWriter(out), titles, feilds, "expset",ar.probeSetId.toString());        
         out.write("</tr>");
     }
     public void printRecord(Writer out, AffyExpSetRecord ar) throws IOException
-    {
-        String imageOptions="border='0' height='10' width='15'";        
-        String link="QueryPageServlet?hid="+hid+"&es_ids="+ar.expSetId+"&psk_ids="+ar.probeSetId;
+    {        
+        String link="QueryPageServlet?hid="+hid+"&displayType=affyView&es_ids="+ar.expSetId+"&psk_ids="+ar.probeSetId;
+        String key=ar.expSetId+"_"+ar.probeSetId;
+        String expSetKeyLink="http://www.arabidopsis.org/servlets/Search?" +
+                "type=expr&search_action=search&" +
+                "name_type_1=submission_number&term_1="+ar.expSetKey+
+                "&search=submit+query";
         out.write("<tr>");
-                
-        out.write("<td nowrap>\n" +
-                "<a href='"+link+"&action=expand'><img src='images/arrow_down.png' "+imageOptions+" ></a>&nbsp&nbsp\n"+
-                "<a href='"+link+"&action=collapse'><img src='images/arrow_up.png' "+imageOptions+" ></a>\n"+
-                "</td>");
-        out.write("<td>"+ar.probeSetKey+"</td><td>"+ar.expSetKey+"</td>");
+        
+        printTreeControls(out,link,key,ar.subRecords);    
+        out.write("<td>"+ar.probeSetKey+"</td><td><a href='"+expSetKeyLink+"'>"+
+                ar.expSetKey+"</a></td>");
         out.write("<td>"+ar.up2+"</td><td>"+ar.down2+"</td><td>"+ar.up4+"</td>");
         out.write("<td>"+ar.down4+"</td><td>"+ar.on+"</td><td>"+ar.off+"</td>");
         out.write("</tr>");
@@ -186,58 +201,61 @@ public class HtmlRecordVisitor implements RecordVisitor
     }
 
     public void printHeader(Writer out, AffyCompRecord ar) throws IOException
-    {
-        out.write("<tr bgcolor='"+Common.titleColor+"'><td>&nbsp</td>");
+    {        
         String[] titles=new String[]{"Comparison","Control mean","Treat mean",
                                 "control pma","treat pma","ratio (log2)"};
-        for(String title:titles)
-            out.write("<th>"+title+"</th>");
+        String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.COMP]; 
+
+        out.write("<tr bgcolor='"+Common.titleColor+"'><td><a name='"+ar.probeSetId+"'>&nbsp</a></td>");
+        printTableTitles(new PrintWriter(out), titles, feilds,"comp",ar.probeSetId.toString());        
         out.write("</tr>");        
     }
     public void printRecord(Writer out, AffyCompRecord ar) throws IOException
-    {
-        String imageOptions="border='0' height='10' width='15'";
-        String link="QueryPageServlet?hid="+hid+"&es_ids="+ar.expSetId+
+    {        
+        String link="QueryPageServlet?hid="+hid+"&displayType=affyView&es_ids="+ar.expSetId+
                 "&psk_ids="+ar.probeSetId+"&groups="+ar.comparison;
-
-        out.write("<tr>");
-        out.write("<td nowrap>"+
-                "<a href='"+link+"&action=expand'><img src='images/arrow_down.png' "+imageOptions+" ></a>&nbsp&nbsp\n"+
-                "<a href='"+link+"&action=collapse'><img src='images/arrow_up.png' "+imageOptions+" ></a>\n"+
-                "</td>");
+        String key=ar.expSetId+"_"+ar.probeSetId+"_"+ar.comparison;
         
-        out.write("<td>"+ar.comparison+"</td><td>"+ar.controlMean+"</td>");
-        out.write("<td>"+ar.treatmentMean+"</td><td>"+ar.controlPMA+"</td>");
-        out.write("<td>"+ar.treatmentPMA+"</td><td>"+ar.ratio+"</td>");
+        DecimalFormat df=new DecimalFormat("0.00");        
+
+        out.write("<tr>");       
+        printTreeControls(out,link,key,ar.subRecords);                
+        out.write("<td>"+ar.comparison+"</td><td>"+df.format(ar.controlMean)+"</td>");
+        out.write("<td>"+df.format(ar.treatmentMean)+"</td><td>"+ar.controlPMA+"</td>");
+        out.write("<td>"+ar.treatmentPMA+"</td><td>"+df.format(ar.ratio)+"</td>");
         out.write("</tr>");
         
         printSubRecords(out,ar.subRecords,6, 1);
     }
+   
     public void printFooter(Writer out, AffyCompRecord ar) throws IOException
     {
     }
     
     public void printHeader(Writer out, AffyDetailRecord ar) throws IOException
     {
-        out.write("<tr bgcolor='"+Common.titleColor+"'>");
-        out.write("<th>Type</th><th>Cel File</th>"+  //" <th>Description</th>" +
-                "<th>Intensity</th><th>PMA</th>");
+        String[] titles=new String[]{"Type","Cel File","Intensity","PMA"};
+        String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.DETAIL]; 
+        
+        out.write("<tr bgcolor='"+Common.titleColor+"'><a name='"+ar.probeSetId+"'>&nbsp</a>");
+        printTableTitles(new PrintWriter(out), titles, feilds,"detail",ar.probeSetId.toString());        
         out.write("</tr>\n");        
     }
     public void printRecord(Writer out, AffyDetailRecord ar) throws IOException
     {
+        DecimalFormat df=new DecimalFormat("0.00");   
         out.write("<tr>");                
         //String desc=(ar.description==null || ar.description.equals(""))?"&nbsp":ar.description;
         
         out.write("<td>"+ar.type+"</td><td>"+ar.celFile+"</td>"); //"<td>"+desc+"</td>
-        out.write("<td>"+ar.intensity+"</td>");
+        out.write("<td>"+df.format(ar.intensity)+"</td>");
         out.write("<td>"+ar.pma+"</td>");
         out.write("</tr>");
     }
     public void printFooter(Writer out, AffyDetailRecord ar) throws IOException
     {
     }
-    
+    //</editor-fold>
     
     ////////////////////////////////////////////////////////////////////////////
     
@@ -260,5 +278,42 @@ public class HtmlRecordVisitor implements RecordVisitor
             rg.printRecords(out,this);
             out.write("</TablE></td></tr>\n");
         }                    
+    }
+    private void printTreeControls(Writer out, String link, String key,List records)  throws IOException
+    {
+        String imageOptions=" border='0' height='10' width='15' ";
+        Iterator i=null;
+        if(records!=null && records.size()!=0)
+            i=((RecordGroup)records.get(0)).iterator();                
+     
+        out.write("<td nowrap>"+"<a name='"+key+"'></a>"); 
+        if(i==null || !i.hasNext()) //no children
+            out.write("<a href='"+link+"&action=expand#"+key+"'><img src='images/arrow_down.png' title='expand' "+imageOptions+" ></a>&nbsp&nbsp\n");
+        else 
+            out.write("<a href='"+link+"&action=collapse#"+key+"'><img src='images/arrow_up.png' title='collapse' "+imageOptions+" ></a>\n");
+        out.write("</td>");
+    }
+    
+    private void printTableTitles(PrintWriter out,String[] titles, String[] dbColNames,String prefix,String anchor)
+    {
+        String newDir;
+        if(titles.length!=dbColNames.length)
+        {
+            log.error("length mismatch while printing header: titles.length="+titles.length+
+                    ", feilds.length="+dbColNames.length);
+            //print bare titles
+            for(String title : titles)
+                out.println("<th>"+title+"</th>");
+            return;
+        }        
+        for(int i=0;i<titles.length;i++)
+        {
+            newDir="asc"; //default to asc
+            
+            if(sortCol!=null && sortCol.equals(prefix+"_"+dbColNames[i])) //reverse current sort col
+                newDir=(sortDir.equals("asc"))? "desc":"asc"; //flip direction
+            out.println("<th nowrap ><a href='QueryPageServlet?hid="+hid+"&sortCol="+prefix+"_"+dbColNames[i]+
+                "&sortDirection="+newDir+"#"+anchor+"'>"+titles[i]+"</a></th>");             
+        }
     }
 }

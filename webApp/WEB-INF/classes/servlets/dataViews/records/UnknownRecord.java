@@ -123,7 +123,7 @@ public class UnknownRecord implements Record
             ProteomicsRecord.getData(dbc,ids),
             ClusterRecord.getData(dbc,ids),
             ExternalUnknownRecord.getData(dbc,ids),
-            AffyExpSetRecord.getData(dbc,ids)
+            AffyExpSetRecord.getData(dbc,ids,sortCol,sortDir) 
         };//array of maps of ids to RecordGroups
         return getData(dbc,ids,sortCol,sortDir, subRecordMaps);
     }

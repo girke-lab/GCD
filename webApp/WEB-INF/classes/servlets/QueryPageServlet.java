@@ -82,6 +82,7 @@ public class QueryPageServlet extends HttpServlet
         int hid,pos,rpp;
         if(session.getAttribute("hid")==null)
         {//session was just created.
+            log.info("createing new session");
             session.setAttribute("hid",new Integer(0));
             session.setAttribute("history",new ArrayList());            
             
@@ -89,8 +90,10 @@ public class QueryPageServlet extends HttpServlet
         else
         { //make sure we don't get too many sessions
             List history=(List)session.getAttribute("history");
+            log.info("history="+history);
             if(history != null && history.size() > Common.MAX_SESSIONS) 
             {
+                log.info("pruning old sessions");
                 for(int i=0;i< history.size()-Common.MAX_SESSIONS;i++)
                     //set old elments to null se we free up some memory.
                     history.set(i, null);

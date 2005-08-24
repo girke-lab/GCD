@@ -140,9 +140,7 @@ public class Unknowns2DataView implements DataView
             }
             public void printGeneral(PrintWriter out, Search search, String pos,Map storage)
             {
-                out.println(" &nbsp&nbsp&nbsp <a href='/databaseWeb/DispatchServlet.csv?hid="+hid+
-                            "&script=unknownsText&range=0-"+search.getResults().size()+
-                            "'>download in excel format</a>");
+                Common.printUnknownDownloadLinks(out, hid, search.getResults().size());
             }
          };
     }
@@ -164,6 +162,7 @@ public class Unknowns2DataView implements DataView
             " align='center' border='1' cellspacing='0' cellpadding='0'>");
         RecordGroup rec;
         RecordVisitor visitor=new HtmlRecordVisitor();
+        ((HtmlRecordVisitor)visitor).setHid(hid);
         try{
             for(Iterator i=data.iterator();i.hasNext();)
                 ((RecordGroup)i.next()).printRecords(out,visitor);  

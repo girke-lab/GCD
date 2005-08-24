@@ -13,8 +13,8 @@ package servlets.dataViews.records;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
-import servlets.dataViews.AffyDataView;
 import servlets.querySets.QuerySetProvider;
+import servlets.dataViews.AffyKey;
 /**
  *
  * @author khoran
@@ -23,6 +23,7 @@ public class AffyExpSetRecord implements   Record
 {
     
     String probeSetKey,expSetKey,link;
+    String catagory,name,description;
     Integer up4,down4, up2, down2,on, off;
     Integer accId,probeSetId, expSetId;
     List subRecords;
@@ -33,7 +34,7 @@ public class AffyExpSetRecord implements   Record
     /** Creates a new instance of AffyExpSetRecord */
     public AffyExpSetRecord(List values)
     {
-        int reqSize=12;
+        int reqSize=15;
         if(values==null || values.size()!=reqSize)
         {
             log.error("invalid list in AffyExpSetRecord constructor");
@@ -47,13 +48,16 @@ public class AffyExpSetRecord implements   Record
         probeSetKey=(String)values.get(2);
         expSetId=Integer.parseInt((String)values.get(3));
         expSetKey=(String)values.get(4);
-        link=(String)values.get(5);
-        up4=Integer.parseInt((String)values.get(6));
-        down4=Integer.parseInt((String)values.get(7));
-        up2=Integer.parseInt((String)values.get(8));
-        down2=Integer.parseInt((String)values.get(9));
-        on=Integer.parseInt((String)values.get(10));
-        off=Integer.parseInt((String)values.get(11));
+        catagory=(String)values.get(5);
+        name=(String)values.get(6);
+        description=(String)values.get(7);
+        link=(String)values.get(8);
+        up4=Integer.parseInt((String)values.get(9));
+        down4=Integer.parseInt((String)values.get(10));
+        up2=Integer.parseInt((String)values.get(11));
+        down2=Integer.parseInt((String)values.get(12));
+        on=Integer.parseInt((String)values.get(13));
+        off=Integer.parseInt((String)values.get(14));
                 
     }
     
@@ -92,17 +96,34 @@ public class AffyExpSetRecord implements   Record
         return probeSetKey.hashCode()+expSetKey.hashCode();
     }
     
-    public static Map getData(DbConnection dbc, List ids)
+    public static Map getData(DbConnection dbc, Collection ids,String sortCol, String sortDir)
     {
-        return getData(dbc,ids,null,"ASC");
+        return getData(dbc,ids,new LinkedList(),sortCol, sortDir);
     }
-    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+//    public static Map getData(DbConnection dbc, Collection ids, Collection affyKeys)
+//    {
+//        return getData(dbc,ids,affyKeys,null, "ASC");
+//    }
+    public static Map getData(DbConnection dbc, Collection ids)
+    {
+        //wrap accession_ids in AffyKey objects for the affy records
+        List affyKeys=new LinkedList();
+        for(Iterator i=ids.iterator();i.hasNext();)
+            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
+            
+        return getData(dbc,ids,affyKeys,true,null,"asc");
+    }
+    public static Map getData(DbConnection dbc, Collection ids, Collection affyKeys, String sortCol, String sortDir)
+    {
+        return getData(dbc,ids,affyKeys,false,sortCol,sortDir);
+    }
+    public static Map getData(DbConnection dbc, Collection ids, Collection affyKeys, boolean allGroups, String sortCol, String sortDir)
     {
         if(ids==null || ids.size()==0)
             return new HashMap();
         
-        String query=QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(
-                        (Collection)ids.get(AffyDataView.ACC), sortCol,sortDir);
+        
+        String query=QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(ids,sortCol,sortDir);
                 
         List data=null;
         Map expSetRecordsMap;
@@ -116,7 +137,7 @@ public class AffyExpSetRecord implements   Record
         }
         
         Map[] subRecordMaps=new Map[]{
-            AffyCompRecord.getData(dbc,ids)
+            AffyCompRecord.getData(dbc,affyKeys, allGroups, sortCol, sortDir)
         };
         
         RecordBuilder rb=new RecordBuilder(){
@@ -124,14 +145,14 @@ public class AffyExpSetRecord implements   Record
                 return new AffyExpSetRecord(l);
             }
         };                
-        log.debug("affy data, data="+data);
         
         
-        expSetRecordsMap=RecordGroup.buildRecordMap(rb,data,0,12);           
+        
+        expSetRecordsMap=RecordGroup.buildRecordMap(rb,data,0,15);           
         
         AffyExpSetRecord affyRec;
         RecordGroup rg;
-        log.debug("expSetRecordsMap=\n"+expSetRecordsMap);
+        //log.debug("expSetRecordsMap=\n"+expSetRecordsMap);
         log.debug("combining affy exp set sub records");
         
         for(Iterator j=expSetRecordsMap.values().iterator();j.hasNext();) 
@@ -144,11 +165,11 @@ public class AffyExpSetRecord implements   Record
                 {//go through the sub record map add find any associated with 
                     //this RecordGroup
                     rg=(RecordGroup)subRecordMap.get(affyRec.probeSetId+"_"+affyRec.expSetId);
-                    if(rg==null)
-                    {
-                        log.debug("no record found for "+affyRec.probeSetId+"_"+affyRec.expSetId);
-                        log.debug("key list: "+subRecordMap.keySet());
-                    }
+//                    if(rg==null)
+//                    {
+//                        log.debug("no record found for "+affyRec.probeSetId+"_"+affyRec.expSetId);
+//                        log.debug("key list: "+subRecordMap.keySet());
+//                    }
                     
                     if(rg==null)
                         rg=new RecordGroup();

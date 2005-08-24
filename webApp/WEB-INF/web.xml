@@ -42,6 +42,9 @@
     <servlet-name>queryAdmin</servlet-name>
     <url-pattern>/as2.jsp</url-pattern>
   </servlet-mapping>
+  <session-config>
+    <session-timeout>120</session-timeout>
+  </session-config>
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>queryAdmin page</web-resource-name>
@@ -51,7 +54,6 @@
       <role-name>query_admin</role-name>
     </auth-constraint>
   </security-constraint>
-  
   <security-constraint>
     <web-resource-collection>
       <web-resource-name> unknowns </web-resource-name>
@@ -62,7 +64,6 @@
       <role-name>database</role-name>
     </auth-constraint>
   </security-constraint>
-  
   <login-config>
     <auth-method>BASIC</auth-method>
     <realm-name>UserDatabase</realm-name>

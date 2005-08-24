@@ -76,7 +76,7 @@ public class ResultPage
         else
         {
             int end=pos+rpp > ids.size()? ids.size() : pos+rpp;
-            dv.setIds(ids.subList(pos,end));
+            dv.setIds(new ArrayList(ids.subList(pos,end)));
         }
         
         out.println("<table cellspacing='0' cellpadding='0'><tr><td>");

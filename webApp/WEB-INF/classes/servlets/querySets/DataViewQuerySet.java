@@ -42,4 +42,7 @@ public interface DataViewQuerySet extends QuerySet
     public String getPfamOptionsQuery(String clusterName);
     
     public String getDiffTrackingDataViewQuery();
+    
+    public static final int EXPSET=0, COMP=1, DETAIL=2;
+    public String[][] getSortableAffyColumns();
 }
