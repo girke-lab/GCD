@@ -13,6 +13,7 @@ package servlets.dataViews.records;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
+import servlets.*;
 import servlets.querySets.QuerySetProvider;
 import servlets.dataViews.AffyKey;
 /**
@@ -27,6 +28,7 @@ public class AffyExpSetRecord implements   Record
     Integer up4,down4, up2, down2,on, off;
     Integer accId,probeSetId, expSetId;
     List subRecords;
+    WebColor rowColor;
     
     private static Logger log=Logger.getLogger(AffyExpSetRecord.class);
     
@@ -59,6 +61,15 @@ public class AffyExpSetRecord implements   Record
         on=Integer.parseInt((String)values.get(13));
         off=Integer.parseInt((String)values.get(14));
                 
+        if(catagory.toLowerCase().startsWith("biotic"))
+            rowColor=PageColors.biotic;
+        else if(catagory.toLowerCase().startsWith("abiotic"))
+            rowColor=PageColors.abiotic;
+        else if(catagory.toLowerCase().startsWith("development"))
+            rowColor=PageColors.development;
+        else
+            rowColor=PageColors.data;
+        
     }
     
     
@@ -181,5 +192,34 @@ public class AffyExpSetRecord implements   Record
         log.debug("done combining");
         
         return expSetRecordsMap; //map keyed on accession_id
+    }
+    public static Map getRootData(DbConnection dbc, Collection ids)
+    {
+        if(ids==null || ids.size()==0)
+            return new HashMap();
+        
+        
+        String query=QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(ids,null, "asc");
+                
+        List data=null;
+        Map expSetRecordsMap;
+        RecordGroup expSetGroup;
+                
+        try{        
+            data=dbc.sendQuery(query);        
+        }catch(java.sql.SQLException e){
+            log.error("could not send AffyRecord query: "+e.getMessage());
+            return new HashMap();
+        }              
+        
+        RecordBuilder rb=new RecordBuilder(){
+            public Record buildRecord(List l){
+                return new AffyExpSetRecord(l);
+            }
+        };                
+        
+        expSetRecordsMap=RecordGroup.buildRecordMap(rb,data,0,15);   
+        
+        return expSetRecordsMap;
     }
 }

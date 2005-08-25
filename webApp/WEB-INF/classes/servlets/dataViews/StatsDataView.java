@@ -29,7 +29,7 @@ public class StatsDataView implements DataView
         List dbNames=new LinkedList(DbConnectionManager.getConnectionNames());        
         Collections.sort(dbNames);
         DbConnection dbc=null;
-        out.println("<table border='1' cellspacing='0' bgcolor='"+Common.dataColor+"'>");
+        out.println("<table border='1' cellspacing='0' bgcolor='"+PageColors.data+"'>");
         
         for(Iterator i=dbNames.iterator();i.hasNext();)
         {
@@ -37,7 +37,7 @@ public class StatsDataView implements DataView
             dbc=DbConnectionManager.getConnection(name);
             if(dbc==null)
                 continue;            
-            out.println("<tr><th bgcolor='"+Common.titleColor+"'>"+name+"</th><tr>");
+            out.println("<tr><th bgcolor='"+PageColors.title+"'>"+name+"</th><tr>");
             out.println("<tr><td>");
             dbc.printStats(out);
             out.println("</td></tr>");                        

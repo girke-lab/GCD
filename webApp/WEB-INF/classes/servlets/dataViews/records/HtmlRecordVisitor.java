@@ -14,7 +14,7 @@ package servlets.dataViews.records;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
-import servlets.Common;
+import servlets.*;
 import org.apache.log4j.Logger;
 import servlets.querySets.DataViewQuerySet;
 import servlets.querySets.QuerySetProvider;
@@ -45,19 +45,19 @@ public class HtmlRecordVisitor implements RecordVisitor
     }
     public void printHeader(java.io.Writer out, GoRecord gr) throws java.io.IOException
     {
-         out.write("<tr bgcolor='"+Common.titleColor+"'><th>Go Number</th><th>Description</th><th>Function</th></tr>\n");
+         out.write("<tr bgcolor='"+PageColors.title+"'><th>Go Number</th><th>Description</th><th>Function</th></tr>\n");
     }
     
     public void printHeader(java.io.Writer out, BlastRecord br) throws java.io.IOException
     {
-        out.write("<tr bgcolor='"+Common.titleColor+"'>" +
+        out.write("<tr bgcolor='"+PageColors.title+"'>" +
                 "<th>Target Key</th><th>E-value</th>" +
                 "<th>Score</th><th>DB/Method</th></tr>\n");
     }
     // <editor-fold defaultstate="collapsed" desc=" misc records ">
     public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {
-        out.write("<tr bgcolor='"+Common.titleColor+"'><th>Key</th><th>Description</th></tr>\n");
+        out.write("<tr bgcolor='"+PageColors.title+"'><th>Key</th><th>Description</th></tr>\n");
     }
     
     public void printRecord(java.io.Writer out, GoRecord gr) throws java.io.IOException
@@ -102,7 +102,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         String prob="Probability";
         if(pr.prob_is_neg)
             prob="Improbability";
-        out.write("<tr bgcolor='"+Common.titleColor+"'><th>MW</th><th>IP</th><th>Charge</th><th>"+prob+"</th></tr>\n");
+        out.write("<tr bgcolor='"+PageColors.title+"'><th>MW</th><th>IP</th><th>Charge</th><th>"+prob+"</th></tr>\n");
     }      
     public void printRecord(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException
     {
@@ -111,7 +111,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     
     public void printHeader(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
-        out.write("<tr bgcolor='"+Common.titleColor+"'><th>Cluster Size(Method)</th></tr>\n");
+        out.write("<tr bgcolor='"+PageColors.title+"'><th>Cluster Size(Method)</th></tr>\n");
         out.write("<tr><td>"); //all records go in one row
     }    
     public void printRecord(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
@@ -128,9 +128,9 @@ public class HtmlRecordVisitor implements RecordVisitor
             int keysPerCol=(int)(length/colNum);
             
             out.write("</td></tr>"); //end the cluster(cutoff) row
-            out.write("<tr><td colspan='5'><table bgcolor='"+Common.dataColor+"' width='100%'" +
+            out.write("<tr><td colspan='5'><table bgcolor='"+PageColors.data+"' width='100%'" +
                 " border='1' cellspacing='0' cellpadding='0'>\n");
-            out.write("<tr  bgcolor='"+Common.titleColor+"'><th colspan='"+colNum+"'>Cluster Members</th></tr>");
+            out.write("<tr  bgcolor='"+PageColors.title+"'><th colspan='"+colNum+"'>Cluster Members</th></tr>");
             for(int i=0;i<length;i++)
             {
                 out.write("<tr>");
@@ -151,7 +151,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     
     public void printHeader(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException
     {
-        out.write("<tr><th bgcolor='"+Common.titleColor+"'>External Sources</th></tr>\n");
+        out.write("<tr><th bgcolor='"+PageColors.title+"'>External Sources</th></tr>\n");
         out.write("<tr><td>");
     }
     public void printRecord(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException
@@ -169,10 +169,10 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printHeader(Writer out, AffyExpSetRecord ar) throws IOException
     {
 
-        String[] titles=new String[]{"AffyID","Exp","up 2x","down 2x","up 4x","down 4x","on","off"};
+        String[] titles=new String[]{"AffyID","Exp","Name","up 2x","down 2x","up 4x","down 4x","on","off"};
         String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.EXPSET]; 
         
-        out.write("<tr bgcolor='"+Common.titleColor+"'><td><a name='"+ar.probeSetId+"'>&nbsp</a></td>");        
+        out.write("<tr bgcolor='"+PageColors.title+"'><td><a name='"+ar.probeSetId+"'>&nbsp</a></td>");        
         printTableTitles(new PrintWriter(out), titles, feilds, "expset",ar.probeSetId.toString());        
         out.write("</tr>");
     }
@@ -184,17 +184,20 @@ public class HtmlRecordVisitor implements RecordVisitor
                 "type=expr&search_action=search&" +
                 "name_type_1=submission_number&term_1="+ar.expSetKey+
                 "&search=submit+query";
-        out.write("<tr>");
+        String popup="onmouseover=\"return escape('"+ar.description+"')\"";  
+        
+        out.write("<tr bgcolor='"+ar.rowColor+"'>");
         
         printTreeControls(out,link,key,ar.subRecords);    
-        out.write("<td>"+ar.probeSetKey+"</td><td><a href='"+expSetKeyLink+"'>"+
+        out.write("<td>"+ar.probeSetKey+"</td><td><a href='"+expSetKeyLink+"' "+popup+">"+
                 ar.expSetKey+"</a></td>");
+        out.write("<td>"+(ar.name.equals("")?"&nbsp":ar.name)+"</td>"); //  <td>"+ar.description+"</td>");
         out.write("<td>"+ar.up2+"</td><td>"+ar.down2+"</td><td>"+ar.up4+"</td>");
         out.write("<td>"+ar.down4+"</td><td>"+ar.on+"</td><td>"+ar.off+"</td>");
         out.write("</tr>");
         
         //print sub records
-        printSubRecords(out, ar.subRecords,8,1);
+        printSubRecords(out, ar.subRecords,9,1);
     }
     public void printFooter(Writer out, AffyExpSetRecord ar) throws IOException
     {
@@ -206,7 +209,7 @@ public class HtmlRecordVisitor implements RecordVisitor
                                 "control pma","treat pma","ratio (log2)"};
         String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.COMP]; 
 
-        out.write("<tr bgcolor='"+Common.titleColor+"'><td><a name='"+ar.probeSetId+"'>&nbsp</a></td>");
+        out.write("<tr bgcolor='"+PageColors.title+"'><td><a name='"+ar.probeSetId+"'>&nbsp</a></td>");
         printTableTitles(new PrintWriter(out), titles, feilds,"comp",ar.probeSetId.toString());        
         out.write("</tr>");        
     }
@@ -237,7 +240,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         String[] titles=new String[]{"Type","Cel File","Intensity","PMA"};
         String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.DETAIL]; 
         
-        out.write("<tr bgcolor='"+Common.titleColor+"'><a name='"+ar.probeSetId+"'>&nbsp</a>");
+        out.write("<tr bgcolor='"+PageColors.title+"'><a name='"+ar.probeSetId+"'>&nbsp</a>");
         printTableTitles(new PrintWriter(out), titles, feilds,"detail",ar.probeSetId.toString());        
         out.write("</tr>\n");        
     }
@@ -273,7 +276,7 @@ public class HtmlRecordVisitor implements RecordVisitor
             if(rg.records==null || rg.records.size()==0)
                 continue;
             out.write("<tr>"+spaces);            
-            out.write("<td colspan='"+span+"'><TablE bgcolor='"+Common.dataColor+"' width='100%'" +
+            out.write("<td colspan='"+span+"'><TablE bgcolor='"+PageColors.data+"' width='100%'" +
                 " border='1' cellspacing='0' cellpadding='0'>\n");
             rg.printRecords(out,this);
             out.write("</TablE></td></tr>\n");

@@ -79,7 +79,7 @@ public class DispatchServlet extends HttpServlet {
         }
         Script scriptRunner=getScript(script,request,response);
         if(scriptRunner==null){
-             response.getWriter().println("invalid script name");
+             response.getWriter().println("invalid script name: "+script);
             return;
         }         
         response.setContentType(scriptRunner.getContentType());

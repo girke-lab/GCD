@@ -171,7 +171,7 @@ public class DbConnection
     }
     public void printStats(PrintWriter out)
     {
-        out.println("<table border='0' cellpadding='3' cellspacing='0' bgcolor='"+Common.dataColor+"'>");
+        out.println("<table border='0' cellpadding='3' cellspacing='0' bgcolor='"+PageColors.data+"'>");
         out.println("<tr><th>Max active</th><td>"+connectionPool.getMaxActive()+"</td></tr>");
         out.println("<tr><th>Currently active</th><td>"+connectionPool.getNumActive()+"</td></tr>");
         out.println("<tr><th>Max Idle</th><td>"+connectionPool.getMaxIdle()+"</td></tr>");

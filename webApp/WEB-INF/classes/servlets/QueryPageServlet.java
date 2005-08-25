@@ -103,8 +103,9 @@ public class QueryPageServlet extends HttpServlet
         ////////////////////////// HTML headers  ////////////////////////////////////////////
         out.println("<html>");
         out.println("<head>");
-        out.println("<title>Query Result Page</title>");
+        out.println("<title>Query Result Page</title>");        
         out.println("</head>");      
+        out.println("<body>");
         /////////////////////////// main   ////////////////////////////////////////////////////
         
         Search s=null;

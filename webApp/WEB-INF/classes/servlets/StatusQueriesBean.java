@@ -131,7 +131,7 @@ public class StatusQueriesBean
         {
             StringBuffer out=new StringBuffer();
             out.append("<tr><th align='center'><h2>"+realNames.get(genome)+"</h2></th><tr>");
-            out.append("<tr><td><table border='1' cellspacing='0' width='100%' bgcolor='"+Common.dataColor+"'>");            
+            out.append("<tr><td><table border='1' cellspacing='0' width='100%' bgcolor='"+PageColors.data+"'>");            
             
             for(Iterator i=versions.entrySet().iterator();i.hasNext();)
             {
@@ -155,9 +155,9 @@ public class StatusQueriesBean
         public String toHtml(String version)
         {
             StringBuffer out=new StringBuffer();
-            out.append("<tr bgcolor='"+Common.titleColor+"' align='left'>" +
+            out.append("<tr bgcolor='"+PageColors.title+"' align='left'>" +
                     "<th colspan='7'>"+date+" Version "+version+"</th></td>\n");
-            out.append("<tr bgcolor='"+Common.titleColor+"'><th>Query</th><th>Purpose</th><th>Description"+
+            out.append("<tr bgcolor='"+PageColors.title+"'><th>Query</th><th>Purpose</th><th>Description"+
                 "</th><th>Size</th><th>Overlaps</th><th>New</th><th>"+
                 "Removed</th></tr>");
             for(Iterator i=queries.values().iterator();i.hasNext();)                                        

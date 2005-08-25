@@ -164,4 +164,36 @@ public class AffyCompRecord implements Record
         
         return rgMap; //map keyed on probeSetId_expSetId
     }
+    
+    public static Map getRootData(DbConnection dbc, Collection ids)
+    {
+        if(ids==null || ids.size()==0)
+            return new HashMap();                
+        
+        List affyKeys=new LinkedList();
+        for(Iterator i=ids.iterator();i.hasNext();)
+            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
+        
+        String query=QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(                       
+                        affyKeys, null,"asc");
+                
+        List data=null;
+                
+        try{        
+            data=dbc.sendQuery(query);        
+        }catch(java.sql.SQLException e){
+            log.error("could not send AffyRecord query: "+e.getMessage());
+            return new HashMap();
+        }
+        
+        RecordBuilder rb=new RecordBuilder(){
+            public Record buildRecord(List l){
+                return new AffyCompRecord(l);
+            }
+        };                
+        
+        //log.debug("affy data, data="+data);        
+        return  RecordGroup.buildRecordMap(rb,data,0,10);   
+        
+    }
 }

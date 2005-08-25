@@ -122,9 +122,9 @@ public class AffyDataView implements DataView
                     
 
                 }
-                out.println(" &nbsp&nbsp&nbsp <a href='DispatchServlet?hid="+hid+
-                            "&script=affyText&range=0-"+search.getResults().size()+
-                            "'>download in text format</a>");
+                
+                out.println("Download data: &nbsp");
+                Common.printUnknownDownloadLinks(out, hid, search.getResults().size());               
             }            
          };
         
@@ -173,6 +173,7 @@ public class AffyDataView implements DataView
                     ".test a {color: #006699}\n" +
                     ".test a:hover {background-color: #AAAAAA}\n" +
                 "</style>");
+        
         out.println("<div class='test'>");
     }
 
@@ -182,9 +183,12 @@ public class AffyDataView implements DataView
             new Object[]{new Integer(accIds.size())});
     }
     public void printData(java.io.PrintWriter out)
-    {
+    {        
+        printColorKey(out);
+        out.println("<P>");
         printData(out,getRecords());
         out.println("</td></table>"); //close page level table
+        out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");
     }
 ////////////////////////////////////////////////////////////////////////////////
     private void processRequest(HttpServletRequest request)
@@ -235,7 +239,7 @@ public class AffyDataView implements DataView
     {    //recieves a list of RecordGroups
         
         //log.debug("printing "+data.size()+" records");
-        out.println("<TABLE bgcolor='"+Common.dataColor+"' width='100%'" +
+        out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
             " align='center' border='1' cellspacing='0' cellpadding='0'>");
         RecordGroup rec;
         RecordVisitor visitor=new HtmlRecordVisitor();
@@ -251,4 +255,13 @@ public class AffyDataView implements DataView
         
         out.println("</TABLE></div>");
     }        
+    private void printColorKey(PrintWriter out)
+    {
+        out.println("<table cellspacing='0' cellpadding='3'><tr>");
+        out.println("<td>Experiment set catagories: &nbsp&nbsp</td>");
+        out.println("<td bgcolor='"+PageColors.development+"'>Development</td>");
+        out.println("<td bgcolor='"+PageColors.biotic+"'>Biotic Treatment</td>");
+        out.println("<td bgcolor='"+PageColors.abiotic+"'>Abiotic Treatment</td>");
+        out.println("</tr></table>");
+    }
 }

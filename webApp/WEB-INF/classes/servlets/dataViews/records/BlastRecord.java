@@ -12,9 +12,9 @@ package servlets.dataViews.records;
  */
 import java.util.*;
 import java.io.*;
-import servlets.Common;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
+import servlets.PageColors;
 import servlets.querySets.*;
 
 /**
@@ -235,7 +235,7 @@ class BlastRecordGroup extends RecordGroup
             }            
             if(lastPurpose==null || !lastPurpose.equals(rec.purpose))
             {
-                out.write("<tr><th align='left' colspan='4' bgcolor='"+Common.titleColor+"'>"+
+                out.write("<tr><th align='left' colspan='4' bgcolor='"+PageColors.title+"'>"+
                         titles.get(rec.purpose)+"</th></tr>");
                 lastPurpose=rec.purpose;
             }

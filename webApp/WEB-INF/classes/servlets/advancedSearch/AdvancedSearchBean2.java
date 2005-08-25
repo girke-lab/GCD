@@ -465,7 +465,7 @@ public class AdvancedSearchBean2
     {        
         log.debug("printing store options");
         StringBuffer out=new StringBuffer();
-        out.append("<table border='0' align='center' bgcolor='"+Common.dataColor+"'>\n");
+        out.append("<table border='0' align='center' bgcolor='"+PageColors.data+"'>\n");
         out.append("<tr><th colspan='3'>Stored Queries</th></tr>\n");
         out.append("<tr><td colspan='3'>");
         out.append(printStoredQueries());

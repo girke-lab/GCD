@@ -25,7 +25,7 @@ public class UnknownsTextScript implements Script
     private static Logger log=Logger.getLogger(UnknownsTextScript.class);
     private DbConnection dbc=null;
     
-    private static final int batchSize=5000;
+    private static final int batchSize=1000;
     
     private String dataType;
     
@@ -53,23 +53,25 @@ public class UnknownsTextScript implements Script
         TextRecordVisitor visitor=new TextRecordVisitor();
         Collection data=null;
         RecordGroup rg=null;
+        boolean isFirst=true;
         
         try{
             for(int j=0;j<ids.size();j+=batchSize)
-            { //send data in batches to avoid quries that are too long.
-                int end=j+batchSize>ids.size()?ids.size():j+batchSize;
+            { //send data in batches to avoid queries that are too long.
+                int end=(j+batchSize>ids.size())?ids.size():j+batchSize;
                 log.debug("j="+j+", size="+ids.size()+", end="+end);
-                data=getRecords(ids.subList(j,j+batchSize));
+                data=getRecords(ids.subList(j,end));
 
                 for(Iterator i=data.iterator();i.hasNext();)
                 {
                     rg=(RecordGroup)i.next();
-                    if(j==0)//print header for first batch
+                    if(isFirst)//print header for first batch
                         rg.printRecords(out,visitor,true,false);
-                    else if(j+batchSize >= ids.size()) //footer for last batch
+                    else if(j+batchSize >= ids.size() && !i.hasNext()) //footer for last batch
                         rg.printRecords(out,visitor, false,true);
                     else //no header or footer
                         rg.printRecords(out,visitor,false,false);
+                    isFirst=false;
                 }
             }
         }catch(IOException e){
@@ -81,11 +83,11 @@ public class UnknownsTextScript implements Script
     { 
         Map records=null;
         if(dataType.equals("AffyComp"))
-            records=AffyCompRecord.getDataByAcc(dbc,ids);
+            records=AffyCompRecord.getRootData(dbc,ids);
         else if(dataType.equals("AffyDetail"))    
-            records=AffyDetailRecord.getDataByAcc(dbc,ids);
+            records=AffyDetailRecord.getRootData(dbc,ids);  
         else if(dataType.equals("AffyExpSet"))    
-            records=AffyExpSetRecord.getData(dbc,ids);
+            records=AffyExpSetRecord.getRootData(dbc,ids);
         else if(dataType.equals("Blast"))    
             records=BlastRecord.getData(dbc,ids);
         else if(dataType.equals("Cluster")) 
@@ -97,13 +99,13 @@ public class UnknownsTextScript implements Script
         else if(dataType.equals("Proteomics"))            
             records=ProteomicsRecord.getData(dbc,ids);
         else if(dataType.equals("Unknown"))
-            records=UnknownRecord.getData(dbc,ids);
+            return UnknownRecord.getData(dbc,ids,null,"asc",new Map[]{}).values();
         else
             log.error("invalid dataType: "+dataType);
             
         if(records==null)
             return null;
-        return records.values();                        
+        return UnknownRecord.getData(dbc,ids,null,"asc", new Map[]{records}).values();        
     }
     
   

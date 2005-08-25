@@ -147,8 +147,8 @@ public class UnknownsDataView implements DataView
          String lastId="";                          
          if(data==null)
              return;         
-         out.println("<TABLE border='1' cellspacing='0' cellpadding='0' bgcolor='"+Common.dataColor+"'>");
-         out.println("<TR bgcolor='"+Common.titleColor+"'>");
+         out.println("<TABLE border='1' cellspacing='0' cellpadding='0' bgcolor='"+PageColors.data+"'>");
+         out.println("<TR bgcolor='"+PageColors.title+"'>");
          
          //print titles
          String newDir;

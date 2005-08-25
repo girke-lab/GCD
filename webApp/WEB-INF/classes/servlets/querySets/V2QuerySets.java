@@ -205,7 +205,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         return new String[][] {
                 //experiment_set_summary_mv fields used
-                {"probe_set_key","experiment_set_key","up2x","down2x","up4x","down4x","pma_on","pma_off"},
+                {"probe_set_key","experiment_set_key","name","up2x","down2x","up4x","down4x","pma_on","pma_off"},
                 //experiment_group_summary_mv fields used
                 {"comparison","control_mean","treatment_mean","control_pma","treatment_pma","t_c_ratio_lg"},
                 // detail_view fields used
@@ -221,7 +221,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     String uSchema="unknowns";
     public String getUnknownRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
     {
-        log.error("sort col for unknown data query:"+sortCol+":");
+        log.debug("sort col for unknown data query:"+sortCol+":");
         if(sortCol==null || sortCol.equals(""))
             sortCol="accession";
         else if(sortCol.equals("unknowns.other_accessions_view.other_accession"))
@@ -323,9 +323,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             sortcol=sortcol.replaceFirst("detail_", "");
         else
             sortcol="type_name";
-        String query="SELECT DISTINCT ON (file_name) * FROM affy.detail_view " +
+        String query="SELECT DISTINCT ON (sequence_accession_id,file_name) * FROM affy.detail_view " +
                 " WHERE "+ AffyKey.buildIdSetCondition(affyKeys, !allGroups) +                    
-                " ORDER BY file_name,probe_set_key_id asc, experiment_set_id asc, group_no asc, "+
+                " ORDER BY sequence_accession_id, file_name, "+
                     sortcol+" "+sortDir;
         logQuery(query);
         return query;
@@ -345,8 +345,8 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
         String query="SELECT DISTINCT "+feilds+" FROM affy.experiment_group_summary_mv " +
                 " WHERE "+ AffyKey.buildIdSetCondition(affyKeys,false) +
-                " ORDER BY probe_set_key_id asc, experiment_set_id asc, "+
-                    sortcol+" "+sortDir;           
+                //" ORDER BY probe_set_key_id asc, experiment_set_id asc, "+
+                " ORDER BY "+ sortcol+" "+sortDir;           
         logQuery(query);
         return query;
     }            
@@ -355,7 +355,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         if(sortcol!=null && sortcol.startsWith("expset_"))
             sortcol=sortcol.replaceFirst("expset_", "");
         else 
-            sortcol="probe_set_key"; 
+            sortcol="catagory, probe_set_key_id"; 
         
         String query="SELECT DISTINCT * FROM affy.experiment_set_summary_mv "+
                 " WHERE "+Common.buildIdListCondition("accession_id",ids)+

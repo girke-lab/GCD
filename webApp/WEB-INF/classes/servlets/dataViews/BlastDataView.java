@@ -114,7 +114,7 @@ public class BlastDataView implements DataView
 //        }
         
         
-        out.println("<TABLE border='1' width='100%' cellspacing='0' cellpadding='0' bgcolor='"+Common.dataColor+"'>");
+        out.println("<TABLE border='1' width='100%' cellspacing='0' cellpadding='0' bgcolor='"+PageColors.data+"'>");
         
         List row;
         for(Iterator i=data.iterator();i.hasNext();)
@@ -123,7 +123,7 @@ public class BlastDataView implements DataView
             if(lastKeyId==null || !lastKeyId.equals(row.get(0))) //print title
             {
                 out.println("<a name='"+((String)row.get(0)).replaceAll("\\.","_")+"'></a>"); //add anchor for each model
-                out.println("<tr align='left' bgcolor='"+Common.titleColor+"'><th colspan='7'>"+row.get(0)+"</th></tr>");
+                out.println("<tr align='left' bgcolor='"+PageColors.title+"'><th colspan='7'>"+row.get(0)+"</th></tr>");
                 printTableTitles(out);                
             }
             lastKeyId=(String)row.get(0);
@@ -140,7 +140,7 @@ public class BlastDataView implements DataView
     private void printTableTitles(PrintWriter out)
     {
         String newDir;
-        out.println("<tr bgcolor='"+Common.titleColor+"'>");
+        out.println("<tr bgcolor='"+PageColors.title+"'>");
         for(int i=0;i<titles.length;i++)
         {
             newDir="asc"; //default to asc

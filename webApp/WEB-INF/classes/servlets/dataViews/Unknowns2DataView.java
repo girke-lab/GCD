@@ -140,6 +140,7 @@ public class Unknowns2DataView implements DataView
             }
             public void printGeneral(PrintWriter out, Search search, String pos,Map storage)
             {
+                out.println("Download data: &nbsp");
                 Common.printUnknownDownloadLinks(out, hid, search.getResults().size());
             }
          };
@@ -158,7 +159,7 @@ public class Unknowns2DataView implements DataView
     {    //recieves a list of RecordGroups
         
         //log.debug("printing "+data.size()+" records");
-        out.println("<TABLE bgcolor='"+Common.dataColor+"' width='100%'" +
+        out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
             " align='center' border='1' cellspacing='0' cellpadding='0'>");
         RecordGroup rec;
         RecordVisitor visitor=new HtmlRecordVisitor();

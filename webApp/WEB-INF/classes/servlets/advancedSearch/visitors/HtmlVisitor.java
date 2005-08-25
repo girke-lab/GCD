@@ -13,11 +13,11 @@ package servlets.advancedSearch.visitors;
 
 import java.util.*;
 import java.io.*;
-import servlets.Common;
 import servlets.advancedSearch.SearchableDatabase;
 import servlets.advancedSearch.Field;
 import servlets.advancedSearch.queryTree.*;
 import org.apache.log4j.Logger;
+import servlets.PageColors;
 
 
 /**
@@ -135,7 +135,7 @@ public class HtmlVisitor implements QueryTreeVisitor
             
             if(!wasJoinExpression)
             {
-                out.println("</tr><tr bgcolor='"+Common.titleColor+"'><td colspan='4'>");
+                out.println("</tr><tr bgcolor='"+PageColors.title+"'><td colspan='4'>");
                 printSpaces(depth);
                 out.println("<select name='bools' onChange=\"action.value='refresh'; submit()\">");
                 printOptionList(db.getBooleans(),n.getOperation());
@@ -227,7 +227,7 @@ public class HtmlVisitor implements QueryTreeVisitor
         startParIndx=endParIndx=0;
         
         out.println("\n<form method='get' name='search_form'  >");
-        out.println("<table border='0' align='center' bgcolor='"+Common.dataColor+"'>");
+        out.println("<table border='0' align='center' bgcolor='"+PageColors.data+"'>");
         out.println("<input type=hidden name='row'>");
         out.println("<input type=hidden name='action'>");
         out.println("<input type=hidden name='epi'>");

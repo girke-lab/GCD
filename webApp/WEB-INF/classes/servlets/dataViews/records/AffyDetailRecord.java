@@ -56,23 +56,7 @@ public class AffyDetailRecord implements Record
         celFile=(String)values.get(4);
         description=(String)values.get(5);
         intensity=new Float((String)values.get(6));
-        pma=(String)values.get(7);
-        
-                
-//        esKey=(String)values.get(0);
-//        esDesc=(String)values.get(1);
-//        esLink=(String)values.get(2);
-//        groupNo=Integer.parseInt((String)values.get(3));
-//        expType=(String)values.get(4);
-//        expNotes=(String)values.get(5);
-//        repDesc=(String)values.get(6);
-//        repNo=Integer.parseInt((String)values.get(7));
-//        celFilename=(String)values.get(8);
-//        probeSetKey=(String)values.get(9);
-//        intensity=Float.parseFloat((String)values.get(10));
-//        pma=(String)values.get(11);
-//        dataType=(String)values.get(12);
-        
+        pma=(String)values.get(7);                 
     }
 
 
@@ -130,5 +114,34 @@ public class AffyDetailRecord implements Record
         //log.debug("affy data, data="+data);
         
         return RecordGroup.buildRecordMap(rb,data,new int[]{1,2,3},1,9);             
+    }
+    public static Map getRootData(DbConnection dbc, Collection ids)
+    {
+        if(ids==null || ids.size()==0)
+            return new HashMap();
+        
+        List affyKeys=new LinkedList();
+        for(Iterator i=ids.iterator();i.hasNext();)
+            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
+        
+        String query=QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(
+                        affyKeys,true,null,"asc");
+                
+        List data=null;                
+        try{        
+            data=dbc.sendQuery(query);        
+        }catch(java.sql.SQLException e){
+            log.error("could not send AffyRecord query: "+e.getMessage());
+            return new HashMap();
+        }
+        
+        RecordBuilder rb=new RecordBuilder(){
+            public Record buildRecord(List l){
+                return new AffyDetailRecord(l);
+            }
+        };                
+        //log.debug("affy data, data="+data);
+        
+        return RecordGroup.buildRecordMap(rb,data,1,9);             
     }
 }

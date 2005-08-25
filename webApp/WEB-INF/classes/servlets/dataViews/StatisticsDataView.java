@@ -108,13 +108,13 @@ public class StatisticsDataView implements DataView {
             }
             lastDB = currentDB;
                 
-            output.append("<TR bgcolor='" + Common.titleColor + "'><TH align='left'>Key</TH><TH align='left' colspan='9'>Description</TH></TR>");
-            output.append("<TR bgcolor='" + Common.dataColor + "'><TD>" + key + "</TD><TD colspan='9'>" + desc + "</TD></TR>");
-            output.append("<TR bgcolor='" + Common.titleColor + "'><TH align='left'>Model ID</TH><TH align='left'>Model Length</TH>" + 
+            output.append("<TR bgcolor='" + PageColors.title + "'><TH align='left'>Key</TH><TH align='left' colspan='9'>Description</TH></TR>");
+            output.append("<TR bgcolor='" + PageColors.data + "'><TD>" + key + "</TD><TD colspan='9'>" + desc + "</TD></TR>");
+            output.append("<TR bgcolor='" + PageColors.title + "'><TH align='left'>Model ID</TH><TH align='left'>Model Length</TH>" + 
                     "<TH align='left'>Left Intron Count</TH><TH align='left'>Right Intron Count</TH><TH align='left'>Left Intron Length</TH>" +
                     "<TH align='left'>Right Intron Length</TH><TH align='left'>Left UTR Length</TH><TH align='left'>Right UTR Length</TH>" + 
                     "<TH align='left'>Left Deltag</TH><TH align='left'>Right Deltag</TH></TR>");
-            output.append("<TR bgcolor='" + Common.dataColor + "'>");
+            output.append("<TR bgcolor='" + PageColors.data + "'>");
             for (int i=2;i<fieldsLen;i++){
                 value = (String)row.get(i);
                 if (value == null || value.compareTo("") == 0)

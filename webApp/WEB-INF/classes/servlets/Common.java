@@ -22,7 +22,7 @@ public class Common {
                             KEY_TYPE_ACC=4,     KEY_TYPE_QUERY=5;
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
-    public final static String dataColor="D3D3D3",titleColor="AAAAAA";        
+//    public final static String dataColor="D3D3D3",titleColor="AAAAAA";        
     //maximum number of results that can be returned per database query
     public final static int MAXKEYS=100000; 
     public final static int SCRIPT_LIMIT=500;
@@ -286,7 +286,7 @@ public class Common {
     {
         
         PrintWriter out=new PrintWriter(w);
-        String link="DispatchServlet?hid="+hid+"&script=uknownsText&range=0-"+end;
+        String link="DispatchServlet?hid="+hid+"&script=unknownsText&range=0-"+end;
         String[] dataTypes=new String[]{"Unknown","Go","Blast","Proteomics","Cluster",
                 "ExternalUnknown","AffyExpSet","AffyComp","AffyDetail"};
         String[] linkNames=new String[]{"Keys","Go","Blast","Proteomics","Clusters",
@@ -324,9 +324,9 @@ public class Common {
     }
     public static void printStatsTable(PrintWriter out,String title,String[] subTitles,Object[] values)
     {        
-        out.println("<table border='1' cellspacing='0' bgcolor='"+Common.dataColor+"'>");
-        out.println("<tr  bgcolor='"+Common.titleColor+"'><th colspan='"+subTitles.length+"'>"+title+"</th></tr>");
-        out.println("<tr  bgcolor='"+Common.titleColor+"'>");
+        out.println("<table border='1' cellspacing='0' bgcolor='"+PageColors.data+"'>");
+        out.println("<tr  bgcolor='"+PageColors.title+"'><th colspan='"+subTitles.length+"'>"+title+"</th></tr>");
+        out.println("<tr  bgcolor='"+PageColors.title+"'>");
         for(int i=0;i<subTitles.length;i++)
             out.println("<th>"+subTitles[i]+"</th>");
         out.println("</tr><tr>");
