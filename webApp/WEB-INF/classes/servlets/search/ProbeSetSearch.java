@@ -1,30 +1,32 @@
 /*
- * GoTextSearch.java
+ * ProbeSetSearch.java
  *
- * Created on March 22, 2005, 8:41 AM
+ * Created on August 29, 2005, 9:55 AM
+ *
  */
 
 package servlets.search;
 
+import java.util.*;
+import servlets.Common;
+import servlets.querySets.QuerySetProvider;
+
 /**
  *
- * @author jcui
+ * @author khoran
  */
-import java.util.*;
-import servlets.search.Search;
-import servlets.Common;
-import servlets.querySets.*;
-        
-public class GoTextSearch extends AbstractSearch {
+public class ProbeSetSearch extends AbstractSearch
+{
     
-    /** Creates a new instance of GoTextSearch */
-    public GoTextSearch() {
+    /** Creates a new instance of ProbeSetSearch */
+    public ProbeSetSearch()
+    {
     }
     
     void loadData(){
         List rs = null;
         
-        seqId_query=QuerySetProvider.getSearchQuerySet().getGoTextSearchQuery(input, limit, keyType);
+        seqId_query=QuerySetProvider.getSearchQuerySet().getProbeSetSearchQuery(input, limit, keyType);
         rs = Common.sendQuery(seqId_query);
         
         List al = new ArrayList();
@@ -48,5 +50,4 @@ public class GoTextSearch extends AbstractSearch {
     {
         return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL};
     }  
- 
 }

@@ -192,7 +192,7 @@ public class AffyCompRecord implements Record
             }
         };                
         
-        //log.debug("affy data, data="+data);        
+        log.debug("affy data, data="+data);        
         return  RecordGroup.buildRecordMap(rb,data,0,10);   
         
     }

@@ -103,8 +103,8 @@ public class DispatchServlet extends HttpServlet {
             return new UnknownsTextScript(request.getParameterMap());
         else if(script.equals("treeViewer.pl"))
             return new TreeViewScript(request,response); 
-        else if(script.equals("affyText"))
-            return new AffyTextScript(); 
+//        else if(script.equals("affyText"))
+//            return new AffyTextScript(); 
         return null;
     }
         

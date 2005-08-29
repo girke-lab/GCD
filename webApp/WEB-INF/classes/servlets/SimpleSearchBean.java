@@ -98,13 +98,14 @@ public class SimpleSearchBean
         "                <TR>                    \n" +
         "                    <TD  align='center' >\n" +
         "                        Search by\n" +
-        "                        <SELECT name='searchType'>\n" +
+        "                        <SELECT name='searchType'>\n" + //TODO: these options should be pulled from the queryPage.properties file
         "                            <OPTION "+(fieldName.equals("Id")?"selected":"")+">Id\n"+
         "                            <OPTION "+(fieldName.equals("Description")?"selected":"")+">Description\n"+
         "                            <OPTION "+(fieldName.equals("Cluster Id")?"selected":"")+">Cluster Id\n"+
         "                            <OPTION "+(fieldName.equals("Cluster Name")?"selected":"")+">Cluster Name\n"+
         "                            <OPTION "+(fieldName.equals("GO Number")?"selected":"")+">GO Number\n"+
         "                            <OPTION "+(fieldName.equals("GO Text")?"selected":"")+">GO Text\n"+
+        "                            <OPTION "+(fieldName.equals("Probe Set")?"selected":"")+">Probe Set\n"+
         "                        </SELECT>\n" +
         "                        <BR> \n" +
         "                    </TD>\n" +

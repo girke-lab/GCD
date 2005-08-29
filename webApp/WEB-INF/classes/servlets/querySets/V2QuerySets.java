@@ -793,11 +793,38 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 " WHERE cluster_members.cluster_id="+cluster_id;
         logQuery(query);
         return query;
+    }    
+
+    public String getProbeSetSearchQuery(Collection input, int limit, int keyType)
+    {
+
+        String query;
+        if(keyType==Common.KEY_TYPE_MODEL)
+            query="SELECT DISTINCT to_model_accessions.model_accession_id, genome_databases.db_name " +
+                    " FROM general.genome_databases " +
+                    "   JOIN general.accessions USING(genome_db_id) " +
+                    "   JOIN affy.psk_to_accession_view as pska USING(accession_id) " +
+                    "   JOIN general.to_model_accessions USING(accession_id) " +
+                    " WHERE "+Common.buildLikeCondtion("pska.key",input,limit)+
+                    " ORDER BY genome_databases.db_name " +
+                    " LIMIT "+limit;
+            
+        else         
+            query="SELECT DISTINCT accessions.accession_id, genome_databases.db_name " +
+                    " FROM general.genome_databases " +
+                    "   JOIN general.accessions USING(genome_db_id) " +
+                    "   JOIN affy.psk_to_accession_view as pska USING(accession_id) " +                    
+                    " WHERE "+Common.buildLikeCondtion("pska.key",input,limit)+
+                    " ORDER BY genome_databases.db_name " +
+                    " LIMIT "+limit;
+
+
+        logQuery(query);
+        return query;
     }
-    //</editor-fold>
 
    
-
+    //</editor-fold>
   
 
    
