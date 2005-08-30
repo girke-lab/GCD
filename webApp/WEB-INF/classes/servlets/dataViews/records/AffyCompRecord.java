@@ -133,7 +133,7 @@ public class AffyCompRecord implements Record
         };                
         
         //log.debug("affy data, data="+data);        
-        Map rgMap= RecordGroup.buildRecordMap(rb,data,new int[]{0,2},0,10);             
+        Map rgMap= RecordGroup.buildRecordMap(rb,data,new int[]{1,3},1,11);             
         
        
         RecordGroup rg;
@@ -193,7 +193,7 @@ public class AffyCompRecord implements Record
         };                
         
         log.debug("affy data, data="+data);        
-        return  RecordGroup.buildRecordMap(rb,data,0,10);   
+        return  RecordGroup.buildRecordMap(rb,data,1,11);   
         
     }
 }

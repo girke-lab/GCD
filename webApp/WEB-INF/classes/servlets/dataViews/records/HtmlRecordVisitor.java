@@ -169,6 +169,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printHeader(Writer out, AffyExpSetRecord ar) throws IOException
     {
 
+        
         String[] titles=new String[]{"AffyID","Exp","Name","up 2x","down 2x","up 4x","down 4x","on","off"};
         String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.EXPSET]; 
         
@@ -178,6 +179,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     }
     public void printRecord(Writer out, AffyExpSetRecord ar) throws IOException
     {        
+        
         String link="QueryPageServlet?hid="+hid+"&displayType=affyView&es_ids="+ar.expSetId+"&psk_ids="+ar.probeSetId;
         String key=ar.expSetId+"_"+ar.probeSetId;
         String expSetKeyLink="http://www.arabidopsis.org/servlets/Search?" +

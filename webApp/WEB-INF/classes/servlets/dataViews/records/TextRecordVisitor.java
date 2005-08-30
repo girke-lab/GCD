@@ -45,19 +45,25 @@ public class TextRecordVisitor implements RecordVisitor
     
     public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {
+        log.debug("printing unknowns header");
         if(ur.subRecords.size()==0)
             out.write("key\tdescription\n");   
         else
         {        
+            log.debug("printing sub record headers");
             RecordGroup list;        
             for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
             {
                 list=(RecordGroup)i.next();
                 if(list != null )
                 {
+                    log.debug("non null record group, size="+list.records.size());
                     Iterator j=list.iterator();
                     if(j.hasNext())
+                    {
+                        log.debug("found a record");
                         ((Record)j.next()).printHeader(out,this);
+                    }
                 }
                     //((Record)list.iterator().next()).printHeader(out,this);                
             }        
@@ -87,6 +93,7 @@ public class TextRecordVisitor implements RecordVisitor
                 list=(RecordGroup)i.next(); //each collection is from a different table
                 if(list==null)
                     continue;
+                log.debug("record count="+list.records.size());
                 for(Iterator j=list.iterator();j.hasNext();)
                     ((Record)j.next()).printRecord(out,this);     
                 if(i.hasNext()) ///data from each table goes in one column
@@ -141,11 +148,12 @@ public class TextRecordVisitor implements RecordVisitor
     
     public void printHeader(Writer out, AffyExpSetRecord ar) throws IOException
     {
+        log.debug("printing expSet header");
         out.write("accession\taffy_id\texperiment_set\tname\tdescription\t" +
                 "up2x\tdown2x\tup4x\tdown4x\tpma_on\tpma_off\n");
     }
     public void printRecord(Writer out, AffyExpSetRecord ar) throws IOException
-    {
+    {        
         out.write(currentAccession+"\t"+ar.probeSetKey+"\t"+ar.expSetKey+"\t"+
                 ar.name+"\t"+ar.description+"\t"+ar.up2+"\t"+ar.down2+"\t"+
                 ar.up4+"\t"+ar.down4+"\t"+ar.on+"\t"+ar.off+"\n");

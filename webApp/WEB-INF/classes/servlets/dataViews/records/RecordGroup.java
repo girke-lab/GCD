@@ -44,10 +44,10 @@ public class RecordGroup implements  Iterable
         throws IOException
     {
         Record rec;
-        boolean firstRecord=true;
+        boolean firstRecord=true;        
         for(Iterator i=records.iterator();i.hasNext();)
         {
-            rec=(Record)i.next();
+            rec=(Record)i.next();            
             if(printHeader && firstRecord)
                 rec.printHeader(out, visitor);
             firstRecord=false;

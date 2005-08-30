@@ -343,7 +343,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 "experiment_set_id, experiment_set_key, comparison, " +
                 "control_mean, treatment_mean, control_pma, treatment_pma, t_c_ratio_lg";
 
-        String query="SELECT DISTINCT "+feilds+" FROM affy.experiment_group_summary_mv " +
+        String query="SELECT  * FROM affy.experiment_group_summary_mv " +
                 " WHERE "+ AffyKey.buildIdSetCondition(affyKeys,false) +
                 //" ORDER BY probe_set_key_id asc, experiment_set_id asc, "+
                 " ORDER BY "+ sortcol+" "+sortDir;           
