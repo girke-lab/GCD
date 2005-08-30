@@ -59,15 +59,15 @@ public class RecordGroup implements  Iterable
         }
     }
     
-    public static Map buildRecordMap(RecordBuilder rb,List data,int start,int end)
+    public static Map buildRecordMap(RecordSource rb,List data,int start,int end)
     {
         return buildRecordMap(rb,data,0,start,end); //default to first column for key.
     }
-    public static Map buildRecordMap(RecordBuilder rb,List data,int key,int start,int end)
+    public static Map buildRecordMap(RecordSource rb,List data,int key,int start,int end)
     {
         return buildRecordMap(rb,data,new int[]{key},start,end); 
     }
-    public static Map buildRecordMap(RecordBuilder rb,List data,int[] keys,int start,int end)
+    public static Map buildRecordMap(RecordSource rb,List data,int[] keys,int start,int end)
     {
         List row;
         RecordGroup rg;

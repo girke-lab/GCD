@@ -126,7 +126,7 @@ public class AffyCompRecord implements Record
         Map[] subRecordMaps=new Map[]{
             AffyDetailRecord.getData(dbc,affyKeys,allGroups ,sortCol, sortDir)
         };
-        RecordBuilder rb=new RecordBuilder(){
+        RecordSource rb=new RecordSource(){
             public Record buildRecord(List l){
                 return new AffyCompRecord(l);
             }
@@ -186,7 +186,7 @@ public class AffyCompRecord implements Record
             return new HashMap();
         }
         
-        RecordBuilder rb=new RecordBuilder(){
+        RecordSource rb=new RecordSource(){
             public Record buildRecord(List l){
                 return new AffyCompRecord(l);
             }

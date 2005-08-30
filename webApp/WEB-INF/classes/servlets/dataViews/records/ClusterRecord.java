@@ -115,7 +115,7 @@ public class ClusterRecord implements Record
             return new HashMap();
         }
         
-        RecordBuilder rb=new RecordBuilder(){
+        RecordSource rb=new RecordSource(){
             public Record buildRecord(List l){
                 return new ClusterRecord(l);
             }

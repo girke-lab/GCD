@@ -106,7 +106,7 @@ public class AffyDetailRecord implements Record
             return new HashMap();
         }
         
-        RecordBuilder rb=new RecordBuilder(){
+        RecordSource rb=new RecordSource(){
             public Record buildRecord(List l){
                 return new AffyDetailRecord(l);
             }
@@ -135,7 +135,7 @@ public class AffyDetailRecord implements Record
             return new HashMap();
         }
         
-        RecordBuilder rb=new RecordBuilder(){
+        RecordSource rb=new RecordSource(){
             public Record buildRecord(List l){
                 return new AffyDetailRecord(l);
             }

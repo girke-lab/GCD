@@ -150,7 +150,7 @@ public class UnknownRecord implements Record
             return new HashMap();
         }
         log.debug("parsing data and building a RecordGroup");
-        RecordBuilder rb=new RecordBuilder(){
+        RecordSource rb=new RecordSource(){
             public Record buildRecord(List l){
                 return new UnknownRecord(l);
             }

@@ -10,7 +10,7 @@ package servlets.dataViews.records;
  *
  * @author khoran
  */
-public abstract class RecordBuilder 
+public abstract class RecordSource 
 {
     abstract Record buildRecord(java.util.List l);
     

@@ -151,7 +151,7 @@ public class AffyExpSetRecord implements   Record
             AffyCompRecord.getData(dbc,affyKeys, allGroups, sortCol, sortDir)
         };
         
-        RecordBuilder rb=new RecordBuilder(){
+        RecordSource rb=new RecordSource(){
             public Record buildRecord(List l){
                 return new AffyExpSetRecord(l);
             }
@@ -212,7 +212,7 @@ public class AffyExpSetRecord implements   Record
             return new HashMap();
         }              
         
-        RecordBuilder rb=new RecordBuilder(){
+        RecordSource rb=new RecordSource(){
             public Record buildRecord(List l){
                 return new AffyExpSetRecord(l);
             }

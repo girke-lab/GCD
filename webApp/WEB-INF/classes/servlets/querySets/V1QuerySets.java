@@ -538,5 +538,10 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     {
         return new String[][] {{}}; //return empty list to avoid null pointer exceptions
     }
+
+    public String getProbeSetSearchQuery(Collection input, int limit, int keyType)
+    {
+        return "";
+    }
   
 }
