@@ -17,7 +17,7 @@ package servlets;
  * This class calls the getSupportedKeyTypes on the search and dataview
  * objects and finds a common key type in the returned lists.  This is a
  * key that the search object can provide, and the datavew can use.  
- * Then both the search object and the dataview object are told wich key 
+ * Then both the search object and the dataview object are told which key 
  * type to use with the setKeyType() method. The getKeyType() can be used
  * later to find out which key type was set.  
  * 
@@ -34,7 +34,7 @@ public interface KeyTypeUser
      * @return array of supported key types
      */
     public int[] getSupportedKeyTypes();
-    
+        
     /**
      * After a key type has been decided upon by the used class, 
      * it should be set with this method so it knowns which of

@@ -13,6 +13,7 @@ package servlets.dataViews.records;
 import java.util.*;
 import java.io.*;
 import org.apache.log4j.Logger;
+import servlets.Common;
 import servlets.DbConnection;
 import servlets.PageColors;
 import servlets.querySets.*;
@@ -20,7 +21,7 @@ import servlets.querySets.*;
 /**
  * Stores blast information from the unknowns database.
  */
-public class BlastRecord implements Record
+public class BlastRecord extends AbstractRecord
 {
     String target,targetDesc,score,ident,positives,gaps,dbname,link,method,purpose;
     int length;
@@ -175,7 +176,7 @@ public class BlastRecord implements Record
     }    
     /**
      * Allows one to also specify a sort field and a direction
-     * @param dbc a connection to the proper db.
+     * @param dbc a connection to the proper db. 
      * @param ids list of ids
      * @param sortCol column name to sort by
      * @param sortDir sort direction, should be either "ASC", or "DESC".
@@ -207,6 +208,34 @@ public class BlastRecord implements Record
         };                
         return RecordGroup.buildRecordMap(rb,data,2,14);                
     }           
+
+    public Object getPrimaryKey()
+    {
+        return null;
+    }
+
+    public int[] getSupportedKeyTypes()
+    {
+        return getInfo().getSupportedKeyTypes();
+    }
+    
+    public static RecordInfo getInfo()
+    {
+        return new RecordInfo(new int[]{0}, 2,14){
+            public Record getRecord(List l)
+            {
+                return new BlastRecord(l);
+            }
+            public String getQuery(QueryParameters qp)
+            {
+                return QuerySetProvider.getRecordQuerySet().getBlastRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
+            }
+            public int[] getSupportedKeyTypes()
+            {
+                return new int[]{Common.KEY_TYPE_ACC};
+            }
+        };
+    }
 }
 
 class BlastRecordGroup extends RecordGroup

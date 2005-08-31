@@ -6,20 +6,21 @@
 
 package servlets.dataViews.records;
 
+import servlets.KeyTypeUser;
+
 /**
  *
  * @author  khoran
  */
 
-import java.util.*;
-import servlets.DbConnection;
+
 
 /**
  * This interface is used to store information that can be printed in a formatted
  * way.  A RecordVisitor is used to do the acutal printing, so a given set of
  * records can be printed in many different ways.
  */
-public interface Record
+public interface Record extends Iterable, KeyTypeUser
 {
         /**
          * Called first for each record, should print a title or something.
@@ -43,6 +44,7 @@ public interface Record
          */
         public void printFooter(java.io.Writer out,RecordVisitor visitor) throws java.io.IOException;
         
-        //public Map getData(DbConnection dbc, List ids,String sortCol,String sortDir);
-        //public Map getData(DbConnection dbc, List ids);
+        public void addSubRecord(Record r);
+        
+        public Object getPrimaryKey();
 }
