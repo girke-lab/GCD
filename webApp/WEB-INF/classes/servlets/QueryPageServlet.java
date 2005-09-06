@@ -11,7 +11,7 @@ import java.util.*;
 import java.net.*;
 import java.sql.*;
 import org.apache.log4j.*;
-import servlets.exceptions.UnsupportedKeyType;
+import servlets.exceptions.UnsupportedKeyTypeException;
 
 import servlets.search.*;
 import servlets.dataViews.*;
@@ -151,14 +151,14 @@ public class QueryPageServlet extends HttpServlet
         s=qi.getSearch(); 
         dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);
         //find a common search key to use
-        int commonKeyType=findCommonKeyType(s.getSupportedKeyTypes(), dv.getSupportedKeyTypes());
+        int commonKeyType=Common.findCommonKeyType(s.getSupportedKeyTypes(), dv.getSupportedKeyTypes());
         
         try{//try setting the key, if a key type is unsupported, an exception is thrown.
             log.debug("setting search key type to "+commonKeyType);
             s.setKeyType(commonKeyType);
             log.debug("setting dataview key type to "+commonKeyType);
             dv.setKeyType(commonKeyType);
-        }catch(UnsupportedKeyType e){
+        }catch(UnsupportedKeyTypeException e){
             log.error("bad key type: "+e);
         }
         
@@ -340,20 +340,7 @@ public class QueryPageServlet extends HttpServlet
         }catch(Exception e){ }      
         
     }
-    private int findCommonKeyType(int[] searchKeys,int[] dataviewKeys)
-    {
-        int common=-1;
-        //simple method
-        for(int i=0;i<searchKeys.length;i++) //prefer search keys
-            for(int j=0;j<dataviewKeys.length;j++)
-                if(searchKeys[i]==dataviewKeys[j])
-                {
-                    common=searchKeys[i];
-                    break;
-                }
-        log.debug("found common key "+common);
-        return common; // -1 indicates an error, will eventually cause an UnsupportedKeyType exception.
-    }
+    
     private void initQuerySets()
     {
         //V1QuerySets qs=new V1QuerySets();

@@ -10,7 +10,7 @@ package servlets.dataViews.records;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.Common;
-import servlets.exceptions.UnsupportedKeyType;
+import servlets.exceptions.UnsupportedKeyTypeException;
 
 /**
  *
@@ -21,7 +21,7 @@ public abstract class AbstractRecord implements Record
     
     private static Logger log=Logger.getLogger(AbstractRecord.class); 
     private Collection subRecords;
-    private int keyType;
+    private int keyType=-1;
     
     /** Creates a new instance of AbstractRecord */
     public AbstractRecord()
@@ -36,21 +36,26 @@ public abstract class AbstractRecord implements Record
     
     public void addSubRecord(Record r)
     {
-        subRecords.add(r);
+        subRecords.add(r); 
     }
 
     public java.util.Iterator<Object> iterator()
     {
         return subRecords.iterator();
     }
-    public void setKeyType(int keyType) throws UnsupportedKeyType
+    public void setKeyType(int keyType) throws UnsupportedKeyTypeException
     {
-        if(!Common.checkType(this, keyType))
-            throw new UnsupportedKeyType(this.getSupportedKeyTypes(),keyType);
-        this.keyType=keyType;
+        if(keyType==Common.KEY_TYPE_DEFAULT && this.getSupportedKeyTypes().length!=0)
+            this.keyType=this.getSupportedKeyTypes()[0];
+        else if(!Common.checkType(this, keyType))
+            throw new UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
+        else
+            this.keyType=keyType;
     }
     public int  getKeyType()
     {
+        if(keyType==-1)
+            log.error("key type not set for record "+this.getClass());
         return keyType;
     }
 }

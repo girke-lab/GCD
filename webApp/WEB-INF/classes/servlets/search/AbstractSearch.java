@@ -162,7 +162,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
         return new int[]{Common.KEY_TYPE_SEQ};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         boolean isValid=false;
         int[] keys=getSupportedKeyTypes();
@@ -172,7 +172,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
                 break;
             }
         if(!isValid)
-            throw new servlets.exceptions.UnsupportedKeyType(keys,keyType);
+            throw new servlets.exceptions.UnsupportedKeyTypeException(keys,keyType);
         this.keyType=keyType;
     }
     public int getKeyType()

@@ -101,7 +101,7 @@ public class QuerySearch implements Search
         return new int[]{Common.KEY_TYPE_ACC};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
     }
 }

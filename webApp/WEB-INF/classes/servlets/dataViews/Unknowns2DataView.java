@@ -181,10 +181,10 @@ public class Unknowns2DataView implements DataView
         return new int[]{Common.KEY_TYPE_MODEL};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {                
         if(!Common.checkType(this, keyType))
-            throw new servlets.exceptions.UnsupportedKeyType(this.getSupportedKeyTypes(),keyType);
+            throw new servlets.exceptions.UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         this.keyType=keyType;
     }
 

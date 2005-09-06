@@ -169,7 +169,7 @@ public class BlastDataView implements DataView
          return new int[]{Common.KEY_TYPE_BLAST};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         boolean isValid=false;
         int[] keys=getSupportedKeyTypes();
@@ -179,7 +179,7 @@ public class BlastDataView implements DataView
                 break;
             }
         if(!isValid)
-            throw new servlets.exceptions.UnsupportedKeyType(keys,keyType);
+            throw new servlets.exceptions.UnsupportedKeyTypeException(keys,keyType);
         this.keyType=keyType;
     }
 

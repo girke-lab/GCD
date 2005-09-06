@@ -1,5 +1,5 @@
 /*
- * UnsupportedKeyType.java
+ * UnsupportedKeyTypeException.java
  *
  * Created on June 16, 2005, 3:27 PM
  *
@@ -12,26 +12,26 @@ package servlets.exceptions;
  * that it does not support.
  * @author khoran
  */
-public class UnsupportedKeyType extends java.lang.Exception
+public class UnsupportedKeyTypeException extends java.lang.Exception
 {
     
     /**
-     * Creates a new instance of <code>UnsupportedKeyType</code> without detail message.
+     * Creates a new instance of <code>UnsupportedKeyTypeException</code> without detail message.
      */
-    public UnsupportedKeyType()
+    public UnsupportedKeyTypeException()
     {
     }
     
     
     /**
-     * Constructs an instance of <code>UnsupportedKeyType</code> with the specified detail message.
+     * Constructs an instance of <code>UnsupportedKeyTypeException</code> with the specified detail message.
      * @param msg the detail message.
      */
-    public UnsupportedKeyType(String msg)
+    public UnsupportedKeyTypeException(String msg)
     {
         super(msg);
     }
-    public UnsupportedKeyType(int[] supportedKeys, int givenKey)
+    public UnsupportedKeyTypeException(int[] supportedKeys, int givenKey)
     {
         super(buildMessage(supportedKeys, givenKey));
         

@@ -8,6 +8,7 @@
 package servlets.dataViews.records;
 
 import java.util.*;
+import servlets.dataViews.records.formats.CompositeFormat;
 
 /**
  *
@@ -16,12 +17,15 @@ import java.util.*;
 public class CompositeRecord extends AbstractRecord
 {
     /** this key should be shared by all sub records of this record */
-    String key;
+    private String key;
+    
+    private CompositeFormat format;
     
     /** Creates a new instance of CompositeRecord */
-    public CompositeRecord(String key)
+    public CompositeRecord(String key,CompositeFormat format)
     {
         this.key=key;
+        this.format=format;
     }
 
     public void printFooter(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
@@ -52,5 +56,8 @@ public class CompositeRecord extends AbstractRecord
     {
         return key;
     }
-    
+    public CompositeFormat getFormat()
+    {
+        return format;        
+    }
 }

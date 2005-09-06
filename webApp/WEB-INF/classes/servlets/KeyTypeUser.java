@@ -22,7 +22,7 @@ package servlets;
  * later to find out which key type was set.  
  * 
  * They setKeyType() method must be called before the object can be used.
- * If an unsupported key type is given, an UnsupportedKeyType  exception 
+ * If an unsupported key type is given, an UnsupportedKeyTypeException  exception 
  * is thrown.
  * @author khoran
  */
@@ -42,9 +42,9 @@ public interface KeyTypeUser
      * 
      * This method must be called before the class is used.
      * @param keyType One of the Common.KEY_TYPE_* values
-     * @throws servlets.exceptions.UnsupportedKeyType if the given key type is not supported
+     * @throws servlets.exceptions.UnsupportedKeyTypeException if the given key type is not supported
      */
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType;
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException;
     /**
      * Returns the key type in use.  Will return an invalid
      * id if the setKeyType() method has not been called yet.

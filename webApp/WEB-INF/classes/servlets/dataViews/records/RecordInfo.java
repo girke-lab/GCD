@@ -8,6 +8,7 @@
 package servlets.dataViews.records;
 
 import java.util.List;
+import servlets.dataViews.records.formats.CompositeFormat;
 
 /**
  * holds data that is constant over a group of
@@ -43,9 +44,14 @@ public abstract class RecordInfo
         return end;
     }
 
-    public int[] getKey()
+    public int[] getKeyIndecies(int keyType)
     {
         return key;
     }    
+    
+    public CompositeFormat getCompositeFormat()
+    {
+        return new CompositeFormat();
+    }
         
 }

@@ -151,7 +151,7 @@ public class AffyDataView implements DataView
         accIds=ids;        
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         this.keyType=keyType;
     }

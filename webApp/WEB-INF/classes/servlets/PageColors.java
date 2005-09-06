@@ -20,7 +20,7 @@ public interface PageColors
             title=new WebColor("AAAAAA"),
             data=new WebColor("D3D3D3"),
             
-            // catagory colors
+            // catagory colors (for affy data)
             development=new WebColor("B3DCD2"),
             biotic=new WebColor("EFEEC3"),
             abiotic=new WebColor("D5E9F8")

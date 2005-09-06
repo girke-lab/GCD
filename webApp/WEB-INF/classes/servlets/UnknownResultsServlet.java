@@ -69,7 +69,7 @@ public class UnknownResultsServlet extends HttpServlet {
         dv.setData(sortCol, new int[]{},0);
         try{
             dv.setKeyType(Common.KEY_TYPE_MODEL);
-        }catch(servlets.exceptions.UnsupportedKeyType e){
+        }catch(servlets.exceptions.UnsupportedKeyTypeException e){
             log.error(e);
         }
         dv.setIds(ids);

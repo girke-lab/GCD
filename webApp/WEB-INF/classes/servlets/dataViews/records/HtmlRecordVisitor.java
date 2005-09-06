@@ -18,6 +18,7 @@ import servlets.*;
 import org.apache.log4j.Logger;
 import servlets.querySets.DataViewQuerySet;
 import servlets.querySets.QuerySetProvider;
+import servlets.dataViews.records.*;
 /**
  * This class implements RecordVisitor so that it can print Records in 
  * html format.  Each record gets its own table, which can be nested inside
@@ -162,6 +163,18 @@ public class HtmlRecordVisitor implements RecordVisitor
     {
         out.write("</td></tr>");
     }
+    
+    public void printHeader(Writer out, CompositeRecord cr) throws IOException
+    {
+    }
+    public void printRecord(Writer out, CompositeRecord cr) throws IOException
+    {
+        cr.getFormat().printRecords(out,this,cr.iterator());
+    }
+    public void printFooter(Writer out, CompositeRecord cr) throws IOException
+    {
+    }
+
     //</editor-fold>
     
     // <editor-fold desc=" Affy record stuff ">
@@ -321,4 +334,6 @@ public class HtmlRecordVisitor implements RecordVisitor
                 "&sortDirection="+newDir+"#"+anchor+"'>"+titles[i]+"</a></th>");             
         }
     }
+
+   
 }

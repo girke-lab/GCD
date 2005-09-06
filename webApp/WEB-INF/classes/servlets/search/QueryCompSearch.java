@@ -114,7 +114,7 @@ public class QueryCompSearch implements Search
     {
         return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL};
     }  
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         boolean isValid=false;
         int[] keys=getSupportedKeyTypes();
@@ -124,7 +124,7 @@ public class QueryCompSearch implements Search
                 break;
             }
         if(!isValid)
-            throw new servlets.exceptions.UnsupportedKeyType(keys,keyType);
+            throw new servlets.exceptions.UnsupportedKeyTypeException(keys,keyType);
         this.keyType=keyType;
     }
 }

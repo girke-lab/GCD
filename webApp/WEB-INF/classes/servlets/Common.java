@@ -19,7 +19,9 @@ public class Common {
     public final static int dbCount=2;
     public static final int KEY_TYPE_SEQ=0,     KEY_TYPE_MODEL=1,
                             KEY_TYPE_CLUSTER=2, KEY_TYPE_BLAST=3,
-                            KEY_TYPE_ACC=4,     KEY_TYPE_QUERY=5;
+                            KEY_TYPE_ACC=4,     KEY_TYPE_QUERY=5,
+                            KEY_TYPE_DEFAULT=6, 
+                            KEY_TYPE_COMP=8,    KEY_TYPE_DETAIL=9;
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
 //    public final static String dataColor="D3D3D3",titleColor="AAAAAA";        
@@ -438,11 +440,26 @@ public class Common {
                 str.compareToIgnoreCase("t")==0|| str.equals("1");
     }
     
-    
+    public static int findCommonKeyType(int[] searchKeys,int[] dataviewKeys)
+    {
+        int common=-1;
+        //simple method
+        for(int i=0;i<searchKeys.length;i++) //prefer search keys
+            for(int j=0;j<dataviewKeys.length;j++)
+                if(searchKeys[i]==dataviewKeys[j])
+                {
+                    common=searchKeys[i];
+                    break;
+                }
+        log.debug("found common key "+common);
+        return common; // -1 indicates an error, will eventually cause an UnsupportedKeyType exception.
+    }
     public static boolean checkType(KeyTypeUser ktu,int keyType)
     {
-        int[] keys=ktu.getSupportedKeyTypes();
-        
+        return checkType(ktu.getSupportedKeyTypes(),keyType);
+    }
+    public static boolean checkType(int[] keys,int keyType)
+    {
         for(int i=0;i<keys.length;i++)
             if(keyType == keys[i])
                 return true;

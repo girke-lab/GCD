@@ -122,7 +122,7 @@ public class BlastSearch implements Search
         return new int[]{Common.KEY_TYPE_BLAST};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
     }
 }

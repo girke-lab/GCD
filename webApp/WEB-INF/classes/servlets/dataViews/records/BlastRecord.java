@@ -23,9 +23,9 @@ import servlets.querySets.*;
  */
 public class BlastRecord extends AbstractRecord
 {
-    String target,targetDesc,score,ident,positives,gaps,dbname,link,method,purpose;
-    int length;
-    double evalue;
+    public String target,targetDesc,score,ident,positives,gaps,dbname,link,method,purpose;
+    public int length;
+    public double evalue;
     
     private static Logger log=Logger.getLogger(BlastRecord.class);
     

@@ -77,7 +77,7 @@ public class StatsDataView implements DataView
          return new int[]{};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
        
     }

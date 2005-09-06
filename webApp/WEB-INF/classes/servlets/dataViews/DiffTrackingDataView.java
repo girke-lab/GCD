@@ -125,7 +125,7 @@ public class DiffTrackingDataView implements DataView
     {
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyType
+    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         this.keyType=keyType;
     }
