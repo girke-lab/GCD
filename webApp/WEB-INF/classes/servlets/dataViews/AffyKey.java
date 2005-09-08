@@ -92,6 +92,9 @@ public class AffyKey implements Serializable
         AffyKey af=null;
         boolean isFirst=true;
         
+        log.debug("includeGroup="+includeGroup);
+        log.debug("affykeys="+affyKeys);
+        
         for(Iterator i=affyKeys.iterator();i.hasNext();)
         {
             af=(AffyKey)i.next();

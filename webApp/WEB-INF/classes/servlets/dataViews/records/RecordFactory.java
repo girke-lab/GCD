@@ -46,32 +46,55 @@ public class RecordFactory
         return getMap(ri,qp, Common.KEY_TYPE_DEFAULT).values();
     }       
     
-    public Collection<CompositeRecord> addSubType(Collection<Record> records, RecordInfo ri, QueryParameters qp)   //Map<Object,CompositeRecord> subRecords)
+    public Collection<CompositeRecord> addSubType(Collection<? extends Record> records, RecordInfo ri, QueryParameters qp)
     {  // find a key supported by both records and ri, then create a Map from ri and qp
        //run through each record in records, find it in subRecords, and add it the record.
         
         if(records==null || records.size()==0)
             return null;
-        
-        int parentKeyType=records.iterator().next().getKeyType();
                 
-        if(!Common.checkType(ri.getSupportedKeyTypes(),parentKeyType)){
-            log.error("parent key "+parentKeyType+" not supported by given child: "+ri.getRecord(new LinkedList()).getClass());
+        int childKeyType=records.iterator().next().getChildKeyType();
+                
+        if(!Common.checkKeyType(ri.getSupportedKeyTypes(),childKeyType)){
+            log.error("key "+childKeyType+" not supported by given child: "+ri.getRecord(new LinkedList()).getClass());
             return null;
         }                
         
-        Map<Object,CompositeRecord> subRecords=getMap(ri,qp, parentKeyType);
+        Map<Object,CompositeRecord> subRecords=getMap(ri,qp, childKeyType);
 
+        //log.debug("sub record keys are: "+subRecords.keySet());
+        
         Object primaryKey;
-        Record sr;
+        Record sr,r2;
         for(Record r : records)
         {
-            primaryKey=r.getPrimaryKey();
-            sr=subRecords.get(primaryKey);
-            if(sr==null)
-                log.debug("no sub record found with primary key "+primaryKey);
+            //log.debug("r is a "+r.getClass());
+            if(r instanceof CompositeRecord) //decend into composites
+                for(Iterator i=r.iterator();i.hasNext();)
+                {
+                    r2=(Record)i.next();
+//                    log.debug("r2 is a "+r2.getClass());
+                    primaryKey=r2.getPrimaryKey();
+//                    log.debug("primary key is a "+primaryKey.getClass());
+//                    log.debug("looking for primary key "+primaryKey);
+                    sr=subRecords.get(primaryKey);
+                    if(sr==null)
+                        log.info("no sub record found with primary key "+primaryKey);
+                    else
+                        r2.addSubRecord(sr);
+
+                }
             else
-                r.addSubRecord(sr);
+            {
+                primaryKey=r.getPrimaryKey();
+                sr=subRecords.get(primaryKey);
+                if(sr==null)
+                    log.debug("no sub record found with primary key "+primaryKey);
+                else
+                    r.addSubRecord(sr);
+            }
+                
+            
         }
         return subRecords.values();
     }
@@ -83,7 +106,7 @@ public class RecordFactory
                 
         List data=null;
         try{
-            data=dbc.sendQuery(ri.getQuery(qp));
+            data=dbc.sendQuery(ri.getQuery(qp, keyType));
         }catch(java.sql.SQLException e){
             log.error("could not send Record query: "+e.getMessage());
             return new HashMap<Object,CompositeRecord>();

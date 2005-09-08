@@ -90,7 +90,7 @@ public class QueryPageServlet extends HttpServlet
         else
         { //make sure we don't get too many sessions
             List history=(List)session.getAttribute("history");
-            log.info("history="+history);
+            //log.info("history="+history);
             if(history != null && history.size() > Common.MAX_SESSIONS) 
             {
                 log.info("pruning old sessions");

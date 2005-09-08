@@ -20,32 +20,33 @@ import servlets.querySets.*;
 /**
  * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
  */
-public class ExternalUnknownRecord implements Record
+public class ExternalUnknownRecord extends AbstractRecord
 {
     String source;
     boolean isUnknown;
-    private static Logger log=Logger.getLogger(ExternalUnknownRecord.class);
+    Integer accId;
     
-    /** Creates a new instance of ExternalUnknownRecord */
-    public ExternalUnknownRecord(String s, boolean u)
-    {
-        source=s;
-        isUnknown=u;
-    }
+    private static Logger log=Logger.getLogger(ExternalUnknownRecord.class);
+        
     public ExternalUnknownRecord(List values)
     {
-        if(values==null || values.size()!=2)
+        if(values==null || values.size()!=3)
         {
             log.error("invalid list in ExternalUnknownRecord constructor");
             return;
         }        
-        isUnknown=getBoolean((String)values.get(0));         
-        source=(String)values.get(1);
+        accId=new Integer((String)values.get(0));
+        isUnknown=getBoolean((String)values.get(1));         
+        source=(String)values.get(2);
     }
     private boolean getBoolean(String str)
     {
         return str.compareToIgnoreCase("true")==0 || str.compareToIgnoreCase("yes")==0 ||
                 str.compareToIgnoreCase("t")==0|| str.equals("1");
+    }
+    public Object getPrimaryKey()
+    {
+        return accId;
     }
     public boolean equals(Object o)
     {
@@ -64,57 +65,40 @@ public class ExternalUnknownRecord implements Record
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printHeader(out,this);
-    }
-    
+    }    
     public void printRecord(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printRecord(out,this);
-    }
-    
+    }    
     public void printFooter(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printFooter(out,this);
     }
     
-    public static Map getData(DbConnection dbc, List ids)
+    
+    
+    public int[] getSupportedKeyTypes()
     {
-        return getData(dbc,ids,null,"ASC");
+        return this.getRecordInfo().getSupportedKeyTypes();
     }
     
-    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+    public static RecordInfo getRecordInfo()
     {
-        if(ids==null || ids.size()==0)
-            return new HashMap();
-        
-        String query=QuerySetProvider.getRecordQuerySet().getExternlUnknwownsRecordQuery(ids, sortCol, sortDir);
-        List data=null;
-        try{            
-            data=dbc.sendQuery(query);            
-        }catch(java.sql.SQLException e){
-            log.error("could not send ExternalUnknownRecord query: "+e.getMessage());
-            return new HashMap();
-        }
-        
-        RecordSource rb=new RecordSource(){
-            public Record buildRecord(List l){
+        return new RecordInfo(new int[]{0}, 0,3){
+            public Record getRecord(List l)
+            {
                 return new ExternalUnknownRecord(l);
             }
-        };                
-        return RecordGroup.buildRecordMap(rb,data,1,3);     
-        
-//        List row,l;
-//        Map output=new HashMap(); //need to maintain order here
-//        for(Iterator i=data.iterator();i.hasNext();)
-//        {
-//            row=(List)i.next();
-//            l=(List)output.get(row.get(0));
-//            if(l==null)
-//            {
-//                l=new LinkedList();
-//                output.put(row.get(0),l);
-//            }            
-//            l.add(new ExternalUnknownRecord(row.subList(1,3)));            
-//        }
-//        return output;
+            public String getQuery(QueryParameters qp,int keyType)
+            {
+                return QuerySetProvider.getRecordQuerySet().getExternlUnknwownsRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
+            }
+            public int[] getSupportedKeyTypes()
+            {
+                return new int[]{Common.KEY_TYPE_ACC};
+            }
+        };
     }
+    
+  
 }

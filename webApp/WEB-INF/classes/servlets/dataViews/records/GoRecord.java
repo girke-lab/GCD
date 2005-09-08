@@ -20,30 +20,30 @@ import servlets.querySets.*;
 /**
  * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
  */
-public class GoRecord implements Record
+public class GoRecord extends AbstractRecord
 {
     String go_number,text,function;
+    Integer accId;
     
     private static Logger log=Logger.getLogger(GoRecord.class);
     
-    /** Creates a new instance of GoRecord */
-    public GoRecord(String go_number,String text,String function)
-    {
-        this.go_number=go_number;
-        this.text=text;
-        this.function=function;
-    }
+    
     public GoRecord(List values)
     {
-        if(values==null || values.size()!=3)
+        if(values==null || values.size()!=4)
         {
             log.error("invalid values list in GoRecord constructor");
             return;
         }
-        go_number=(String)values.get(0);
-        function=(String)values.get(1);
-        text=(String)values.get(2);
+        accId=new Integer((String)values.get(0));
+        go_number=(String)values.get(1);
+        function=(String)values.get(2);
+        text=(String)values.get(3);
         
+    }
+    public Object getPrimaryKey()
+    {
+        return accId;
     }
     public boolean equals(Object o)
     {
@@ -75,47 +75,27 @@ public class GoRecord implements Record
     public void printFooter(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
     }
-    
-    public static Map getData(DbConnection dbc, List ids)
+    public int[] getSupportedKeyTypes()
     {
-        return getData(dbc,ids,null,"ASC");
+        return this.getRecordInfo().getSupportedKeyTypes();
     }
     
-    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+    public static RecordInfo getRecordInfo()
     {
-        if(ids==null || ids.size()==0)
-            return new HashMap();
-        
-        String query=QuerySetProvider.getRecordQuerySet().getGoRecordQuery(ids, sortCol, sortDir);
-        List data=null;
-        try{
-            data=dbc.sendQuery(query);
-        }catch(java.sql.SQLException e){
-            log.error("could not send GoRecord query: "+e.getMessage());
-            return new HashMap();
-        }
-        
-        RecordSource rb=new RecordSource(){
-            public Record buildRecord(List l){
+        return new RecordInfo(new int[]{0}, 0,4){
+            public Record getRecord(List l)
+            {
                 return new GoRecord(l);
             }
-        };                
-        return RecordGroup.buildRecordMap(rb,data,1,4);     
-        
-//        List row,l;
-//        Map output=new HashMap(); //need to maintain order here
-//        for(Iterator i=data.iterator();i.hasNext();)
-//        {
-//            row=(List)i.next();
-//            l=(List)output.get(row.get(0));
-//            if(l==null)
-//            {
-//                l=new LinkedList();
-//                output.put(row.get(0),l);
-//            }
-//            l.add(new GoRecord(row.subList(1,4)));            
-//        }
-//        return output;
-    }      
+            public String getQuery(QueryParameters qp,int keyType)
+            {
+                return QuerySetProvider.getRecordQuerySet().getGoRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
+            }
+            public int[] getSupportedKeyTypes()
+            {
+                return new int[]{Common.KEY_TYPE_ACC};
+            }
+        };
+    }
     
 }

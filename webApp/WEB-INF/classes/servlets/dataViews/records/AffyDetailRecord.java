@@ -9,6 +9,7 @@ package servlets.dataViews.records;
 
 import java.util.*;
 import org.apache.log4j.Logger;
+import servlets.Common;
 import servlets.DbConnection;
 import servlets.dataViews.AffyKey;
 import servlets.querySets.QuerySetProvider;
@@ -20,18 +21,10 @@ import servlets.querySets.QuerySetProvider;
 
 
 
-public class AffyDetailRecord implements Record 
+public class AffyDetailRecord extends AbstractRecord
 {
-//    String dataType;
-//    String esKey, esDesc, esLink;
-//    String expType,expNotes;
-//    String repDesc,celFilename;
-//    String probeSetKey, pma;
-//    Integer groupNo,repNo;
 
-    
-    
-    Integer probeSetId, expSetId,comparison;
+    Integer accId, probeSetId, expSetId,comparison;
     String celFile,type,description,pma;
     Float intensity;        
     
@@ -40,7 +33,7 @@ public class AffyDetailRecord implements Record
     /** Creates a new instance of AffyRecord */
     public AffyDetailRecord(List values)
     {
-        int reqSize=8;
+        int reqSize=9;
         if(values==null || values.size()!=reqSize)
         {
             log.error("invalid list in AffyDetailRecord constructor");
@@ -48,18 +41,24 @@ public class AffyDetailRecord implements Record
                 log.error("recieved list of size "+values.size()+", but expected size of "+reqSize);
             return;
         }
-                
-        probeSetId=new Integer((String)values.get(0));
-        expSetId=new Integer((String)values.get(1));
-        comparison=new Integer((String)values.get(2));
-        type=(String)values.get(3);
-        celFile=(String)values.get(4);
-        description=(String)values.get(5);
-        intensity=new Float((String)values.get(6));
-        pma=(String)values.get(7);                 
+        accId=new Integer((String)values.get(0));
+        probeSetId=new Integer((String)values.get(1));
+        expSetId=new Integer((String)values.get(2));
+        comparison=new Integer((String)values.get(3));
+        type=(String)values.get(4);
+        celFile=(String)values.get(5);
+        description=(String)values.get(6);
+        intensity=new Float((String)values.get(7));
+        pma=(String)values.get(8);                 
     }
-
-
+    public Object getPrimaryKey()
+    {
+        return probeSetId+"_"+expSetId+"_"+comparison+"_"+celFile; 
+    }
+    public int getChildKeyType()
+    {
+        return -1;
+    }
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printHeader(out,this);    
@@ -72,76 +71,54 @@ public class AffyDetailRecord implements Record
     {
         visitor.printFooter(out,this); 
     }
+        
+    public int[] getSupportedKeyTypes()
+    {
+        return this.getRecordInfo().getSupportedKeyTypes();
+    }
     
-    public static Map getDataByAcc(DbConnection dbc, Collection ids)
+    public static RecordInfo getRecordInfo()
     {
-        //wrap accession_ids in AffyKey objects for the affy records
-        List affyKeys=new LinkedList();
-        for(Iterator i=ids.iterator();i.hasNext();)
-            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
-            
-        return getData(dbc,affyKeys,true,null,"asc");
-    }
-    public static Map getData(DbConnection dbc, Collection ids)
-    {
-        return getData(dbc,ids,null,"ASC");
-    }
-    public static Map getData(DbConnection dbc, Collection affyKeys, String sortCol, String sortDir)
-    {
-        return getData(dbc,affyKeys,false,sortCol,sortDir);
-    }
-    public static Map getData(DbConnection dbc, Collection affyKeys, boolean allGroups, String sortCol, String sortDir)
-    {
-        if(affyKeys==null || affyKeys.size()==0)
-            return new HashMap();
-        
-        String query=QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(
-                        affyKeys,allGroups, sortCol,sortDir);
-                
-        List data=null;                
-        try{        
-            data=dbc.sendQuery(query);        
-        }catch(java.sql.SQLException e){
-            log.error("could not send AffyRecord query: "+e.getMessage());
-            return new HashMap();
-        }
-        
-        RecordSource rb=new RecordSource(){
-            public Record buildRecord(List l){
+        return new RecordInfo(0,9){
+            public Record getRecord(List l)
+            {
                 return new AffyDetailRecord(l);
             }
-        };                
-        //log.debug("affy data, data="+data);
-        
-        return RecordGroup.buildRecordMap(rb,data,new int[]{1,2,3},1,9);             
-    }
-    public static Map getRootData(DbConnection dbc, Collection ids)
-    {
-        if(ids==null || ids.size()==0)
-            return new HashMap();
-        
-        List affyKeys=new LinkedList();
-        for(Iterator i=ids.iterator();i.hasNext();)
-            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
-        
-        String query=QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(
-                        affyKeys,true,null,"asc");
+            public String getQuery(QueryParameters qp,int keyType)
+            {
+                switch(keyType){
+                    case Common.KEY_TYPE_ACC:
+                        Collection<AffyKey> affyKeys=new LinkedList<AffyKey>();
+                        for(Iterator i=qp.getIds().iterator();i.hasNext();)
+                            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
+                        return QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(affyKeys,true,qp.getSortCol(), qp.getSortDir());
+                    case Common.KEY_TYPE_DETAIL:
+                        return QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(qp.getAffyKeys(),qp.isAllGroups(),qp.getSortCol(), qp.getSortDir());
+                    default:
+                        return null;
+                }
                 
-        List data=null;                
-        try{        
-            data=dbc.sendQuery(query);        
-        }catch(java.sql.SQLException e){
-            log.error("could not send AffyRecord query: "+e.getMessage());
-            return new HashMap();
-        }
-        
-        RecordSource rb=new RecordSource(){
-            public Record buildRecord(List l){
-                return new AffyDetailRecord(l);
             }
-        };                
-        //log.debug("affy data, data="+data);
-        
-        return RecordGroup.buildRecordMap(rb,data,1,9);             
+            public int[] getSupportedKeyTypes()
+            {
+                return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_DETAIL};
+            }
+            public int[] getKeyIndecies(int keyType)
+            {
+                switch(keyType)
+                {
+                    case Common.KEY_TYPE_ACC:
+                        return new int[]{0};
+                    case Common.KEY_TYPE_DETAIL:
+                        return new int[]{1,2,3};
+                    default:
+                        log.error("invalid key type given: "+keyType);
+                        return null;
+                }
+                
+            }
+        };
     }
+     
+  
 }

@@ -229,7 +229,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         else if(sortCol.equals("unknowns.arab_accessions.description"))
             sortCol="accessions.description";
         
-        String query="SELECT 1, ma.model_accession_id, accessions.accession, accessions.description, " +
+        String query="SELECT  ma.model_accession_id, accessions.accession, accessions.description, " +
                  " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
                  " unknown_data.version" +
         "   FROM general.accessions " +
@@ -246,7 +246,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
          if(sortCol==null)
             sortCol="purpose";
-        String query="SELECT DISTINCT ma.model_accession_id, blast_id, accession, description, " +
+        String query="SELECT DISTINCT  blast_id, ma.model_accession_id, accession, description, " +
                 " e_value, score, identities, length, positives, gaps, db_name, link, method, purpose" +
 //                " CASE WHEN purpose is null THEN '' ELSE purpose END    "+                
         "   FROM general.blast_summary_mv " +

@@ -39,7 +39,7 @@ public abstract class AbstractRecord implements Record
         subRecords.add(r); 
     }
 
-    public java.util.Iterator<Object> iterator()
+    public java.util.Iterator<Record> iterator()
     {
         return subRecords.iterator();
     }
@@ -57,5 +57,9 @@ public abstract class AbstractRecord implements Record
         if(keyType==-1)
             log.error("key type not set for record "+this.getClass());
         return keyType;
+    }
+    public int getChildKeyType()
+    {
+        return Common.KEY_TYPE_ACC; //default value.
     }
 }

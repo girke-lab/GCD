@@ -20,49 +20,42 @@ import servlets.querySets.*;
 /**
  * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
  */
-public class ClusterRecord implements Record
+public class ClusterRecord extends AbstractRecord
 {
     int size,cluster_id;
     String name,method,key;
-    List keys=null;
-    boolean showClusterCentricView;
+    Integer accId;
+    
     private static Logger log=Logger.getLogger(ClusterRecord.class);
     
-    /** Creates a new instance of ClusterRecord */
-    public ClusterRecord(String name,int size, String method,int cluster_id,String key)
-    {//used for key centric view
-        this.name=name;
-        this.size=size;
-        this.method=method;
-        this.cluster_id=cluster_id;
-        this.key=key;
-        showClusterCentricView=false;
-    }
+    
     public ClusterRecord(List values)
     {//used for key centric view
-        if(values==null || values.size()!=5)
+        if(values==null || values.size()!=6)
         {
             log.error("invalid list in ClusterRecord constructor");
             if(values!=null)
-                log.error("recieved list of size "+values.size()+", but expected size of 5");
+                log.error("recieved list of size "+values.size()+", but expected size of 6");
             return;
         }
-        name=(String)values.get(0);
-        size=Integer.parseInt((String)values.get(1));        
-        method=(String)values.get(2);        
-        cluster_id=Integer.parseInt((String)values.get(3));
-        key=(String)values.get(4);
-        showClusterCentricView=false;
+        accId=new Integer((String)values.get(0));
+        name=(String)values.get(1);
+        size=Integer.parseInt((String)values.get(2));        
+        method=(String)values.get(3);        
+        cluster_id=Integer.parseInt((String)values.get(4));
+        key=(String)values.get(5);        
     }
-    public ClusterRecord(String name,int size,String method,int cluster_id,String key,List keys)
-    {//used for cluster centric view
-        this.name=name;
-        this.size=size;
-        this.method=method;
-        this.keys=keys;
-        this.cluster_id=cluster_id;
-        this.key=key;
-        showClusterCentricView=true;
+    public Object getPrimaryKey()
+    {
+        switch(this.getKeyType()){
+            case Common.KEY_TYPE_ACC:
+                return accId;
+            case Common.KEY_TYPE_CLUSTER:
+                return cluster_id;
+            default:
+                log.error("invalid key type: "+this.getKeyType());
+                return null;
+        }
     }
     
     public boolean equals(Object o)
@@ -82,48 +75,50 @@ public class ClusterRecord implements Record
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printHeader(out,this);
-    }
-    
+    }    
     public void printRecord(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printRecord(out,this);
-    }
-    
+    }    
     public void printFooter(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printFooter(out,this);
     }
+        
     
-    public static Map getData(DbConnection dbc, List ids)
+    public int[] getSupportedKeyTypes()
     {
-        return getData(dbc,ids,null,"ASC");
+        return this.getRecordInfo().getSupportedKeyTypes();
     }
     
-    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+    public static RecordInfo getRecordInfo()
     {
-        if(ids==null || ids.size()==0)
-            return new HashMap();
-        
-        String query=QuerySetProvider.getRecordQuerySet().getClusterRecordQuery(ids, sortCol,sortDir);
-                
-        List data=null;
-                
-        try{        
-            data=dbc.sendQuery(query);        
-        }catch(java.sql.SQLException e){
-            log.error("could not send ClusterRecord query: "+e.getMessage());
-            return new HashMap();
-        }
-        
-        RecordSource rb=new RecordSource(){
-            public Record buildRecord(List l){
+        return new RecordInfo(0,6){
+            public Record getRecord(List l)
+            {
                 return new ClusterRecord(l);
             }
-        };                
-        log.debug("cluster data, data="+data);
-        return RecordGroup.buildRecordMap(rb,data,1,6);             
+            public String getQuery(QueryParameters qp,int keyType)
+            {
+                return QuerySetProvider.getRecordQuerySet().getClusterRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
+            }
+            public int[] getSupportedKeyTypes()
+            {
+                return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_CLUSTER};
+            }
+            public int[] getKeyIndecies(int keyType)
+            {
+                switch(keyType){
+                    case Common.KEY_TYPE_ACC:
+                        return new int[]{0};
+                    case Common.KEY_TYPE_CLUSTER:
+                        return new int[]{4};
+                    default:
+                        log.error("invalid key type: "+keyType);
+                        return null;
+                }
+            }
+        };
     }
-    
-   
-    
+       
 }

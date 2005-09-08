@@ -456,9 +456,9 @@ public class Common {
     }
     public static boolean checkType(KeyTypeUser ktu,int keyType)
     {
-        return checkType(ktu.getSupportedKeyTypes(),keyType);
+        return checkKeyType(ktu.getSupportedKeyTypes(),keyType);
     }
-    public static boolean checkType(int[] keys,int keyType)
+    public static boolean checkKeyType(int[] keys,int keyType)
     {
         for(int i=0;i<keys.length;i++)
             if(keyType == keys[i])

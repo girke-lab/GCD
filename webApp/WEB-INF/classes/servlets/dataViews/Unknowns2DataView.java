@@ -18,11 +18,8 @@ import servlets.dataViews.queryWideViews.*;
 import servlets.search.Search;
 import org.apache.log4j.Logger;
 
-import servlets.dataViews.records.HtmlRecordVisitor;
-import servlets.dataViews.records.RecordGroup;
-import servlets.dataViews.records.UnknownRecord;
-import servlets.dataViews.records.RecordVisitor;
-import servlets.querySets.*;
+import servlets.dataViews.records.*;
+
 
 /**
  * This is the main view for the new unknowns database
@@ -151,8 +148,47 @@ public class Unknowns2DataView implements DataView
     private Collection getRecords(List ids)
     { //method 2, multiple queries
         
-        Map records=UnknownRecord.getData(dbc,ids,sortCol,sortDir);
-        return records.values();                                 
+        //Map records=UnknownRecord.getData(dbc,ids,sortCol,sortDir);
+        //return records.values(); 
+        
+        Collection unknowns,go, blast, protomics, cluster, external, expSet;
+        RecordFactory f=RecordFactory.getInstance();
+        QueryParameters qp=new QueryParameters();
+        Collection affyKeys=new LinkedList();
+        
+        affyKeys.add(new AffyKey(new Integer(15), new Integer(6),new Integer(5)));
+        affyKeys.add(new AffyKey(new Integer(15), new Integer(6),new Integer(6)));
+        affyKeys.add(new AffyKey(new Integer(15), new Integer(6),new Integer(9)));
+        affyKeys.add(new AffyKey(new Integer(15), new Integer(35),new Integer(3)));
+        affyKeys.add(new AffyKey(new Integer(15), new Integer(15),new Integer(4)));
+        
+        qp.setIds(ids);
+        qp.setAffyKeys(affyKeys);
+        qp.setAllGroups(true);
+        
+        
+        unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
+        f.addSubType(unknowns,GoRecord.getRecordInfo(),qp); 
+        f.addSubType(unknowns,BlastRecord.getRecordInfo(),qp);
+        f.addSubType(unknowns,ProteomicsRecord.getRecordInfo(),qp);
+        f.addSubType(unknowns,ClusterRecord.getRecordInfo(),qp);
+        f.addSubType(unknowns,ExternalUnknownRecord.getRecordInfo(),qp);
+        f.addSubType(unknowns,AffyExpSetRecord.getRecordInfo(),qp);
+        
+//        f.addSubType(
+//            f.addSubType(
+//                f.addSubType(
+//                    unknowns,
+//                    AffyExpSetRecord.getRecordInfo(), qp
+//                ),
+//                AffyCompRecord.getRecordInfo(),qp
+//            ), 
+//            AffyDetailRecord.getRecordInfo(), qp
+//        );
+        
+//        expSets=f.addSubType(unknowns,AffyExpSetRecord.getRecordInfo(),qp);
+        return unknowns;
+        
     }        
     
     private void printData(PrintWriter out,Collection data)
@@ -160,18 +196,24 @@ public class Unknowns2DataView implements DataView
         
         //log.debug("printing "+data.size()+" records");
         out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
-            " align='center' border='1' cellspacing='0' cellpadding='0'>");
-        RecordGroup rec;
-        RecordVisitor visitor=new HtmlRecordVisitor();
+            " align='center' border='1' cellspacing='0' cellpadding='0'>");        
+        Record rec;
+        RecordVisitor visitor=new HtmlRecordVisitor();        
         ((HtmlRecordVisitor)visitor).setHid(hid);
+        //RecordVisitor visitor=new DebugRecordVisitor();
         try{
             for(Iterator i=data.iterator();i.hasNext();)
-                ((RecordGroup)i.next()).printRecords(out,visitor);  
+            {
+                rec=(Record)i.next();
+                rec.printHeader(out, visitor);
+                rec.printRecord(out, visitor);
+                rec.printFooter(out,visitor);
+            }                
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());
         }
         
-        out.println("</TABLE></div>");
+        out.println("</TABLE></div>");        
     }
     
     

@@ -51,7 +51,14 @@ public class CompositeRecord extends AbstractRecord
         else
             return new int[]{};
     }
-
+    public int getChildKeyType()
+    {
+        Iterator i=this.iterator();
+        if(i.hasNext())
+            return ((Record)i.next()).getChildKeyType();
+        else
+            return super.getChildKeyType();
+    }
     public Object getPrimaryKey()
     {
         return key;

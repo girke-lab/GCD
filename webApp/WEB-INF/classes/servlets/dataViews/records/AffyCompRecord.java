@@ -9,6 +9,7 @@ package servlets.dataViews.records;
 
 import java.util.*;
 import org.apache.log4j.Logger;
+import servlets.Common;
 import servlets.DbConnection;
 import servlets.dataViews.AffyKey;
 import servlets.querySets.QuerySetProvider;
@@ -17,13 +18,13 @@ import servlets.querySets.QuerySetProvider;
  *
  * @author khoran
  */
-public class AffyCompRecord implements Record
+public class AffyCompRecord extends AbstractRecord
 {
     
     String probeSetKey,expSetKey,controlPMA,treatmentPMA;
     Integer comparison;
     Float controlMean, treatmentMean,ratio;
-    Integer probeSetId, expSetId;
+    Integer accId, probeSetId, expSetId;
     List subRecords;
     
     private static Logger log=Logger.getLogger(AffyCompRecord.class);        
@@ -32,7 +33,7 @@ public class AffyCompRecord implements Record
     /** Creates a new instance of AffyCompRecord */
     public AffyCompRecord(List values)
     {
-        int reqSize=10;
+        int reqSize=11;
         if(values==null || values.size()!=reqSize)
         {
             log.error("invalid list in AffyCompRecord constructor");
@@ -40,19 +41,28 @@ public class AffyCompRecord implements Record
                 log.error("recieved list of size "+values.size()+", but expected size of "+reqSize);
             return;
         }
-        probeSetId=new Integer((String)values.get(0));
-        probeSetKey=(String)values.get(1);
-        expSetId=new Integer((String)values.get(2));
-        expSetKey=(String)values.get(3);        
-        comparison=new Integer((String)values.get(4));
-        controlMean=new Float((String)values.get(5));
-        treatmentMean=new Float((String)values.get(6));
-        controlPMA=(String)values.get(7);
-        treatmentPMA=(String)values.get(8);
-        ratio=new Float((String)values.get(9));
+        accId=new Integer((String)values.get(0));
+        probeSetId=new Integer((String)values.get(1));
+        probeSetKey=(String)values.get(2);
+        expSetId=new Integer((String)values.get(3));
+        expSetKey=(String)values.get(4);        
+        comparison=new Integer((String)values.get(5));
+        controlMean=new Float((String)values.get(6));
+        treatmentMean=new Float((String)values.get(7));
+        controlPMA=(String)values.get(8);
+        treatmentPMA=(String)values.get(9);
+        ratio=new Float((String)values.get(10));
         
     }
-     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
+    public Object getPrimaryKey()
+    {
+        return probeSetId+"_"+expSetId+"_"+comparison;
+    }
+    public int getChildKeyType()
+    {
+        return Common.KEY_TYPE_DETAIL;
+    }
+    public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printHeader(out,this);    
     }
@@ -65,12 +75,7 @@ public class AffyCompRecord implements Record
         visitor.printFooter(out,this); 
     }
     
-    public void addSubRecord(RecordGroup rg)
-    {
-        if(subRecords==null)
-            subRecords=new LinkedList();
-        subRecords.add(rg);
-    }
+    
     
     public boolean equals(Object o)
     {
@@ -88,112 +93,51 @@ public class AffyCompRecord implements Record
                 comparison.hashCode();
     }
     
+    public int[] getSupportedKeyTypes()
+    {
+        return this.getRecordInfo().getSupportedKeyTypes();
+    }
     
-    
-    public static Map getDataByAcc(DbConnection dbc, Collection ids)
+    public static RecordInfo getRecordInfo()
     {
-        //wrap accession_ids in AffyKey objects for the affy records
-        List affyKeys=new LinkedList();
-        for(Iterator i=ids.iterator();i.hasNext();)
-            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
-            
-        return getData(dbc,affyKeys,true,null,"asc");
-    }
-    public static Map getData(DbConnection dbc, Collection ids)
-    {
-        return getData(dbc,ids,false,null,"ASC");
-    }
-    public static Map getData(DbConnection dbc, Collection affyKeys, String sortCol, String sortDir)
-    {
-        return getData(dbc,affyKeys, false,sortCol,sortDir);
-    }
-    public static Map getData(DbConnection dbc, Collection affyKeys,boolean allGroups, String sortCol, String sortDir)
-    {
-        if(affyKeys==null || affyKeys.size()==0)
-            return new HashMap();                
-        
-        String query=QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(                       
-                        affyKeys, sortCol,sortDir);
-                
-        List data=null;
-                
-        try{        
-            data=dbc.sendQuery(query);        
-        }catch(java.sql.SQLException e){
-            log.error("could not send AffyRecord query: "+e.getMessage());
-            return new HashMap();
-        }
-        Map[] subRecordMaps=new Map[]{
-            AffyDetailRecord.getData(dbc,affyKeys,allGroups ,sortCol, sortDir)
-        };
-        RecordSource rb=new RecordSource(){
-            public Record buildRecord(List l){
+        return new RecordInfo(0,11){
+            public Record getRecord(List l)
+            { 
                 return new AffyCompRecord(l);
             }
-        };                
-        
-        //log.debug("affy data, data="+data);        
-        Map rgMap= RecordGroup.buildRecordMap(rb,data,new int[]{1,3},1,11);             
-        
-       
-        RecordGroup rg;
-        AffyCompRecord compRecord;
-        log.debug("matching up affyComp records");
-        for(Iterator j=rgMap.values().iterator();j.hasNext();)
-        { //for each RecordGroup in this map
-            for(Iterator i=((RecordGroup)j.next()).iterator();i.hasNext();)
-            { //for each record in this RecordGroup (should be AffyDetailRecords)
-                compRecord=(AffyCompRecord)i.next();
-                for(Map subRecordMap : subRecordMaps)
-                {//go through the sub record map add find any associated with 
-                    //this RecordGroup
-                    rg=(RecordGroup)subRecordMap.get(compRecord.probeSetId+"_"+compRecord.expSetId+
-                            "_"+compRecord.comparison);     
-                    //if(rg==null)
-                      //  log.debug("no record found for "+compRecord.probeSetId+"_"+compRecord.expSetId+
-                        //    "_"+compRecord.comparison);
-
-                    if(rg==null)
-                        rg=new RecordGroup();
-                    compRecord.addSubRecord(rg);
+            public String getQuery(QueryParameters qp,int keyType)
+            {                
+                switch(keyType){
+                    case Common.KEY_TYPE_ACC:
+                        Collection<AffyKey> affyKeys=new LinkedList<AffyKey>();
+                        for(Iterator i=qp.getIds().iterator();i.hasNext();)
+                            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
+                        return QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(affyKeys,qp.getSortCol(), qp.getSortDir());        
+                    case Common.KEY_TYPE_COMP:
+                        return QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(qp.getAffyKeys(),qp.getSortCol(), qp.getSortDir());
+                    default:
+                        return null;
+                }                
+            }
+            public int[] getSupportedKeyTypes()
+            {
+                return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_COMP};
+            }
+            public int[] getKeyIndecies(int keyType)
+            {
+                switch(keyType)
+                {
+                    case Common.KEY_TYPE_ACC:
+                        return new int[]{0};
+                    case Common.KEY_TYPE_COMP:
+                        return new int[]{1,3};
+                    default:
+                        log.error("invalid key type given: "+keyType);
+                        return null;
                 }
-            }
-        }
-        log.debug("done with comp records");
-        
-        
-        return rgMap; //map keyed on probeSetId_expSetId
-    }
-    
-    public static Map getRootData(DbConnection dbc, Collection ids)
-    {
-        if(ids==null || ids.size()==0)
-            return new HashMap();                
-        
-        List affyKeys=new LinkedList();
-        for(Iterator i=ids.iterator();i.hasNext();)
-            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
-        
-        String query=QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(                       
-                        affyKeys, null,"asc");
                 
-        List data=null;
-                
-        try{        
-            data=dbc.sendQuery(query);        
-        }catch(java.sql.SQLException e){
-            log.error("could not send AffyRecord query: "+e.getMessage());
-            return new HashMap();
-        }
-        
-        RecordSource rb=new RecordSource(){
-            public Record buildRecord(List l){
-                return new AffyCompRecord(l);
             }
-        };                
-        
-        log.debug("affy data, data="+data);        
-        return  RecordGroup.buildRecordMap(rb,data,1,11);   
-        
-    }
+        };
+    }    
+ 
 }

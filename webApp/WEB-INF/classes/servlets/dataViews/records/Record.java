@@ -47,4 +47,6 @@ public interface Record extends Iterable, KeyTypeUser
         public void addSubRecord(Record r);
         
         public Object getPrimaryKey();
+        
+        public int getChildKeyType();
 }

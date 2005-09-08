@@ -50,27 +50,31 @@ public class UnknownsTextScript implements Script
     
     private void writeData(PrintWriter out,List ids)
     {
-        TextRecordVisitor visitor=new TextRecordVisitor();
+        RecordVisitor visitor=new TextRecordVisitor();
+        //RecordVisitor visitor=new DebugRecordVisitor();
         Collection data=null;
-        RecordGroup rg=null;
+        Record rec=null;
         boolean isFirst=true;
-        
+                
         try{
             for(int j=0;j<ids.size();j+=batchSize)
             { //send data in batches to avoid queries that are too long.
                 int end=(j+batchSize>ids.size())?ids.size():j+batchSize;
-                log.debug("j="+j+", size="+ids.size()+", end="+end);
+                //log.debug("j="+j+", size="+ids.size()+", end="+end);
                 data=getRecords(ids.subList(j,end));
-
+                
                 for(Iterator i=data.iterator();i.hasNext();)
                 {
-                    rg=(RecordGroup)i.next();
-                    if(isFirst)//print header for first batch
-                        rg.printRecords(out,visitor,true,false);
-                    else if(j+batchSize >= ids.size() && !i.hasNext()) //footer for last batch
-                        rg.printRecords(out,visitor, false,true);
-                    else //no header or footer
-                        rg.printRecords(out,visitor,false,false);
+                    rec=(Record)i.next();
+
+                    if(isFirst)//print header for first batch                    
+                        rec.printHeader(out, visitor);       
+                    
+                    rec.printRecord(out, visitor);
+                    
+                    if(j+batchSize >= ids.size() && !i.hasNext()) //footer for last batch                    
+                        rec.printFooter(out,visitor);
+                                        
                     isFirst=false;
                 }
             }
@@ -81,31 +85,35 @@ public class UnknownsTextScript implements Script
     }   
     private Collection getRecords(List ids)
     { 
-        Map records=null;
+        Collection unknowns=null;
+        RecordFactory f=RecordFactory.getInstance();
+        QueryParameters qp=new QueryParameters();
+        qp.setIds(ids);
+        
+        unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
+        
         if(dataType.equals("AffyComp"))
-            records=AffyCompRecord.getRootData(dbc,ids);
+            f.addSubType(unknowns, AffyCompRecord.getRecordInfo(),qp);            
         else if(dataType.equals("AffyDetail"))    
-            records=AffyDetailRecord.getRootData(dbc,ids);  
+            f.addSubType(unknowns, AffyDetailRecord.getRecordInfo(),qp);            
         else if(dataType.equals("AffyExpSet"))    
-            records=AffyExpSetRecord.getRootData(dbc,ids);
+            f.addSubType(unknowns, AffyExpSetRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Blast"))    
-            records=BlastRecord.getData(dbc,ids);
+            f.addSubType(unknowns, BlastRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Cluster")) 
-            records=ClusterRecord.getData(dbc,ids);
+            f.addSubType(unknowns, ClusterRecord.getRecordInfo(),qp);            
         else if(dataType.equals("ExternalUnknown"))    
-            records=ExternalUnknownRecord.getData(dbc,ids);
+            f.addSubType(unknowns, ExternalUnknownRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Go"))    
-            records=GoRecord.getData(dbc,ids);
+            f.addSubType(unknowns, GoRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Proteomics"))            
-            records=ProteomicsRecord.getData(dbc,ids);
+            f.addSubType(unknowns, ProteomicsRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Unknown"))
-            return UnknownRecord.getData(dbc,ids,null,"asc",new Map[]{}).values();
+            ;
         else
             log.error("invalid dataType: "+dataType);
-            
-        if(records==null)
-            return null;
-        return UnknownRecord.getData(dbc,ids,null,"asc", new Map[]{records}).values();        
+        
+        return unknowns;
     }
     
   

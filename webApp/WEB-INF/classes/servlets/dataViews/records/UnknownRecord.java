@@ -21,26 +21,16 @@ import servlets.querySets.*;
 /**
  * see docs for <CODE>BlastRecord</CODE>, everything is very similar.
  */
-public class UnknownRecord implements Record
+public class UnknownRecord extends AbstractRecord
 {
     String key,description;
     int estCount,key_id;
     boolean[] go_unknowns;
 
-    Map subRecords=new LinkedHashMap();
+    //Map subRecords=new LinkedHashMap();
     private static Logger log=Logger.getLogger(UnknownRecord.class);
 
-    public UnknownRecord(int key_id,String key, String desc, int estCount, String[] go_unknowns)
-    {
-        this.key_id=key_id;
-        this.key=key;
-        this.description=desc;
-        this.estCount=estCount;
-        this.go_unknowns=new boolean[3];
-        this.go_unknowns[0]=getBoolean(go_unknowns[0]);
-        this.go_unknowns[1]=getBoolean(go_unknowns[1]);
-        this.go_unknowns[2]=getBoolean(go_unknowns[2]);        
-    }
+    
     public UnknownRecord(List values)
     {
         if(values==null || values.size()!=7)
@@ -65,11 +55,7 @@ public class UnknownRecord implements Record
                 str.compareToIgnoreCase("t")==0|| str.equals("1");
     }
    
-    public void setSubRecord(Object name,Object o)
-    {
-        //log.debug("adding sub record: "+o);
-        subRecords.put(name, o);
-    }
+    
     
     public boolean equals(Object o)
     {
@@ -88,13 +74,15 @@ public class UnknownRecord implements Record
     {
         StringBuffer out=new StringBuffer();
         out.append("<PRE>\n"+key+"\n");
-        for (Iterator i=subRecords.entrySet().iterator(); i.hasNext(); ) {
-            Map.Entry e = (Map.Entry) i.next();
-            out.append(e.getKey()+"\n");
-            out.append(e.getValue()+"\n");
+        for (Iterator i=this.iterator(); i.hasNext(); ) {
+            out.append(i.next()+"\n");
         }
         out.append("</PRE>");
         return out.toString();
+    }
+    public Object getPrimaryKey()
+    {
+        return key_id+"";
     }
     
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
@@ -110,87 +98,45 @@ public class UnknownRecord implements Record
         visitor.printFooter(out,this);
     }    
     
-    public static Map getData(DbConnection dbc, List ids) 
+    
+    public int[] getSupportedKeyTypes()
     {
-        return getData(dbc,ids,null,"ASC");
-    }    
-    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
-    {
-
-        Map[] subRecordMaps=new Map[]{
-            GoRecord.getData(dbc,ids),
-            BlastRecord.getData(dbc,ids),            
-            ProteomicsRecord.getData(dbc,ids),
-            ClusterRecord.getData(dbc,ids),
-            ExternalUnknownRecord.getData(dbc,ids),
-            AffyExpSetRecord.getData(dbc,ids,sortCol,sortDir) 
-        };//array of maps of ids to RecordGroups
-        return getData(dbc,ids,sortCol,sortDir, subRecordMaps);
+        return this.getRecordInfo().getSupportedKeyTypes();
     }
-    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir,Map[] subRecordMaps)
+    
+    public static RecordInfo getRecordInfo()
     {
-        log.debug("getting data for unknownRecords");
-        Map unknownRecords,t;
-        RecordGroup unknownRG;
-        if(ids==null || ids.size()==0)
-            return new HashMap();
-
-        
-        log.debug("got data for all sub records");
-        
-        //load the unknown records
-        String query=QuerySetProvider.getRecordQuerySet().getUnknownRecordQuery(ids, sortCol, sortDir);
-        
-        List data=null;
-        try{
-            log.debug("sending query for data");
-            data=dbc.sendQuery(query);
-        }catch(java.sql.SQLException e){
-            log.error("could not send unknownRecord query: "+e.getMessage());
-            return new HashMap();
-        }
-        log.debug("parsing data and building a RecordGroup");
-        RecordSource rb=new RecordSource(){
-            public Record buildRecord(List l){
+        return new RecordInfo(new int[]{0}, 0,7){
+            public Record getRecord(List l)
+            {
                 return new UnknownRecord(l);
             }
-        };                
-        //this will return a map with one mapping to a RecordGroup (the root)
-        unknownRecords=RecordGroup.buildRecordMap(rb,data,1,8);  
-        
-        if(unknownRecords==null)
-            log.debug("unknownRecords is null");
-        
-        unknownRG=(RecordGroup)unknownRecords.get("1");
-
-        if(unknownRG==null)
-            log.debug("unknownRG is null");
-        
-        //these names must appear in the same order as the subRecordMaps array
-        //String[] names=new String[]{"go_numbers","blast_results","proteomics","clusters","externals","affyExpSet"};
-            
-        log.debug("matching up child records with parent records");
-        UnknownRecord ur;
-        Object o;
-        for(Iterator i=unknownRG.iterator();i.hasNext();) 
-        {//match up the child records to the parent records
-            ur=(UnknownRecord)i.next();
-            for(int j=0;j<subRecordMaps.length;j++)
+            public String getQuery(QueryParameters qp,int keyType)
             {
-                o=subRecordMaps[j].get(""+ur.key_id);
-//                if(o==null)
-//                {
-//                    log.debug("could not find key "+ur.key_id+" for dataset "+names[j]);
-//                    log.debug(" in list "+subRecordMaps[j].keySet());
-//                }
-
-                if(o==null)
-                    o=new RecordGroup();                    
-                                
-                ur.setSubRecord(new Integer(j),o);               
+                return QuerySetProvider.getRecordQuerySet().getUnknownRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
             }
-        }
-        log.debug("all done with UnknownRecords");
-        return unknownRecords;                
-    }          
+            public int[] getSupportedKeyTypes() 
+            {
+                return new int[]{Common.KEY_TYPE_ACC};
+            }
+        };
+    }
+    
+    
+ 
+   
+//    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
+//    {
+//
+//        Map[] subRecordMaps=new Map[]{
+//            GoRecord.getData(dbc,ids),
+//            BlastRecord.getData(dbc,ids),            
+//            ProteomicsRecord.getData(dbc,ids),
+//            ClusterRecord.getData(dbc,ids),
+//            ExternalUnknownRecord.getData(dbc,ids),
+//            AffyExpSetRecord.getData(dbc,ids,sortCol,sortDir) 
+//        };//array of maps of ids to RecordGroups
+//        return getData(dbc,ids,sortCol,sortDir, subRecordMaps);
+//    }
+   
 }

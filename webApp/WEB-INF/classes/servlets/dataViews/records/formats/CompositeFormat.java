@@ -9,6 +9,7 @@ package servlets.dataViews.records.formats;
 
 import java.io.*;
 import java.util.*;
+import org.apache.log4j.Logger;
 import servlets.dataViews.records.*;
 
 /**
@@ -18,6 +19,7 @@ import servlets.dataViews.records.*;
 public class CompositeFormat
 {
     
+    private static Logger log=Logger.getLogger(CompositeFormat.class);
     /** Creates a new instance of CompositeFormat */
     public CompositeFormat()
     {
@@ -28,7 +30,7 @@ public class CompositeFormat
     {
        boolean isFirst=true;
        Record r;
-       
+       log.debug("using default composite format");
        while(i.hasNext())
        {
            r=(Record)i.next();

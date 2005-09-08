@@ -31,7 +31,7 @@ public class BlastCompositeFormat extends CompositeFormat
         boolean firstRecord=true;
         String lastPurpose=null;
         
-        Map titles=new HashMap(); 
+        Map<String,String> titles=new HashMap<String,String>(); 
         titles.put("UD","Unknown Searches");
         titles.put("orthologs","Ortholog Searches");
                         

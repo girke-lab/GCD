@@ -17,12 +17,10 @@ public class QueryParameters
 {
 
     private String sortCol=null;
-
     private String sortDir="ASC";
-
     private Collection ids;
-
     private Collection affyKeys;
+    private boolean allGroups=false;
     
     /** Creates a new instance of QueryParameters */
     public QueryParameters()
@@ -67,6 +65,16 @@ public class QueryParameters
     public void setAffyKeys(Collection affyKeys)
     {
         this.affyKeys = affyKeys;
+    }
+
+    public boolean isAllGroups()
+    {
+        return allGroups;
+    }
+
+    public void setAllGroups(boolean allGroups)
+    {
+        this.allGroups = allGroups;
     }
     
 }

@@ -44,30 +44,53 @@ public class HtmlRecordVisitor implements RecordVisitor
         sortCol=col;
         sortDir=dir;
     }
+    
+    // <editor-fold defaultstate="collapsed" desc=" misc records ">
+    ////////////////////////////////////////////////////////////////////////////
+    //            Unknown
+    public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
+    {
+        log.debug("unknown header");
+        out.write("<tr bgcolor='"+PageColors.title+"'><th>Key</th><th>Description</th></tr>\n");
+    }
+    public void printRecord(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
+    {
+        log.debug("unknown record");
+        out.write("<tr><td><a href='http://www.arabidopsis.org/servlets/TairObject?type=locus&name="+
+            ur.key.subSequence(0,ur.key.lastIndexOf('.'))+"'>"+ur.key+"</a></td><td>"+ur.description+"</td></tr>\n");
+        String[] names=new String[]{"mfu","ccu","bpu"};
+        out.write("<tr><td colspan='2'>\n");
+        for(int i=0;i<ur.go_unknowns.length;i++)
+            out.write("<b>"+names[i]+"</b>: "+ur.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
+        out.write("</td></tr>\n");               
+                                
+        printSubRecords(out, ur.iterator(),5,0);        
+        out.write("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>\n");                
+    }
+    public void printFooter(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
+    {                
+        log.debug("unknown footer");
+    }
+    ////////////////////////////////////////////////////////////////////////////
+    //            Go
     public void printHeader(java.io.Writer out, GoRecord gr) throws java.io.IOException
     {
          out.write("<tr bgcolor='"+PageColors.title+"'><th>Go Number</th><th>Description</th><th>Function</th></tr>\n");
     }
-    
-    public void printHeader(java.io.Writer out, BlastRecord br) throws java.io.IOException
-    {
-        out.write("<tr bgcolor='"+PageColors.title+"'>" +
-                "<th>Target Key</th><th>E-value</th>" +
-                "<th>Score</th><th>DB/Method</th></tr>\n");
-    }
-    // <editor-fold defaultstate="collapsed" desc=" misc records ">
-    public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
-    {
-        out.write("<tr bgcolor='"+PageColors.title+"'><th>Key</th><th>Description</th></tr>\n");
-    }
-    
     public void printRecord(java.io.Writer out, GoRecord gr) throws java.io.IOException
     {
          String link="http://www.godatabase.org/cgi-bin/go.cgi?" +
             "depth=0&advanced_query=&search_constraint=terms&query="+gr.go_number+"&action=replace_tree";
          out.write("<tr><td><a href='"+link+"'>"+gr.go_number+"</a></td><td>"+gr.text+"</td><td>"+gr.function+"</td></tr>\n");
     }
-    
+    ////////////////////////////////////////////////////////////////////////////
+    //            Blast
+    public void printHeader(java.io.Writer out, BlastRecord br) throws java.io.IOException
+    {
+        out.write("<tr bgcolor='"+PageColors.title+"'>" +
+                "<th>Target Key</th><th>E-value</th>" +
+                "<th>Score</th><th>DB/Method</th></tr>\n");
+    }
     public void printRecord(java.io.Writer out, BlastRecord br) throws java.io.IOException
     {                
         String target=br.target;        
@@ -79,25 +102,8 @@ public class HtmlRecordVisitor implements RecordVisitor
                     (br.score==null || br.score.equals("")?"&nbsp":br.score)+"</td>" +
                     "<td>"+br.dbname+"/"+br.method+"</td></tr>\n");
     }    
-    public void printRecord(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
-    {
-        out.write("<tr><td><a href='http://www.arabidopsis.org/servlets/TairObject?type=locus&name="+
-            ur.key.subSequence(0,ur.key.lastIndexOf('.'))+"'>"+ur.key+"</a></td><td>"+ur.description+"</td></tr>\n");
-        String[] names=new String[]{"mfu","ccu","bpu"};
-        out.write("<tr><td colspan='2'>\n");
-        for(int i=0;i<ur.go_unknowns.length;i++)
-            out.write("<b>"+names[i]+"</b>: "+ur.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
-        out.write("</td></tr>\n");               
-                                
-        printSubRecords(out, ur.subRecords.values(),5,0);        
-        out.write("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>\n");                
-    }
-   
-    public void printFooter(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
-    {        
-        
-    }
-    
+    ////////////////////////////////////////////////////////////////////////////
+    //            Proteomics
     public void printHeader(java.io.Writer out, ProteomicsRecord pr) throws java.io.IOException
     {
         String prob="Probability";
@@ -109,7 +115,8 @@ public class HtmlRecordVisitor implements RecordVisitor
     {
         out.write("<tr><td>"+pr.mol_weight+"</td><td>"+pr.ip+"</td><td>"+pr.charge+"</td><td>"+pr.prob+"</td></tr>\n");
     }
-    
+    ////////////////////////////////////////////////////////////////////////////
+    //                Cluster
     public void printHeader(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
         out.write("<tr bgcolor='"+PageColors.title+"'><th>Cluster Size(Method)</th></tr>\n");
@@ -122,34 +129,15 @@ public class HtmlRecordVisitor implements RecordVisitor
         String page="http://bioweb.ucr.edu/databaseWeb/QueryPageServlet?searchType=Cluster Id&displayType=seqView&inputKey="+cr.key;
         
         out.write("<a href='"+page+"'>"+cr.size+"("+cr.method+")</a> &nbsp&nbsp&nbsp ");
-        if(cr.showClusterCentricView)
-        { //print the list of keys that are in this cluster
-            int colNum=3;
-            int length=cr.keys.size();
-            int keysPerCol=(int)(length/colNum);
-            
-            out.write("</td></tr>"); //end the cluster(cutoff) row
-            out.write("<tr><td colspan='5'><table bgcolor='"+PageColors.data+"' width='100%'" +
-                " border='1' cellspacing='0' cellpadding='0'>\n");
-            out.write("<tr  bgcolor='"+PageColors.title+"'><th colspan='"+colNum+"'>Cluster Members</th></tr>");
-            for(int i=0;i<length;i++)
-            {
-                out.write("<tr>");
-                for(int c=0;i<colNum;c++)
-                    if(i+c*keysPerCol < length)
-                        out.write("<td>"+cr.keys.get(i+c*keysPerCol)+"</td>");
-                    else
-                        out.write("<td>&nbsp</td>");
-                out.write("</tr>");
-            }
-            out.write("</table></td></tr><tr><td>"); //set up another row for future cluster(cutoff) entries
-        }
+        //out.write("</table></td></tr><tr><td>"); //set up another row for future cluster(cutoff) entries
+        
     }    
     public void printFooter(java.io.Writer out, ClusterRecord cr) throws java.io.IOException
     {
         out.write("</td></tr>"); //end the last cluster(cutoff) row
     }
-    
+    ////////////////////////////////////////////////////////////////////////////
+    //                ExternalUnknown
     public void printHeader(java.io.Writer out, ExternalUnknownRecord eur) throws java.io.IOException
     {
         out.write("<tr><th bgcolor='"+PageColors.title+"'>External Sources</th></tr>\n");
@@ -163,25 +151,36 @@ public class HtmlRecordVisitor implements RecordVisitor
     {
         out.write("</td></tr>");
     }
-    
+    ////////////////////////////////////////////////////////////////////////////
+    //                Composite
     public void printHeader(Writer out, CompositeRecord cr) throws IOException
     {
+        log.debug("composite header");
     }
     public void printRecord(Writer out, CompositeRecord cr) throws IOException
     {
+        log.debug("composite record");
+//        out.write("<tr>");            
+//        out.write("<td colspan='0'><TablE bgcolor='"+PageColors.data+"' width='100%'" +
+//                " border='1' cellspacing='0' cellpadding='0'>\n");
         cr.getFormat().printRecords(out,this,cr.iterator());
+//        out.write("</TablE></td></tr>\n");
     }
     public void printFooter(Writer out, CompositeRecord cr) throws IOException
     {
+        log.debug("composite footer");
     }
 
     //</editor-fold>
     
     // <editor-fold desc=" Affy record stuff ">
     ///////////////////////// Affy stuff  ////////////////////////////////////
+    
+    ////////////////////////////////////////////////////////////////////////////
+    //            AffyExpSet
     public void printHeader(Writer out, AffyExpSetRecord ar) throws IOException
     {
-
+ 
         
         String[] titles=new String[]{"AffyID","Exp","Name","up 2x","down 2x","up 4x","down 4x","on","off"};
         String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.EXPSET]; 
@@ -203,7 +202,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         
         out.write("<tr bgcolor='"+ar.rowColor+"'>");
         
-        printTreeControls(out,link,key,ar.subRecords);    
+        printTreeControls(out,link,key,ar.iterator());    
         out.write("<td>"+ar.probeSetKey+"</td><td><a href='"+expSetKeyLink+"' "+popup+">"+
                 ar.expSetKey+"</a></td>");
         out.write("<td>"+(ar.name.equals("")?"&nbsp":ar.name)+"</td>"); //  <td>"+ar.description+"</td>");
@@ -212,12 +211,13 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("</tr>");
         
         //print sub records
-        printSubRecords(out, ar.subRecords,9,1);
+        printSubRecords(out, ar.iterator(),9,1);
     }
     public void printFooter(Writer out, AffyExpSetRecord ar) throws IOException
     {
     }
-
+    ////////////////////////////////////////////////////////////////////////////
+    //            AffyComp
     public void printHeader(Writer out, AffyCompRecord ar) throws IOException
     {        
         String[] titles=new String[]{"Comparison","Control mean","Treat mean",
@@ -237,25 +237,26 @@ public class HtmlRecordVisitor implements RecordVisitor
         DecimalFormat df=new DecimalFormat("0.00");        
 
         out.write("<tr>");       
-        printTreeControls(out,link,key,ar.subRecords);                
+        printTreeControls(out,link,key,ar.iterator());                
         out.write("<td>"+ar.comparison+"</td><td>"+df.format(ar.controlMean)+"</td>");
         out.write("<td>"+df.format(ar.treatmentMean)+"</td><td>"+ar.controlPMA+"</td>");
         out.write("<td>"+ar.treatmentPMA+"</td><td>"+df.format(ar.ratio)+"</td>");
         out.write("</tr>");
         
-        printSubRecords(out,ar.subRecords,6, 1);
+        printSubRecords(out,ar.iterator(),6, 1);
     }
    
     public void printFooter(Writer out, AffyCompRecord ar) throws IOException
     {
     }
-    
+    ////////////////////////////////////////////////////////////////////////////
+    //                AffyDetail
     public void printHeader(Writer out, AffyDetailRecord ar) throws IOException
     {
         String[] titles=new String[]{"Type","Cel File","Intensity","PMA"};
         String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.DETAIL]; 
         
-        out.write("<tr bgcolor='"+PageColors.title+"'><a name='"+ar.probeSetId+"'>&nbsp</a>");
+        out.write("<tr bgcolor='"+PageColors.title+"'><a name='"+ar.probeSetId+"'></a>");
         printTableTitles(new PrintWriter(out), titles, feilds,"detail",ar.probeSetId.toString());        
         out.write("</tr>\n");        
     }
@@ -277,35 +278,40 @@ public class HtmlRecordVisitor implements RecordVisitor
     
     ////////////////////////////////////////////////////////////////////////////
     
-    private void printSubRecords(java.io.Writer out, Collection recordGroups,int span, int shift) throws java.io.IOException
+    private void printSubRecords(java.io.Writer out, Iterator itr,int span, int shift) throws java.io.IOException
     {
-        if(recordGroups==null || recordGroups.size()==0)
+        if(itr==null)
             return;
         String spaces="";
         for(int i=0;i<shift;i++)
             spaces+="<td>&nbsp</td>";
-        RecordGroup rg;
-        for(Iterator i=recordGroups.iterator();i.hasNext();)
+        Record rec;
+        //log.debug("printing sub records");
+        while(itr.hasNext())
         {
-            rg=(RecordGroup)i.next();
-            if(rg.records==null || rg.records.size()==0)
+            log.debug("printing a sub record");
+            rec=(Record)itr.next();
+            if(rec==null || !rec.iterator().hasNext())
+            {
+                log.debug("skipping "+rec.getClass());
                 continue;
+            }
             out.write("<tr>"+spaces);            
             out.write("<td colspan='"+span+"'><TablE bgcolor='"+PageColors.data+"' width='100%'" +
                 " border='1' cellspacing='0' cellpadding='0'>\n");
-            rg.printRecords(out,this);
+            rec.printHeader(out, this);
+            rec.printRecord(out, this);
+            rec.printFooter(out, this);
             out.write("</TablE></td></tr>\n");
         }                    
+        //log.debug("done with sub records");
     }
-    private void printTreeControls(Writer out, String link, String key,List records)  throws IOException
+    private void printTreeControls(Writer out, String link, String key,Iterator recordItr)  throws IOException
     {
         String imageOptions=" border='0' height='10' width='15' ";
-        Iterator i=null;
-        if(records!=null && records.size()!=0)
-            i=((RecordGroup)records.get(0)).iterator();                
      
         out.write("<td nowrap>"+"<a name='"+key+"'></a>"); 
-        if(i==null || !i.hasNext()) //no children
+        if(recordItr==null || !recordItr.hasNext()) //no children
             out.write("<a href='"+link+"&action=expand#"+key+"'><img src='images/arrow_down.png' title='expand' "+imageOptions+" ></a>&nbsp&nbsp\n");
         else 
             out.write("<a href='"+link+"&action=collapse#"+key+"'><img src='images/arrow_up.png' title='collapse' "+imageOptions+" ></a>\n");

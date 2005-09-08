@@ -46,26 +46,24 @@ public class TextRecordVisitor implements RecordVisitor
     public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {
         log.debug("printing unknowns header");
-        if(ur.subRecords.size()==0)
+        if(!ur.iterator().hasNext())
             out.write("key\tdescription\n");   
         else
         {        
             log.debug("printing sub record headers");
-            RecordGroup list;        
-            for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
+            Record list;        
+            for(Iterator i=ur.iterator();i.hasNext();)
             {
-                list=(RecordGroup)i.next();
+                list=(Record)i.next();
                 if(list != null )
-                {
-                    log.debug("non null record group, size="+list.records.size());
+                {                    
                     Iterator j=list.iterator();
                     if(j.hasNext())
                     {
                         log.debug("found a record");
                         ((Record)j.next()).printHeader(out,this);
                     }
-                }
-                    //((Record)list.iterator().next()).printHeader(out,this);                
+                }                 
             }        
         }
     }
@@ -82,18 +80,19 @@ public class TextRecordVisitor implements RecordVisitor
     
     public void printRecord(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {        
+        //log.debug("printing unknown record");
         currentAccession=ur.key;
-        if(ur.subRecords.size()==0)
+        if(!ur.iterator().hasNext())
             out.write(ur.key+"\t"+ur.description+"\n");
         else
         {
-            RecordGroup list;
-            for(Iterator i=ur.subRecords.values().iterator();i.hasNext();)
+            Record list;
+            for(Iterator i=ur.iterator();i.hasNext();)
             {
-                list=(RecordGroup)i.next(); //each collection is from a different table
+                list=(Record)i.next(); //each collection is from a different table
                 if(list==null)
                     continue;
-                log.debug("record count="+list.records.size());
+                
                 for(Iterator j=list.iterator();j.hasNext();)
                     ((Record)j.next()).printRecord(out,this);     
                 if(i.hasNext()) ///data from each table goes in one column
@@ -188,6 +187,26 @@ public class TextRecordVisitor implements RecordVisitor
     }
     public void printFooter(Writer out, AffyDetailRecord ar) throws IOException
     {
+    }
+    
+    public void printFooter(Writer out, CompositeRecord cr) throws IOException
+    {
+        Iterator<Record> i=cr.iterator();
+        if(i.hasNext())
+            i.next().printFooter(out,this);
+    }
+    public void printHeader(Writer out, CompositeRecord cr) throws IOException
+    {        
+        Iterator<Record> i=cr.iterator();
+        if(i.hasNext())
+            i.next().printHeader(out,this);
+    }
+    public void printRecord(Writer out, CompositeRecord cr) throws IOException
+    {
+        //cr.getFormat().printRecords(out,this,cr.iterator());
+                
+        for(Iterator<Record> i=cr.iterator();i.hasNext();)
+            i.next().printRecord(out, this);
     }
 
 }

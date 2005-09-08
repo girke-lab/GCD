@@ -20,14 +20,13 @@ import servlets.dataViews.AffyKey;
  *
  * @author khoran
  */
-public class AffyExpSetRecord implements   Record
+public class AffyExpSetRecord extends AbstractRecord
 {
     
     String probeSetKey,expSetKey,link;
     String catagory,name,description;
     Integer up4,down4, up2, down2,on, off;
-    Integer accId,probeSetId, expSetId;
-    List subRecords;
+    Integer accId,probeSetId, expSetId;    
     WebColor rowColor;
     
     private static Logger log=Logger.getLogger(AffyExpSetRecord.class);
@@ -71,7 +70,14 @@ public class AffyExpSetRecord implements   Record
             rowColor=PageColors.data;
         
     }
-    
+    public Object getPrimaryKey()
+    {
+        return probeSetId+"_"+expSetId;
+    }
+    public int getChildKeyType()
+    {
+        return Common.KEY_TYPE_COMP;
+    }
     
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
@@ -86,12 +92,7 @@ public class AffyExpSetRecord implements   Record
         visitor.printFooter(out,this); 
     }
     
-    public void addSubRecord(RecordGroup rg)
-    {
-        if(subRecords==null)
-            subRecords=new LinkedList();
-        subRecords.add(rg);
-    }
+   
     
     public boolean equals(Object o)
     {
@@ -107,119 +108,29 @@ public class AffyExpSetRecord implements   Record
         return probeSetKey.hashCode()+expSetKey.hashCode();
     }
     
-    public static Map getData(DbConnection dbc, Collection ids,String sortCol, String sortDir)
+    
+    public int[] getSupportedKeyTypes()
     {
-        return getData(dbc,ids,new LinkedList(),sortCol, sortDir);
+        return this.getRecordInfo().getSupportedKeyTypes();
     }
-//    public static Map getData(DbConnection dbc, Collection ids, Collection affyKeys)
-//    {
-//        return getData(dbc,ids,affyKeys,null, "ASC");
-//    }
-    public static Map getData(DbConnection dbc, Collection ids)
+    
+    public static RecordInfo getRecordInfo()
     {
-        //wrap accession_ids in AffyKey objects for the affy records
-        List affyKeys=new LinkedList();
-        for(Iterator i=ids.iterator();i.hasNext();)
-            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
-            
-        return getData(dbc,ids,affyKeys,true,null,"asc");
-    }
-    public static Map getData(DbConnection dbc, Collection ids, Collection affyKeys, String sortCol, String sortDir)
-    {
-        return getData(dbc,ids,affyKeys,false,sortCol,sortDir);
-    }
-    public static Map getData(DbConnection dbc, Collection ids, Collection affyKeys, boolean allGroups, String sortCol, String sortDir)
-    {
-        if(ids==null || ids.size()==0)
-            return new HashMap();
-        
-        
-        String query=QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(ids,sortCol,sortDir);
-                
-        List data=null;
-        Map expSetRecordsMap;
-        RecordGroup expSetGroup;
-                
-        try{        
-            data=dbc.sendQuery(query);        
-        }catch(java.sql.SQLException e){
-            log.error("could not send AffyRecord query: "+e.getMessage());
-            return new HashMap();
-        }
-        
-        Map[] subRecordMaps=new Map[]{
-            AffyCompRecord.getData(dbc,affyKeys, allGroups, sortCol, sortDir)
+        return new RecordInfo(new int[]{0}, 0,15){
+            public Record getRecord(List l)
+            {
+                return new AffyExpSetRecord(l);
+            }
+            public String getQuery(QueryParameters qp,int keyType)
+            {
+                return QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
+            }
+            public int[] getSupportedKeyTypes()
+            {
+                return new int[]{Common.KEY_TYPE_ACC};
+            }
         };
-        
-        RecordSource rb=new RecordSource(){
-            public Record buildRecord(List l){
-                return new AffyExpSetRecord(l);
-            }
-        };                
-        
-        
-        
-        expSetRecordsMap=RecordGroup.buildRecordMap(rb,data,0,15);           
-        
-        AffyExpSetRecord affyRec;
-        RecordGroup rg;
-        //log.debug("expSetRecordsMap=\n"+expSetRecordsMap);
-        log.debug("combining affy exp set sub records");
-        
-        for(Iterator j=expSetRecordsMap.values().iterator();j.hasNext();) 
-        { //each map entry corresponds to one accession.
-            for(Iterator i=((RecordGroup)j.next()).iterator();i.hasNext();)
-            { //each recordGroup of each accession needs to have
-                //it subrecords added
-                affyRec=(AffyExpSetRecord)i.next();        
-                for(Map subRecordMap : subRecordMaps)
-                {//go through the sub record map add find any associated with 
-                    //this RecordGroup
-                    rg=(RecordGroup)subRecordMap.get(affyRec.probeSetId+"_"+affyRec.expSetId);
-//                    if(rg==null)
-//                    {
-//                        log.debug("no record found for "+affyRec.probeSetId+"_"+affyRec.expSetId);
-//                        log.debug("key list: "+subRecordMap.keySet());
-//                    }
-                    
-                    if(rg==null)
-                        rg=new RecordGroup();
-                    affyRec.addSubRecord(rg);
-                }
-            }            
-        }
-
-        log.debug("done combining");
-        
-        return expSetRecordsMap; //map keyed on accession_id
-    }
-    public static Map getRootData(DbConnection dbc, Collection ids)
-    {
-        if(ids==null || ids.size()==0)
-            return new HashMap();
-        
-        
-        String query=QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(ids,null, "asc");
-                
-        List data=null;
-        Map expSetRecordsMap;
-        RecordGroup expSetGroup;
-                
-        try{        
-            data=dbc.sendQuery(query);        
-        }catch(java.sql.SQLException e){
-            log.error("could not send AffyRecord query: "+e.getMessage());
-            return new HashMap();
-        }              
-        
-        RecordSource rb=new RecordSource(){
-            public Record buildRecord(List l){
-                return new AffyExpSetRecord(l);
-            }
-        };                
-        
-        expSetRecordsMap=RecordGroup.buildRecordMap(rb,data,0,15);   
-        
-        return expSetRecordsMap;
-    }
+    }        
+    
+  
 }

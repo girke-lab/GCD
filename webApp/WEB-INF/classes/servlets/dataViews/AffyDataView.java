@@ -228,11 +228,38 @@ public class AffyDataView implements DataView
     {               
         log.debug("sortCol="+sortCol);
         //List idLists=getIdLists();
-        Map[] subRecordMaps=new Map[]{
-            AffyExpSetRecord.getData(dbc,accIds,nodeSet, sortCol, sortDir)            
-        };
-        Map records=UnknownRecord.getData(dbc,accIds,"","asc",subRecordMaps);
-        return records.values();                                 
+//        Map[] subRecordMaps=new Map[]{
+//            AffyExpSetRecord.getData(dbc,accIds,nodeSet, sortCol, sortDir)            
+//        };
+//        Map records=UnknownRecord.getData(dbc,accIds,"","asc",subRecordMaps);
+        
+        Collection unknowns;
+        RecordFactory f=RecordFactory.getInstance();
+        QueryParameters qp=new QueryParameters();
+        qp.setIds(accIds);
+        qp.setAffyKeys(nodeSet);
+        
+//        unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
+//        expSets=f.addSubType(unknowns,AffyExpSetRecord.getRecordInfo(),qp);
+//        comps=f.addSubType(expSets,AffyCompRecord.getRecordInfo(),qp);
+//        details=f.addSubType(comps,AffyDetailRecord.getRecordInfo(),qp);
+        
+        unknowns=f.getRecords(UnknownRecord.getRecordInfo(),qp);
+        f.addSubType(
+            f.addSubType(
+                f.addSubType(
+                    unknowns,
+                    AffyExpSetRecord.getRecordInfo(), qp
+                ),
+                AffyCompRecord.getRecordInfo(),qp
+            ), 
+            AffyDetailRecord.getRecordInfo(), qp
+        );
+
+        return unknowns;
+        
+        //return details;
+                                
     }        
     
     private void printData(PrintWriter out,Collection data)
@@ -241,14 +268,21 @@ public class AffyDataView implements DataView
         //log.debug("printing "+data.size()+" records");
         out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
             " align='center' border='1' cellspacing='0' cellpadding='0'>");
-        RecordGroup rec;
+        Record rec;
         RecordVisitor visitor=new HtmlRecordVisitor();
+        
         log.debug("hid in printData="+hid);
+        
         ((HtmlRecordVisitor)visitor).setHid(hid);
         ((HtmlRecordVisitor)visitor).setSortInfo(sortCol, sortDir);
         try{
             for(Iterator i=data.iterator();i.hasNext();)
-                ((RecordGroup)i.next()).printRecords(out,visitor);  
+            {
+                rec=(Record)i.next();
+                rec.printHeader(out, visitor);
+                rec.printRecord(out, visitor);
+                rec.printFooter(out, visitor);
+            }          
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());
         }

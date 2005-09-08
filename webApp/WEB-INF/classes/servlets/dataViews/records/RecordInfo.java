@@ -29,10 +29,16 @@ public abstract class RecordInfo
         this.start=start;
         this.end=end;
     }
+    public RecordInfo(int start,int end)
+    {
+        this.start=start;
+        this.end=end;
+        key=null;
+    }
     
-    public abstract String getQuery(QueryParameters qp);
+    public abstract String getQuery(QueryParameters qp,int keyType);
     public abstract Record getRecord(List l);
-    public abstract int[] getSupportedKeyTypes();
+    public abstract int[] getSupportedKeyTypes();    
     
     public int getStart()
     {
