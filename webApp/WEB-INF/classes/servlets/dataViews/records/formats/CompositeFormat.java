@@ -30,7 +30,7 @@ public class CompositeFormat
     {
        boolean isFirst=true;
        Record r;
-       log.debug("using default composite format");
+       //log.debug("using default composite format");
        while(i.hasNext())
        {
            r=(Record)i.next();

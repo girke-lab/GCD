@@ -54,8 +54,7 @@ public class UnknownRecord extends AbstractRecord
         return str.compareToIgnoreCase("true")==0 || str.compareToIgnoreCase("yes")==0 ||
                 str.compareToIgnoreCase("t")==0|| str.equals("1");
     }
-   
-    
+       
     
     public boolean equals(Object o)
     {

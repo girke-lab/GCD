@@ -520,16 +520,16 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return "";
     }
 
-    public String getAffyDetailRecordQuery(Collection ids, boolean allGroups, String sortcol, String sortDir)
+    public String getAffyDetailRecordQuery(Collection ids, String dataType, boolean allGroups, String sortcol, String sortDir)
     {
         return "";
     }
 
-   public String getAffyCompRecordQuery(Collection ids, String sortcol, String sortDir)
+   public String getAffyCompRecordQuery(Collection ids, String dataType, String sortcol, String sortDir)
     {
         return "";
     }            
-    public String getAffyExpSetRecordQuery(Collection ids, String sortcol, String sortDir)
+    public String getAffyExpSetRecordQuery(Collection ids, String dataType, String sortcol, String sortDir)
     {
         return "";
     }

@@ -15,16 +15,28 @@ import java.util.*;
  */
 public class QueryParameters
 {
-
-    private String sortCol=null;
-    private String sortDir="ASC";
     private Collection ids;
     private Collection affyKeys;
+    
+    private String sortCol=null;
+    private String sortDir="ASC";    
+    private String dataType="mas5";
+    
     private boolean allGroups=false;
     
     /** Creates a new instance of QueryParameters */
     public QueryParameters()
     {
+    }
+    public QueryParameters(Collection ids)
+    {
+        this.ids=ids;
+    }
+    public QueryParameters(Collection ids,String sortCol, String sortDir)
+    {
+        this.ids=ids;
+        this.sortCol=sortCol;
+        this.sortDir=sortDir;
     }
 
     public String getSortCol()
@@ -75,6 +87,16 @@ public class QueryParameters
     public void setAllGroups(boolean allGroups)
     {
         this.allGroups = allGroups;
+    }
+
+    public String getDataType()
+    {
+        return dataType;
+    }
+
+    public void setDataType(String dataType)
+    {
+        this.dataType = dataType;
     }
     
 }

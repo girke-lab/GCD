@@ -24,11 +24,17 @@ public class TextRecordVisitor implements RecordVisitor
 {
     private static Logger log=Logger.getLogger(TextRecordVisitor.class);
     private String currentAccession="";
+    private boolean printDescription;
     
     /** Creates a new instance of TextRecordVisitor */
     public TextRecordVisitor()
     {
     }
+    public void setPrintDescription(boolean b)
+    {
+        printDescription=b;
+    }
+    
     
     //<editor-fold defaultstate="collapsed" desc="misc">
     public void printHeader(java.io.Writer out, GoRecord gr) throws java.io.IOException
@@ -46,7 +52,7 @@ public class TextRecordVisitor implements RecordVisitor
     public void printHeader(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {
         log.debug("printing unknowns header");
-        if(!ur.iterator().hasNext())
+        if(printDescription)
             out.write("key\tdescription\n");   
         else
         {        
@@ -82,7 +88,7 @@ public class TextRecordVisitor implements RecordVisitor
     {        
         //log.debug("printing unknown record");
         currentAccession=ur.key;
-        if(!ur.iterator().hasNext())
+        if(printDescription)
             out.write(ur.key+"\t"+ur.description+"\n");
         else
         {
@@ -97,10 +103,8 @@ public class TextRecordVisitor implements RecordVisitor
                     ((Record)j.next()).printRecord(out,this);     
                 if(i.hasNext()) ///data from each table goes in one column
                     out.write(",");
-            }
-            
-        }
-            
+            }            
+        }            
     }
     public void printFooter(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {
@@ -209,4 +213,16 @@ public class TextRecordVisitor implements RecordVisitor
             i.next().printRecord(out, this);
     }
 
+
+
+    public void printHeader(Writer out, ProbeSetRecord psr) throws IOException
+    {
+    }
+
+    public void printRecord(Writer out, ProbeSetRecord psr) throws IOException
+    {
+    }
+    public void printFooter(Writer out, ProbeSetRecord psr) throws IOException
+    {
+    }
 }

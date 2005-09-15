@@ -59,6 +59,10 @@ public interface RecordVisitor
     public void printRecord(java.io.Writer out, CompositeRecord cr) throws java.io.IOException;
     public void printFooter(java.io.Writer out, CompositeRecord cr) throws java.io.IOException;
 
+    public void printHeader(java.io.Writer out, ProbeSetRecord psr) throws java.io.IOException;
+    public void printRecord(java.io.Writer out, ProbeSetRecord psr) throws java.io.IOException;
+    public void printFooter(java.io.Writer out, ProbeSetRecord psr) throws java.io.IOException;
+    
     //public void printHeader(java.io.Writer out) throws java.io.IOException;
     //public void printRecord(java.io.Writer out) throws java.io.IOException;
     //public void printFooter(java.io.Writer out) throws java.io.IOException;

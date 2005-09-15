@@ -91,9 +91,9 @@ public class AffyDetailRecord extends AbstractRecord
                         Collection<AffyKey> affyKeys=new LinkedList<AffyKey>();
                         for(Iterator i=qp.getIds().iterator();i.hasNext();)
                             affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
-                        return QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(affyKeys,true,qp.getSortCol(), qp.getSortDir());
+                        return QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(affyKeys,qp.getDataType(), true,qp.getSortCol(), qp.getSortDir());
                     case Common.KEY_TYPE_DETAIL:
-                        return QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(qp.getAffyKeys(),qp.isAllGroups(),qp.getSortCol(), qp.getSortDir());
+                        return QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(qp.getAffyKeys(),qp.getDataType(), qp.isAllGroups(),qp.getSortCol(), qp.getSortDir());
                     default:
                         return null;
                 }

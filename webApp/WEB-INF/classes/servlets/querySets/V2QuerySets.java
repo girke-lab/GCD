@@ -317,20 +317,31 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
-    public String getAffyDetailRecordQuery(Collection affyKeys, boolean allGroups, String sortcol, String sortDir)
+    public String getAffyDetailRecordQuery(Collection affyKeys, String dataType, boolean allGroups, String sortcol, String sortDir)
     {                        
         if(sortcol!=null && sortcol.startsWith("detail_"))
             sortcol=sortcol.replaceFirst("detail_", "");
         else
             sortcol="type_name";
-        String query="SELECT DISTINCT ON (sequence_accession_id,file_name) * FROM affy.detail_view " +
-                " WHERE "+ AffyKey.buildIdSetCondition(affyKeys, !allGroups) +                    
-                " ORDER BY sequence_accession_id, file_name, "+
-                    sortcol+" "+sortDir;
+        
+        String query="SELECT * FROM " +
+                " (SELECT DISTINCT ON (sequence_accession_id, file_name) * " +
+                "   FROM affy.detail_view " +
+                "   WHERE "+AffyKey.buildIdSetCondition(affyKeys, !allGroups) +
+                "           AND data_type='"+dataType+"' "+
+                "   ORDER BY sequence_accession_id, file_name " +
+                " ) as t " +
+                "ORDER BY "+sortcol+" "+sortDir;
+                
+        
+//        String query="SELECT DISTINCT ON (sequence_accession_id,file_name) * FROM affy.detail_view " +
+//                " WHERE "+ AffyKey.buildIdSetCondition(affyKeys, !allGroups) +                    
+//                " ORDER BY sequence_accession_id, file_name, "+
+//                    sortcol+" "+sortDir;
         logQuery(query);
         return query;
     }
-    public String getAffyCompRecordQuery(Collection affyKeys, String sortcol, String sortDir)
+    public String getAffyCompRecordQuery(Collection affyKeys, String dataType, String sortcol, String sortDir)
     {
         if(sortcol!=null && sortcol.startsWith("comp_"))
             sortcol=sortcol.replaceFirst("comp_", "");
@@ -343,14 +354,18 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 "experiment_set_id, experiment_set_key, comparison, " +
                 "control_mean, treatment_mean, control_pma, treatment_pma, t_c_ratio_lg";
 
-        String query="SELECT  * FROM affy.experiment_group_summary_mv " +
-                " WHERE "+ AffyKey.buildIdSetCondition(affyKeys,false) +
-                //" ORDER BY probe_set_key_id asc, experiment_set_id asc, "+
-                " ORDER BY "+ sortcol+" "+sortDir;           
+        String query="SELECT * FROM "+                
+                "   (SELECT DISTINCT ON (probe_set_key_id, experiment_set_id, comparison)  * " +
+                "       FROM affy.experiment_group_summary_mv " +
+                "       WHERE "+ AffyKey.buildIdSetCondition(affyKeys,false) +
+                "               AND data_type='"+dataType+"' "+
+                "       ORDER BY probe_set_key_id, experiment_set_id, comparison  "+
+                "   ) as t "+
+                "ORDER BY "+ sortcol+" "+sortDir;           
         logQuery(query);
         return query;
     }            
-    public String getAffyExpSetRecordQuery(Collection ids, String sortcol, String sortDir)
+    public String getAffyExpSetRecordQuery(Collection ids, String dataType, String sortcol, String sortDir)
     {
         if(sortcol!=null && sortcol.startsWith("expset_"))
             sortcol=sortcol.replaceFirst("expset_", "");
@@ -359,11 +374,21 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         
         String query="SELECT DISTINCT * FROM affy.experiment_set_summary_mv "+
                 " WHERE "+Common.buildIdListCondition("accession_id",ids)+
+                "               AND data_type='"+dataType+"' "+
                 " ORDER BY "+sortcol+" "+sortDir; 
         
         logQuery(query);
         return query;        
     }
+    public String getProbeSetRecordQuery(Collection ids)
+    {
+        String query="SELECT * FROM affy.psk_by_model_view " +                
+                " WHERE "+Common.buildIdListCondition("accession_id",ids)+
+                " ORDER BY key";
+        logQuery(query);
+        return query;
+    }
+
 // </editor-fold>
    
     // <editor-fold defaultstate="collapsed" desc=" Database methods ">
@@ -825,6 +850,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
    
     //</editor-fold>
+
   
 
    

@@ -23,7 +23,10 @@ import servlets.search.Search;
 
 public class AffyDataView implements DataView
 {
-    private static Logger log=Logger.getLogger(AffyDataView.class);
+    private static Logger log=Logger.getLogger(AffyDataView.class);    
+    private static final int MAS5=0, RMA=1;
+    private static final String[] dataTypes=new String[]{"mas5","gcrma"};
+    private static final String[] dataTypeTitles=new String[]{"MAS 5","RMA"};
     
     private int keyType, hid;
     private String sortDir, sortCol,action;
@@ -31,6 +34,8 @@ public class AffyDataView implements DataView
     private Set nodeSet=null;
     private List[] newIds;
     private List accIds;
+    private int dataType;
+    
     DbConnection dbc=null;  
     
     //indexes into idLists list 
@@ -84,50 +89,34 @@ public class AffyDataView implements DataView
                     storage.put(accIds,nodeSet);                    
                 }                                
                 //now that we have a new/existing set of keys, add the ids for this request
-                log.debug("acc ids: "+accIds);
-                if(action==null)
-                    ;
-//                    for(Iterator i=newIds[ACC].iterator();i.hasNext();)
-//                        nodeSet.add(new AffyKey(new Integer((String)i.next()),null,null));
-                else 
+                Iterator accItr,pskItr,esItr,groupItr;                    
+                pskItr=newIds[PSK].iterator();
+                esItr=newIds[ES].iterator();
+                groupItr=newIds[GROUP].iterator();
+
+                boolean add=action!=null && action.equals("expand");
+
+                log.debug("nodeSet before: "+nodeSet);
+                while(pskItr.hasNext() && esItr.hasNext())
                 {
-                    Iterator accItr,pskItr,esItr,groupItr;                    
-                    pskItr=newIds[PSK].iterator();
-                    esItr=newIds[ES].iterator();
-                    groupItr=newIds[GROUP].iterator();
-                    
-                    boolean add=action.equals("expand");
-                    if(!add && !action.equals("collapse"))
-                    {
-                        log.warn("invalid action: "+action);
-                        return;
-                    }
-                    
-                    log.debug("nodeSet before: "+nodeSet);
-                    while(pskItr.hasNext() && esItr.hasNext())
-                    {
-                        Integer group=null;
-                        
-                        if(groupItr.hasNext())
-                            group=(Integer)groupItr.next();
-                        AffyKey n=new AffyKey(-1, (Integer)pskItr.next(), (Integer)esItr.next(),group);                        
-                        
-                        if(add)
-                            nodeSet.add(n);
-                        else
-                            nodeSet.remove(n);
-                        
-                    }
-                    log.debug("nodeSet="+nodeSet);
-                    
+                    Integer group=null;
+
+                    if(groupItr.hasNext())
+                        group=(Integer)groupItr.next();
+                    AffyKey n=new AffyKey(-1, (Integer)pskItr.next(), (Integer)esItr.next(),group);                        
+
+                    if(add)
+                        nodeSet.add(n);
+                    else
+                        nodeSet.remove(n);
 
                 }
-                
+                log.debug("nodeSet="+nodeSet);
+
                 out.println("Download data: &nbsp");
                 Common.printUnknownDownloadLinks(out, hid, search.getResults().size());               
             }            
-         };
-        
+         };        
     }
 
     public int[] getSupportedKeyTypes()
@@ -166,7 +155,7 @@ public class AffyDataView implements DataView
     public void printHeader(java.io.PrintWriter out)
     {        
         Common.printUnknownHeader(out);
-        Common.printUnknownsSearchLinks(out);
+        
         
         out.println(
                 "<style type='text/css'>" +
@@ -175,10 +164,16 @@ public class AffyDataView implements DataView
                 "</style>");
         
         out.println("<div class='test'>");
+        
+        Common.printUnknownsSearchLinks(out);
+        int nextDataType=(dataType==MAS5 ? RMA : MAS5);
+        out.println("&nbsp&nbsp<a href='QueryPageServlet?hid="+hid+"&data_type="+
+                dataTypes[nextDataType]+"'>Display "+dataTypeTitles[nextDataType]+"</a>");
+        
     }
 
     public void printStats(java.io.PrintWriter out)
-    {
+    {        
          Common.printStatsTable(out, "On This Page", new String[]{"Records found"},
             new Object[]{new Integer(accIds.size())});
     }
@@ -191,13 +186,18 @@ public class AffyDataView implements DataView
         out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");
     }
 ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+    
     private void processRequest(HttpServletRequest request)
     {
         action=request.getParameter("action");
+        String dataTypeStr=request.getParameter("data_type");
+        log.debug("dataTypeStr="+dataTypeStr);
         
         String[] psk_ids=request.getParameterValues("psk_ids");
         String[] es_ids=request.getParameterValues("es_ids");
         String[] groups=request.getParameterValues("groups");
+        
         
         log.debug("action="+action);
         log.debug("psk_ids: "+Common.printArray(psk_ids)); 
@@ -209,8 +209,13 @@ public class AffyDataView implements DataView
         log.debug("groups: "+Common.printArray(groups));
         if(groups!=null)
             log.debug(groups.length+" groups");               
-                
         
+        if(dataTypeStr==null || !dataTypeStr.equals("rma"))
+            dataType=MAS5;
+        else
+            dataType=RMA;
+            
+        log.debug("dataType="+dataType);
         
         // the index of each array in this array must 
         // match the values of PSK,ES, GROUP, respectivly.
@@ -225,26 +230,15 @@ public class AffyDataView implements DataView
         log.debug("newIds="+Common.printArray(newIds));
     }
     private Collection getRecords()
-    {               
-        log.debug("sortCol="+sortCol);
-        //List idLists=getIdLists();
-//        Map[] subRecordMaps=new Map[]{
-//            AffyExpSetRecord.getData(dbc,accIds,nodeSet, sortCol, sortDir)            
-//        };
-//        Map records=UnknownRecord.getData(dbc,accIds,"","asc",subRecordMaps);
-        
+    {                       
         Collection unknowns;
         RecordFactory f=RecordFactory.getInstance();
-        QueryParameters qp=new QueryParameters();
-        qp.setIds(accIds);
+        QueryParameters qp=new QueryParameters(accIds,sortCol,sortDir);
+
         qp.setAffyKeys(nodeSet);
-        
-//        unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
-//        expSets=f.addSubType(unknowns,AffyExpSetRecord.getRecordInfo(),qp);
-//        comps=f.addSubType(expSets,AffyCompRecord.getRecordInfo(),qp);
-//        details=f.addSubType(comps,AffyDetailRecord.getRecordInfo(),qp);
-        
-        unknowns=f.getRecords(UnknownRecord.getRecordInfo(),qp);
+        qp.setDataType(dataTypes[dataType]);
+                        
+        unknowns=f.getRecords(UnknownRecord.getRecordInfo(),new QueryParameters(accIds));
         f.addSubType(
             f.addSubType(
                 f.addSubType(
@@ -256,10 +250,7 @@ public class AffyDataView implements DataView
             AffyDetailRecord.getRecordInfo(), qp
         );
 
-        return unknowns;
-        
-        //return details;
-                                
+        return unknowns;                                                
     }        
     
     private void printData(PrintWriter out,Collection data)
@@ -293,9 +284,8 @@ public class AffyDataView implements DataView
     {
         out.println("<table cellspacing='0' cellpadding='3'><tr>");
         out.println("<td>Experiment set catagories: &nbsp&nbsp</td>");
-        out.println("<td bgcolor='"+PageColors.development+"'>Development</td>");
-        out.println("<td bgcolor='"+PageColors.biotic+"'>Biotic Treatment</td>");
-        out.println("<td bgcolor='"+PageColors.abiotic+"'>Abiotic Treatment</td>");
+        for(Map.Entry<String,WebColor> r : PageColors.catagoryColors.entrySet())
+            out.println("<td bgcolor='"+r.getValue()+"'>"+r.getKey()+"</td>");        
         out.println("</tr></table>");
     }
 }

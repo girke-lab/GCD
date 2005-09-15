@@ -28,6 +28,7 @@ public class UnknownsTextScript implements Script
     private static final int batchSize=1000;
     
     private String dataType;
+    private boolean printDescription;
     
     /** Creates a new instance of UnknownsTextScript */
     public UnknownsTextScript(Map parameters)
@@ -54,14 +55,15 @@ public class UnknownsTextScript implements Script
         //RecordVisitor visitor=new DebugRecordVisitor();
         Collection data=null;
         Record rec=null;
-        boolean isFirst=true;
-                
+        boolean isFirst=true;                
+        
         try{
             for(int j=0;j<ids.size();j+=batchSize)
             { //send data in batches to avoid queries that are too long.
                 int end=(j+batchSize>ids.size())?ids.size():j+batchSize;
-                //log.debug("j="+j+", size="+ids.size()+", end="+end);
+                //log.debug("j="+j+", size="+ids.size()+", end="+end);                
                 data=getRecords(ids.subList(j,end));
+                ((TextRecordVisitor)visitor).setPrintDescription(printDescription);
                 
                 for(Iterator i=data.iterator();i.hasNext();)
                 {
@@ -89,6 +91,7 @@ public class UnknownsTextScript implements Script
         RecordFactory f=RecordFactory.getInstance();
         QueryParameters qp=new QueryParameters();
         qp.setIds(ids);
+        printDescription=false;
         
         unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
         
@@ -109,7 +112,7 @@ public class UnknownsTextScript implements Script
         else if(dataType.equals("Proteomics"))            
             f.addSubType(unknowns, ProteomicsRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Unknown"))
-            ;
+            printDescription=true;
         else
             log.error("invalid dataType: "+dataType);
         

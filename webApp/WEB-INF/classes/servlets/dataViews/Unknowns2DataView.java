@@ -153,40 +153,17 @@ public class Unknowns2DataView implements DataView
         
         Collection unknowns,go, blast, protomics, cluster, external, expSet;
         RecordFactory f=RecordFactory.getInstance();
-        QueryParameters qp=new QueryParameters();
-        Collection affyKeys=new LinkedList();
-        
-        affyKeys.add(new AffyKey(new Integer(15), new Integer(6),new Integer(5)));
-        affyKeys.add(new AffyKey(new Integer(15), new Integer(6),new Integer(6)));
-        affyKeys.add(new AffyKey(new Integer(15), new Integer(6),new Integer(9)));
-        affyKeys.add(new AffyKey(new Integer(15), new Integer(35),new Integer(3)));
-        affyKeys.add(new AffyKey(new Integer(15), new Integer(15),new Integer(4)));
-        
-        qp.setIds(ids);
-        qp.setAffyKeys(affyKeys);
-        qp.setAllGroups(true);
-        
-        
+        QueryParameters qp=new QueryParameters(ids);
+
         unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
         f.addSubType(unknowns,GoRecord.getRecordInfo(),qp); 
         f.addSubType(unknowns,BlastRecord.getRecordInfo(),qp);
         f.addSubType(unknowns,ProteomicsRecord.getRecordInfo(),qp);
         f.addSubType(unknowns,ClusterRecord.getRecordInfo(),qp);
         f.addSubType(unknowns,ExternalUnknownRecord.getRecordInfo(),qp);
-        f.addSubType(unknowns,AffyExpSetRecord.getRecordInfo(),qp);
+        //f.addSubType(unknowns,AffyExpSetRecord.getRecordInfo(),qp);
+        f.addSubType(unknowns,ProbeSetRecord.getRecordInfo(),qp);
         
-//        f.addSubType(
-//            f.addSubType(
-//                f.addSubType(
-//                    unknowns,
-//                    AffyExpSetRecord.getRecordInfo(), qp
-//                ),
-//                AffyCompRecord.getRecordInfo(),qp
-//            ), 
-//            AffyDetailRecord.getRecordInfo(), qp
-//        );
-        
-//        expSets=f.addSubType(unknowns,AffyExpSetRecord.getRecordInfo(),qp);
         return unknowns;
         
     }        

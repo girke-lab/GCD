@@ -27,7 +27,6 @@ public class AffyExpSetRecord extends AbstractRecord
     String catagory,name,description;
     Integer up4,down4, up2, down2,on, off;
     Integer accId,probeSetId, expSetId;    
-    WebColor rowColor;
     
     private static Logger log=Logger.getLogger(AffyExpSetRecord.class);
     
@@ -58,17 +57,7 @@ public class AffyExpSetRecord extends AbstractRecord
         up2=Integer.parseInt((String)values.get(11));
         down2=Integer.parseInt((String)values.get(12));
         on=Integer.parseInt((String)values.get(13));
-        off=Integer.parseInt((String)values.get(14));
-                
-        if(catagory.toLowerCase().startsWith("biotic"))
-            rowColor=PageColors.biotic;
-        else if(catagory.toLowerCase().startsWith("abiotic"))
-            rowColor=PageColors.abiotic;
-        else if(catagory.toLowerCase().startsWith("development"))
-            rowColor=PageColors.development;
-        else
-            rowColor=PageColors.data;
-        
+        off=Integer.parseInt((String)values.get(14));                                
     }
     public Object getPrimaryKey()
     {
@@ -123,7 +112,7 @@ public class AffyExpSetRecord extends AbstractRecord
             }
             public String getQuery(QueryParameters qp,int keyType)
             {
-                return QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
+                return QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(qp.getIds(),qp.getDataType(), qp.getSortCol(), qp.getSortDir());
             }
             public int[] getSupportedKeyTypes()
             {

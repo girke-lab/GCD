@@ -46,7 +46,7 @@ public class Common {
         DbConnection dbc;
         try{
             dbc=DbConnectionManager.getConnection("khoran");
-            rs=dbc.sendQuery(q);        
+            rs=dbc.sendQuery(q);         
             log.info("Stats: "+dbc.getStats());
         }catch(Exception e){            
             log.error("query error: "+e.getMessage());         

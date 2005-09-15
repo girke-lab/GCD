@@ -79,7 +79,7 @@ public class RecordFactory
 //                    log.debug("looking for primary key "+primaryKey);
                     sr=subRecords.get(primaryKey);
                     if(sr==null)
-                        log.info("no sub record found with primary key "+primaryKey);
+                        ;//log.debug("no sub record found with primary key "+primaryKey);
                     else
                         r2.addSubRecord(sr);
 
@@ -89,7 +89,7 @@ public class RecordFactory
                 primaryKey=r.getPrimaryKey();
                 sr=subRecords.get(primaryKey);
                 if(sr==null)
-                    log.debug("no sub record found with primary key "+primaryKey);
+                    ;//log.debug("no sub record found with primary key "+primaryKey);
                 else
                     r.addSubRecord(sr);
             }
@@ -116,7 +116,7 @@ public class RecordFactory
         CompositeRecord cr;
         String keyStr;
         Record r;
-        Map<Object,CompositeRecord> output=new HashMap<Object,CompositeRecord>(); 
+        Map<Object,CompositeRecord> output=new LinkedHashMap<Object,CompositeRecord>(); 
         for(Iterator i=data.iterator();i.hasNext();)
         {
             row=(List)i.next();

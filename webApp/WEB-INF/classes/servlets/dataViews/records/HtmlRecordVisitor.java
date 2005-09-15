@@ -200,7 +200,7 @@ public class HtmlRecordVisitor implements RecordVisitor
                 "&search=submit+query";
         String popup="onmouseover=\"return escape('"+ar.description+"')\"";  
         
-        out.write("<tr bgcolor='"+ar.rowColor+"'>");
+        out.write("<tr bgcolor='"+PageColors.catagoryColors.get(ar.catagory)+"'>");
         
         printTreeControls(out,link,key,ar.iterator());    
         out.write("<td>"+ar.probeSetKey+"</td><td><a href='"+expSetKeyLink+"' "+popup+">"+
@@ -274,6 +274,22 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printFooter(Writer out, AffyDetailRecord ar) throws IOException
     {
     }
+
+
+    public void printHeader(Writer out, ProbeSetRecord psr) throws IOException
+    {
+        out.write("<tr bgcolor='"+PageColors.title+"'><th>Affy Probe Set Keys</th></td>\n");
+        out.write("<tr><td>");
+    }
+    public void printRecord(Writer out, ProbeSetRecord psr) throws IOException
+    {
+        out.write("<a href='QueryPageServlet?hid="+hid+"&displayType=affyView'>"+
+                psr.probeSetKey+"</a>&nbsp&nbsp");                
+    }    
+    public void printFooter(Writer out, ProbeSetRecord psr) throws IOException
+    {
+        out.write("</td></tr>");
+    }
     //</editor-fold>
     
     ////////////////////////////////////////////////////////////////////////////
@@ -340,6 +356,8 @@ public class HtmlRecordVisitor implements RecordVisitor
                 "&sortDirection="+newDir+"#"+anchor+"'>"+titles[i]+"</a></th>");             
         }
     }
+
+   
 
    
 }

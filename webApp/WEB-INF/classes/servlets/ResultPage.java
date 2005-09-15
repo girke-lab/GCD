@@ -79,7 +79,7 @@ public class ResultPage
             dv.setIds(new ArrayList(ids.subList(pos,end)));
         }
         
-        out.println("<table cellspacing='0' cellpadding='0'><tr><td>");
+        out.println("<br><table cellspacing='0' cellpadding='0'><tr><td>");
         dv.getQueryWideView().printStats(out,search);            
         out.println("</td><td>");
         dv.printStats(out);

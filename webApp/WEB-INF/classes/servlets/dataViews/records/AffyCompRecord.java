@@ -112,9 +112,9 @@ public class AffyCompRecord extends AbstractRecord
                         Collection<AffyKey> affyKeys=new LinkedList<AffyKey>();
                         for(Iterator i=qp.getIds().iterator();i.hasNext();)
                             affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
-                        return QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(affyKeys,qp.getSortCol(), qp.getSortDir());        
+                        return QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(affyKeys,qp.getDataType(), qp.getSortCol(), qp.getSortDir());        
                     case Common.KEY_TYPE_COMP:
-                        return QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(qp.getAffyKeys(),qp.getSortCol(), qp.getSortDir());
+                        return QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(qp.getAffyKeys(),qp.getDataType(), qp.getSortCol(), qp.getSortDir());
                     default:
                         return null;
                 }                
