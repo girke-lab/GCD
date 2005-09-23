@@ -205,4 +205,16 @@ public class DebugRecordVisitor implements RecordVisitor
         indent(out);
         out.write("footer for "+ur.getClass()+"\n");
     }
+
+    public void printFooter(Writer out, ProbeSetRecord psr) throws IOException
+    {
+    }
+
+    public void printHeader(Writer out, ProbeSetRecord psr) throws IOException
+    {
+    }
+
+    public void printRecord(Writer out, ProbeSetRecord psr) throws IOException
+    {
+    }
 }

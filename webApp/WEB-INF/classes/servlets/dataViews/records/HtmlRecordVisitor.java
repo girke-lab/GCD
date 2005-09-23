@@ -30,6 +30,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     private static Logger log=Logger.getLogger(HtmlRecordVisitor.class);
     int hid;
     String sortDir,sortCol;
+    String currentAccession;
     
     /** Creates a new instance of HtmlRecordVisitor */
     public HtmlRecordVisitor()
@@ -56,6 +57,8 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printRecord(java.io.Writer out, UnknownRecord ur) throws java.io.IOException
     {
         log.debug("unknown record");
+        currentAccession=ur.key;
+        
         out.write("<tr><td><a href='http://www.arabidopsis.org/servlets/TairObject?type=locus&name="+
             ur.key.subSequence(0,ur.key.lastIndexOf('.'))+"'>"+ur.key+"</a></td><td>"+ur.description+"</td></tr>\n");
         String[] names=new String[]{"mfu","ccu","bpu"};
@@ -203,11 +206,12 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("<tr bgcolor='"+PageColors.catagoryColors.get(ar.catagory)+"'>");
         
         printTreeControls(out,link,key,ar.iterator());    
+        
         out.write("<td>"+ar.probeSetKey+"</td><td><a href='"+expSetKeyLink+"' "+popup+">"+
                 ar.expSetKey+"</a></td>");
         out.write("<td>"+(ar.name.equals("")?"&nbsp":ar.name)+"</td>"); //  <td>"+ar.description+"</td>");
         out.write("<td>"+ar.up2+"</td><td>"+ar.down2+"</td><td>"+ar.up4+"</td>");
-        out.write("<td>"+ar.down4+"</td><td>"+ar.on+"</td><td>"+ar.off+"</td>");
+        out.write("<td>"+ar.down4+"</td><td>"+(ar.on==null?"&nbsp":ar.on)+"</td><td>"+(ar.off==null?"&nbsp":ar.off)+"</td>");
         out.write("</tr>");
         
         //print sub records
@@ -239,8 +243,8 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("<tr>");       
         printTreeControls(out,link,key,ar.iterator());                
         out.write("<td>"+ar.comparison+"</td><td>"+df.format(ar.controlMean)+"</td>");
-        out.write("<td>"+df.format(ar.treatmentMean)+"</td><td>"+ar.controlPMA+"</td>");
-        out.write("<td>"+ar.treatmentPMA+"</td><td>"+df.format(ar.ratio)+"</td>");
+        out.write("<td>"+df.format(ar.treatmentMean)+"</td><td>"+ar.controlPMA+"&nbsp</td>");
+        out.write("<td>"+ar.treatmentPMA+"&nbsp</td><td>"+df.format(ar.ratio)+"</td>");
         out.write("</tr>");
         
         printSubRecords(out,ar.iterator(),6, 1);
@@ -268,7 +272,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         
         out.write("<td>"+ar.type+"</td><td>"+ar.celFile+"</td>"); //"<td>"+desc+"</td>
         out.write("<td>"+df.format(ar.intensity)+"</td>");
-        out.write("<td>"+ar.pma+"</td>");
+        out.write("<td>"+ar.pma+"&nbsp</td>");
         out.write("</tr>");
     }
     public void printFooter(Writer out, AffyDetailRecord ar) throws IOException
@@ -283,7 +287,9 @@ public class HtmlRecordVisitor implements RecordVisitor
     }
     public void printRecord(Writer out, ProbeSetRecord psr) throws IOException
     {
-        out.write("<a href='QueryPageServlet?hid="+hid+"&displayType=affyView'>"+
+        String link="QueryPageServlet?displayType=affyView&" +
+                "searchType=id&dbs=0&inputKey=exact "+currentAccession;
+        out.write("<a href='"+link+"'>"+
                 psr.probeSetKey+"</a>&nbsp&nbsp");                
     }    
     public void printFooter(Writer out, ProbeSetRecord psr) throws IOException

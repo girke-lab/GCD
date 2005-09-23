@@ -36,6 +36,8 @@ public class ModelDataView implements DataView
     HttpServletRequest request;
     List data=null;
     
+    Map storage;
+    
     ModelQueryInfo mqi;
     
     String[] fullNames;//names to use in querys
@@ -88,7 +90,13 @@ public class ModelDataView implements DataView
         this.seq_ids=ids;   
         loadData();
     }
-   
+    public void setParameters(Map parameters)
+    {
+    }
+    public void setStorage(Map storage)
+    {
+    }
+    
     public QueryWideView getQueryWideView() 
     {
         return new DefaultQueryWideView(){
@@ -323,6 +331,8 @@ public class ModelDataView implements DataView
     {
         return keyType;
     }
+
+
     
      
     class ModelQueryInfo implements java.io.Serializable

@@ -187,4 +187,12 @@ public class BlastDataView implements DataView
     {
         return keyType;
     }
+
+    public void setParameters(Map parameters)
+    {
+    }
+
+    public void setStorage(Map storage)
+    {
+    }
 }

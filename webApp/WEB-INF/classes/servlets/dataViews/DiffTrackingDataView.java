@@ -152,6 +152,14 @@ public class DiffTrackingDataView implements DataView
         return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_ACC,Common.KEY_TYPE_BLAST,
                         Common.KEY_TYPE_CLUSTER,Common.KEY_TYPE_MODEL,Common.KEY_TYPE_QUERY};
     }
+
+    public void setParameters(Map parameters)
+    {
+    }
+
+    public void setStorage(Map storage)
+    {
+    }
 ///////////////////////////////////  CLASSES /////////////////////
     
     class Genome

@@ -69,7 +69,7 @@ public class QueryCompSearch implements Search
             return;
         }
         
-        String query=QuerySetProvider.getSearchQuerySet().getQueryCompSearchQuery(comp_id, status, -1);
+        String query=QuerySetProvider.getSearchQuerySet().getQueryCompSearchQuery(comp_id, status, keyType);
         
         List results=null;
         try{

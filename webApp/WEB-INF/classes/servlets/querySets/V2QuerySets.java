@@ -327,7 +327,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         String query="SELECT * FROM " +
                 " (SELECT DISTINCT ON (sequence_accession_id, file_name) * " +
                 "   FROM affy.detail_view " +
-                "   WHERE "+AffyKey.buildIdSetCondition(affyKeys, !allGroups) +
+                "   WHERE ("+AffyKey.buildIdSetCondition(affyKeys, !allGroups) +") "+
                 "           AND data_type='"+dataType+"' "+
                 "   ORDER BY sequence_accession_id, file_name " +
                 " ) as t " +
@@ -357,7 +357,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         String query="SELECT * FROM "+                
                 "   (SELECT DISTINCT ON (probe_set_key_id, experiment_set_id, comparison)  * " +
                 "       FROM affy.experiment_group_summary_mv " +
-                "       WHERE "+ AffyKey.buildIdSetCondition(affyKeys,false) +
+                "       WHERE ("+ AffyKey.buildIdSetCondition(affyKeys,false) +") "+
                 "               AND data_type='"+dataType+"' "+
                 "       ORDER BY probe_set_key_id, experiment_set_id, comparison  "+
                 "   ) as t "+
@@ -367,13 +367,14 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     }            
     public String getAffyExpSetRecordQuery(Collection ids, String dataType, String sortcol, String sortDir)
     {
+        log.debug("sortCol="+sortcol);
         if(sortcol!=null && sortcol.startsWith("expset_"))
             sortcol=sortcol.replaceFirst("expset_", "");
         else 
             sortcol="catagory, probe_set_key_id"; 
         
         String query="SELECT DISTINCT * FROM affy.experiment_set_summary_mv "+
-                " WHERE "+Common.buildIdListCondition("accession_id",ids)+
+                " WHERE ("+Common.buildIdListCondition("accession_id",ids)+") "+
                 "               AND data_type='"+dataType+"' "+
                 " ORDER BY "+sortcol+" "+sortDir; 
         

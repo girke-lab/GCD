@@ -94,6 +94,8 @@ public class AffyKey implements Serializable
         
         log.debug("includeGroup="+includeGroup);
         log.debug("affykeys="+affyKeys);
+                
+        
         
         for(Iterator i=affyKeys.iterator();i.hasNext();)
         {

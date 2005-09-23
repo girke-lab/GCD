@@ -79,12 +79,14 @@ public class ResultPage
             dv.setIds(new ArrayList(ids.subList(pos,end)));
         }
         
-        out.println("<br><table cellspacing='0' cellpadding='0'><tr><td>");
+        out.println("<br><table cellspacing='0' cellpadding='0'><tr><td nowrap>");
         dv.getQueryWideView().printStats(out,search);            
-        out.println("</td><td>");
+        out.println("</td><td nowrap>");
         dv.printStats(out);
+        out.println("</td><td>");
+        dv.getQueryWideView().printGeneral(out, search,"after_stats");
         out.println("</td></tr></table>");
-        
+            
         dv.getQueryWideView().printGeneral(out, search,"",storage);        
         dv.printData(out);
         

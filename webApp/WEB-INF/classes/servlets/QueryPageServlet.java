@@ -150,6 +150,10 @@ public class QueryPageServlet extends HttpServlet
         //get search and dataview objects
         s=qi.getSearch(); 
         dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);
+        dv.setStorage((Map)qi.getObject("general_storage"));
+        dv.setParameters(request.getParameterMap());
+        
+        
         //find a common search key to use
         int commonKeyType=Common.findCommonKeyType(s.getSupportedKeyTypes(), dv.getSupportedKeyTypes());
         
@@ -197,11 +201,11 @@ public class QueryPageServlet extends HttpServlet
         {
             //special cases (need arguments to constructor)
             if(displayType.equals("unknownsView"))
-                return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));
+                return new UnknownsDataView(this.getServletContext().getRealPath("/temp"));           
             else if(displayType.equals("modelView"))
                 return new ModelDataView(request);
-            else if(displayType.equals("affyView"))
-                return new AffyDataView(request);
+//            else if(displayType.equals("affyView"))
+//                return new AffyDataView(request);
             
 
             //look up the given displayType to get a class name,
@@ -211,7 +215,7 @@ public class QueryPageServlet extends HttpServlet
                 return new SeqDataView();
             DataView dv=null;
             try{
-                Class c=Class.forName(dataViewClass);
+//                Class c=Class.forName(dataViewClass);
 //                java.lang.reflect.Constructor con=c.getConstructor(new Class[]{HttpServletRequest.class});
 //                dv=(DataView)con.newInstance(new Object[]{request});
                 dv=(DataView)Class.forName(dataViewClass).newInstance();

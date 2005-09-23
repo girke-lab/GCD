@@ -9,7 +9,6 @@ package servlets.dataViews;
 
 import java.io.*;
 import java.util.*;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import servlets.*;
 import servlets.dataViews.queryWideViews.DefaultQueryWideView;
@@ -35,6 +34,7 @@ public class AffyDataView implements DataView
     private List[] newIds;
     private List accIds;
     private int dataType;
+    private Map storage;
     
     DbConnection dbc=null;  
     
@@ -42,10 +42,11 @@ public class AffyDataView implements DataView
     public static final int ACC=0, PSK=1, ES=2,GROUP=3;
     
     /** Creates a new instance of AffyDataVew */
-    public AffyDataView(HttpServletRequest request)
+    public AffyDataView()
     {
-        sortCol="expset_probe_set_key";
+        sortCol=null;
         sortDir="ASC";        
+        
         newIds=new List[4]; //temp storage.
         for(int i=0;i<4;i++)
             newIds[i]=new LinkedList();
@@ -53,8 +54,7 @@ public class AffyDataView implements DataView
         dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection to khoran");
-        
-        processRequest(request);
+                
     }
 
     public int getKeyType()
@@ -73,49 +73,33 @@ public class AffyDataView implements DataView
             public void printButtons(PrintWriter out, int hid, int pos, int c, int d)
             {                
             }          
-            public void printGeneral(PrintWriter out, Search search, String position, Map storage)
+            public void printGeneral(PrintWriter out, Search search, String position,Map storage)
             {
-                if(accIds.size()==0)
-                { //make sure setIds has been called first
-                    log.error("no accession ids, has setIds() been called yet?");
-                    nodeSet=null;
-                    return;
-                }
-                
-                nodeSet=(Set)storage.get(accIds); //use the accession_id list as a per-page key
-                if(nodeSet==null) //first page of query
-                {
-                    nodeSet=new HashSet();
-                    storage.put(accIds,nodeSet);                    
-                }                                
-                //now that we have a new/existing set of keys, add the ids for this request
-                Iterator accItr,pskItr,esItr,groupItr;                    
-                pskItr=newIds[PSK].iterator();
-                esItr=newIds[ES].iterator();
-                groupItr=newIds[GROUP].iterator();
-
-                boolean add=action!=null && action.equals("expand");
-
-                log.debug("nodeSet before: "+nodeSet);
-                while(pskItr.hasNext() && esItr.hasNext())
-                {
-                    Integer group=null;
-
-                    if(groupItr.hasNext())
-                        group=(Integer)groupItr.next();
-                    AffyKey n=new AffyKey(-1, (Integer)pskItr.next(), (Integer)esItr.next(),group);                        
-
-                    if(add)
-                        nodeSet.add(n);
-                    else
-                        nodeSet.remove(n);
-
-                }
-                log.debug("nodeSet="+nodeSet);
-
                 out.println("Download data: &nbsp");
-                Common.printUnknownDownloadLinks(out, hid, search.getResults().size());               
+                Common.printUnknownDownloadLinks(out, hid, search.getResults().size());                               
             }            
+            public void printGeneral(PrintWriter out, Search search, String position)
+            {
+                if(position.equals("after_stats"))
+                {
+                    int nextDataType=(dataType==MAS5 ? RMA : MAS5);
+                    out.println("&nbsp&nbsp Display &nbsp ");
+                    
+                    if(dataType==MAS5)
+                        out.println(dataTypeTitles[dataType]);
+                    else
+                        out.println("<a href='QueryPageServlet?hid="+hid+"&data_type="+
+                            dataTypes[nextDataType]+"'>"+dataTypeTitles[nextDataType]+"</a>");
+                    out.println("&nbsp");
+                    if(dataType==RMA)
+                        out.println(dataTypeTitles[dataType]);
+                    else
+                        out.println("<a href='QueryPageServlet?hid="+hid+"&data_type="+
+                            dataTypes[nextDataType]+"'>"+dataTypeTitles[nextDataType]+"</a>");
+                    
+
+                }
+            }
          };        
     }
 
@@ -138,6 +122,7 @@ public class AffyDataView implements DataView
     {
         log.debug("setting ids to "+ids);
         accIds=ids;        
+        updateNodeSet();
     }
 
     public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
@@ -151,6 +136,15 @@ public class AffyDataView implements DataView
             sortDir=dir;   
     }
     
+    public void setParameters(Map parameters)
+    {
+        processRequest(parameters);
+    }
+
+    public void setStorage(Map storage)
+    {
+        this.storage=storage;
+    }
     
     public void printHeader(java.io.PrintWriter out)
     {        
@@ -166,16 +160,14 @@ public class AffyDataView implements DataView
         out.println("<div class='test'>");
         
         Common.printUnknownsSearchLinks(out);
-        int nextDataType=(dataType==MAS5 ? RMA : MAS5);
-        out.println("&nbsp&nbsp<a href='QueryPageServlet?hid="+hid+"&data_type="+
-                dataTypes[nextDataType]+"'>Display "+dataTypeTitles[nextDataType]+"</a>");
+        
         
     }
 
     public void printStats(java.io.PrintWriter out)
     {        
          Common.printStatsTable(out, "On This Page", new String[]{"Records found"},
-            new Object[]{new Integer(accIds.size())});
+            new Object[]{new Integer(accIds.size())});            
     }
     public void printData(java.io.PrintWriter out)
     {        
@@ -185,42 +177,61 @@ public class AffyDataView implements DataView
         out.println("</td></table>"); //close page level table
         out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");
     }
+    
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
     
-    private void processRequest(HttpServletRequest request)
+    private String getParam(Map params,String key)
     {
-        action=request.getParameter("action");
-        String dataTypeStr=request.getParameter("data_type");
+        Object obj=params.get(key);
+        if(obj!=null && obj instanceof String[] && ((String[])obj).length!=0)
+            return ((String[])obj)[0];
+        return null;
+    }
+    private void processRequest(Map params)
+    {
+        action=getParam(params,"action");
+                
+        String dataTypeStr=getParam(params,"data_type");                
         log.debug("dataTypeStr="+dataTypeStr);
         
-        String[] psk_ids=request.getParameterValues("psk_ids");
-        String[] es_ids=request.getParameterValues("es_ids");
-        String[] groups=request.getParameterValues("groups");
+        String[] psk_ids=(String[])params.get("psk_ids");
+        String[] es_ids=(String[])params.get("es_ids");
+        String[] groups=(String[])params.get("groups");
         
+        if(log.isDebugEnabled())
+        {
+            log.debug("action="+action);
+            log.debug("psk_ids: "+Common.printArray(psk_ids)); 
+            if(psk_ids!=null)
+                log.debug(psk_ids.length+" psk ids");
+            log.debug("es_ids: "+Common.printArray(es_ids));
+            if(es_ids!=null)
+                log.debug(es_ids.length+" es ids");
+            log.debug("groups: "+Common.printArray(groups));
+            if(groups!=null)
+                log.debug(groups.length+" groups");               
+        }
+        if(dataTypeStr==null)
+            dataTypeStr=(String)storage.get("data_type");
+        else
+            storage.put("data_type", dataTypeStr);
         
-        log.debug("action="+action);
-        log.debug("psk_ids: "+Common.printArray(psk_ids)); 
-        if(psk_ids!=null)
-            log.debug(psk_ids.length+" psk ids");
-        log.debug("es_ids: "+Common.printArray(es_ids));
-        if(es_ids!=null)
-            log.debug(es_ids.length+" es ids");
-        log.debug("groups: "+Common.printArray(groups));
-        if(groups!=null)
-            log.debug(groups.length+" groups");               
-        
-        if(dataTypeStr==null || !dataTypeStr.equals("rma"))
+        if(dataTypeStr==null || !dataTypeStr.equals("gcrma"))
             dataType=MAS5;
         else
             dataType=RMA;
             
         log.debug("dataType="+dataType);
         
+        
         // the index of each array in this array must 
         // match the values of PSK,ES, GROUP, respectivly.
         String[][] idSets=new String[][]{psk_ids,es_ids,groups};
         List l;
+        
+        
+        
         for(int i=PSK-1;i<=GROUP-1;i++)
         { //loop over PSK, ES,GROUP            
             l=(List)newIds[i+1];
@@ -228,11 +239,53 @@ public class AffyDataView implements DataView
                 l.add(new Integer(idSets[i][j]));    
         }
         log.debug("newIds="+Common.printArray(newIds));
+        
+    }
+    private void updateNodeSet()
+    {
+        if(accIds.size()==0)
+        { //make sure setIds has been called first
+            log.error("no accession ids, has setIds() been called yet?");
+            nodeSet=null;
+            return;
+        }
+
+        nodeSet=(Set)storage.get(accIds); //use the accession_id list as a per-page key
+        if(nodeSet==null) //first page of query
+        {
+            nodeSet=new HashSet();
+            storage.put(accIds,nodeSet);                    
+        }                                
+        //now that we have a new/existing set of keys, add the ids for this request
+        Iterator accItr,pskItr,esItr,groupItr;                    
+        pskItr=newIds[PSK].iterator();
+        esItr=newIds[ES].iterator();
+        groupItr=newIds[GROUP].iterator();
+
+        boolean add=action!=null && action.equals("expand");
+
+        log.debug("nodeSet before: "+nodeSet);
+        while(pskItr.hasNext() && esItr.hasNext())
+        {
+            Integer group=null;
+
+            if(groupItr.hasNext())
+                group=(Integer)groupItr.next();
+            AffyKey n=new AffyKey(-1, (Integer)pskItr.next(), (Integer)esItr.next(),group);                        
+
+            if(add)
+                nodeSet.add(n);
+            else
+                nodeSet.remove(n);
+
+        }
+        log.debug("nodeSet="+nodeSet);
     }
     private Collection getRecords()
     {                       
         Collection unknowns;
         RecordFactory f=RecordFactory.getInstance();
+        log.debug("sortCol="+sortCol);
         QueryParameters qp=new QueryParameters(accIds,sortCol,sortDir);
 
         qp.setAffyKeys(nodeSet);
@@ -283,9 +336,11 @@ public class AffyDataView implements DataView
     private void printColorKey(PrintWriter out)
     {
         out.println("<table cellspacing='0' cellpadding='3'><tr>");
-        out.println("<td>Experiment set catagories: &nbsp&nbsp</td>");
+        out.println("<td nowrap >Experiment set catagories: &nbsp&nbsp</td>");
         for(Map.Entry<String,WebColor> r : PageColors.catagoryColors.entrySet())
-            out.println("<td bgcolor='"+r.getValue()+"'>"+r.getKey()+"</td>");        
+            out.println("<td nowrap bgcolor='"+r.getValue()+"'>"+r.getKey()+"</td>");        
         out.println("</tr></table>");
     }
+
+   
 }

@@ -56,8 +56,8 @@ public class AffyExpSetRecord extends AbstractRecord
         down4=Integer.parseInt((String)values.get(10));
         up2=Integer.parseInt((String)values.get(11));
         down2=Integer.parseInt((String)values.get(12));
-        on=Integer.parseInt((String)values.get(13));
-        off=Integer.parseInt((String)values.get(14));                                
+        on=(values.get(13)==null? null : Integer.parseInt((String)values.get(13)));
+        off=(values.get(14)==null? null : Integer.parseInt((String)values.get(14)));     
     }
     public Object getPrimaryKey()
     {

@@ -314,4 +314,12 @@ public class UnknownsDataView implements DataView
     {
         return keyType;
     }
+
+    public void setParameters(Map parameters)
+    {
+    }
+
+    public void setStorage(Map storage)
+    {
+    }
 }

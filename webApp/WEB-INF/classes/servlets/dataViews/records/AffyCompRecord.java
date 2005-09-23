@@ -49,9 +49,10 @@ public class AffyCompRecord extends AbstractRecord
         comparison=new Integer((String)values.get(5));
         controlMean=new Float((String)values.get(6));
         treatmentMean=new Float((String)values.get(7));
-        controlPMA=(String)values.get(8);
-        treatmentPMA=(String)values.get(9);
+        controlPMA=(values.get(8)==null? "" : (String)values.get(8));        
+        treatmentPMA=(values.get(9)==null? "" : (String)values.get(9));        
         ratio=new Float((String)values.get(10));
+        
         
     }
     public Object getPrimaryKey()

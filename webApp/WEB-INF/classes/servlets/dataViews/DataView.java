@@ -13,6 +13,7 @@ package servlets.dataViews;
  * @author khoran
  */
 
+import java.util.Map;
 import servlets.dataViews.queryWideViews.QueryWideView; 
 
 /**
@@ -48,6 +49,10 @@ public interface DataView extends servlets.KeyTypeUser
      * @param ids list of id numbers to retrieve data for.
      */    
     void setIds(java.util.List ids);
+    
+    void setParameters(Map parameters);
+    
+    void setStorage(Map storage);
     
     /**
      * Should print just the data. This method will be called last.

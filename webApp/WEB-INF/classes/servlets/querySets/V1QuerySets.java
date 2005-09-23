@@ -543,5 +543,10 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     {
         return "";
     }
+
+    public String getProbeSetRecordQuery(Collection ids)
+    {
+        return "";
+    }
   
 }

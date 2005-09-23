@@ -87,5 +87,13 @@ public class StatsDataView implements DataView
     {
         return -1;
     }
+
+    public void setParameters(Map parameters)
+    {
+    }
+
+    public void setStorage(Map storage)
+    {
+    }
     
 }
