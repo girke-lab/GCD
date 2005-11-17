@@ -24,6 +24,7 @@ public class AffyCompRecord extends AbstractRecord
     String probeSetKey,expSetKey,controlPMA,treatmentPMA;
     Integer comparison;
     Float controlMean, treatmentMean,ratio;
+    Float contrast, pValue, adjPValue, pfpUp,pfpDown;
     Integer accId, probeSetId, expSetId;
     List subRecords;
     
@@ -33,7 +34,8 @@ public class AffyCompRecord extends AbstractRecord
     /** Creates a new instance of AffyCompRecord */
     public AffyCompRecord(List values)
     {
-        int reqSize=11;
+        int reqSize=17;
+        
         if(values==null || values.size()!=reqSize)
         {
             log.error("invalid list in AffyCompRecord constructor");
@@ -52,6 +54,12 @@ public class AffyCompRecord extends AbstractRecord
         controlPMA=(values.get(8)==null? "" : (String)values.get(8));        
         treatmentPMA=(values.get(9)==null? "" : (String)values.get(9));        
         ratio=new Float((String)values.get(10));
+        
+        contrast=new Float((String)values.get(12));
+        pValue=new Float((String)values.get(13));
+        adjPValue=new Float((String)values.get(14));
+        pfpUp=new Float((String)values.get(15));
+        pfpDown=new Float((String)values.get(16));
         
         
     }
@@ -101,7 +109,7 @@ public class AffyCompRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(0,11){
+        return new RecordInfo(0,17){
             public Record getRecord(List l)
             { 
                 return new AffyCompRecord(l);

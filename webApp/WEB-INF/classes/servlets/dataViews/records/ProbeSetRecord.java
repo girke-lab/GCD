@@ -24,11 +24,13 @@ public class ProbeSetRecord extends AbstractRecord
     
     Integer probeSetId;
     String probeSetKey;
+    Float controlAverage, treatAverage;
+    Float controlStddev, treatStddev;
     
     /** Creates a new instance of ProbeSetRecord */
     public ProbeSetRecord(List values)
     {
-        int reqSize=2;
+        int reqSize=6;
         if(values==null || values.size()!=reqSize)
         {
             log.error("invalid list in ProbeSetRecord constructor");
@@ -39,6 +41,11 @@ public class ProbeSetRecord extends AbstractRecord
         
         probeSetId=new Integer((String)values.get(0));
         probeSetKey=(String)values.get(1);
+        controlAverage=Float.parseFloat((String)values.get(2));
+        controlStddev=Float.parseFloat((String)values.get(3));
+        treatAverage=Float.parseFloat((String)values.get(4));
+        treatStddev=Float.parseFloat((String)values.get(5));
+        
     }
 
     public Object getPrimaryKey()
@@ -68,7 +75,7 @@ public class ProbeSetRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(1,3){
+        return new RecordInfo(1,7){
             public Record getRecord(List l)
             {
                 return new ProbeSetRecord(l);

@@ -286,6 +286,10 @@ public class Common {
     }
     public static void printUnknownDownloadLinks(Writer w,int hid,int end)
     {
+        printUnknownDownloadLinks(w,hid,end,"mas5");
+    }
+    public static void printUnknownDownloadLinks(Writer w,int hid,int end,String intensityType)
+    {
         
         PrintWriter out=new PrintWriter(w);
         String link="DispatchServlet?hid="+hid+"&script=unknownsText&range=0-"+end;
@@ -295,7 +299,7 @@ public class Common {
                 "External Sources","Experiment Sets","Comparisons",
                 "Cel"};
         for(int i=0;i<linkNames.length;i++)
-            out.println("&nbsp<a href='"+link+"&dataType="+dataTypes[i]+"'>"+
+            out.println("&nbsp<a href='"+link+"&dataType="+dataTypes[i]+"&intensityType="+intensityType+"'>"+
                     linkNames[i]+"</a>");
     }
     

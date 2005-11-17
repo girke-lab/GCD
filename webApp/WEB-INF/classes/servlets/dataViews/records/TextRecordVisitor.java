@@ -159,7 +159,7 @@ public class TextRecordVisitor implements RecordVisitor
     {        
         out.write(currentAccession+"\t"+ar.probeSetKey+"\t"+ar.expSetKey+"\t"+
                 ar.name+"\t"+ar.description+"\t"+ar.up2+"\t"+ar.down2+"\t"+
-                ar.up4+"\t"+ar.down4+"\t"+ar.on+"\t"+ar.off+"\n");
+                ar.up4+"\t"+ar.down4+"\t"+(ar.on==null?"":ar.on)+"\t"+(ar.off==null?"":ar.off)+"\n");
     }
     public void printFooter(Writer out, AffyExpSetRecord ar) throws IOException
     {
@@ -168,13 +168,15 @@ public class TextRecordVisitor implements RecordVisitor
     public void printHeader(Writer out, AffyCompRecord ar) throws IOException
     {
         out.write("accession\tcomparison\tcontrol_mean\ttreatment_mean\t" +
-                "control_pma\ttreat_pma\tratio_log2\n");
+                "control_pma\ttreat_pma\tratio_log2\tcontrast\tP_value" +
+                "\tadj_p_value\tpfp_up\tpfp_down\n");
     }
     public void printRecord(Writer out, AffyCompRecord ar) throws IOException
     {
         out.write(currentAccession+"\t"+ar.comparison+"\t"+ar.controlMean+"\t"+
                 ar.treatmentMean+"\t"+ar.controlPMA+"\t"+ar.treatmentPMA+"\t"+
-                ar.ratio+"\n");
+                ar.ratio+"\t"+ar.contrast+"\t"+ar.pValue+"\t"+ar.adjPValue+"\t"+
+                ar.pfpUp+"\t"+ar.pfpDown+"\n");
     }
     public void printFooter(Writer out, AffyCompRecord ar) throws IOException
     {

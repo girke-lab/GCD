@@ -138,6 +138,8 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
                                 "affy.experiment_set_summary_mv.probe_set_key",List.class),
             new Field(space+"Experiment Set Key",
                                 "affy.experiment_set_summary_mv.experiment_set_key",List.class),
+            new Field(space+"Intensity type","affy.experiment_set_summary_mv.data_type",
+                                new String[]{"MAS5","RMA"},new String[]{"mas5","rma"}),
             new Field(space+">4 fold change up","affy.experiment_set_summary_mv.up4x",Integer.class),                                
             new Field(space+">4 fold change down","affy.experiment_set_summary_mv.down4x",Integer.class),
             new Field(space+">2 fold change up","affy.experiment_set_summary_mv.up2x",Integer.class),                                

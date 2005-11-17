@@ -205,9 +205,13 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         return new String[][] {
                 //experiment_set_summary_mv fields used
-                {"probe_set_key","experiment_set_key","name","up2x","down2x","up4x","down4x","pma_on","pma_off"},
+                {"probe_set_key","experiment_set_key","name","up2x","down2x","up4x",
+                         "down4x","pma_on","pma_off","control_average","control_stddev",
+                         "treatment_average","treatment_stddev"},
                 //experiment_group_summary_mv fields used
-                {"comparison","control_mean","treatment_mean","control_pma","treatment_pma","t_c_ratio_lg"},
+                {"comparison","control_mean","treatment_mean","control_pma",
+                         "treatment_pma","t_c_ratio_lg",
+                         "contrast","p_value","adj_p_value","pfp_up","pfp_down"},
                 // detail_view fields used
                 {"type_name","file_name","intensity","pma"}
             };
@@ -325,11 +329,11 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             sortcol="type_name";
         
         String query="SELECT * FROM " +
-                " (SELECT DISTINCT ON (sequence_accession_id, file_name) * " +
+                " (SELECT DISTINCT ON (sequence_accession_id, file_name,group_no) * " +
                 "   FROM affy.detail_view " +
                 "   WHERE ("+AffyKey.buildIdSetCondition(affyKeys, !allGroups) +") "+
                 "           AND data_type='"+dataType+"' "+
-                "   ORDER BY sequence_accession_id, file_name " +
+                "   ORDER BY sequence_accession_id, file_name,group_no " +
                 " ) as t " +
                 "ORDER BY "+sortcol+" "+sortDir;
                 
@@ -356,7 +360,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
         String query="SELECT * FROM "+                
                 "   (SELECT DISTINCT ON (probe_set_key_id, experiment_set_id, comparison)  * " +
-                "       FROM affy.experiment_group_summary_mv " +
+                    "       FROM affy.experiment_group_summary_mv " +
                 "       WHERE ("+ AffyKey.buildIdSetCondition(affyKeys,false) +") "+
                 "               AND data_type='"+dataType+"' "+
                 "       ORDER BY probe_set_key_id, experiment_set_id, comparison  "+
@@ -383,7 +387,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     }
     public String getProbeSetRecordQuery(Collection ids)
     {
-        String query="SELECT * FROM affy.psk_by_model_view " +                
+        String query="SELECT * FROM affy.psk_by_model_mv " +                
                 " WHERE "+Common.buildIdListCondition("accession_id",ids)+
                 " ORDER BY key";
         logQuery(query);

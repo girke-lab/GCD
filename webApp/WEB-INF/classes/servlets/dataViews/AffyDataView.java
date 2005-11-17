@@ -24,7 +24,7 @@ public class AffyDataView implements DataView
 {
     private static Logger log=Logger.getLogger(AffyDataView.class);    
     private static final int MAS5=0, RMA=1;
-    private static final String[] dataTypes=new String[]{"mas5","gcrma"};
+    private static final String[] dataTypes=new String[]{"mas5","rma"};
     private static final String[] dataTypeTitles=new String[]{"MAS 5","RMA"};
     
     private int keyType, hid;
@@ -76,7 +76,7 @@ public class AffyDataView implements DataView
             public void printGeneral(PrintWriter out, Search search, String position,Map storage)
             {
                 out.println("Download data: &nbsp");
-                Common.printUnknownDownloadLinks(out, hid, search.getResults().size());                               
+                Common.printUnknownDownloadLinks(out, hid, search.getResults().size(),dataTypes[dataType]);                               
             }            
             public void printGeneral(PrintWriter out, Search search, String position)
             {
@@ -217,7 +217,7 @@ public class AffyDataView implements DataView
         else
             storage.put("data_type", dataTypeStr);
         
-        if(dataTypeStr==null || !dataTypeStr.equals("gcrma"))
+        if(dataTypeStr==null || !dataTypeStr.equals("rma"))
             dataType=MAS5;
         else
             dataType=RMA;

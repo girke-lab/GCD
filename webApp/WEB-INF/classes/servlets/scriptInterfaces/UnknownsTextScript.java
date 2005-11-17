@@ -28,6 +28,7 @@ public class UnknownsTextScript implements Script
     private static final int batchSize=1000;
     
     private String dataType;
+    private String intensityType;
     private boolean printDescription;
     
     /** Creates a new instance of UnknownsTextScript */
@@ -37,9 +38,13 @@ public class UnknownsTextScript implements Script
         if(dbc==null)
             log.error("could not get db connection for text dump");
         
-        if(parameters!=null && parameters.containsKey("dataType") &&
-                ((String[])parameters.get("dataType")).length!=0 )
-            dataType=((String[])parameters.get("dataType"))[0];
+        if(parameters!=null)
+        {
+            if(parameters.containsKey("dataType") && ((String[])parameters.get("dataType")).length!=0 )
+                dataType=((String[])parameters.get("dataType"))[0];
+            if(parameters.containsKey("intensityType") && ((String[])parameters.get("intensityType")).length!=0)
+                intensityType=((String[])parameters.get("intensityType"))[0];
+        }
     }    
 
     public void run(java.io.OutputStream os, java.util.List ids)
@@ -91,10 +96,11 @@ public class UnknownsTextScript implements Script
         RecordFactory f=RecordFactory.getInstance();
         QueryParameters qp=new QueryParameters();
         qp.setIds(ids);
+        qp.setDataType(intensityType);
         printDescription=false;
         
         unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
-        
+         
         if(dataType.equals("AffyComp"))
             f.addSubType(unknowns, AffyCompRecord.getRecordInfo(),qp);            
         else if(dataType.equals("AffyDetail"))    

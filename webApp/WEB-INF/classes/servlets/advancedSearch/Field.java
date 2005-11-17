@@ -41,6 +41,7 @@ import org.apache.log4j.Logger;
         
         private int dbType=POSTGRESQL; //should be one of POSTGRESQL or MYSQL
         private Object[] list;
+        private String[] titles;
         private static Map validOps;  //maps types to operations
         private static Logger log=Logger.getLogger(Field.class);
         private boolean sortable=false; //fields are only sortable if they are in a 1-1 relation with the primary key.
@@ -80,6 +81,14 @@ import org.apache.log4j.Logger;
             type=t;
             list=l;
         }
+        public Field(String name, String dbn,String[] titles, Object[] l)
+        {
+            displayName=name;
+            dbName=dbn;
+            type=String.class;
+            list=l;
+            this.titles=titles;
+        }
         public void setDbType(int t)
         {
             dbType=t;
@@ -101,7 +110,10 @@ import org.apache.log4j.Logger;
                     output+="<OPTION ";
                     if(currentValue.equalsIgnoreCase(str))
                         output+="selected ";
-                    output+=">"+str+"</OPTION>";
+                    if(titles!=null && i<titles.length) 
+                        output+=" value='"+str+"' >"+titles[i]+"</OPTION>";
+                    else
+                        output+=">"+str+"</OPTION>";
                 }
                 output+="</SELECT>";
                 return output;

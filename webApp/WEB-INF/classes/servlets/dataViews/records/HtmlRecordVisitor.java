@@ -31,6 +31,9 @@ public class HtmlRecordVisitor implements RecordVisitor
     int hid;
     String sortDir,sortCol;
     String currentAccession;
+    DecimalFormat df=new DecimalFormat("0.00");
+    DecimalFormat percent=new DecimalFormat("0%");
+    DecimalFormat ldf=new DecimalFormat("0.##E0");
     
     /** Creates a new instance of HtmlRecordVisitor */
     public HtmlRecordVisitor()
@@ -185,7 +188,9 @@ public class HtmlRecordVisitor implements RecordVisitor
     {
  
         
-        String[] titles=new String[]{"AffyID","Exp","Name","up 2x","down 2x","up 4x","down 4x","on","off"};
+        String[] titles=new String[]{"AffyID","Exp","Name","up 2x","down 2x",
+                                     "up 4x","down 4x","on","off",
+                                     "ctrl avg","ctrl stddev","treat avg","treat stddev"};
         String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.EXPSET]; 
         
         out.write("<tr bgcolor='"+PageColors.title+"'><td><a name='"+ar.probeSetId+"'>&nbsp</a></td>");        
@@ -201,7 +206,7 @@ public class HtmlRecordVisitor implements RecordVisitor
                 "type=expr&search_action=search&" +
                 "name_type_1=submission_number&term_1="+ar.expSetKey+
                 "&search=submit+query";
-        String popup="onmouseover=\"return escape('"+ar.description+"')\"";  
+        String popup="onmouseover=\"return escape('"+ar.description+"')\"";          
         
         out.write("<tr bgcolor='"+PageColors.catagoryColors.get(ar.catagory)+"'>");
         
@@ -212,10 +217,14 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("<td>"+(ar.name.equals("")?"&nbsp":ar.name)+"</td>"); //  <td>"+ar.description+"</td>");
         out.write("<td>"+ar.up2+"</td><td>"+ar.down2+"</td><td>"+ar.up4+"</td>");
         out.write("<td>"+ar.down4+"</td><td>"+(ar.on==null?"&nbsp":ar.on)+"</td><td>"+(ar.off==null?"&nbsp":ar.off)+"</td>");
+        out.write("<td>"+(ar.controlAverage==null ? "&nbsp":percent.format(ar.controlAverage))+
+                "</td><td>"+(ar.controlStddev==null ? "&nbsp":percent.format(ar.controlStddev))+"</td>");
+        out.write("<td>"+(ar.treatAverage==null ? "&nbsp":percent.format(ar.treatAverage))+
+                "</td><td>"+(ar.treatStddev==null ? "&nbsp":percent.format(ar.treatStddev))+"</td>");
         out.write("</tr>");
         
         //print sub records
-        printSubRecords(out, ar.iterator(),9,1);
+        printSubRecords(out, ar.iterator(),13,1);
     }
     public void printFooter(Writer out, AffyExpSetRecord ar) throws IOException
     {
@@ -225,7 +234,8 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printHeader(Writer out, AffyCompRecord ar) throws IOException
     {        
         String[] titles=new String[]{"Comparison","Control mean","Treat mean",
-                                "control pma","treat pma","ratio (log2)"};
+                                "control pma","treat pma","ratio (log2)","contrast",
+                                "P-value","adj P-value","pfp up","pfp down"};
         String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.COMP]; 
 
         out.write("<tr bgcolor='"+PageColors.title+"'><td><a name='"+ar.probeSetId+"'>&nbsp</a></td>");
@@ -237,17 +247,18 @@ public class HtmlRecordVisitor implements RecordVisitor
         String link="QueryPageServlet?hid="+hid+"&displayType=affyView&es_ids="+ar.expSetId+
                 "&psk_ids="+ar.probeSetId+"&groups="+ar.comparison;
         String key=ar.expSetId+"_"+ar.probeSetId+"_"+ar.comparison;
-        
-        DecimalFormat df=new DecimalFormat("0.00");        
+                 
 
         out.write("<tr>");       
         printTreeControls(out,link,key,ar.iterator());                
         out.write("<td>"+ar.comparison+"</td><td>"+df.format(ar.controlMean)+"</td>");
         out.write("<td>"+df.format(ar.treatmentMean)+"</td><td>"+ar.controlPMA+"&nbsp</td>");
         out.write("<td>"+ar.treatmentPMA+"&nbsp</td><td>"+df.format(ar.ratio)+"</td>");
+        out.write("<td>"+df.format(ar.contrast)+"</td><td>"+ldf.format(ar.pValue)+"</td><td>"+ldf.format(ar.adjPValue)+"</td>");
+        out.write("<td>"+df.format(ar.pfpUp)+"</td><td>"+df.format(ar.pfpDown)+"</td>");
         out.write("</tr>");
         
-        printSubRecords(out,ar.iterator(),6, 1);
+        printSubRecords(out,ar.iterator(),11, 1);
     }
    
     public void printFooter(Writer out, AffyCompRecord ar) throws IOException
@@ -265,8 +276,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("</tr>\n");        
     }
     public void printRecord(Writer out, AffyDetailRecord ar) throws IOException
-    {
-        DecimalFormat df=new DecimalFormat("0.00");   
+    {        
         out.write("<tr>");                
         //String desc=(ar.description==null || ar.description.equals(""))?"&nbsp":ar.description;
         
@@ -282,19 +292,28 @@ public class HtmlRecordVisitor implements RecordVisitor
 
     public void printHeader(Writer out, ProbeSetRecord psr) throws IOException
     {
-        out.write("<tr bgcolor='"+PageColors.title+"'><th>Affy Probe Set Keys</th></td>\n");
-        out.write("<tr><td>");
+        out.write("<tr bgcolor='"+PageColors.title+"'>" +
+                "<th>Affy Probe Set</th>" +
+                "<th>Control Average Intensity</th>" +
+                "<th>Control Std Deviation</th>" +
+                "<th>Treatment Average Intensity</th>" +
+                "<th>Treatment Std Deviation</th></tr>\n");
+        
     }
     public void printRecord(Writer out, ProbeSetRecord psr) throws IOException
     {
         String link="QueryPageServlet?displayType=affyView&" +
                 "searchType=id&dbs=0&inputKey=exact "+currentAccession;
-        out.write("<a href='"+link+"'>"+
-                psr.probeSetKey+"</a>&nbsp&nbsp");                
+        
+        out.write("<tr>");
+        out.write("<td><a href='"+link+"'>"+psr.probeSetKey+"</a></td>");                
+        out.write("<td>"+percent.format(psr.controlAverage)+"</td><td>"+percent.format(psr.controlStddev)+"</td>");
+        out.write("<td>"+percent.format(psr.treatAverage)+"</td><td>"+percent.format(psr.treatStddev)+"</td>");
+        out.write("</td>");
     }    
     public void printFooter(Writer out, ProbeSetRecord psr) throws IOException
     {
-        out.write("</td></tr>");
+        
     }
     //</editor-fold>
     
@@ -320,7 +339,7 @@ public class HtmlRecordVisitor implements RecordVisitor
             }
             out.write("<tr>"+spaces);            
             out.write("<td colspan='"+span+"'><TablE bgcolor='"+PageColors.data+"' width='100%'" +
-                " border='1' cellspacing='0' cellpadding='0'>\n");
+                " border='1' cellspacing='0' cellpadding='1'>\n");
             rec.printHeader(out, this);
             rec.printRecord(out, this);
             rec.printFooter(out, this);
