@@ -217,4 +217,16 @@ public class DebugRecordVisitor implements RecordVisitor
     public void printRecord(Writer out, ProbeSetRecord psr) throws IOException
     {
     }
+
+    public void printFooter(Writer out, CorrelationRecord cr) throws IOException
+    {
+    }
+
+    public void printHeader(Writer out, CorrelationRecord cr) throws IOException
+    {
+    }
+
+    public void printRecord(Writer out, CorrelationRecord cr) throws IOException
+    {
+    }
 }

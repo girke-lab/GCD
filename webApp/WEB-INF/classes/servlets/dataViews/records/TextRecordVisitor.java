@@ -22,9 +22,9 @@ import org.apache.log4j.Logger;
  */
 public class TextRecordVisitor implements RecordVisitor
 {
-    private static Logger log=Logger.getLogger(TextRecordVisitor.class);
-    private String currentAccession="";
-    private boolean printDescription;
+    static Logger log=Logger.getLogger(TextRecordVisitor.class);
+    String currentAccession="";
+    boolean printDescription;
     
     /** Creates a new instance of TextRecordVisitor */
     public TextRecordVisitor()
@@ -56,17 +56,17 @@ public class TextRecordVisitor implements RecordVisitor
             out.write("key\tdescription\n");   
         else
         {        
-            log.debug("printing sub record headers");
+            log.debug("printing sub record headers");                                    
+            
             Record list;        
             for(Iterator i=ur.iterator();i.hasNext();)
             {
                 list=(Record)i.next();
                 if(list != null )
-                {                    
+                {                   
                     Iterator j=list.iterator();
                     if(j.hasNext())
                     {
-                        log.debug("found a record");
                         ((Record)j.next()).printHeader(out,this);
                     }
                 }                 
@@ -167,14 +167,15 @@ public class TextRecordVisitor implements RecordVisitor
 
     public void printHeader(Writer out, AffyCompRecord ar) throws IOException
     {
-        out.write("accession\tcomparison\tcontrol_mean\ttreatment_mean\t" +
+        out.write("accession\texperiment_set\tprobe_set_key\tcomparison\tcontrol_mean\ttreatment_mean\t" +
                 "control_pma\ttreat_pma\tratio_log2\tcontrast\tP_value" +
                 "\tadj_p_value\tpfp_up\tpfp_down\n");
     }
     public void printRecord(Writer out, AffyCompRecord ar) throws IOException
     {
-        out.write(currentAccession+"\t"+ar.comparison+"\t"+ar.controlMean+"\t"+
-                ar.treatmentMean+"\t"+ar.controlPMA+"\t"+ar.treatmentPMA+"\t"+
+        out.write(currentAccession+"\t"+ar.expSetKey+"\t"+ar.probeSetKey+"\t"+
+                ar.comparison+"\t"+ar.controlMean+"\t"+ar.treatmentMean+"\t"+
+                ar.controlPMA+"\t"+ar.treatmentPMA+"\t"+
                 ar.ratio+"\t"+ar.contrast+"\t"+ar.pValue+"\t"+ar.adjPValue+"\t"+
                 ar.pfpUp+"\t"+ar.pfpDown+"\n");
     }
@@ -204,8 +205,15 @@ public class TextRecordVisitor implements RecordVisitor
     public void printHeader(Writer out, CompositeRecord cr) throws IOException
     {        
         Iterator<Record> i=cr.iterator();
+        log.debug("composite: printing headers");
+        Record r;
         if(i.hasNext())
-            i.next().printHeader(out,this);
+        {
+            r=i.next();
+            log.debug("printing header for "+r.getClass().getName());
+            //i.next().printHeader(out,this);
+            r.printHeader(out,this);
+        }
     }
     public void printRecord(Writer out, CompositeRecord cr) throws IOException
     {
@@ -225,6 +233,17 @@ public class TextRecordVisitor implements RecordVisitor
     {
     }
     public void printFooter(Writer out, ProbeSetRecord psr) throws IOException
+    {
+    }
+
+    
+    public void printHeader(Writer out, CorrelationRecord cr) throws IOException
+    {
+    }
+    public void printRecord(Writer out, CorrelationRecord cr) throws IOException
+    {
+    }
+    public void printFooter(Writer out, CorrelationRecord cr) throws IOException
     {
     }
 }

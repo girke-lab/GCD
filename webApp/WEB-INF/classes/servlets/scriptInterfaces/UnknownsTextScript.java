@@ -56,7 +56,8 @@ public class UnknownsTextScript implements Script
     
     private void writeData(PrintWriter out,List ids)
     {
-        RecordVisitor visitor=new TextRecordVisitor();
+        RecordVisitor visitor=getRecordVisitor();
+        //RecordVisitor visitor=new TextRecordVisitor();
         //RecordVisitor visitor=new DebugRecordVisitor();
         Collection data=null;
         Record rec=null;
@@ -102,9 +103,24 @@ public class UnknownsTextScript implements Script
         unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
          
         if(dataType.equals("AffyComp"))
-            f.addSubType(unknowns, AffyCompRecord.getRecordInfo(),qp);            
+            f.addSubType(
+                f.addSubType(
+                    unknowns,
+                    AffyExpSetRecord.getRecordInfo(), qp
+                ),
+                AffyCompRecord.getRecordInfo(),qp
+            );                    
         else if(dataType.equals("AffyDetail"))    
-            f.addSubType(unknowns, AffyDetailRecord.getRecordInfo(),qp);            
+            f.addSubType(
+                f.addSubType(
+                    f.addSubType(
+                        unknowns,
+                        AffyExpSetRecord.getRecordInfo(), qp
+                    ),
+                    AffyCompRecord.getRecordInfo(),qp
+                ), 
+                AffyDetailRecord.getRecordInfo(), qp
+            );
         else if(dataType.equals("AffyExpSet"))    
             f.addSubType(unknowns, AffyExpSetRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Blast"))    
@@ -125,6 +141,20 @@ public class UnknownsTextScript implements Script
         return unknowns;
     }
     
+    private RecordVisitor getRecordVisitor()
+    {
+        RecordVisitor rv;
+        TextRecordVisitorFactory f=TextRecordVisitorFactory.getInstance();
+        
+        if(dataType.equals("AffyComp"))
+            rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.AFFY_COMP);                
+        else if(dataType.equals("AffyDetail"))
+            rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.AFFY_DETAIL);        
+        else
+            rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.GENERAL);            
+        
+        return rv;
+    }
   
     public String getContentType()
     {        

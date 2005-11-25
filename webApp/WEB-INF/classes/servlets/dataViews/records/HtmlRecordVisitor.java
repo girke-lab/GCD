@@ -317,6 +317,16 @@ public class HtmlRecordVisitor implements RecordVisitor
     }
     //</editor-fold>
     
+        
+    public void printHeader(Writer out, CorrelationRecord cr) throws IOException
+    {
+    }
+    public void printRecord(Writer out, CorrelationRecord cr) throws IOException
+    {
+    }
+    public void printFooter(Writer out, CorrelationRecord cr) throws IOException
+    {
+    }
     ////////////////////////////////////////////////////////////////////////////
     
     private void printSubRecords(java.io.Writer out, Iterator itr,int span, int shift) throws java.io.IOException
@@ -381,6 +391,8 @@ public class HtmlRecordVisitor implements RecordVisitor
                 "&sortDirection="+newDir+"#"+anchor+"'>"+titles[i]+"</a></th>");             
         }
     }
+
+   
 
    
 

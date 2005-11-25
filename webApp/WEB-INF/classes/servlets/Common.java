@@ -21,7 +21,8 @@ public class Common {
                             KEY_TYPE_CLUSTER=2, KEY_TYPE_BLAST=3,
                             KEY_TYPE_ACC=4,     KEY_TYPE_QUERY=5,
                             KEY_TYPE_DEFAULT=6, 
-                            KEY_TYPE_COMP=8,    KEY_TYPE_DETAIL=9;
+                            KEY_TYPE_COMP=8,    KEY_TYPE_DETAIL=9,
+                            KEY_TYPE_CORR=10;
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
 //    public final static String dataColor="D3D3D3",titleColor="AAAAAA";        

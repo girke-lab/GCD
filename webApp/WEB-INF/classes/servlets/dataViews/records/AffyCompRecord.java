@@ -26,7 +26,7 @@ public class AffyCompRecord extends AbstractRecord
     Float controlMean, treatmentMean,ratio;
     Float contrast, pValue, adjPValue, pfpUp,pfpDown;
     Integer accId, probeSetId, expSetId;
-    List subRecords;
+    //List subRecords;
     
     private static Logger log=Logger.getLogger(AffyCompRecord.class);        
     

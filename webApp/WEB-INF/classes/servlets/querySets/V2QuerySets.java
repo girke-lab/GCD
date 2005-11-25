@@ -393,7 +393,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
-
+    public String getCorrelationRecordQuery(Collection ids, String sortcol, String sortDir)
+    {
+        return "";
+    }
 // </editor-fold>
    
     // <editor-fold defaultstate="collapsed" desc=" Database methods ">
@@ -855,6 +858,8 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
    
     //</editor-fold>
+
+   
 
   
 
