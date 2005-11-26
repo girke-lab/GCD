@@ -64,6 +64,7 @@ public class TextRecordVisitorFactory
         public void printRecord(Writer out, AffyExpSetRecord ar) throws IOException
         {        
             out.write(currentAccession+"\t"+ar.probeSetKey+"\t"+ar.expSetKey+"\t"); 
+            
         }
 
 
