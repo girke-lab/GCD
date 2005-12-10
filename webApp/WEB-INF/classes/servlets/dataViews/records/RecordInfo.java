@@ -8,7 +8,7 @@
 package servlets.dataViews.records;
 
 import java.util.List;
-import servlets.dataViews.records.formats.CompositeFormat;
+import servlets.dataViews.records.CompositeFormat;
 
 /**
  * holds data that is constant over a group of

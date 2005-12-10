@@ -8,7 +8,7 @@
 package servlets.dataViews.records;
 
 import java.util.*;
-import servlets.dataViews.records.formats.CompositeFormat;
+import servlets.dataViews.records.CompositeFormat;
 
 /**
  *

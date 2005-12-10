@@ -549,9 +549,19 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return "";
     }
 
-    public String getCorrelationRecordQuery(Collection ids, String sortcol, String sortDir)
+    public String getCorrelationRecordQuery(Collection ids, String sortcol, String sortDir, String catagory)
     {
         return "";
+    }
+
+    public String getProbeSetKeySearchQuery(Collection input, int limit, int keyType)
+    {
+        return "";
+    }
+
+    public String[] getSortableCorrelationColumns()
+    {
+        return new String[]{};
     }
   
 }

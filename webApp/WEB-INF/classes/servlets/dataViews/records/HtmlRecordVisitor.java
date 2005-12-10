@@ -43,10 +43,22 @@ public class HtmlRecordVisitor implements RecordVisitor
     {
         this.hid=hid;
     }
+    public int getHid()
+    {
+        return hid;
+    }
     public void setSortInfo(String col,String dir)
     {
         sortCol=col;
         sortDir=dir;
+    }
+    public String getSortCol()
+    {
+        return sortCol;
+    }
+    public String getSortDir()
+    {
+        return sortDir;
     }
     
     // <editor-fold defaultstate="collapsed" desc=" misc records ">
@@ -162,6 +174,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printHeader(Writer out, CompositeRecord cr) throws IOException
     {
         log.debug("composite header");
+        cr.getFormat().printHeader(out,this,cr);
     }
     public void printRecord(Writer out, CompositeRecord cr) throws IOException
     {
@@ -169,7 +182,7 @@ public class HtmlRecordVisitor implements RecordVisitor
 //        out.write("<tr>");            
 //        out.write("<td colspan='0'><TablE bgcolor='"+PageColors.data+"' width='100%'" +
 //                " border='1' cellspacing='0' cellpadding='0'>\n");
-        cr.getFormat().printRecords(out,this,cr.iterator());
+        cr.getFormat().printRecords(out,this,cr);
 //        out.write("</TablE></td></tr>\n");
     }
     public void printFooter(Writer out, CompositeRecord cr) throws IOException
@@ -304,9 +317,12 @@ public class HtmlRecordVisitor implements RecordVisitor
     {
         String link="QueryPageServlet?displayType=affyView&" +
                 "searchType=id&dbs=0&inputKey=exact "+currentAccession;
+        String corrLink="QueryPageServlet?rpp=200&displayType=correlationView&" +
+                "searchType=Probe_Set_Key&inputKey="+psr.probeSetId;
         
         out.write("<tr>");
-        out.write("<td><a href='"+link+"'>"+psr.probeSetKey+"</a></td>");                
+        out.write("<td><a href='"+link+"'>"+psr.probeSetKey+"</a>" +
+                " &nbsp&nbsp <a href='"+corrLink+"'>corr</a> </td>");                 
         out.write("<td>"+percent.format(psr.controlAverage)+"</td><td>"+percent.format(psr.controlStddev)+"</td>");
         out.write("<td>"+percent.format(psr.treatAverage)+"</td><td>"+percent.format(psr.treatStddev)+"</td>");
         out.write("</td>");
@@ -320,9 +336,14 @@ public class HtmlRecordVisitor implements RecordVisitor
         
     public void printHeader(Writer out, CorrelationRecord cr) throws IOException
     {
+        out.write("<tr bgcolor='"+PageColors.title+"'>"+
+                "<th>Catagory</th><th>Correlation</th><th>P value</th></tr>");
     }
     public void printRecord(Writer out, CorrelationRecord cr) throws IOException
     {
+        out.write("<tr>");
+        out.write("<td>"+cr.psk2_key+"</td><td>"+cr.correlation+"</td>");
+        out.write("<td>"+cr.p_value+"</td></tr>");
     }
     public void printFooter(Writer out, CorrelationRecord cr) throws IOException
     {

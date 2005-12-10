@@ -295,7 +295,7 @@ public class AffyDataView implements DataView
         f.addSubType(
             f.addSubType(
                 f.addSubType(
-                    unknowns,
+                    unknowns,  
                     AffyExpSetRecord.getRecordInfo(), qp
                 ),
                 AffyCompRecord.getRecordInfo(),qp

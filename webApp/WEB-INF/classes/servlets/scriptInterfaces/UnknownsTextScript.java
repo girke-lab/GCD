@@ -5,17 +5,11 @@
  */
 
 package servlets.scriptInterfaces;
-
-/**
- *
- * @author  khoran
- */
-
-import java.net.*;
 import java.util.*;
 import java.io.*;
 import org.apache.log4j.Logger;
 import servlets.*;
+import servlets.dataViews.AffyKey;
 import servlets.dataViews.records.*;
 
 
@@ -96,9 +90,19 @@ public class UnknownsTextScript implements Script
         Collection unknowns=null;
         RecordFactory f=RecordFactory.getInstance();
         QueryParameters qp=new QueryParameters();
+        printDescription=false;
+        
         qp.setIds(ids);
         qp.setDataType(intensityType);
-        printDescription=false;
+        
+        
+        Collection<AffyKey> affyKeys=new LinkedList<AffyKey>();
+        for(Iterator i=ids.iterator();i.hasNext();)
+            affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
+        qp.setAffyKeys(affyKeys);
+        qp.setAllGroups(true);
+        
+        
         
         unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
          
@@ -148,7 +152,7 @@ public class UnknownsTextScript implements Script
         
         if(dataType.equals("AffyComp"))
             rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.AFFY_COMP);                
-        else if(dataType.equals("AffyDetail"))
+        else if(dataType.equals("AffyDetail"))//AffyDetail
             rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.AFFY_DETAIL);        
         else
             rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.GENERAL);            

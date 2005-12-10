@@ -63,6 +63,9 @@ public interface SearchQuerySet extends QuerySet
     // for UnknowclusterIdSearch
     public String getUnknownClusterIdSearchQuery(int cluster_id, int keyType);
        
-    // fro ProbeSetSearch
+    // for ProbeSetSearch
     public String getProbeSetSearchQuery(Collection input, int limit, int keyType);
+    
+    // for ProbeSetKeySearch
+    public String getProbeSetKeySearchQuery(Collection input, int limit, int keyType);
 }

@@ -45,4 +45,6 @@ public interface DataViewQuerySet extends QuerySet
     
     public static final int EXPSET=0, COMP=1, DETAIL=2;
     public String[][] getSortableAffyColumns();
+    
+    public String[] getSortableCorrelationColumns();
 }

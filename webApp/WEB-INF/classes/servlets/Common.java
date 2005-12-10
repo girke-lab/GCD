@@ -22,7 +22,7 @@ public class Common {
                             KEY_TYPE_ACC=4,     KEY_TYPE_QUERY=5,
                             KEY_TYPE_DEFAULT=6, 
                             KEY_TYPE_COMP=8,    KEY_TYPE_DETAIL=9,
-                            KEY_TYPE_CORR=10;
+                            KEY_TYPE_PSK=10,    KEY_TYPE_CORR=11;
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
 //    public final static String dataColor="D3D3D3",titleColor="AAAAAA";        
@@ -447,6 +447,7 @@ public class Common {
     
     public static int findCommonKeyType(int[] searchKeys,int[] dataviewKeys)
     {
+        //log.debug("comparingin "+printArray(searchKeys)+" to "+printArray(dataviewKeys));
         int common=-1;
         //simple method
         for(int i=0;i<searchKeys.length;i++) //prefer search keys

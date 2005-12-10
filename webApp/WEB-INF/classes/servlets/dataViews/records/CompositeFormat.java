@@ -5,12 +5,12 @@
  *
  */
 
-package servlets.dataViews.records.formats;
+package servlets.dataViews.records;
 
 import java.io.*;
 import java.util.*;
 import org.apache.log4j.Logger;
-import servlets.dataViews.records.*;
+
 
 /**
  *
@@ -25,12 +25,17 @@ public class CompositeFormat
     {
     }
     
-    public void printRecords(Writer out, RecordVisitor visitor,Iterator i) 
+    public void printHeader(Writer out, RecordVisitor visitor,Iterable ib)
+        throws IOException
+    {        
+    }    
+    public void printRecords(Writer out, RecordVisitor visitor,Iterable ib) 
         throws IOException
     {
        boolean isFirst=true;
        Record r;
-       //log.debug("using default composite format");
+       Iterator i=ib.iterator();
+       log.debug("using default composite format");
        while(i.hasNext())
        {
            r=(Record)i.next();
@@ -44,11 +49,5 @@ public class CompositeFormat
            if(!i.hasNext())
                r.printFooter(out, visitor);
        } 
-    }
-    public void printRecords(Writer out, RecordVisitor visitor,Collection records)
-        throws IOException
-    { // default implementation
-        printRecords(out,visitor,records.iterator());
-    }
-    
+    }    
 }

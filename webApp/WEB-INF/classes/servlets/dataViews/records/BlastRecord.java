@@ -15,8 +15,7 @@ import java.io.*;
 import org.apache.log4j.Logger;
 import servlets.Common;
 import servlets.PageColors;
-import servlets.dataViews.records.formats.BlastCompositeFormat;
-import servlets.dataViews.records.formats.CompositeFormat;
+import servlets.dataViews.records.CompositeFormat;
 import servlets.querySets.*;
 
 /**
@@ -24,10 +23,10 @@ import servlets.querySets.*;
  */
 public class BlastRecord extends AbstractRecord
 {
-    public String target,targetDesc,score,ident,positives,gaps,dbname,link,method,purpose;
-    public int length;
-    public double evalue;
-    public Integer accId;
+    String target,targetDesc,score,ident,positives,gaps,dbname,link,method,purpose;
+    int length;
+    double evalue;
+    Integer accId;
     
     private static Logger log=Logger.getLogger(BlastRecord.class);
     
@@ -180,5 +179,50 @@ public class BlastRecord extends AbstractRecord
             }
         };
     }
+    
+    static class BlastCompositeFormat extends CompositeFormat
+    {
+
+        /** Creates a new instance of BlastCompositeFormat */
+        public BlastCompositeFormat() 
+        {
+        }
+
+        public void printRecords(Writer out, RecordVisitor visitor,Iterable ib)
+            throws IOException
+        {
+            BlastRecord rec;
+            boolean firstRecord=true;
+            String lastPurpose=null;
+
+            Map<String,String> titles=new HashMap<String,String>(); 
+            titles.put("UD","Unknown Searches");
+            titles.put("orthologs","Ortholog Searches");
+
+            Iterator i=ib.iterator();
+            while(i.hasNext())
+            {
+                rec=(BlastRecord)i.next();
+                if(rec.target.equals("no hit")) 
+                    continue; //skip no hits
+                if(firstRecord)
+                {
+                    rec.printHeader(out, visitor);
+                    firstRecord=false;
+                }            
+                if(lastPurpose==null || !lastPurpose.equals(rec.purpose))
+                {
+                    out.write("<tr><th align='left' colspan='4' bgcolor='"+PageColors.title+"'>"+
+                            titles.get(rec.purpose)+"</th></tr>");
+                    lastPurpose=rec.purpose;
+                }
+                rec.printRecord(out, visitor);
+                if(!i.hasNext()) //last record
+                    rec.printFooter(out, visitor);
+            }
+        }
+
+    }
+    
 }
 

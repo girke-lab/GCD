@@ -216,6 +216,13 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 {"type_name","file_name","intensity","pma"}
             };
     }
+    public String[] getSortableCorrelationColumns()
+    {
+        return new String[] {
+            "psk2_key","correlation", "p_value"
+        };
+    }
+    
     //   </editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc=" Record queries "> 
@@ -329,11 +336,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             sortcol="type_name";
         
         String query="SELECT * FROM " +
-                " (SELECT DISTINCT ON (sequence_accession_id, file_name,group_no) * " +
+                " (SELECT DISTINCT ON (probe_set_key_id,experiment_set_id,group_no,type_name,file_name) * " +
                 "   FROM affy.detail_view " +
                 "   WHERE ("+AffyKey.buildIdSetCondition(affyKeys, !allGroups) +") "+
-                "           AND data_type='"+dataType+"' "+
-                "   ORDER BY sequence_accession_id, file_name,group_no " +
+                "           AND data_type='"+dataType+"' "+                
                 " ) as t " +
                 "ORDER BY "+sortcol+" "+sortDir;
                 
@@ -341,7 +347,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 //        String query="SELECT DISTINCT ON (sequence_accession_id,file_name) * FROM affy.detail_view " +
 //                " WHERE "+ AffyKey.buildIdSetCondition(affyKeys, !allGroups) +                    
 //                " ORDER BY sequence_accession_id, file_name, "+
-//                    sortcol+" "+sortDir;
+//                    sortCol+" "+sortDir;
         logQuery(query);
         return query;
     }
@@ -393,9 +399,34 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
-    public String getCorrelationRecordQuery(Collection ids, String sortcol, String sortDir)
+    public String getCorrelationRecordQuery(Collection ids, String sortCol, String sortDir, String catagory)
     {
-        return "";
+        String bottomValue="'infinity'";
+        String order;
+        
+        if(sortCol!=null && sortCol.startsWith("corr_"))
+            sortCol=sortCol.replaceFirst("corr_", "");
+        else
+            sortCol="correlation";
+        
+        if(catagory==null || catagory.equals(""))
+            catagory="Abiotic Stress";            
+        if(sortDir!=null && sortDir.equals("desc"))
+            bottomValue="'-infinity'";
+        
+        if(sortCol!=null && sortCol.equals("psk2_key"))
+            order=sortCol+" "+sortDir;
+        else
+            order="CASE catagory='"+catagory+"' WHEN TRUE THEN "+sortCol+ 
+                  "   ELSE "+bottomValue+" END "+sortDir; 
+        
+        String query="SELECT * FROM affy.correlation_view "+
+                " WHERE "+Common.buildIdListCondition("correlation_id",ids)+
+                " ORDER BY psk1_id,  " +order;
+                
+                //"catagory, "+sortCol+" "+sortDir;        
+        logQuery(query);
+        return query;
     }
 // </editor-fold>
    
@@ -857,7 +888,20 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     }
 
    
+
+    public String getProbeSetKeySearchQuery(Collection input, int limit, int keyType)
+    {
+        
+          
+        String query="SELECT correlation_id FROM affy.correlation_view " +
+                " WHERE "+Common.buildIdListCondition("psk1_id",input)+
+                " ORDER BY psk1_id";
+        logQuery(query);
+        return query;
+    }
     //</editor-fold>
+
+    
 
    
 

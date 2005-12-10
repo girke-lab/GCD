@@ -136,7 +136,18 @@ public class ResultPage
             out.println("<br><p>");
             return;
         }
-        
+        boolean isDifferent=false;
+        for(int i=1;i<positions.length;i++)
+            if(positions[i-1]!=positions[i])
+            {
+                isDifferent=true;
+                break;
+            }
+        if(!isDifferent)
+        { //all postions go to same place, so dont bother printing them.
+            out.println("<br><p>");
+            return;
+        }
         String action="QueryPageServlet?hid="+hid;        
         out.println("<table><tr><td>&nbsp&nbsp&nbsp&nbsp Go to: </td>");
         for(int i=0;i<names.length;i++)        

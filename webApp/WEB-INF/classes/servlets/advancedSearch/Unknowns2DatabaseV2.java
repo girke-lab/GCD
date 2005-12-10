@@ -156,6 +156,13 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
             new Field(space+"Treatment PMA","affy.experiment_group_summary_mv.treatement_pma",Integer.class),
             new Field(space+"Ratio (log_2(treat_mean/control_mean))",
                                 "affy.experiment_group_summary_mv.t_c_ratio_lg",Float.class)
+                                        
+//            new Field("Correlations",""), //46
+//            new Field(space+"Catagory","affy.correlation_view.catagory",
+//                        new String[]{"ALL","Abiotic Stress","Biotic Stress","Development","Chemical Treatment",
+//                                "Genotype","Horomone Treatment"}),
+//            new Field(space+"Correlation","affy.correlation_view.correlation",Float.class),
+//            new Field(space+"P Value","affy.correlation_view.p_value",Float.class)
         };
 //new Field(space+"",""),
         

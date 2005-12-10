@@ -218,7 +218,7 @@ public class TextRecordVisitor implements RecordVisitor
     public void printRecord(Writer out, CompositeRecord cr) throws IOException
     {
         //cr.getFormat().printRecords(out,this,cr.iterator());
-                
+        
         for(Iterator<Record> i=cr.iterator();i.hasNext();)
             i.next().printRecord(out, this);
     }

@@ -25,7 +25,7 @@ public class CorrelationsDataView implements DataView
     private static Logger log=Logger.getLogger(CorrelationsDataView.class);    
     
     private int keyType, hid;
-    private String sortDir, sortCol,action;
+    private String sortDir, sortCol,action,catagory;
     private int[] dbNums;        
 
     private List corrIds;
@@ -114,6 +114,9 @@ public class CorrelationsDataView implements DataView
 
     public void setParameters(java.util.Map parameters)
     {
+        String[] catagories=(String[])parameters.get("catagory");
+        if(catagories!=null && catagories.length > 0)
+            catagory=catagories[0];
     }
 
     public void setSortDirection(String dir)
@@ -130,27 +133,15 @@ public class CorrelationsDataView implements DataView
     ////////////////////////////////////////////////////////////////////////////
     private Collection getRecords()
     {                       
-        Collection unknowns=null;
+        Collection records=null;
         RecordFactory f=RecordFactory.getInstance();
         log.debug("sortCol="+sortCol);
-//        QueryParameters qp=new QueryParameters(accIds,sortCol,sortDir);
-//
-//        qp.setAffyKeys(nodeSet);
-//        qp.setDataType(dataTypes[dataType]);
-//                        
-//        unknowns=f.getRecords(UnknownRecord.getRecordInfo(),new QueryParameters(accIds));
-//        f.addSubType(
-//            f.addSubType(
-//                f.addSubType(
-//                    unknowns,
-//                    AffyExpSetRecord.getRecordInfo(), qp
-//                ),
-//                AffyCompRecord.getRecordInfo(),qp
-//            ), 
-//            AffyDetailRecord.getRecordInfo(), qp
-//        );
+        QueryParameters qp=new QueryParameters(corrIds,sortCol,sortDir);
+        qp.setCatagory(catagory);
+        records=f.getRecords(CorrelationRecord.getRecordInfo(), qp);
+        
 
-        return unknowns;                                                
+        return records;
     }        
     
     private void printData(PrintWriter out,Collection data)
@@ -160,19 +151,26 @@ public class CorrelationsDataView implements DataView
         out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
             " align='center' border='1' cellspacing='0' cellpadding='0'>");
         Record rec;
-        RecordVisitor visitor=new HtmlRecordVisitor();
+        HtmlRecordVisitor visitor=new HtmlRecordVisitor();                        
+        visitor.setHid(hid);
+        visitor.setSortInfo(sortCol, sortDir);
+        /* we need to find the first psk here.
+         * then we need to figure out what catagories we have and print
+         * them out in the header
+         */                
+        boolean isFirst=true;
         
-        log.debug("hid in printData="+hid);
-        
-        ((HtmlRecordVisitor)visitor).setHid(hid);
-        ((HtmlRecordVisitor)visitor).setSortInfo(sortCol, sortDir);
         try{
             for(Iterator i=data.iterator();i.hasNext();)
             {
-                rec=(Record)i.next();
-                rec.printHeader(out, visitor);
+                rec=(Record)i.next();                
+                log.debug("printing "+rec);
+                if(isFirst)                                        
+                    rec.printHeader(out, visitor);                
+                isFirst=false;
                 rec.printRecord(out, visitor);
-                rec.printFooter(out, visitor);
+                if(i.hasNext())
+                    rec.printFooter(out, visitor);
             }          
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());

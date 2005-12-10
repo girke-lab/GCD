@@ -90,9 +90,10 @@ public class DbConnectionManager
                 
                 //for testing
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); //connect to postgres            
+                connections.put("khoran",new DbConnection("jdbc:postgresql://db2.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); //connect to postgres            
 
                 //for home testing
-                connections.put("khoran",new DbConnection("jdbc:postgresql://localhost:5430/khoran_loading","khoran","512_256_1024")); //connect to postgres            
+                //connections.put("khoran",new DbConnection("jdbc:postgresql://localhost:5430/khoran_loading","khoran","512_256_1024")); //connect to postgres            
         }catch(Exception e){            
             log.warn("failed to connect to khoran database: "+e.getMessage());
         }

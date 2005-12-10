@@ -21,6 +21,7 @@ public class QueryParameters
     private String sortCol=null;
     private String sortDir="ASC";    
     private String dataType="mas5";
+    private String catagory=null;
     
     private boolean allGroups=false;
     
@@ -97,6 +98,16 @@ public class QueryParameters
     public void setDataType(String dataType)
     {
         this.dataType = dataType;
+    }
+
+    public String getCatagory()
+    {
+        return catagory;
+    }
+
+    public void setCatagory(String catagory)
+    {
+        this.catagory = catagory;
     }
     
 }

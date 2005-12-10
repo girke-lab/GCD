@@ -46,5 +46,5 @@ public interface RecordQuerySet extends QuerySet
     public String getProbeSetRecordQuery(Collection ids);
     
     // for CorrelationRecord
-    public String getCorrelationRecordQuery(Collection ids, String sortcol, String sortDir);
+    public String getCorrelationRecordQuery(Collection ids, String sortcol, String sortDir, String catagory);
 }

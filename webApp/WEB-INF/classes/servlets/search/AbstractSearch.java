@@ -105,7 +105,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
      * the result size is greater than <CODE>Common.MAX_QUERY_KEYS</CODE>.
      * Otherwise a default query is executed to fetch the model and cluster
      * counts, using the ids in data as the condition.
-     * @return A list with at most 2 elements.
+     * @return A Map.
      */    
     public Map getStats() {
         if(data==null)
