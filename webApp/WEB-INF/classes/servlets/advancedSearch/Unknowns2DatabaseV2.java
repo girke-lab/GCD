@@ -86,6 +86,8 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         fields=new Field[]{
             new Field("At key",db+"other_accessions_view.other_accession",List.class),
             new Field("Description","general.accessions.description"),
+            new Field("is model?","general.accessions.is_model",
+                        Boolean.class,new String[]{"TRUE","FALSE"}),
             new Field("Genome","general.genome_databases_view.db_name", 
                         new String[]{"arab","rice"}),
             new Field("Number of ests",db+"unknown_data.est_count",Integer.class),
@@ -101,12 +103,12 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
             new Field(space+"score","general.blast_summary_mv.score"),
             new Field(space+"identities","general.blast_summary_mv.identities"),            
             
-            new Field("GO",""),
+            new Field("GO",""),  //13
             new Field(space+"number",db+"go_view.go_number",List.class),
             new Field(space+"description",db+"go_view.text"),
             new Field(space+"function",db+"go_view.function",
                         new String[]{"process","component","function"}),
-            new Field(space+"Molecular function unknown?",db+"unknown_data.mfu",  //15
+            new Field(space+"Molecular function unknown?",db+"unknown_data.mfu",  //17
                         Boolean.class,new String[]{"TRUE","FALSE"}),
             new Field(space+"Cellular component unknown?",db+"unknown_data.ccu",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
@@ -121,7 +123,7 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
                         new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
             new Field(space+"Size","general.clusters_and_info.size",Integer.class),
             
-            new Field("Proteomic Stats",""),   //21         
+            new Field("Proteomic Stats",""),   //22        
             new Field(space+"Molecular Weight",db+"proteomics_stats.mol_weight"),
             new Field(space+"Isoelectric Point",db+"proteomics_stats.ip"),
             new Field(space+"Charge",db+"proteomics_stats.charge"),
@@ -129,11 +131,11 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
             new Field(space+"Probability is negative",db+"proteomics_stats.prob_is_neg",
                         Boolean.class,new String[]{"TRUE","FALSE"}),
                         
-            new Field("External Sources",""),  //27
+            new Field("External Sources",""),  //28
             new Field(space+"Source",db+"external_unknowns.source",new String[]{"tigr","citosky"}),
             new Field(space+"is unknown?",db+"external_unknowns.is_unknown",Boolean.class,
                         new String[]{"TRUE","FALSE"}),
-            new Field("Affy Experiment Sets",""), //29
+            new Field("Affy Experiment Sets",""), //30
             new Field(space+"Probe Set Key",
                                 "affy.experiment_set_summary_mv.probe_set_key",List.class),
             new Field(space+"Experiment Set Key",
@@ -147,7 +149,7 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
             new Field(space+"PMA on","affy.experiment_set_summary_mv.pma_on",Integer.class),
             new Field(space+"PMA off","affy.experiment_set_summary_mv.pma_off",Integer.class),                                
             
-            new Field("Affy Experiment Comparisions",""), //38
+            new Field("Affy Experiment Comparisions",""), //39
             new Field(space+"Description","affy.experiment_group_summary_mv.description"),
             new Field(space+"Comparison","affy.experiment_group_summary_mv.comparison",Integer.class),
             new Field(space+"Control mean","affy.experiment_group_summary_mv.control_mean",Float.class),
@@ -166,7 +168,7 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         };
 //new Field(space+"",""),
         
-        int[] sortableFields=new int[]{0,1,2,11,15,16,17}; //,21,22,23,24,25,26,27,28,29};
+        int[] sortableFields=new int[]{0,1,3,17,18,19}; //,21,22,23,24,25,26,27,28,29};
         for(int i=0;i<sortableFields.length;i++)
             fields[sortableFields[i]].setSortable(true);        
         

@@ -88,7 +88,7 @@ public class SqlParser
             else if(zc.getType()==ZConstant.COLUMNNAME)
                 return new DbField(zc.getValue(),String.class); //don't really know what class is here
             else if(zc.getType()==ZConstant.NUMBER)
-                return new IntLiteralValue(Integer.valueOf(zc.getValue()));
+                return new FloatLiteralValue(Float.valueOf(zc.getValue()));
             else if(zc.getType()==ZConstant.STRING)
             {
                 log.debug("found string value: "+zc.getValue());

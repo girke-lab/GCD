@@ -41,10 +41,14 @@ public interface DataViewQuerySet extends QuerySet
     // putting here anyway. 
     public String getPfamOptionsQuery(String clusterName);
     
+    // for DIffTrackingDataVIew
     public String getDiffTrackingDataViewQuery();
+    public String getDiffStatsQuery();
     
+    // for AffyDataView
     public static final int EXPSET=0, COMP=1, DETAIL=2;
     public String[][] getSortableAffyColumns();
     
+    // for CorrelationsDataView
     public String[] getSortableCorrelationColumns();
 }

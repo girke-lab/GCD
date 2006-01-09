@@ -12,6 +12,7 @@ package servlets.dataViews;
  * @author khoran
  */
 
+import java.io.PrintWriter;
 import java.util.*;
 import servlets.*;
 import org.apache.log4j.Logger;
@@ -27,7 +28,7 @@ public class DiffTrackingDataView implements DataView
                              PURPOSE=3,     DESCRIPTION=4,  LINK=5,
                              COUNT=6,       VERSION_A=7,    UPDATED_ON=8,
                              ADDED=9,       REMOVED=10,     UNCHANGED=11,
-                             COMP_ID=12,    GENOME=13;
+                             COMP_ID=12,    GENOME=13,      GENOME_ID=14;
     private int keyType;
     
     /** Creates a new instance of DiffTrackingDataView */
@@ -36,10 +37,13 @@ public class DiffTrackingDataView implements DataView
     }
 
 
-    public void printData(java.io.PrintWriter out)
+    public void printData(PrintWriter out)
     {
         
+        printStatsData(out);
+        
         List data=Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getDiffTrackingDataViewQuery());                 
+        
         
         if(data==null || data.size()==0)
         {
@@ -61,7 +65,7 @@ public class DiffTrackingDataView implements DataView
             genome=(Genome)genomes.get(row.get(GENOME));
             if(genome==null)
             {
-                genome=new Genome((String)row.get(GENOME));
+                genome=new Genome((String)row.get(GENOME), new Integer((String)row.get(GENOME_ID)));
                 genomes.put(row.get(GENOME), genome);
             }
             
@@ -85,6 +89,7 @@ public class DiffTrackingDataView implements DataView
             query.stats.put(row.get(VERSION_A),stat);
         }
         
+        out.println("<h2>Version Tracking</h2>");
         out.println("<table border='0' width='100%' >");
         for(Iterator i=genomes.entrySet().iterator();i.hasNext();)
         {
@@ -92,9 +97,47 @@ public class DiffTrackingDataView implements DataView
             out.println(((Genome)set.getValue()).toHtml((String)set.getKey()));
         }
         out.println("</table>");               
+                        
+        
+        
         Common.printUnknownFooter(out);
     }
 
+    private void printStatsData(PrintWriter out)
+    {
+        List statsData=Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getDiffStatsQuery());
+        String url="QueryPageServlet?searchType=Query_Stats&displayType=unknowns2View&rpp=25&";                  
+        
+        out.println("<h2>Unknown Stats and Batch Retrivial</h2>");
+        out.println("<table border='1' cellspacing='0' width='100%' bgcolor='"+PageColors.data+"'>");
+        out.println("<tr bgcolor='"+PageColors.title+"'>");
+        out.println("<th>Query</th><th>Arabidopsis</th><th>Rice</th><th>Both</th></tr>");
+        
+        List row;
+        String lastName=null;
+        
+        for(Iterator i=statsData.iterator();i.hasNext();)
+        {
+            row=(List)i.next();
+            
+            
+            if(lastName==null || !lastName.equals(row.get(0)))
+            {//print new row
+                if(lastName!=null)
+                    out.println("</tr>");
+                out.println("<tr><td>"+row.get(0)+"</td>");
+                lastName=(String)row.get(0);
+            }            
+                        
+            if("0".equals(row.get(2)))
+                out.println("<td>0</td>");
+            else
+                out.println("<td><a href='"+url+"inputKey="+row.get(3)+" $ "+row.get(1)+"'>"+
+                    row.get(2)+"</a></td>");                            
+        }
+        
+        out.println("</table>");
+    }
     
     
 ///////////////////////////////////////////////////////////    
@@ -106,7 +149,7 @@ public class DiffTrackingDataView implements DataView
                 "   .test a:hover {background-color: #AAAAAA}" +
                 "</style>" );       
         Common.printUnknownHeader(out);
-        out.println("<h1 align='center'>Difference Tracking Table</h1>   " +
+        out.println("<h1 align='center'>Unknown Sets</h1>   " +
                     "<center>");
         Common.printUnknownsSearchLinks(out); 
         out.println("</center> <div class='test'>");
@@ -165,12 +208,14 @@ public class DiffTrackingDataView implements DataView
     class Genome
     {
         public String name;
+        public Integer genome_id;
         public Map versions;
-        private Map realNames;
+        private Map realNames;        
         
-        public Genome(String name)
+        public Genome(String name,Integer genome_id)
         {
             this.name=name;
+            this.genome_id=genome_id;
             versions=new  LinkedHashMap();
             realNames=new HashMap();
             realNames.put("arab", "Arabidopsis");
@@ -185,7 +230,7 @@ public class DiffTrackingDataView implements DataView
             for(Iterator i=versions.entrySet().iterator();i.hasNext();)
             {
                 Map.Entry set=(Map.Entry)i.next();
-                out.append(((Version)set.getValue()).toHtml((String)set.getKey()));
+                out.append(((Version)set.getValue()).toHtml((String)set.getKey(), genome_id));
             }
             out.append("</table></td></tr>");
             return out.toString();
@@ -201,7 +246,7 @@ public class DiffTrackingDataView implements DataView
             this.date=date;            
             queries=new HashMap();
         }
-        public String toHtml(String version)
+        public String toHtml(String version,Integer genome_id)
         {
             StringBuffer out=new StringBuffer();
             out.append("<tr bgcolor='"+PageColors.title+"' align='left'>" +
@@ -209,8 +254,14 @@ public class DiffTrackingDataView implements DataView
             out.append("<tr bgcolor='"+PageColors.title+"'><th>Query</th><th>Purpose</th><th>Description"+
                 "</th><th>Size</th><th>Overlaps</th><th>New</th><th>"+
                 "Removed</th></tr>");
-            for(Iterator i=queries.values().iterator();i.hasNext();)                                        
-                out.append(((Query)i.next()).toHtml(version));
+            for(Iterator i=queries.entrySet().iterator();i.hasNext();)                
+            {
+                Map.Entry e=(Map.Entry)i.next();
+                out.append(((Query)e.getValue()).toHtml((String)e.getKey(),version,genome_id));
+            }
+            
+//            for(Iterator i=queries.values().iterator();i.hasNext();)                                        
+//                out.append(((Query)i.next()).toHtml(version,genome_id));
                             
             return out.toString();
         }
@@ -230,11 +281,13 @@ public class DiffTrackingDataView implements DataView
             this.comp_id=comp_id;
             stats=new HashMap();
         }
-        public String toHtml(String version)
+        public String toHtml(String query_id,String version,Integer genome_id)
         {            
             String linkedDesc=description;
             String added="&nbsp",removed="&nbsp",unchanged="&nbsp";
-            String url="QueryPageServlet?searchType=query_comp&displayType=unknowns2View&rpp=25&origin_page=statusQueries.jsp&";
+            String url="QueryPageServlet?searchType=query_comp&displayType=unknowns2View&rpp=25&";
+            String countUrl="QueryPageServlet?searchType=Query_Test&displayType=unknowns2View&rpp=25" +
+                    "&inputKey="+query_id+" "+version+" "+genome_id;
             if(link!=null && link.length() > 0)
                 linkedDesc="<a href='"+link+"'>"+description+"</a>";
             
@@ -256,7 +309,7 @@ public class DiffTrackingDataView implements DataView
             }
             
             return "<tr><td>"+name+"</td><td>"+purpose+"</td><td>"+linkedDesc+
-                "</td><td>"+count+"</td><td nowrap>"+unchanged+"</td><td nowrap>"+added+"</td><td nowrap>"+
+                "</td><td><a href='"+countUrl+"'>"+count+"</a></td><td nowrap>"+unchanged+"</td><td nowrap>"+added+"</td><td nowrap>"+
                 removed+"</tr>";            
         }
     }

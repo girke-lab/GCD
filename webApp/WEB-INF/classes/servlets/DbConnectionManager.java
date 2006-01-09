@@ -24,7 +24,7 @@ public class DbConnectionManager
     /**
      * A Map of connection names to DbConnection objects.
      */
-    private static Map connections=null; //this is a shared object.
+    private static Map<String,DbConnection> connections=null; //this is a shared object.
     /**
      * logger
      */
@@ -61,10 +61,10 @@ public class DbConnectionManager
             initMap();
         return (DbConnection)connections.get(name);        
     }
-    public static Collection getConnectionNames()
+    public static Collection<String> getConnectionNames()
     {
         if(connections==null)
-            return new ArrayList(); //empty list of connections
+            return new ArrayList<String>(); //empty list of connections
         return connections.keySet();
     }
     /**
@@ -73,7 +73,7 @@ public class DbConnectionManager
      */
     private static synchronized void initMap()
     {
-        connections=new HashMap();
+        connections=new HashMap<String,DbConnection>();
         
         //add some default connections
 //        try{
@@ -90,7 +90,7 @@ public class DbConnectionManager
                 
                 //for testing
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); //connect to postgres            
-                connections.put("khoran",new DbConnection("jdbc:postgresql://db2.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); //connect to postgres            
+                connections.put("khoran",new DbConnection("jdbc:postgresql://db1.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); //connect to postgres            
 
                 //for home testing
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://localhost:5430/khoran_loading","khoran","512_256_1024")); //connect to postgres            

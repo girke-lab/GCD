@@ -29,8 +29,8 @@ public class HtmlRecordVisitor implements RecordVisitor
     
     private static Logger log=Logger.getLogger(HtmlRecordVisitor.class);
     int hid;
-    String sortDir,sortCol;
-    String currentAccession;
+    String sortDir,sortCol,compView="";
+    String currentAccession,expType;
     DecimalFormat df=new DecimalFormat("0.00");
     DecimalFormat percent=new DecimalFormat("0%");
     DecimalFormat ldf=new DecimalFormat("0.##E0");
@@ -60,6 +60,10 @@ public class HtmlRecordVisitor implements RecordVisitor
     {
         return sortDir;
     }
+    public void setCompView(String s)
+    {
+        compView=s;
+    }
     
     // <editor-fold defaultstate="collapsed" desc=" misc records ">
     ////////////////////////////////////////////////////////////////////////////
@@ -80,6 +84,8 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("<tr><td colspan='2'>\n");
         for(int i=0;i<ur.go_unknowns.length;i++)
             out.write("<b>"+names[i]+"</b>: "+ur.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
+        String url="QueryPageServlet?searchType=Id&displayType=correlationView&rpp=200&inputKey="+ur.key;
+        out.write("&nbsp&nbsp&nbsp <a href='"+url+"'>Correlations</a>");
         out.write("</td></tr>\n");               
                                 
         printSubRecords(out, ur.iterator(),5,0);        
@@ -206,7 +212,7 @@ public class HtmlRecordVisitor implements RecordVisitor
                                      "ctrl avg","ctrl stddev","treat avg","treat stddev"};
         String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.EXPSET]; 
         
-        out.write("<tr bgcolor='"+PageColors.title+"'><td><a name='"+ar.probeSetId+"'>&nbsp</a></td>");        
+        out.write("<tr bgcolor='"+PageColors.title+"'><td><a name='"+ar.probeSetId+"'></a>Exp</td><td>Int</td>");        
         printTableTitles(new PrintWriter(out), titles, feilds, "expset",ar.probeSetId.toString());        
         out.write("</tr>");
     }
@@ -214,6 +220,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     {        
         
         String link="QueryPageServlet?hid="+hid+"&displayType=affyView&es_ids="+ar.expSetId+"&psk_ids="+ar.probeSetId;
+        
         String key=ar.expSetId+"_"+ar.probeSetId;
         String expSetKeyLink="http://www.arabidopsis.org/servlets/Search?" +
                 "type=expr&search_action=search&" +
@@ -223,7 +230,21 @@ public class HtmlRecordVisitor implements RecordVisitor
         
         out.write("<tr bgcolor='"+PageColors.catagoryColors.get(ar.catagory)+"'>");
         
-        printTreeControls(out,link,key,ar.iterator());    
+        if(compView!=null && compView.equals("all"))
+        {
+            printTreeControls(out,link+"&comp_view=all",key,ar.iterator());    
+            printTreeControls(out,link+"&comp_view=comp",key,true);                
+        }
+        else if(compView!=null && compView.equals("comp"))
+        {
+            printTreeControls(out,link+"&comp_view=all",key,true);    
+            printTreeControls(out,link+"&comp_view=comp",key,ar.iterator());    
+        }
+        else
+        {
+            printTreeControls(out,link+"&comp_view=all",key,ar.iterator());    
+            printTreeControls(out,link+"&comp_view=comp",key,ar.iterator());    
+        }
         
         out.write("<td>"+ar.probeSetKey+"</td><td><a href='"+expSetKeyLink+"' "+popup+">"+
                 ar.expSetKey+"</a></td>");
@@ -237,10 +258,55 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("</tr>");
         
         //print sub records
-        printSubRecords(out, ar.iterator(),13,1);
+        if("all".equals(compView))
+            printSubRecords(out, ar.iterator(),14,1);
+        else if("comp".equals(compView))
+            printCompView(out,ar);
     }
     public void printFooter(Writer out, AffyExpSetRecord ar) throws IOException
     {
+    }
+    private void printCompView(Writer out, AffyExpSetRecord ar) throws IOException
+    {
+        
+        AffyCompRecord rec;
+        boolean isFirst=true;    
+        
+        for(Iterator i=ar.iterator();i.hasNext();)
+        {
+            out.write("<tr><td>&nbsp</td><td colspan='"+14+"'><TablE bgcolor='"+PageColors.data+"' width='100%'" +
+                " border='1' cellspacing='0' cellpadding='1'>\n");
+            for(Iterator j=((Record)i.next()).iterator();j.hasNext();)
+            {
+                rec=(AffyCompRecord)j.next();
+                String link="QueryPageServlet?hid="+hid+"&displayType=affyView&es_ids="+rec.expSetId+
+                        "&psk_ids="+rec.probeSetId+"&groups="+rec.comparison;
+                String controlPopup=""; //"onmouseover=\"return escape('"+rec.controlDesc+"')\"";
+                String treatPopup=""; //"onmouseover=\"return escape('"+rec.treatDesc+"')\"";
+                
+                if(isFirst)
+                    out.write("<tr bgcolor='"+PageColors.title+"'><td>&nbsp</td>" +
+                            "<th>Comparision</th><th>Exper Type</th><th>Mean</th><th>PMA</th>" +
+                            "<th>Description</th></tr>");
+                isFirst=false;
+                out.write("<tr>");
+                printTreeControls(out,link,rec.getPrimaryKey().toString(),rec.iterator());     
+                out.write("<td "+controlPopup+">"+rec.comparison+"</td><td>Control</td>");
+                out.write("<td>"+df.format(rec.controlMean)+"</td><td>"+rec.controlPMA+"&nbsp</td>");
+                out.write("<td>"+rec.controlDesc+"</td>");
+                out.write("</tr><tr>");
+                expType="control";
+                printSubRecords(out,rec.iterator(),11, 1);
+                //printTreeControls(out,link,rec.getPrimaryKey().toString(),rec.iterator());   
+                out.write("<td>&nbsp</td><td "+treatPopup+">"+rec.comparison+"</td><td>Treatment</td>");
+                out.write("<td>"+df.format(rec.treatmentMean)+"</td><td>"+rec.treatmentPMA+"&nbsp</td>");
+                out.write("<td>"+rec.treatDesc+"</td>");
+                out.write("</tr>");
+                expType="treatment";
+                printSubRecords(out,rec.iterator(),11, 1);
+            }
+            out.write("</table></td></td>");
+        }
     }
     ////////////////////////////////////////////////////////////////////////////
     //            AffyComp
@@ -259,18 +325,18 @@ public class HtmlRecordVisitor implements RecordVisitor
     {        
         String link="QueryPageServlet?hid="+hid+"&displayType=affyView&es_ids="+ar.expSetId+
                 "&psk_ids="+ar.probeSetId+"&groups="+ar.comparison;
-        String key=ar.expSetId+"_"+ar.probeSetId+"_"+ar.comparison;
-                 
-
-        out.write("<tr>");       
+        String key=ar.expSetId+"_"+ar.probeSetId+"_"+ar.comparison;                         
+        String popup="onmouseover=\"return escape('"+ar.controlDesc+"<br>"+ar.treatDesc+"')\"";
+        
+        out.write("<tr >");       
         printTreeControls(out,link,key,ar.iterator());                
-        out.write("<td>"+ar.comparison+"</td><td>"+df.format(ar.controlMean)+"</td>");
+        out.write("<td "+popup+" >"+ar.comparison+"</td><td>"+df.format(ar.controlMean)+"</td>");
         out.write("<td>"+df.format(ar.treatmentMean)+"</td><td>"+ar.controlPMA+"&nbsp</td>");
         out.write("<td>"+ar.treatmentPMA+"&nbsp</td><td>"+df.format(ar.ratio)+"</td>");
         out.write("<td>"+df.format(ar.contrast)+"</td><td>"+ldf.format(ar.pValue)+"</td><td>"+ldf.format(ar.adjPValue)+"</td>");
         out.write("<td>"+df.format(ar.pfpUp)+"</td><td>"+df.format(ar.pfpDown)+"</td>");
         out.write("</tr>");
-        
+        expType="both";
         printSubRecords(out,ar.iterator(),11, 1);
     }
    
@@ -289,10 +355,11 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("</tr>\n");        
     }
     public void printRecord(Writer out, AffyDetailRecord ar) throws IOException
-    {        
-        out.write("<tr>");                
-        //String desc=(ar.description==null || ar.description.equals(""))?"&nbsp":ar.description;
+    {                
+        if(!"both".equals(expType) && !ar.type.equals(expType))
+            return;
         
+        out.write("<tr>");                
         out.write("<td>"+ar.type+"</td><td>"+ar.celFile+"</td>"); //"<td>"+desc+"</td>
         out.write("<td>"+df.format(ar.intensity)+"</td>");
         out.write("<td>"+ar.pma+"&nbsp</td>");
@@ -317,12 +384,11 @@ public class HtmlRecordVisitor implements RecordVisitor
     {
         String link="QueryPageServlet?displayType=affyView&" +
                 "searchType=id&dbs=0&inputKey=exact "+currentAccession;
-        String corrLink="QueryPageServlet?rpp=200&displayType=correlationView&" +
-                "searchType=Probe_Set_Key&inputKey="+psr.probeSetId;
+//        String corrLink="QueryPageServlet?rpp=200&displayType=correlationView&" +
+//                "searchType=Probe_Set_Key&inputKey="+psr.probeSetId;
         
         out.write("<tr>");
-        out.write("<td><a href='"+link+"'>"+psr.probeSetKey+"</a>" +
-                " &nbsp&nbsp <a href='"+corrLink+"'>corr</a> </td>");                 
+        out.write("<td><a href='"+link+"'>"+psr.probeSetKey+"</a></td>");                 
         out.write("<td>"+percent.format(psr.controlAverage)+"</td><td>"+percent.format(psr.controlStddev)+"</td>");
         out.write("<td>"+percent.format(psr.treatAverage)+"</td><td>"+percent.format(psr.treatStddev)+"</td>");
         out.write("</td>");
@@ -341,14 +407,18 @@ public class HtmlRecordVisitor implements RecordVisitor
     }
     public void printRecord(Writer out, CorrelationRecord cr) throws IOException
     {
+        //QueryPageServlet?displayType=affyView&searchType=id&dbs=0&inputKey=exact%20At1g01070.1
+        String url="QueryPageServlet?displayType=affyView&searchType=Probe_Set&inputKey="+cr.psk2_key;
         out.write("<tr>");
-        out.write("<td>"+cr.psk2_key+"</td><td>"+cr.correlation+"</td>");
+        out.write("<td><a href='"+url+"'>"+cr.psk2_key+"</a></td><td>"+cr.correlation+"</td>");
         out.write("<td>"+cr.p_value+"</td></tr>");
     }
     public void printFooter(Writer out, CorrelationRecord cr) throws IOException
     {
     }
     ////////////////////////////////////////////////////////////////////////////
+    
+   
     
     private void printSubRecords(java.io.Writer out, Iterator itr,int span, int shift) throws java.io.IOException
     {
@@ -378,12 +448,20 @@ public class HtmlRecordVisitor implements RecordVisitor
         }                    
         //log.debug("done with sub records");
     }
+    
     private void printTreeControls(Writer out, String link, String key,Iterator recordItr)  throws IOException
+    {
+        if(recordItr==null || !recordItr.hasNext()) //no children
+            printTreeControls(out,link,key,true);
+        else
+            printTreeControls(out,link,key,false);
+    }
+    private void printTreeControls(Writer out, String link, String key,boolean expand)  throws IOException
     {
         String imageOptions=" border='0' height='10' width='15' ";
      
         out.write("<td nowrap>"+"<a name='"+key+"'></a>"); 
-        if(recordItr==null || !recordItr.hasNext()) //no children
+        if(expand) 
             out.write("<a href='"+link+"&action=expand#"+key+"'><img src='images/arrow_down.png' title='expand' "+imageOptions+" ></a>&nbsp&nbsp\n");
         else 
             out.write("<a href='"+link+"&action=collapse#"+key+"'><img src='images/arrow_up.png' title='collapse' "+imageOptions+" ></a>\n");

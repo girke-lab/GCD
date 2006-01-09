@@ -27,11 +27,12 @@ public class CorrelationRecord extends AbstractRecord
     Integer psk1_id,psk2_id;
     String catagory,psk1_key,psk2_key;
     Float correlation,p_value;
-    
+    Object acc;
+    String[] accessions,descriptions;
     /** Creates a new instance of CorrelationRecord */
     public CorrelationRecord(List values)
     {
-        int reqSize=8;
+        int reqSize=10;
         if(values==null || values.size()!=reqSize)
         {
             log.error("invalid list in CorrelationRecord constructor");
@@ -50,8 +51,24 @@ public class CorrelationRecord extends AbstractRecord
         correlation=Float.parseFloat((String)values.get(6));
         p_value=Float.parseFloat((String)values.get(7));
         
+        accessions=getArray((java.sql.Array)values.get(8));
+        descriptions=getArray((java.sql.Array)values.get(9));
     }
 
+    private String[] getArray(java.sql.Array a)
+    {
+        String[] strings;
+        try{
+            if(a==null)
+                strings=new String[]{};
+            else
+                strings=(String[])(a.getArray());            
+        }catch(java.sql.SQLException e){
+            log.warn("exception while grabbing array: "+e);
+            strings=new String[]{};
+        }        
+        return strings;
+    }
     public Object getPrimaryKey()
     {        
         return psk1_id;
@@ -82,7 +99,7 @@ public class CorrelationRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(new int[]{1},0,8){
+        return new RecordInfo(new int[]{1},0,10){
             public Record getRecord(List l)
             {
                 return new CorrelationRecord(l);
@@ -131,6 +148,7 @@ public class CorrelationRecord extends AbstractRecord
             
             Set<String> catagories=new TreeSet<String>();
             String psk1_key="";
+            String url="QueryPageServlet?displayType=affyView&searchType=Probe_Set&inputKey=";
             
             for(Object o : ib)
             { //load the hash
@@ -154,20 +172,36 @@ public class CorrelationRecord extends AbstractRecord
             {                
                 isFirst=true;                
                 out.write("<tr>");
-                for(String catagory : catagories)
+                
+                String catagory;    
+                for(Iterator i=catagories.iterator();i.hasNext();)
                 {
+                    catagory=(String)i.next();
                     rec=cm.get(catagory);
                     if(isFirst)
                     {
                         if(rec==null)
                             continue;
-                        out.write("<td>"+rec.psk2_key+"</td>");    
+                        out.write("<td><a href='"+url+rec.psk2_key+"'>"+rec.psk2_key+"</a></td>");    
                         isFirst=false;
                     }
                     if(rec==null)
                         out.write("<td>&nbsp</td><td>&nbsp</td>");
                     else
                         out.write("<td>"+rec.correlation+"</td><td>"+rec.p_value+"</td>");
+                    if(!i.hasNext())
+                    {// last element
+                        //print accessions
+                        String accUrl="QueryPageServlet?searchType=Id&displayType=affyView&inputKey=";
+                        out.write("<td nowrap >&nbsp");
+                        for(int j=0;j<rec.accessions.length;j++)
+                            out.write("<a href='"+accUrl+rec.accessions[j]+"'>"+
+                                    rec.accessions[j]+"</a>&nbsp");
+                        out.write("&nbsp&nbsp");
+                        for(int j=0;j<rec.descriptions.length;j++)
+                            out.write(rec.descriptions[j]+"&nbsp&nbsp");
+                        out.write("</td>");
+                    }
                 }
                 out.write("</tr>");
             }
@@ -178,7 +212,7 @@ public class CorrelationRecord extends AbstractRecord
         
         public void printRecords2(Writer out, RecordVisitor visitor, Iterable ib)
             throws IOException
-        {
+        { //not used
             CorrelationRecord rec;
             Integer lastPsk=null;            
             Set catagories;
@@ -232,7 +266,7 @@ public class CorrelationRecord extends AbstractRecord
 
         private Set printHeader(Writer out, Iterable ib,String psk1)
             throws IOException
-        {
+        { //not used
             Set<String> catagories=new TreeSet<String>();
             Iterator i=ib.iterator();
             while(i.hasNext())
@@ -262,7 +296,7 @@ public class CorrelationRecord extends AbstractRecord
             out.write("<tr bgcolor='"+PageColors.title+"'><th>Affy ID</th>");
             for(String s : catagories)
                 out.write("<th colspan='2'>"+s+"</th>");
-            out.write("</tr>");
+            out.write("<th>Accessions</th></tr>");
             
             newDir="asc";
             if(sortCol!=null && sortCol.equals(prefix+"_"+colNames[0]))
@@ -282,7 +316,7 @@ public class CorrelationRecord extends AbstractRecord
                             "&sortDirection="+newDir+"&catagory="+catagory+"'>"+titles[j]+"</a></th>\n");
                 }                            
                 
-            out.write("</tr>");
+            out.write("<th>&nbsp</th></tr>");
         }
 //        static class CorrelationKey
 //        {

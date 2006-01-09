@@ -522,6 +522,10 @@ public class SeqDataView implements DataView
                  modelList.append(i.next()+" ");
              out.println("&nbsp&nbsp&nbsp<a href='QueryPageServlet?searchType=blast&displayType=blastView&inputKey=dbs: swp trembl keys: "+modelList+"'>" +
                          "<font color='red' >Cross-Species Profile</font></a>");
+             
+             // link to affy page
+             String affyUrl="QueryPageServlet?searchType=Id&displayType=correlationView&inputKey="+key;
+             out.println("&nbsp&nbsp&nbsp <a href='"+affyUrl+"'><font color='dark green'>Genome Cluster Expression</font></a>");
         }        
     }
 }

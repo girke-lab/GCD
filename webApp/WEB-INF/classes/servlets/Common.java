@@ -283,7 +283,7 @@ public class Common {
                 "&nbsp&nbsp&nbsp" +
                 "<A href='unknownsSearch.jsp'>Advanced Search</A>" +
                 "&nbsp&nbsp&nbsp" +
-                "<a href='QueryPageServlet?searchType=seq_id&displayType=diffTrackingView&inputKey=hello'>Difference Tracking</a>");
+                "<a href='QueryPageServlet?searchType=seq_id&displayType=diffTrackingView&inputKey=hello'>Unknown Sets</a>");
     }
     public static void printUnknownDownloadLinks(Writer w,int hid,int end)
     {
@@ -377,19 +377,19 @@ public class Common {
         out.append(")");
         return out.toString();
     }
-    public static String buildLikeCondtion(String varName, Collection ids)
+    public static String buildLikeCondition(String varName, Collection ids)
     {
-        return buildLikeCondtion(varName, ids, -1,false);// no limit
+        return buildLikeCondition(varName, ids, -1,false);// no limit
     }            
-    public static String buildLikeCondtion(String varName, Collection ids,int limit)
+    public static String buildLikeCondition(String varName, Collection ids,int limit)
     {
-        return buildLikeCondtion(varName, ids, limit,false); 
+        return buildLikeCondition(varName, ids, limit,false); 
     }            
-    public static String buildLikeCondtion(String varName, Collection ids,boolean b)
+    public static String buildLikeCondition(String varName, Collection ids,boolean b)
     {
-        return buildLikeCondtion(varName, ids, -1,b);// no limit
+        return buildLikeCondition(varName, ids, -1,b);// no limit
     }            
-    public static String buildLikeCondtion(String varName, Collection ids, int limit,boolean addWildcard)
+    public static String buildLikeCondition(String varName, Collection ids, int limit,boolean addWildcard)
     {
         StringBuffer out=new StringBuffer();
         if(ids.size()==0)
@@ -457,7 +457,14 @@ public class Common {
                     common=searchKeys[i];
                     break;
                 }
-        log.debug("found common key "+common);
+        if(common==-1)
+        {
+            log.warn("could not find a common key");
+            log.warn("possable search keys: "+printArray(searchKeys));
+            log.warn("possable dataview keys: "+printArray(dataviewKeys));
+        }
+        else
+            log.debug("found common key "+common);
         return common; // -1 indicates an error, will eventually cause an UnsupportedKeyType exception.
     }
     public static boolean checkType(KeyTypeUser ktu,int keyType)

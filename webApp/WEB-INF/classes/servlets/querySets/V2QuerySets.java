@@ -189,7 +189,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             "   q.description, q.link," +
             "   qc.count," +
             "   csv.version_a,vi.updated_on,csv.added,csv.removed,csv.unchanged,csv.comp_id, " +
-            "   gd.db_name "+
+            "   gd.db_name, gd.genome_db_id "+
             " FROM    updates.queries as q" +
             "   JOIN updates.query_counts as qc USING(queries_id)" +
             "   JOIN unknowns.version_info as vi USING(version)" +
@@ -201,6 +201,13 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
+    public String getDiffStatsQuery()
+    {
+        String query="SELECT * FROM updates.unknowns_stats_mv ORDER BY length(name),length(db_name), db_name";
+        logQuery(query);
+        return query;
+    }
+    
     public String[][] getSortableAffyColumns()
     {
         return new String[][] {
@@ -410,7 +417,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             sortCol="correlation";
         
         if(catagory==null || catagory.equals(""))
-            catagory="Abiotic Stress";            
+            catagory="All";            
         if(sortDir!=null && sortDir.equals("desc"))
             bottomValue="'-infinity'";
         
@@ -546,7 +553,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 q+=" or ";
         }
 
-        q+=") and ("+Common.buildLikeCondtion("clusters.key",input,limit)+")";
+        q+=") and ("+Common.buildLikeCondition("clusters.key",input,limit)+")";
         q+=" order by genome_databases.db_name ";
         q+=" limit "+limit;
         logQuery(q);        
@@ -655,7 +662,19 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getIdSearchQuery(java.util.Collection input, int limit, int[] DBs, int keyType)
     {        
-        String translateTable="sequence";
+        if(keyType==Common.KEY_TYPE_CORR)
+        {
+            String query="SELECT correlation_id, accession, 'arab' as db_name " +
+                    " FROM affy.accessions_to_psk_corr "+
+                    " WHERE "+Common.buildLikeCondition("accession",input)+
+                    " ORDER BY correlation DESC"+
+                  " LIMIT "+limit;
+            logQuery(query);
+            return query;
+        }
+        
+        
+        String translateTable="sequence";        
         if(keyType==Common.KEY_TYPE_MODEL)
             translateTable="model";
         String id="SELECT DISTINCT a.accession_id, oa.other_accession, gd.db_name "+
@@ -688,7 +707,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             condition=Common.buildIdListCondition("oa.other_accession",input,true,limit);
         }
         else
-            condition=Common.buildLikeCondtion("oa.other_accession",input,limit);
+            condition=Common.buildLikeCondition("oa.other_accession",input,limit);
         
         
         id+=") and ("+condition+")";
@@ -862,26 +881,34 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     public String getProbeSetSearchQuery(Collection input, int limit, int keyType)
     {
 
-        String query;
+        String query="";
         if(keyType==Common.KEY_TYPE_MODEL)
             query="SELECT DISTINCT to_model_accessions.model_accession_id, genome_databases.db_name " +
                     " FROM general.genome_databases " +
                     "   JOIN general.accessions USING(genome_db_id) " +
                     "   JOIN affy.psk_to_accession_view as pska USING(accession_id) " +
                     "   JOIN general.to_model_accessions USING(accession_id) " +
-                    " WHERE "+Common.buildLikeCondtion("pska.key",input,limit)+
+                    " WHERE "+Common.buildLikeCondition("pska.key",input,limit)+
                     " ORDER BY genome_databases.db_name " +
                     " LIMIT "+limit;
             
-        else         
+        else if(keyType==Common.KEY_TYPE_SEQ)
             query="SELECT DISTINCT accessions.accession_id, genome_databases.db_name " +
                     " FROM general.genome_databases " +
                     "   JOIN general.accessions USING(genome_db_id) " +
                     "   JOIN affy.psk_to_accession_view as pska USING(accession_id) " +                    
-                    " WHERE "+Common.buildLikeCondtion("pska.key",input,limit)+
+                    " WHERE "+Common.buildLikeCondition("pska.key",input,limit)+
                     " ORDER BY genome_databases.db_name " +
                     " LIMIT "+limit;
-
+        else if(keyType==Common.KEY_TYPE_CORR)
+            query="SELECT correlation_id, 'arab' as db_name " +
+                  " FROM affy.correlation_view"+
+                  " WHERE "+Common.buildLikeCondition("psk1_key",input)+
+                  " OERDER BY correlation DESC"+
+                  " LIMIT "+limit;
+        else        
+            log.error("invalid key type: "+keyType);
+            
 
         logQuery(query);
         return query;
@@ -890,16 +917,55 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
    
 
     public String getProbeSetKeySearchQuery(Collection input, int limit, int keyType)
-    {
-        
-          
+    {                  
         String query="SELECT correlation_id FROM affy.correlation_view " +
                 " WHERE "+Common.buildIdListCondition("psk1_id",input)+
-                " ORDER BY psk1_id";
+                " ORDER BY correlation DESC";
+        logQuery(query);
+        return query;
+    }
+    public String getQueryTestSearchQuery(String query_id, String version, String genome_id)
+    {
+        String query="SELECT accession_id " +
+                "FROM updates.get_test_query_accessions("+query_id+","+version+","+genome_id+")";
+        logQuery(query);
+        return query;
+    }
+    public String getQueryStatsSearchQuery(java.util.List query_ids, java.util.List DBs)
+    {
+        String ids,dbs,s;
+        ids="ARRAY[";
+        for(Iterator i=query_ids.iterator();i.hasNext();)
+        {
+            s=(String)i.next();
+            ids+=s;
+            if(i.hasNext())
+                ids+=",";
+        }
+        ids+="]";
+        
+        dbs="ARRAY[";
+        for(Iterator i=DBs.iterator();i.hasNext();)
+        {
+            s=(String)i.next();
+            dbs+="'"+s+"'";
+            if(i.hasNext())
+                dbs+=",";
+        }
+        dbs+="]";
+        String query="SELECT accession_id " +
+                "FROM updates.intersect_test_queries("+ids+","+dbs+")";
+        
         logQuery(query);
         return query;
     }
     //</editor-fold>
+
+  
+
+   
+
+  
 
     
 

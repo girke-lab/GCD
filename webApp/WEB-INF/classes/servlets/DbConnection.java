@@ -341,6 +341,8 @@ public class DbConnection
                         }
                         else
                             row.add(new String(rs.getBytes(i),"UTF-8"));
+                    else if(t==Types.ARRAY)
+                        row.add(rs.getArray(i));
                     else
                         row.add(rs.getString(i));                    
                 }catch(java.io.UnsupportedEncodingException e){

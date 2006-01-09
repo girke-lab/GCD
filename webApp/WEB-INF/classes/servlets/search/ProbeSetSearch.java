@@ -48,6 +48,7 @@ public class ProbeSetSearch extends AbstractSearch
     
     public int[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL};
+        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL,
+                         Common.KEY_TYPE_CORR};
     }  
 }

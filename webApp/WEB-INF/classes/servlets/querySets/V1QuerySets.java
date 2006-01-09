@@ -344,7 +344,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
                 q+=" or ";
         }
 
-        q+=") and ("+Common.buildLikeCondtion("Cluster_Info.filename",input,limit)+")";
+        q+=") and ("+Common.buildLikeCondition("Cluster_Info.filename",input,limit)+")";
         q+=" order by Genome ";
         q+=" limit "+limit;
         logQuery(q);        
@@ -406,7 +406,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         String query = "SELECT DISTINCT s.Seq_id, s.genome from go AS g, sequences AS s " + 
                 "where g.seq_id = s.seq_id AND ";
         
-        query += "(" + Common.buildLikeCondtion("g.text",input,true)+ ")";
+        query += "(" + Common.buildLikeCondition("g.text",input,true)+ ")";
         query += " limit " + limit;
         logQuery(query);
         return query;
@@ -433,7 +433,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
             condition=Common.buildIdListCondition("a.accession",input,true,limit);
         }
         else
-            condition=Common.buildLikeCondtion("a.accession",input,limit);
+            condition=Common.buildLikeCondition("a.accession",input,limit);
         
         
         id+=") and ("+condition+")";
@@ -562,6 +562,21 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     public String[] getSortableCorrelationColumns()
     {
         return new String[]{};
+    }
+
+    public String getDiffStatsQuery()
+    {
+        return "";
+    }
+
+    public String getQueryStatsSearchQuery(List query_ids, List DBs)
+    {
+        return "";
+    }
+
+    public String getQueryTestSearchQuery(String query_id, String version, String genome_id)
+    {
+        return "";
     }
   
 }

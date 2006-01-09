@@ -68,4 +68,10 @@ public interface SearchQuerySet extends QuerySet
     
     // for ProbeSetKeySearch
     public String getProbeSetKeySearchQuery(Collection input, int limit, int keyType);
+    
+    // for QueryTestSearch
+    public String getQueryTestSearchQuery(String query_id, String version, String genome_id);
+    
+    // for QueryStatsSearch
+    public String getQueryStatsSearchQuery(List query_ids,List DBs);
 }

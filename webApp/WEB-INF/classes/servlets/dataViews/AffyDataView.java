@@ -28,7 +28,7 @@ public class AffyDataView implements DataView
     private static final String[] dataTypeTitles=new String[]{"MAS 5","RMA"};
     
     private int keyType, hid;
-    private String sortDir, sortCol,action;
+    private String sortDir, sortCol,action,compView;
     private int[] dbNums;        
     private Set nodeSet=null;
     private List[] newIds;
@@ -97,6 +97,7 @@ public class AffyDataView implements DataView
                         out.println("<a href='QueryPageServlet?hid="+hid+"&data_type="+
                             dataTypes[nextDataType]+"'>"+dataTypeTitles[nextDataType]+"</a>");
                     
+                    //out.println("&nbsp&nbsp <a href")
 
                 }
             }
@@ -195,6 +196,8 @@ public class AffyDataView implements DataView
         String dataTypeStr=getParam(params,"data_type");                
         log.debug("dataTypeStr="+dataTypeStr);
         
+        compView=getParam(params, "comp_view");
+        
         String[] psk_ids=(String[])params.get("psk_ids");
         String[] es_ids=(String[])params.get("es_ids");
         String[] groups=(String[])params.get("groups");
@@ -221,6 +224,11 @@ public class AffyDataView implements DataView
             dataType=MAS5;
         else
             dataType=RMA;
+        
+        if(compView==null || compView.equals(""))
+            compView=(String)storage.get("comp_view");
+        else
+            storage.put("comp_view",compView);
             
         log.debug("dataType="+dataType);
         
@@ -313,12 +321,13 @@ public class AffyDataView implements DataView
         out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
             " align='center' border='1' cellspacing='0' cellpadding='0'>");
         Record rec;
-        RecordVisitor visitor=new HtmlRecordVisitor();
+        HtmlRecordVisitor visitor=new HtmlRecordVisitor();
         
         log.debug("hid in printData="+hid);
         
-        ((HtmlRecordVisitor)visitor).setHid(hid);
-        ((HtmlRecordVisitor)visitor).setSortInfo(sortCol, sortDir);
+        visitor.setHid(hid);
+        visitor.setSortInfo(sortCol, sortDir);
+        visitor.setCompView(compView);
         try{
             for(Iterator i=data.iterator();i.hasNext();)
             {

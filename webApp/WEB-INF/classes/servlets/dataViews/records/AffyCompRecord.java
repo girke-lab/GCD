@@ -10,7 +10,7 @@ package servlets.dataViews.records;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.Common;
-import servlets.DbConnection;
+import servlets.PageColors;
 import servlets.dataViews.AffyKey;
 import servlets.querySets.QuerySetProvider;
 
@@ -26,7 +26,8 @@ public class AffyCompRecord extends AbstractRecord
     Float controlMean, treatmentMean,ratio;
     Float contrast, pValue, adjPValue, pfpUp,pfpDown;
     Integer accId, probeSetId, expSetId;
-    //List subRecords;
+    
+    String controlDesc,treatDesc;
     
     private static Logger log=Logger.getLogger(AffyCompRecord.class);        
     
@@ -61,6 +62,8 @@ public class AffyCompRecord extends AbstractRecord
         pfpUp=new Float((String)values.get(15));
         pfpDown=new Float((String)values.get(16));
         
+        controlDesc="control description";
+        treatDesc="treatment description";
         
     }
     public Object getPrimaryKey()
@@ -146,7 +149,63 @@ public class AffyCompRecord extends AbstractRecord
                 }
                 
             }
+//            public CompositeFormat getCompositeFormat()
+//            {
+//                return new ComparisonFormat();                
+//            }
         };
     }    
  
+    static class ComparisonFormat extends CompositeFormat
+    {
+        public void printRecords(java.io.Writer out, RecordVisitor visitor, Iterable ib) throws java.io.IOException
+        { //not used
+            AffyCompRecord rec;
+            
+            out.write("<tr bgcolor='"+PageColors.title+"'><th>comparision</th><th>Experiment type</th><th>mean</th><th>pma</th></tr>");
+            for(Iterator i=ib.iterator();i.hasNext();)
+            { 
+                rec=(AffyCompRecord)i.next();
+                String controlPopup="onmouseover=\"return escape('"+rec.controlDesc+"')\"";
+                String treatPopup="onmouseover=\"return escape('"+rec.treatDesc+"')\"";
+                
+                out.write("<tr>");
+                out.write("<td "+controlPopup+">"+rec.comparison+"</td><td>Control</td>");
+                out.write("<td>"+rec.controlMean+"</td><td>"+rec.controlPMA+"</td>");
+                out.write("</tr><tr>");
+                out.write("<td "+treatPopup+">"+rec.comparison+"</td><td>Treatment</td>");
+                out.write("<td>"+rec.treatmentMean+"</td><td>"+rec.treatmentPMA+"</td>");
+                out.write("</tr>");
+            }
+            out.write("</table><TablE bgcolor='"+PageColors.data+"' width='100%'" +
+                " border='1' cellspacing='0' cellpadding='1'>");
+            
+            boolean isFirst=true;
+            for(Iterator i=ib.iterator();i.hasNext();)
+            {
+                rec=(AffyCompRecord)i.next();
+                if(isFirst)
+                    rec.printHeader(out, visitor);
+                rec.printRecord(out, visitor);
+                if(!i.hasNext())
+                    rec.printFooter(out, visitor);
+                isFirst=false;                
+            }
+            
+            
+//            out.write("<tr bgcolor='"+PageColors.title+"'><th>Comparision</th><th>ratio</th><th>contrast</th><th>P-value</th><th>adj P-value</th>"+
+//                    "<th>pfp up</th><th>pfp down</th>");
+//            for(Iterator i=ib.iterator();i.hasNext();)
+//            {
+//                rec=(AffyCompRecord)i.next();
+//                out.write("<tr>");
+//                out.write("<td>"+rec.comparison+"</td>");
+//                out.write("<td>"+rec.ratio+"</td><td>"+rec.contrast+"</td>"+
+//                        "<td>"+rec.pValue+"</td><td>"+rec.adjPValue+"</td>"+
+//                        "<td>"+rec.pfpUp+"</td><td>"+rec.pfpDown+"</td>");
+//                out.write("</tr>");
+//            }
+        }
+        
+    }
 }

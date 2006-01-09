@@ -205,7 +205,9 @@ public class HtmlVisitor implements QueryTreeVisitor
             if(!db.getFields()[i].isSortable()) //only print sortable fields
                 continue;
             out.println("<option value='"+i+"'");
-            if(n.getOrder() instanceof DbField && ((DbField)n.getOrder()).getName()==db.getFields()[i].dbName)
+            log.debug(n.getOrder().getClass()+", name="+((DbField)n.getOrder()).getName()+
+                    ", fields name="+db.getFields()[i].dbName);
+            if(n.getOrder() instanceof DbField && ((DbField)n.getOrder()).getName().indexOf(db.getFields()[i].dbName)!=-1)
                 out.println("selected");
             out.println(">");
             out.println(db.getFields()[i].displayName);
