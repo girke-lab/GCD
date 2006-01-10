@@ -57,9 +57,6 @@ public class SeqModelSearch extends AbstractSearch
 
     public Map getStats()
     {        
-        if(stats!=null)
-            return stats;
-        
         //will load the stats variable
         //with clusters and genome stats
         super.getStats();
@@ -68,51 +65,14 @@ public class SeqModelSearch extends AbstractSearch
         stats.put("models", new Integer(model_ids.size()));
         
         //use the genome stats to setup the dbStartPositions variable
-        if(stats.get("arab")==null || stats.get("rice")==null)
-            db=null; //disable the whole startPositions thing
-        else
-        {//then we have both arab and rice
-            //log.debug("arab="+stats.get("arab")+", and is of type "+stats.get("arab").getClass().getName());
-            dbStartPositions[Common.arab]=0;
-            dbStartPositions[Common.rice]=Integer.parseInt((String)stats.get("arab"));
-                                        
+        if(stats.get("arab")!=null && stats.get("rice")!=null)
+        {
+            addBookmark("arab", 0);
+            addBookmark("rice", new Integer((String)stats.get("arab")));
         }
-        
-//        if(stats!=null)
-//            return stats;
-//        if(model_ids.size() >= Common.MAX_QUERY_KEYS)
-//        {
-//            log.info(model_ids.size()+" is too many keys, skipping stats");
-//            stats=new HashMap();
-//            return stats;
-//        }
-//        
-//        Map stats=new HashMap();
-//        stats.put("models",new Integer(model_ids.size()));
-        
-        //then find the cluster counts
-//        String query=QuerySetProvider.getSearchQuerySet().getSeqModelSearchQuery(model_ids);
-//        List row;
-//        for(Iterator i=Common.sendQuery(query).iterator();i.hasNext();) 
-//        {
-//            row=(List)i.next();            
-//            stats.put(row.get(0),row.get(1));
-//        }
+
         log.debug("new stats:"+stats);
         return stats;
-    }
-    public int getDbStartPos(int i) {        
-        getStats(); //we need stats to setup the db positions
-        if(i < 0 || i > dbStartPositions.length)
-            return 0;
-        return dbStartPositions[i];
-    }
-    public int getDbCount()
-    {
-        getStats();
-        if(db==null)
-            return 0;
-        return db.length;
     }
     protected int getStatTypes()
     {
@@ -131,6 +91,18 @@ public class SeqModelSearch extends AbstractSearch
     public int[] getSupportedKeyTypes()
     {
         return new int[]{Common.KEY_TYPE_SEQ};
+    }
+
+    public Collection<String> getBookmarkLabels()
+    {
+        getStats();
+        return super.getBookmarkLabels();
+    }
+
+    public Collection<Integer> getBookmarkPositions()
+    {
+        getStats();
+        return super.getBookmarkPositions();
     }
 
  

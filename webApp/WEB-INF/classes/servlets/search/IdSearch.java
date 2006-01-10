@@ -33,7 +33,8 @@ public class IdSearch extends AbstractSearch
         seqId_query=QuerySetProvider.getSearchQuerySet().getIdSearchQuery(input,limit, db, keyType);
         rs=Common.sendQuery(seqId_query);
         
-        Set al=new TreeSet();
+        //Set al=new TreeSet();
+        List output=new LinkedList();
         String lastDb="";
         int c=0;
         for(Iterator i=rs.iterator();i.hasNext();c++)
@@ -41,12 +42,13 @@ public class IdSearch extends AbstractSearch
             ArrayList t=(ArrayList)i.next();
             if(!lastDb.equals(t.get(2))){
                 lastDb=(String)t.get(2);
-                dbStartPositions[Common.getDBid(lastDb)]=c;
+                addBookmark(lastDb, c);
+                //dbStartPositions[Common.getDBid(lastDb)]=c;
             }
-            al.add(t.get(0));
+            output.add(t.get(0));            
             keysFound.add(((String)t.get(1)).toLowerCase());
         }        
-        data=new ArrayList(al);       
+        data=output;     
     }
     
     public List notFound()

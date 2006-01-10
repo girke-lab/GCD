@@ -524,7 +524,7 @@ public class SeqDataView implements DataView
                          "<font color='red' >Cross-Species Profile</font></a>");
              
              // link to affy page
-             String affyUrl="QueryPageServlet?searchType=Id&displayType=correlationView&inputKey="+key;
+             String affyUrl="QueryPageServlet?searchType=Id&displayType=affyView&inputKey="+key;
              out.println("&nbsp&nbsp&nbsp <a href='"+affyUrl+"'><font color='dark green'>Genome Cluster Expression</font></a>");
         }        
     }

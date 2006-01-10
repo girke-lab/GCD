@@ -36,7 +36,7 @@ public class ClusterIDSearch extends AbstractSearch
             ArrayList t=(ArrayList)i.next();
             if(!lastDb.equals(t.get(2))){
                 lastDb=(String)t.get(2);
-                dbStartPositions[Common.getDBid(lastDb)]=c;
+                addBookmark(lastDb, c);                
             }
             al.add(t.get(0));
             keysFound.add(t.get(1));

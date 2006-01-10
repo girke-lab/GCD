@@ -36,7 +36,7 @@ public class GoTextSearch extends AbstractSearch {
             row = (List)i.next();
             if (!lastDb.equals(row.get(1))){
                 lastDb=(String)row.get(1);
-                dbStartPositions[Common.getDBid(lastDb)] = index;
+                addBookmark(lastDb, index);                
             }
             al.add(row.get(0));
         }

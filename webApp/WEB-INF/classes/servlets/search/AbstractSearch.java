@@ -29,7 +29,8 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     String seqId_query=null;
     int limit,keyType;
     int[] db=null;
-    int[] dbStartPositions;  //index of first occurance of each database in dataset
+    //int[] dbStartPositions;  //index of first occurance of each database in dataset
+    Map<Integer,String> bookmarks=new TreeMap();
     /**
      * This logger may be used by all subclasses, so we don't have to
      * declare a million loggers.
@@ -40,20 +41,21 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
      * Returns the value at dbStartPositions[i].  If i is out of bounds,
      * 0 is returned.  Subclasses should load this array in the loadData()
      * method.
+     * @deprecated
      * @param i id number of genome.
      * @return index of first occurance of this genome in results list.
      */    
-    public int getDbStartPos(int i) {        
-         if(i < 0 || i > dbStartPositions.length)
-            return 0;
-        return dbStartPositions[i];
-    }
-    public int getDbCount()
-    {
-        if(db==null)
-            return 0;
-        return db.length;
-    }
+//    public int getDbStartPos(int i) {        
+//         if(i < 0 || i > dbStartPositions.length)
+//            return 0;
+//        return dbStartPositions[i];
+//    }
+//    public int getDbCount()
+//    {
+//        if(db==null)
+//            return 0;
+//        return db.length;
+//    }
     /**
      * Returns the <CODE>data</CODE> list.  If <CODE>data</CODE> is null,
      * <CODE>loadData()</CODE> is called first.
@@ -77,7 +79,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
         this.input=data;
         this.limit=limit;
         this.db=dbID;        
-        dbStartPositions=new int[Common.dbCount];
+        
         keysFound=new ArrayList();
         //stats=new ArrayList();
     }
@@ -178,6 +180,20 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     public int getKeyType()
     {
         return keyType;
+    }
+
+    protected void addBookmark(String label,Integer position)
+    {
+        bookmarks.put(position,label);
+    }
+    public Collection<String> getBookmarkLabels()
+    {
+        return Collections.unmodifiableCollection(bookmarks.values());
+    }
+
+    public Collection<Integer> getBookmarkPositions()
+    {
+        return Collections.unmodifiableSet(bookmarks.keySet());
     }
 
 }

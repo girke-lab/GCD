@@ -36,7 +36,7 @@ public class CorrelationsDataView implements DataView
     public CorrelationsDataView()
     {
         sortCol=null;
-        sortDir="ASC";        
+        sortDir="DESC";        
         
         dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
@@ -57,6 +57,13 @@ public class CorrelationsDataView implements DataView
                 Common.printStatsTable(out, "Total Query",
                     new String[]{"Keys found"},new Integer[]{new Integer(search.getResults().size())});
             }
+            public void printGeneral(PrintWriter out, Search search, String position,Map storage)
+            {
+                String link="DispatchServlet?hid="+hid+"&script=unknownsText&range=0-"+search.getResults().size();
+                out.println("Download data: &nbsp");
+                out.println("&nbsp<a href='"+link+"&dataType=Correlation'>Correlations</a>");
+            }            
+
             public void printButtons(PrintWriter out, int hid, int pos, int c, int d)
             {                
             }                                     

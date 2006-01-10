@@ -35,7 +35,7 @@ public class AffyCompRecord extends AbstractRecord
     /** Creates a new instance of AffyCompRecord */
     public AffyCompRecord(List values)
     {
-        int reqSize=17;
+        int reqSize=19;
         
         if(values==null || values.size()!=reqSize)
         {
@@ -62,8 +62,8 @@ public class AffyCompRecord extends AbstractRecord
         pfpUp=new Float((String)values.get(15));
         pfpDown=new Float((String)values.get(16));
         
-        controlDesc="control description";
-        treatDesc="treatment description";
+        controlDesc=(String)values.get(17);
+        treatDesc=(String)values.get(18);
         
     }
     public Object getPrimaryKey()
@@ -112,7 +112,7 @@ public class AffyCompRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(0,17){
+        return new RecordInfo(0,19){
             public Record getRecord(List l)
             { 
                 return new AffyCompRecord(l);

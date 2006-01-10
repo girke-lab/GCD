@@ -102,7 +102,11 @@ public class UnknownsTextScript implements Script
         qp.setAffyKeys(affyKeys);
         qp.setAllGroups(true);
         
-        
+        if(dataType.equals("Correlation"))
+        {
+            unknowns=f.getRecords(CorrelationRecord.getRecordInfo(), qp);
+            return unknowns;
+        }
         
         unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
          

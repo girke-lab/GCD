@@ -76,14 +76,7 @@ public class UnknownClusterIdSearch implements Search
     {
         return seqIdSearch.notFound();
     }
-    public int getDbCount()
-    {
-        return seqIdSearch.getDbCount();
-    }
-    public int getDbStartPos(int i)
-    {
-        return seqIdSearch.getDbStartPos(i);
-    }
+   
     public java.util.Map getStats()
     {
         return seqIdSearch.getStats();
@@ -101,5 +94,15 @@ public class UnknownClusterIdSearch implements Search
     public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         seqIdSearch.setKeyType(keyType);
+    }
+
+    public Collection<String> getBookmarkLabels()
+    {
+        return seqIdSearch.getBookmarkLabels();
+    }
+
+    public Collection<Integer> getBookmarkPositions()
+    {
+        return seqIdSearch.getBookmarkPositions();
     }
 }

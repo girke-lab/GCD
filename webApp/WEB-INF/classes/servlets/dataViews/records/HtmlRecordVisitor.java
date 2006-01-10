@@ -293,14 +293,14 @@ public class HtmlRecordVisitor implements RecordVisitor
                 printTreeControls(out,link,rec.getPrimaryKey().toString(),rec.iterator());     
                 out.write("<td "+controlPopup+">"+rec.comparison+"</td><td>Control</td>");
                 out.write("<td>"+df.format(rec.controlMean)+"</td><td>"+rec.controlPMA+"&nbsp</td>");
-                out.write("<td>"+rec.controlDesc+"</td>");
+                out.write("<td>"+rec.controlDesc+" &nbsp </td>");
                 out.write("</tr><tr>");
                 expType="control";
                 printSubRecords(out,rec.iterator(),11, 1);
                 //printTreeControls(out,link,rec.getPrimaryKey().toString(),rec.iterator());   
                 out.write("<td>&nbsp</td><td "+treatPopup+">"+rec.comparison+"</td><td>Treatment</td>");
                 out.write("<td>"+df.format(rec.treatmentMean)+"</td><td>"+rec.treatmentPMA+"&nbsp</td>");
-                out.write("<td>"+rec.treatDesc+"</td>");
+                out.write("<td>"+rec.treatDesc+" &nbsp </td>");
                 out.write("</tr>");
                 expType="treatment";
                 printSubRecords(out,rec.iterator(),11, 1);
@@ -325,8 +325,11 @@ public class HtmlRecordVisitor implements RecordVisitor
     {        
         String link="QueryPageServlet?hid="+hid+"&displayType=affyView&es_ids="+ar.expSetId+
                 "&psk_ids="+ar.probeSetId+"&groups="+ar.comparison;
-        String key=ar.expSetId+"_"+ar.probeSetId+"_"+ar.comparison;                         
-        String popup="onmouseover=\"return escape('"+ar.controlDesc+"<br>"+ar.treatDesc+"')\"";
+        String key=ar.expSetId+"_"+ar.probeSetId+"_"+ar.comparison;       
+        String alignment="align=left valign=top ";
+        String popupData="<table><tr "+alignment+"><th >Control</th><td>"+ar.controlDesc+"</td></tr>"+
+                "<tr "+alignment+"><th>Treatment</th><td>"+ar.treatDesc+"</td></tr></table>";
+        String popup="onmouseover=\"return escape('"+popupData+"')\"";  
         
         out.write("<tr >");       
         printTreeControls(out,link,key,ar.iterator());                

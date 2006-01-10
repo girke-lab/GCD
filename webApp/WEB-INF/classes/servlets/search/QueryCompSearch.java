@@ -89,14 +89,7 @@ public class QueryCompSearch implements Search
     }
     
     
-    public int getDbCount()
-    {
-        return 0;
-    }
-    public int getDbStartPos(int i)
-    {
-        return 0;
-    }
+  
     public java.util.Map getStats()
     {
         return new HashMap();
@@ -126,5 +119,15 @@ public class QueryCompSearch implements Search
         if(!isValid)
             throw new servlets.exceptions.UnsupportedKeyTypeException(keys,keyType);
         this.keyType=keyType;
+    }
+
+    public Collection<String> getBookmarkLabels()
+    {
+        return Collections.emptyList();
+    }
+
+    public Collection<Integer> getBookmarkPositions()
+    {
+        return Collections.emptyList();
     }
 }

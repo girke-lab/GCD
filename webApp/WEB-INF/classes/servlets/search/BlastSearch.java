@@ -104,14 +104,7 @@ public class BlastSearch implements Search
     {
         return new HashMap();
     }
-    public int getDbStartPos(int i)
-    {
-        return 0;
-    }
-    public int getDbCount()
-    {
-        return 0;
-    }
+    
     public int getKeyType()
     {
         return Common.KEY_TYPE_BLAST;
@@ -124,5 +117,15 @@ public class BlastSearch implements Search
 
     public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
+    }
+
+    public Collection<String> getBookmarkLabels()
+    {
+        return Collections.emptyList();
+    }
+
+    public Collection<Integer> getBookmarkPositions()
+    {
+        return Collections.emptyList();
     }
 }

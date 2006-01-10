@@ -203,7 +203,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     }
     public String getDiffStatsQuery()
     {
-        String query="SELECT * FROM updates.unknowns_stats_mv ORDER BY length(name),length(db_name), db_name";
+        String query="SELECT * FROM updates.unknowns_stats_mv " +
+                " WHERE db_name in ('arab','rice') "+
+                " ORDER BY length(name),length(db_name), db_name";
         logQuery(query);
         return query;
     }
@@ -664,10 +666,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {        
         if(keyType==Common.KEY_TYPE_CORR)
         {
-            String query="SELECT correlation_id, accession, 'arab' as db_name " +
+            String query="SELECT correlation_id, accession, probe_set_key " +
                     " FROM affy.accessions_to_psk_corr "+
                     " WHERE "+Common.buildLikeCondition("accession",input)+
-                    " ORDER BY correlation DESC"+
+                    " ORDER BY probe_set_key ASC, correlation DESC"+
                   " LIMIT "+limit;
             logQuery(query);
             return query;
@@ -901,10 +903,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                     " ORDER BY genome_databases.db_name " +
                     " LIMIT "+limit;
         else if(keyType==Common.KEY_TYPE_CORR)
-            query="SELECT correlation_id, 'arab' as db_name " +
+            query="SELECT correlation_id, psk1_key " +
                   " FROM affy.correlation_view"+
                   " WHERE "+Common.buildLikeCondition("psk1_key",input)+
-                  " OERDER BY correlation DESC"+
+                  " OERDER BY psk1_key ASC, correlation DESC"+
                   " LIMIT "+limit;
         else        
             log.error("invalid key type: "+keyType);
@@ -918,9 +920,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getProbeSetKeySearchQuery(Collection input, int limit, int keyType)
     {                  
-        String query="SELECT correlation_id FROM affy.correlation_view " +
+        String query="SELECT correlation_id, psk1_key FROM affy.correlation_view " +
                 " WHERE "+Common.buildIdListCondition("psk1_id",input)+
-                " ORDER BY correlation DESC";
+                " ORDER BY psk1_key ASC, correlation DESC";
         logQuery(query);
         return query;
     }

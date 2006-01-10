@@ -169,7 +169,7 @@ public class TextRecordVisitor implements RecordVisitor
     {
         out.write("accession\texperiment_set\tprobe_set_key\tcomparison\tcontrol_mean\ttreatment_mean\t" +
                 "control_pma\ttreat_pma\tratio_log2\tcontrast\tP_value" +
-                "\tadj_p_value\tpfp_up\tpfp_down\n");
+                "\tadj_p_value\tpfp_up\tpfp_down\tcontrol_desc\ttreatment_desc\n");
     }
     public void printRecord(Writer out, AffyCompRecord ar) throws IOException
     {
@@ -177,7 +177,8 @@ public class TextRecordVisitor implements RecordVisitor
                 ar.comparison+"\t"+ar.controlMean+"\t"+ar.treatmentMean+"\t"+
                 ar.controlPMA+"\t"+ar.treatmentPMA+"\t"+
                 ar.ratio+"\t"+ar.contrast+"\t"+ar.pValue+"\t"+ar.adjPValue+"\t"+
-                ar.pfpUp+"\t"+ar.pfpDown+"\n");
+                ar.pfpUp+"\t"+ar.pfpDown+"\t"+
+                ar.controlDesc+"\t"+ar.treatDesc+"\n");
     }
     public void printFooter(Writer out, AffyCompRecord ar) throws IOException
     {
@@ -239,9 +240,19 @@ public class TextRecordVisitor implements RecordVisitor
     
     public void printHeader(Writer out, CorrelationRecord cr) throws IOException
     {
+        out.write("catagory\taffyID1\taffyID2\tcorrelation\tp_value\taccessions\n");
     }
     public void printRecord(Writer out, CorrelationRecord cr) throws IOException
     {
+        out.write(cr.catagory+"\t"+cr.psk1_key+"\t"+cr.psk2_key+"\t"+
+                cr.correlation+"\t"+cr.p_value+"\t");
+        for(int i=0;i<cr.accessions.length;i++)
+        {
+            if(i!=0)
+                out.write(",");
+            out.write(cr.accessions[i]);
+        }
+        out.write("\n");
     }
     public void printFooter(Writer out, CorrelationRecord cr) throws IOException
     {

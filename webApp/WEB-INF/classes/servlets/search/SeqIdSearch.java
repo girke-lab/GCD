@@ -25,11 +25,7 @@ public class SeqIdSearch extends AbstractSearch //implements Search, java.io.Ser
     
     public java.util.List notFound() {
         return new ArrayList();
-    }
-    
-    public int getDbStartPos(int i) {
-        return 0;
-    }
+    }       
       
     public void loadData() {       
     }

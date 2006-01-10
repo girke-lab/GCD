@@ -193,13 +193,13 @@ public class CorrelationRecord extends AbstractRecord
                     {// last element
                         //print accessions
                         String accUrl="QueryPageServlet?searchType=Id&displayType=affyView&inputKey=";
-                        out.write("<td nowrap >&nbsp");
+                        out.write("<td nowrap > &nbsp ");
                         for(int j=0;j<rec.accessions.length;j++)
                             out.write("<a href='"+accUrl+rec.accessions[j]+"'>"+
-                                    rec.accessions[j]+"</a>&nbsp");
-                        out.write("&nbsp&nbsp");
+                                    rec.accessions[j]+"</a> &nbsp ");
+                        out.write(" &nbsp&nbsp ");
                         for(int j=0;j<rec.descriptions.length;j++)
-                            out.write(rec.descriptions[j]+"&nbsp&nbsp");
+                            out.write(rec.descriptions[j]+" &nbsp&nbsp&nbsp ");
                         out.write("</td>");
                     }
                 }
@@ -312,7 +312,7 @@ public class CorrelationRecord extends AbstractRecord
                     newDir="asc";
                     if(sortCol!=null && sortCol.equals(prefix+"_"+colNames[j+1]))
                         newDir=(sortDir.equals("asc"))? "desc" : "asc"; //flip direction
-                    out.write("<th><a href='QueryPageServlet?hid="+visitor.getHid()+"&sortCol="+prefix+"_"+colNames[j+1]+
+                    out.write("<th nowrap ><a href='QueryPageServlet?hid="+visitor.getHid()+"&sortCol="+prefix+"_"+colNames[j+1]+
                             "&sortDirection="+newDir+"&catagory="+catagory+"'>"+titles[j]+"</a></th>\n");
                 }                            
                 

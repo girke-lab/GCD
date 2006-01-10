@@ -111,7 +111,7 @@ public class DiffTrackingDataView implements DataView
         out.println("<h2>Unknown Stats and Batch Retrivial</h2>");
         out.println("<table border='1' cellspacing='0' width='100%' bgcolor='"+PageColors.data+"'>");
         out.println("<tr bgcolor='"+PageColors.title+"'>");
-        out.println("<th>Query</th><th>Arabidopsis</th><th>Rice</th><th>Both</th></tr>");
+        out.println("<th>Query</th><th>Arabidopsis</th><th>Rice</th></tr>");
         
         List row;
         String lastName=null;

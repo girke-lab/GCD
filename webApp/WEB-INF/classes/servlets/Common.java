@@ -295,10 +295,10 @@ public class Common {
         PrintWriter out=new PrintWriter(w);
         String link="DispatchServlet?hid="+hid+"&script=unknownsText&range=0-"+end;
         String[] dataTypes=new String[]{"Unknown","Go","Blast","Proteomics","Cluster",
-                "ExternalUnknown","AffyExpSet","AffyComp","AffyDetail"};
+                "ExternalUnknown","AffyExpSet","AffyComp","AffyDetail","Correlation"};
         String[] linkNames=new String[]{"Keys","Go","Blast","Proteomics","Clusters",
                 "External Sources","Experiment Sets","Comparisons",
-                "Cel"};
+                "Cel","Correlations"};
         for(int i=0;i<linkNames.length;i++)
             out.println("&nbsp<a href='"+link+"&dataType="+dataTypes[i]+"&intensityType="+intensityType+"'>"+
                     linkNames[i]+"</a>");

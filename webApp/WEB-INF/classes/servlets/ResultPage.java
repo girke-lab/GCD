@@ -54,18 +54,20 @@ public class ResultPage
      */    
     public void dipslayPage(PrintWriter out)
     {
-        int[] positions=new int[search.getDbCount()];
+//        int[] positions=new int[search.getDbCount()];
         //this does not actually work becuase we need dbNums[] here to
         //figure out with database we have.
         //But since we only have two databases, it doesn't really matter.
-        for(int i=0;i<positions.length;i++)
-            positions[i]=search.getDbStartPos(i);
-                
+//        for(int i=0;i<positions.length;i++)
+//            positions[i]=search.getDbStartPos(i);                        
+        
+        
         dv.printHeader(out);
         if(!dv.getQueryWideView().printAllData())
         {
             printControls(out);        
-            printGotoLinks(out, Common.dbPrintNames, positions);
+            //printGotoLinks(out, Common.dbPrintNames, positions);
+            printGotoLinks(out, search.getBookmarkLabels(),search.getBookmarkPositions());
         }
         out.println("<br>");
         dv.getQueryWideView().printButtons(out, hid, pos, search.getResults().size(), rpp);
@@ -93,7 +95,7 @@ public class ResultPage
         if(!dv.getQueryWideView().printAllData())
         {
             printControls(out);
-            printGotoLinks(out, Common.dbPrintNames, positions);
+            printGotoLinks(out, search.getBookmarkLabels(),search.getBookmarkPositions());
         }
 
         printMismatches(out,search.notFound());
@@ -130,28 +132,37 @@ public class ResultPage
         out.println("</table>");
     }
     
-    private void printGotoLinks(PrintWriter out,Object[] names,int[] positions)
-    {  //print a link for each entry in names that jumps to the corresponding position
-        if(names.length==0 || positions.length==0 || positions.length!=names.length){
+    private void printGotoLinks(PrintWriter out,Collection<String> names,Collection<Integer> positions)
+    {  //print a link for each entry in names that jumps to the corresponding position        
+        if(names.size()==0 || positions.size()!=names.size())
+        {
             out.println("<br><p>");
             return;
         }
-        boolean isDifferent=false;
-        for(int i=1;i<positions.length;i++)
-            if(positions[i-1]!=positions[i])
-            {
-                isDifferent=true;
-                break;
-            }
-        if(!isDifferent)
-        { //all postions go to same place, so dont bother printing them.
+//        boolean isDifferent=false;
+//        for(int i=1;i<positions.length;i++)
+//            if(positions[i-1]!=positions[i])
+//            {
+//                isDifferent=true;
+//                break;
+//            }
+//        if(!isDifferent)
+//        { //all postions go to same place, so dont bother printing them.
+//            out.println("<br><p>");
+//            return;
+//        }
+        if(positions.size()==1 && positions.iterator().next()==0)
+        { //we only have one link that goes nowhere
             out.println("<br><p>");
-            return;
+            return;            
         }
+        
         String action="QueryPageServlet?hid="+hid;        
         out.println("<table><tr><td>&nbsp&nbsp&nbsp&nbsp Go to: </td>");
-        for(int i=0;i<names.length;i++)        
-            out.println("<td><a href='"+action+"&pos="+positions[i]+"'>"+names[i]+"</a></td>");
+        
+        for(Iterator nameItr=names.iterator(),posItr=positions.iterator();nameItr.hasNext();)
+            out.println("<td><a href='"+action+"&pos="+posItr.next()+"'>"+nameItr.next()+"</a></td>");
+        
         out.println("</tr></table>");        
     }
     

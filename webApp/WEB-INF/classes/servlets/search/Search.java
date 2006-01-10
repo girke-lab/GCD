@@ -61,13 +61,14 @@ public interface Search extends java.io.Serializable, servlets.KeyTypeUser
      * @param i id number of genome.
      * @return index of first element of this genome in the results list.
      */    
-    int getDbStartPos(int i);
+    //int getDbStartPos(int i);
     
     /**
      * returns the number of genomes in this result set
      * @return number of genomes.
      */
-    int getDbCount();
+    //int getDbCount();
+    
     /**
      * Should return a Map containing the names of various
      * statistics thier values.  Currently used values are:
@@ -77,4 +78,8 @@ public interface Search extends java.io.Serializable, servlets.KeyTypeUser
      * @return A Map containing all relevent statistics.
      */    
     Map getStats();    
+    
+    Collection<String> getBookmarkLabels();
+    Collection<Integer> getBookmarkPositions();
+    
 }
