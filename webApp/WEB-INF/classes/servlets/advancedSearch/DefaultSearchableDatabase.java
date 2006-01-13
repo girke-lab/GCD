@@ -100,7 +100,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         
         query=new Query(condition,fields,new LinkedList(tables),order,limit);
         
-        //log.debug("query="+query);
+        log.debug("query="+query);
         return query;
     }
 
@@ -404,18 +404,21 @@ public class DefaultSearchableDatabase implements SearchableDatabase
      */
     private LiteralValue getLiteralValue(Field f,String v)
     {
+        log.debug("getting literal value for field "+f+" with value +"+v);
         if(f.type==String.class)
             return new StringLiteralValue(v);
         else if(f.type==Integer.class)
             try{
                 return new IntLiteralValue(Integer.valueOf(v));
             }catch(Exception e){
+                log.warn("integer format exception :"+e);
                 return new IntLiteralValue(0);
             }            
         else if(f.type==Float.class)
             try{
                 return new FloatLiteralValue(Float.valueOf(v));
             }catch(Exception e){
+                log.warn("float format exception :"+e);
                 return new FloatLiteralValue(0);
             }
         else if(f.type==Boolean.class)                  

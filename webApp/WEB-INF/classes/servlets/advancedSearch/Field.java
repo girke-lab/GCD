@@ -171,5 +171,9 @@ import org.apache.log4j.Logger;
      {
          this.hidden = hidden;
      }
-     
-    }
+     public String toString()
+     {
+        
+        return displayName+", "+dbName+", type:"+type.getName();
+     }
+}

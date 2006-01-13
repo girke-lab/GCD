@@ -259,7 +259,7 @@ public class Common {
         "  <td valign='top' bgcolor='#F0F8FF'' width=180 nowrap ><font SIZE=-1>"+
         "  <a href='"+base+"/index.html'><li>Project</a></li>"+
         "  <a href='"+base+"/descriptors.html'><li>Unknown Descriptors</a></li>"+
-        "  <a href='"+base+"/retrieval.html'><li>Search Options</a></li>"+
+        "  <a href='unknownsBasicSearch.jsp'><li>Search Options</a></li>"+
         "  <a href='"+base+"/interaction.html'><li>Protein Interaction</a></li>"+
         "  <a href='"+base+"/KO_cDNA.html'><li>KO & cDNA Results</a></li>"+
         "  <a href='"+base+"/profiling.html'><li>Chip Profiling</a></li>"+

@@ -311,6 +311,7 @@ public class AdvancedSearchBean2
     {         
         log.debug("submitting query");
         drawForm=false;
+        log.debug("currentState="+currentState);
         db.displayResults(currentState, servletContext,request,response);        
     }
     

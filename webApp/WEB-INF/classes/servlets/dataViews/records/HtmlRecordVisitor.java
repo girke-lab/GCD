@@ -212,7 +212,7 @@ public class HtmlRecordVisitor implements RecordVisitor
                                      "ctrl avg","ctrl stddev","treat avg","treat stddev"};
         String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.EXPSET]; 
         
-        out.write("<tr bgcolor='"+PageColors.title+"'><td><a name='"+ar.probeSetId+"'></a>Exp</td><td>Int</td>");        
+        out.write("<tr bgcolor='"+PageColors.title+"'><td><a name='"+ar.probeSetId+"'></a>Ratio</td><td>Int</td>");        
         printTableTitles(new PrintWriter(out), titles, feilds, "expset",ar.probeSetId.toString());        
         out.write("</tr>");
     }

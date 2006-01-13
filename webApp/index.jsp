@@ -24,7 +24,7 @@
                         and the associated publication in <a href='http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=pubmed&dopt=Abstract&list_uids=15888677&query_hl=2'>
                         Plant Physiology: 138, 47-54</a>.
                         <P>
-                        <font color='#FF0000'>News: data upgraded to TIGR's version 3 rice annotation.</font>
+                        <font color='#FF0000'>News: incorporation of expression data from 1309 Affymetrix chips.</font>
                         <P>
                         <A href='about.jsp#search'>
                             How to Search GCD</A>                        

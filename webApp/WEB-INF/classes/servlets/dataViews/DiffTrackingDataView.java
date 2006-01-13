@@ -107,8 +107,8 @@ public class DiffTrackingDataView implements DataView
     {
         List statsData=Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getDiffStatsQuery());
         String url="QueryPageServlet?searchType=Query_Stats&displayType=unknowns2View&rpp=25&";                  
-        
-        out.println("<h2>Unknown Stats and Batch Retrivial</h2>");
+                                                
+        out.println("<h2>Unknown Stats and Batch Retrieval</h2>");
         out.println("<table border='1' cellspacing='0' width='100%' bgcolor='"+PageColors.data+"'>");
         out.println("<tr bgcolor='"+PageColors.title+"'>");
         out.println("<th>Query</th><th>Arabidopsis</th><th>Rice</th></tr>");
