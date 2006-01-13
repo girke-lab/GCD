@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+  <servlet>
+    <servlet-name>QueryPageServlet</servlet-name>
+    <servlet-class>servlets.QueryPageServlet</servlet-class>
+    <load-on-startup>0</load-on-startup>
+  </servlet>
+  <servlet>
+    <servlet-name>DispatchServlet</servlet-name>
+    <servlet-class>servlets.DispatchServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>QueryDispatcherServlet</servlet-name>
+    <servlet-class>servlets.advancedSearch.QueryDispatcherServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>queryAdmin</servlet-name>
+    <jsp-file>/as2.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>QueryPageServlet</servlet-name>
+    <url-pattern>/QueryPageServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DispatchServlet</servlet-name>
+    <url-pattern>/DispatchServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DispatchServlet</servlet-name>
+    <url-pattern>/DispatchServlet.csv</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>QueryDispatcherServlet</servlet-name>
+    <url-pattern>/QueryDispatcherServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>queryAdmin</servlet-name>
+    <url-pattern>/QueryAdmin</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>queryAdmin</servlet-name>
+    <url-pattern>/as2.jsp</url-pattern>
+  </servlet-mapping>
+  <session-config>
+    <session-timeout>120</session-timeout>
+  </session-config>
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>queryAdmin page</web-resource-name>
+      <url-pattern>/as2.jsp</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>query_admin</role-name>
+    </auth-constraint>
+  </security-constraint>
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name> unknowns </web-resource-name>
+      <url-pattern>/unknownsSearch.jsp</url-pattern>
+      <url-pattern>/unknownsBasicSearch.jsp</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>database</role-name>
+    </auth-constraint>
+  </security-constraint>
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>UserDatabase</realm-name>
+  </login-config>
+  <security-role>
+    <role-name>query_admin</role-name>
+  </security-role>
+  <security-role>
+    <role-name>database</role-name>
+  </security-role>
+</web-app>
