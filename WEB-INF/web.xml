@@ -49,12 +49,14 @@
     <web-resource-collection>
       <web-resource-name>queryAdmin page</web-resource-name>
       <url-pattern>/as2.jsp</url-pattern>
+      <url-pattern>/QueryAdmin</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>query_admin</role-name>
     </auth-constraint>
   </security-constraint>
-  <security-constraint>
+  
+<!--  <security-constraint>
     <web-resource-collection>
       <web-resource-name> unknowns </web-resource-name>
       <url-pattern>/unknownsSearch.jsp</url-pattern>
@@ -64,6 +66,7 @@
       <role-name>database</role-name>
     </auth-constraint>
   </security-constraint>
+-->  
   <login-config>
     <auth-method>BASIC</auth-method>
     <realm-name>UserDatabase</realm-name>

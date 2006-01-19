@@ -85,7 +85,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         for(int i=0;i<ur.go_unknowns.length;i++)
             out.write("<b>"+names[i]+"</b>: "+ur.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
         String url="QueryPageServlet?searchType=Id&displayType=correlationView&rpp=200&inputKey="+ur.key;
-        out.write("&nbsp&nbsp&nbsp <a href='"+url+"'>Correlations</a>");
+        out.write("&nbsp&nbsp&nbsp <a href='"+url+"'><font color='red'>Correlations</font></a>");
         out.write("</td></tr>\n");               
                                 
         printSubRecords(out, ur.iterator(),5,0);        
@@ -205,8 +205,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     //            AffyExpSet
     public void printHeader(Writer out, AffyExpSetRecord ar) throws IOException
     {
- 
-        
+         
         String[] titles=new String[]{"AffyID","Exp","Name","up 2x","down 2x",
                                      "up 4x","down 4x","on","off",
                                      "ctrl avg","ctrl stddev","treat avg","treat stddev"};
@@ -258,8 +257,9 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("</tr>");
         
         //print sub records
+        String expDefLink="<a href=''>E<br>X<br>P <p> D<br>E<br>F</a>";
         if("all".equals(compView))
-            printSubRecords(out, ar.iterator(),14,1);
+            printSubRecords(out, ar.iterator(),14,1,expDefLink);
         else if("comp".equals(compView))
             printCompView(out,ar);
     }
@@ -422,14 +422,19 @@ public class HtmlRecordVisitor implements RecordVisitor
     ////////////////////////////////////////////////////////////////////////////
     
    
-    
-    private void printSubRecords(java.io.Writer out, Iterator itr,int span, int shift) throws java.io.IOException
+    private void printSubRecords(java.io.Writer out, Iterator itr,int span, int shift)
+        throws java.io.IOException
+    {
+        printSubRecords(out,itr,span,shift,"&nbsp");
+    }
+    private void printSubRecords(java.io.Writer out, Iterator itr,int span, int shift,String spaceData)
+        throws java.io.IOException
     {
         if(itr==null)
             return;
         String spaces="";
         for(int i=0;i<shift;i++)
-            spaces+="<td>&nbsp</td>";
+            spaces+="<td>"+spaceData+"</td>";
         Record rec;
         //log.debug("printing sub records");
         while(itr.hasNext())

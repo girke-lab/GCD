@@ -94,7 +94,7 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
                         
             new Field("Blast/Pfam Searches (best per db)",""),                        
             new Field(space+"database","general.blast_summary_mv.db_name",             
-                        new String[]{"swp","pfam","rice","yeast","human/rat/mouse"}),
+                        new String[]{"swp","pfam","arab","rice","yeast","human/rat/mouse"}),
             new Field(space+"method","general.blast_summary_mv.method",
                         new String[]{"BLASTP","hmmPfam"}),
             new Field(space+"Blast target accession","general.blast_summary_mv.accession"),

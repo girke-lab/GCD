@@ -240,7 +240,7 @@ public class TextRecordVisitor implements RecordVisitor
     
     public void printHeader(Writer out, CorrelationRecord cr) throws IOException
     {
-        out.write("catagory\taffyID1\taffyID2\tcorrelation\tp_value\taccessions\n");
+        out.write("catagory\taffyID1\taffyID2\tcorrelation\tp_value\taccessions\tdescriptions\n");
     }
     public void printRecord(Writer out, CorrelationRecord cr) throws IOException
     {
@@ -251,6 +251,13 @@ public class TextRecordVisitor implements RecordVisitor
             if(i!=0)
                 out.write(",");
             out.write(cr.accessions[i]);
+        }
+        out.write("\t");
+        for(int i=0;i<cr.descriptions.length;i++)
+        {
+            if(i!=0)
+                out.write(",");
+            out.write(cr.descriptions[i]);
         }
         out.write("\n");
     }

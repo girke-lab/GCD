@@ -32,7 +32,7 @@ public class QueryStatsSearch extends AbstractSearch
         if(boundry==-1)
         {
             log.error("invalid input: "+input);
-            log.error("syntax: <list if query ids> # <list of database names>");
+            log.error("syntax: <list if query ids> $ <list of database names>");
             return;
         }
         query_ids=input.subList(0, boundry);

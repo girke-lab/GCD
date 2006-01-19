@@ -129,11 +129,22 @@ public class DiffTrackingDataView implements DataView
                 lastName=(String)row.get(0);
             }            
                         
+            out.println("<td>");
             if("0".equals(row.get(2)))
-                out.println("<td>0</td>");
-            else
-                out.println("<td><a href='"+url+"inputKey="+row.get(3)+" $ "+row.get(1)+"'>"+
-                    row.get(2)+"</a></td>");                            
+                out.println("0");
+            else            
+                out.println("<a href='"+url+"inputKey="+row.get(3)+" $ "+row.get(1)+"'>"+
+                    row.get(2)+"</a> &nbsp&nbsp");                                        
+            
+            if(i.hasNext()){
+                row=(List)i.next();
+                if("0".equals(row.get(2)))
+                    out.println("0");
+                else
+                    out.println("<a href='"+url+"inputKey="+row.get(3)+" $ "+row.get(1)+"'>"+
+                        "Orothologs ("+row.get(2)+")</a>");    
+            }
+            out.println("</td>");
         }
         
         out.println("</table>");

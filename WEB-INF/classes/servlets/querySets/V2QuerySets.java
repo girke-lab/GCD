@@ -204,8 +204,8 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     public String getDiffStatsQuery()
     {
         String query="SELECT * FROM updates.unknowns_stats_mv " +
-                " WHERE db_name in ('arab','rice') "+
-                " ORDER BY length(name),length(db_name), db_name";
+                " WHERE db_name!='arab rice'  "+
+                " ORDER BY length(name), db_name";
         logQuery(query);
         return query;
     }
@@ -935,31 +935,63 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     }
     public String getQueryStatsSearchQuery(java.util.List query_ids, java.util.List DBs)
     {
-        String ids,dbs,s;
-        ids="ARRAY[";
-        for(Iterator i=query_ids.iterator();i.hasNext();)
-        {
-            s=(String)i.next();
-            ids+=s;
-            if(i.hasNext())
-                ids+=",";
-        }
-        ids+="]";
+        String ids,dbs,query;
+        boolean needOrthologs=false;
         
-        dbs="ARRAY[";
-        for(Iterator i=DBs.iterator();i.hasNext();)
+        ids=toArrayString(query_ids,false);
+        
+        //see if we need ortholog data or not.
+        for(Object o : DBs)
+            if(o!=null && ((String)o).indexOf("ortholog")!=-1)
+                needOrthologs=true;
+        if(needOrthologs)
         {
-            s=(String)i.next();
-            dbs+="'"+s+"'";
-            if(i.hasNext())
-                dbs+=",";
+            String db=(String)DBs.get(0);
+            String target_db;
+            if(db!=null && db.indexOf("arab")!=-1){                        
+                dbs="ARRAY['arab']";
+                target_db="rice";
+            }             
+            else if(db!=null && db.indexOf("rice")!=-1){
+                dbs="ARRAY['rice']";
+                target_db="arab";
+            }
+            else
+            {
+                log.error("invalid database given: "+db);
+                return "";
+            }
+            query="SELECT itq.accession_id " +
+                "FROM updates.intersect_test_queries("+ids+","+dbs+") as itq " +
+                    "   JOIN general.blast_summary_mv as bsm USING(accession_id) " +
+                " WHERE bsm.e_value <= 1e-6 AND bsm.db_name='"+target_db+"'";
         }
-        dbs+="]";
-        String query="SELECT accession_id " +
+        else
+        {
+            dbs=toArrayString(DBs,true);
+            query="SELECT accession_id " +
                 "FROM updates.intersect_test_queries("+ids+","+dbs+")";
+        }
         
         logQuery(query);
         return query;
+    }
+    private String toArrayString(Collection c,boolean quoted)
+    {
+        StringBuffer a=new StringBuffer(c.size()*3+10);
+        a.append("ARRAY[");
+        for(Iterator i=c.iterator();i.hasNext();)
+        {
+            String s=(String)i.next();
+            if(quoted)
+                a.append("'"+s+"'");
+            else
+                a.append(s);            
+            if(i.hasNext())
+                a.append(",");                
+        }
+        a.append("]");
+        return a.toString();
     }
     //</editor-fold>
 
