@@ -578,5 +578,10 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     {
         return "";
     }
+
+    public String getAffyExpDefRecordQuery(Collection ids)
+    {
+        return "";
+    }
   
 }
