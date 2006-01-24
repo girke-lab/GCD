@@ -107,6 +107,11 @@ public class UnknownsTextScript implements Script
             unknowns=f.getRecords(CorrelationRecord.getRecordInfo(), qp);
             return unknowns;
         }
+        else if(dataType.equals("AffyExpDef"))
+        {
+            unknowns=f.getRecords(AffyExpDefRecord.getRecordInfo(), qp);
+            return unknowns;
+        }
         
         unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
          
@@ -142,7 +147,7 @@ public class UnknownsTextScript implements Script
         else if(dataType.equals("Proteomics"))            
             f.addSubType(unknowns, ProteomicsRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Unknown"))
-            printDescription=true;
+            printDescription=true;        
         else
             log.error("invalid dataType: "+dataType);
         

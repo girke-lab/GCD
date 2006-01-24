@@ -22,7 +22,8 @@ public class Common {
                             KEY_TYPE_ACC=4,     KEY_TYPE_QUERY=5,
                             KEY_TYPE_DEFAULT=6, 
                             KEY_TYPE_COMP=8,    KEY_TYPE_DETAIL=9,
-                            KEY_TYPE_PSK=10,    KEY_TYPE_CORR=11;
+                            KEY_TYPE_PSK=10,    KEY_TYPE_CORR=11,
+                            KEY_TYPE_EXP_DEF=12;
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
 //    public final static String dataColor="D3D3D3",titleColor="AAAAAA";        
@@ -350,9 +351,9 @@ public class Common {
     {
         return buildIdListCondition(varName,ids,false,-1); //default to no quotes.
     }
-        public static String buildIdListCondition(String varName,Collection ids, boolean b)
+        public static String buildIdListCondition(String varName,Collection ids, boolean quoteIt)
     {
-        return buildIdListCondition(varName,ids,b,-1); 
+        return buildIdListCondition(varName,ids,quoteIt,-1); 
     }
     public static String buildIdListCondition(String varName,Collection ids,int limit)
     {

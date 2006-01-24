@@ -437,6 +437,15 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
+    public String getAffyExpDefRecordQuery(Collection ids)
+    {
+        String query="SELECT * FROM affy.experiment_definitions " +
+                "   WHERE "+Common.buildIdListCondition("experiment_name",ids,true);
+        
+        logQuery(query);
+        return query;
+    }
+
 // </editor-fold>
    
     // <editor-fold defaultstate="collapsed" desc=" Database methods ">
@@ -995,6 +1004,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     }
     //</editor-fold>
 
+   
   
 
    

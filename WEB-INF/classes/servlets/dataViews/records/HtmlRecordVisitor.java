@@ -35,6 +35,10 @@ public class HtmlRecordVisitor implements RecordVisitor
     DecimalFormat percent=new DecimalFormat("0%");
     DecimalFormat ldf=new DecimalFormat("0.##E0");
     
+    String expDefURL="http://bioweb.ucr.edu/databaseWeb/data/exp_definitions";
+    
+
+    
     /** Creates a new instance of HtmlRecordVisitor */
     public HtmlRecordVisitor()
     {
@@ -256,8 +260,9 @@ public class HtmlRecordVisitor implements RecordVisitor
                 "</td><td>"+(ar.treatStddev==null ? "&nbsp":percent.format(ar.treatStddev))+"</td>");
         out.write("</tr>");
         
+        String expDefLink="<a href='"+expDefURL+"/Ex"+
+            ar.expSetKey+"'>E<br>X<br>P <p> D<br>E<br>F</a>";
         //print sub records
-        String expDefLink="<a href=''>E<br>X<br>P <p> D<br>E<br>F</a>";
         if("all".equals(compView))
             printSubRecords(out, ar.iterator(),14,1,expDefLink);
         else if("comp".equals(compView))
@@ -274,7 +279,9 @@ public class HtmlRecordVisitor implements RecordVisitor
         
         for(Iterator i=ar.iterator();i.hasNext();)
         {
-            out.write("<tr><td>&nbsp</td><td colspan='"+14+"'><TablE bgcolor='"+PageColors.data+"' width='100%'" +
+            String expDefLink="<a href='"+expDefURL+"/Ex"+
+                ar.expSetKey+"'>E<br>X<br>P <p> D<br>E<br>F</a>";
+            out.write("<tr><td>"+expDefLink+"</td><td colspan='"+14+"'><TablE bgcolor='"+PageColors.data+"' width='100%'" +
                 " border='1' cellspacing='0' cellpadding='1'>\n");
             for(Iterator j=((Record)i.next()).iterator();j.hasNext();)
             {
@@ -499,6 +506,17 @@ public class HtmlRecordVisitor implements RecordVisitor
         }
     }
 
+   
+
+    public void printHeader(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+    }
+    public void printRecord(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+    }
+    public void printFooter(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+    }
    
 
    

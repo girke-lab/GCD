@@ -86,10 +86,10 @@ public class DbConnectionManager
         try{
             Class.forName("org.postgresql.Driver").newInstance();
                 //for deployment
-                //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5433/khoran","servlet","512256")); //connect to postgres            
+                connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5433/khoran","servlet","512256")); //connect to postgres            
                 
                 //for testing
-                connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); //connect to postgres            
+                //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); //connect to postgres            
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://db2.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); //connect to postgres            
 
                 //for home testing

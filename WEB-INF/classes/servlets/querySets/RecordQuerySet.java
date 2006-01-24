@@ -47,4 +47,7 @@ public interface RecordQuerySet extends QuerySet
     
     // for CorrelationRecord
     public String getCorrelationRecordQuery(Collection ids, String sortcol, String sortDir, String catagory);
+    
+    // for AffyExpDefRecord
+    public String getAffyExpDefRecordQuery(Collection ids);
 }

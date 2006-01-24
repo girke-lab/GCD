@@ -264,4 +264,18 @@ public class TextRecordVisitor implements RecordVisitor
     public void printFooter(Writer out, CorrelationRecord cr) throws IOException
     {
     }
+
+    
+
+    public void printHeader(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+        out.write("Experiment name\tCel file name\tType\tGroup number\n");
+    }
+    public void printRecord(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+        out.write(ar.expName+"\t"+ar.celFileName+"\t"+ar.expType+"\t"+ar.groupNo+"\n");
+    }
+    public void printFooter(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+    }
 }
