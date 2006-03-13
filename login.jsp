@@ -14,7 +14,7 @@
         <jsp:useBean id='common' class='servlets.Common' scope='application'/>        
 
     
-        <% common.printHeader(out,"Login"); %>
+        <% common.printHeader(out,"Logon"); %>
         <% String status=request.getParameter("status"); %>
         
         <% if(status!=null && status.equals("error")){ %>

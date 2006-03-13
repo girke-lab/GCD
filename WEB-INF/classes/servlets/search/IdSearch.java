@@ -10,7 +10,7 @@ package servlets.search;
  */
 import java.util.*;
 import servlets.Common;
-import servlets.querySets.*;
+import servlets.querySets.*; 
 
 /**
  * Takes a list of accession numbers. The default action is to use pattern

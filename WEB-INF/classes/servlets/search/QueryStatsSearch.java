@@ -19,7 +19,7 @@ public class QueryStatsSearch extends AbstractSearch
 {
     
     /** Creates a new instance of QueryStatsSearch */
-    public QueryStatsSearch()
+    public QueryStatsSearch()  
     {
     }
 
