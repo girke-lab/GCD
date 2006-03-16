@@ -1,12 +1,14 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
+<jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean2' scope='page'/>
+<jsp:useBean id='common' class='servlets.Common' scope='application'/>
+<jsp:useBean id='header' class='servlets.beans.HeaderBean' />
+
 <html>
-    <head><title>Plant Unknowns</title></head>
-    <body>
-
-        <jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean2' scope='page'/>
-        <jsp:useBean id='common' class='servlets.Common' />
-
+<% 
+   header.setHeaderType(servlets.beans.HeaderBean.HeaderType.POND);
+   header.printStdHeader(out,"Advanced Search", request.getRemoteUser()!=null);
+%>
 
         <%
             bean.setDefaultDatabase("unknowns2");
@@ -16,16 +18,16 @@
 
 
 
-        <p><p>  
-            <% common.printUnknownHeader(out); %>
+        
+                    
 
                 <center><%  common.printUnknownsSearchLinks(out); %></center
                 <P>
                 <%  bean.printMessage(out); %>
-                <p align='center'>
+                <center>
                      &nbsp&nbsp&nbsp&nbsp 
                     <a href='QueryAdmin?database=<%=bean.getDatabase()%>'>Admin Page</a>                        
-                </p>
+                </center>
                 <%  bean.drawSearchForm(out,new String[]{"unknowns","unknowns2"}); %>
 
 
@@ -38,6 +40,5 @@
                 <p>                    
                 The limit field determines the total number of results returned.                    
 
-            <% common.printUnknownFooter(out); %>
-    </body>
+    <% header.printFooter(); %>
 </html>

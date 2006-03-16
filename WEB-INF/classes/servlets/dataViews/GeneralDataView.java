@@ -28,12 +28,17 @@ public class GeneralDataView implements DataView
     int limit,hid;
     int keyType;
     int[] dbNums;
+    private String userName; 
     
     /** Creates a new instance of GeneralDataView */
     public GeneralDataView() {    
     }
     public void printHeader(java.io.PrintWriter out) {
         Common.printForm(out,hid); 
+    }
+    public void printFooter(java.io.PrintWriter out)
+    {
+
     }
     
     public void printData(java.io.PrintWriter out) {
@@ -386,6 +391,10 @@ public class GeneralDataView implements DataView
     public void setIds(java.util.List ids) 
     {
         this.seq_ids=ids;
+    }
+    public void setUserName(String userName)
+    {
+        this.userName=userName;;
     }
     
     public servlets.dataViews.queryWideViews.QueryWideView getQueryWideView() 

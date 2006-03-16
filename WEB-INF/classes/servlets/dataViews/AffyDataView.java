@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.*;
+import servlets.beans.HeaderBean;
 import servlets.dataViews.queryWideViews.DefaultQueryWideView;
 import servlets.dataViews.records.*;
 import servlets.search.Search;
@@ -35,8 +36,11 @@ public class AffyDataView implements DataView
     private List accIds;
     private int dataType;
     private Map storage;
+    private String userName; 
     
-    DbConnection dbc=null;  
+    
+    private DbConnection dbc=null;  
+    private HeaderBean header;
     
     //indexes into idLists list 
     public static final int ACC=0, PSK=1, ES=2,GROUP=3;
@@ -55,13 +59,18 @@ public class AffyDataView implements DataView
         if(dbc==null)
             log.error("could not get db connection to khoran");
                 
+        header=new HeaderBean();        
     }
 
     public int getKeyType()
     {
         return keyType;
     }
-
+    public void setUserName(String userName)
+    {
+        this.userName=userName;
+        header.setLoggedOn(userName!=null);
+    }
     public servlets.dataViews.queryWideViews.QueryWideView getQueryWideView()
     {
         return new DefaultQueryWideView(){
@@ -148,9 +157,9 @@ public class AffyDataView implements DataView
     }
     
     public void printHeader(java.io.PrintWriter out)
-    {        
-        Common.printUnknownHeader(out);
-        
+    {   
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.POND);
+        header.printStdHeader(out,"", userName!=null);
         
         out.println(
                 "<style type='text/css'>" +
@@ -164,6 +173,10 @@ public class AffyDataView implements DataView
         
         
     }
+    public void printFooter(java.io.PrintWriter out)
+    {
+        header.printFooter();
+    }
 
     public void printStats(java.io.PrintWriter out)
     {        
@@ -174,9 +187,8 @@ public class AffyDataView implements DataView
     {        
         printColorKey(out);
         out.println("<P>");
-        printData(out,getRecords());
-        out.println("</td></table>"); //close page level table
-        out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");
+        printData(out,getRecords());        
+        out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");        
     }
     
 ////////////////////////////////////////////////////////////////////////////////
@@ -296,6 +308,7 @@ public class AffyDataView implements DataView
         log.debug("sortCol="+sortCol);
         QueryParameters qp=new QueryParameters(accIds,sortCol,sortDir);
 
+        qp.setUserName(userName);
         qp.setAffyKeys(nodeSet);
         qp.setDataType(dataTypes[dataType]);
                         
@@ -350,6 +363,8 @@ public class AffyDataView implements DataView
             out.println("<td nowrap bgcolor='"+r.getValue()+"'>"+r.getKey()+"</td>");        
         out.println("</tr></table>");
     }
+
+   
 
    
 }

@@ -15,7 +15,7 @@ import java.util.*;
 import java.io.*;
 import servlets.Common;
 import org.apache.log4j.Logger;
-import servlets.ResultPage;
+import servlets.beans.HeaderBean;
 import servlets.dataViews.queryWideViews.*; 
 import servlets.search.Search;
 import servlets.querySets.*;
@@ -28,6 +28,9 @@ public class ClusterDataView implements DataView
     int keyType;
     String sortCol;
     int[] dbNums;
+    private String userName; 
+    private HeaderBean header=new HeaderBean();
+    
     
     private final int CLUSTER_ID_COL=0, CLUSTER_NAME_COL=1,
                       ARAB_SIZE_COL=2,  RICE_SIZE_COL=3,
@@ -42,13 +45,18 @@ public class ClusterDataView implements DataView
     
     public void printHeader(java.io.PrintWriter out) 
     {
-        Common.printHeader(out,"Cluster View");                
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
+        header.printStdHeader(out,"Cluster View", userName!=null);                            
+    }
+    public void printFooter(java.io.PrintWriter out)
+    {
+        header.printFooter();
     }
     public void printData(java.io.PrintWriter out) 
     {
         List data=getData(seq_ids, sortCol, dbNums);
         printCounts(out,data);
-        printSummary(out,data,dbNums,hid);
+        printSummary(out,data,dbNums,hid);        
     }
     
     public void setData(String sortCol, int[] dbList, int hid) 
@@ -60,6 +68,10 @@ public class ClusterDataView implements DataView
     public void setIds(java.util.List ids) 
     {
         this.seq_ids=ids;                
+    }
+    public void setUserName(String userName)
+    {
+        this.userName=userName;;
     }
    
     public QueryWideView getQueryWideView() 

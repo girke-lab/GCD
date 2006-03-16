@@ -384,17 +384,21 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }            
-    public String getAffyExpSetRecordQuery(Collection ids, String dataType, String sortcol, String sortDir)
+    public String getAffyExpSetRecordQuery(Collection ids, String dataType, String sortcol, String sortDir, String userName)
     {
-        log.debug("sortCol="+sortcol);
+        log.debug("sortCol="+sortcol);        
+        
         if(sortcol!=null && sortcol.startsWith("expset_"))
             sortcol=sortcol.replaceFirst("expset_", "");
         else 
             sortcol="catagory, probe_set_key_id"; 
         
-        String query="SELECT DISTINCT * FROM affy.experiment_set_summary_mv "+
-                " WHERE ("+Common.buildIdListCondition("accession_id",ids)+") "+
-                "               AND data_type='"+dataType+"' "+
+        String query="SELECT DISTINCT ess.* FROM " +
+                "       affy.experiment_set_summary_mv as ess JOIN " +
+                "       affy.es_valid_users as evu USING(experiment_set_id)"+
+                " WHERE ("+Common.buildIdListCondition("ess.accession_id",ids)+") "+
+                "               AND ess.data_type='"+dataType+"' "+
+                "               AND evu.user_name='"+userName+"' "+
                 " ORDER BY "+sortcol+" "+sortDir; 
         
         logQuery(query);
@@ -438,7 +442,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
     public String getAffyExpDefRecordQuery(Collection ids)
-    {
+    { //not currently used
         String query="SELECT * FROM affy.experiment_definitions " +
                 "   WHERE "+Common.buildIdListCondition("experiment_name",ids,true);
         

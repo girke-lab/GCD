@@ -10,9 +10,8 @@ package servlets;
  */
 import java.util.*;
 import java.io.*;
-import java.sql.*;
-import servlets.search.Search;
 import org.apache.log4j.Logger;
+import servlets.beans.HeaderBean;
 
 public class Common {
     public final static int arab=0, rice=1;    
@@ -116,7 +115,9 @@ public class Common {
     }
     public static void printForm(PrintWriter out,int hid)
     {
-        out.println("\n<FORM method=get name='form1' action='QueryPageServlet'>\n"+  //SequenceServlet
+        out.println("\n" +
+            "<table><tr><td width='300'>&nbsp</td><td align='left'>"+
+            "<FORM method=get name='form1' action='QueryPageServlet'>\n"+  //SequenceServlet
             "<INPUT type=hidden name='hid' value='"+hid+"'>"+
             "<INPUT type=hidden name='displayType' value='modelView'>"+                        
             "<TABLE align='center' border='0'>\n"+
@@ -144,139 +145,14 @@ public class Common {
             //"\t\t<TD><INPUT type=submit value='Annotation Data' onClick='getDetails();'>\n"+
             "\t</TR>\n"+            
             "</TABLE>\n"+
-            "</FORM>\n");
+            "</FORM></td></tr></table>\n");
     }
    
-    public static void printHeader(Writer out)
-    {
-        printHeader(out,"");
-    }
-    public static void printHeader(Writer out,String subTitle)
-    {
-        String header=
-            "<!--GCD_Tool_Bar-->" +
-            "<meta Http-Equiv='Content-Type' content='text/html'; charset='UTF-8'><meta Http-Equiv='Cache-Control' Content='no-cache'/><meta Http-Equiv='Pragma' Content='no-cache'/><meta Http-Equiv='Expires' Content='0'/>" +
-            "<style type='text/css'>	body { color: #000000; font-family: avantgarde, sans-serif; font-size: 11pt} " +
-            "	a { color: #006699} " +
-            "	a:hover { background-color: #AAAAAA} " +
-            "	h1, h2, h3, h4, h5, h6 { font-weight: bold} " +
-            "	h1 { font-size: 180%} " +
-            "	h2 { font-size: 150%} " +
-            "	h3 { font-size: 120%} " +
-            "	h4 { font-size: 120%} " +
-            "	pre { font-family: FreeMono, monospace; font-size: 10pt} " +
-            "	tt { font-family: FreeMono, monospace; font-size: 10pt} " +
-            "</style>" +
-            "<body bgcolor='#fefefe' text='#000000' link='#006699' vlink='#003366'>" +
-            "<head>" +
-            "	<title>GCD ReadMe</title>" +
-            "</head>" +
-            "<font face='sans-serif, Arial, Helvetica, Geneva'>" +
-            "	<table  border='0' align='center'>" +
-            "		<tr>" +
-            "			<td nowrap, colspan='11', valign='top', align='center', width=1000><img src='images/GCD.jpg'/></td>" +
-            "		</tr>" +
-            "		<tr>" +
-            "			<td nowrap, colspan='11', valign='top', align='center', width=1000><font SIZE=-1><a href='http://www.cepceb.ucr.edu/'>Center for Plant Cell Biology, UC Riverside</a></font></td>" +
-            "		</tr>" +
-            "		<tr>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='about.jsp'>ReadMe</a>&nbsp;]</font></td>" +
-            "   		<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='index.jsp'>Search</a>&nbsp;]</font></td>" +
-            "            	<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "                   <td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='advancedSearch.jsp'>Advanced</a>&nbsp;]</font></td>" +
-            "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioweb.ucr.edu/scripts/clusterSummary.pl?sort_col=Size' target='_blank'>Table</a>&nbsp;]</font></td>" +
-            "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioweb.ucr.edu/scripts/clusterStats.pl' >Stats</a>&nbsp;]</font></td>" +
-            "			<td valign='top', width=30><font SIZE=+1>&nbsp;</font></td>" +
-            "			<td nowrap, align='center',  width=100><font SIZE=+1>[&nbsp;<a href='http://bioweb.ucr.edu/databaseWeb/data'>Downloads</a>&nbsp;]</font></td>" +
-            "		</tr>" +           
-            "	</table>" +
-             (!subTitle.equals("")?
-                "<table border='0' align='center'>    <tr>" +
-                "               <td nowrap colspan='11' align='center' width=1000><font SIZE=+3>"+subTitle+"</td>"+
-                "           </tr></table>" 
-                : ""  //else don't print the last row
-            )+
-            "</font>" +
-            "<!--GCD_Tool_Bar-->";
-        try{
-            out.write(header);
-        }catch(Exception e){
-            log.error("io error: "+e.getMessage());
-        }
-    }
+   
     
-    public static void printHeaderOld(Writer out)
-    {   //print the CEPCEB header on the top of every page        
-        int cs=1,space=10;;
-        String header=""+ 
-        "<table width='100%' border='0' cellspacing='0' cellpadding='0'>"+
-        "<tr bgcolor='AAAAAA'><td colspan='"+cs+"'>&nbsp</td></tr>"+
-        "<tr>"+
-        "   <td align='center' colspan='"+cs+"' bgcolor='AAAAAA' ><h1>Genome Cluster Database</h1></td>"+
-        "</tr>"+
-        "<tr>"+
-        "    <td align='center' colspan='"+cs+"' bgcolor='AAAAAA'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://www.cepceb.ucr.edu/' target='_blank'>"+
-        "       Center for \nPlant Cell Biology at UC Riverside</a></font></td>"+
-        "</tr>"+
-        "<tr bgcolor='AAAAAA'><td colspan='"+cs+"'>&nbsp</td></tr>"+
-        "<tr><td colspan='"+cs+"'>&nbsp</td></tr>"+
-        "<tr><table align='center' cellspacing='0' cellpadding='0'><tr>"+        
-        "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='index.jsp'>"+
-        "        <img src='images/search.jpg' width='100' height='25' border='0'></a></font></div></td>"+
-        "    <td><img src='images/spacer.jpg' width='"+space+"' height='25' border='0'></td>"+
-        "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='advancedSearch.jsp'>"+
-        "        <img src='images/advSearchLong.jpg' width='150' height='25' border='0'></a></font></div></td>"+
-        "    <td><img src='images/spacer.jpg' width='"+space+"' height='25' border='0'></td>"+
-        "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/projects/PlantFam/Readme/about.html'>"+
-        "        <img src='images/aboutDB.jpg' width='100' height='25' border='0'></a></font></div></td>"+
-        "    <td><img src='images/spacer.jpg' width='"+space+"' height='25' border='0'></td>"+
-        "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterSummary.pl?sort_col=Size'>"+
-        "        <img src='images/clusterTable.jpg' width='100' height='25' border='0'></a></font></div></td>"+
-        "    <td><img src='images/spacer.jpg' width='"+space+"' height='25' border='0'></td>"+
-        "    <td  valign='top'><div align='center'><font face='Geneva, Arial, Helvetica, sans-serif'><a href='http://bioinfo.ucr.edu/cgi-bin/clusterStats.pl'>"+
-        "        <img src='images/clusterStats.jpg' width='100' height='25' border='0'></a></font></div></td>"+
-        "</tr></table></tr>"+
-        "</table><p>";        
-        try{
-            out.write("<BODY bgcolor='#fefefe' text='#000000' link='#006699' vlink='#003366'>");  
-            out.write(header);
-        }catch(Exception e){  
-            log.error("io error: "+e.getMessage());
-        }
-    }
     
-    public static void printUnknownHeader(Writer w)
-    {
-        PrintWriter out=new PrintWriter(w);
-        String base="http://bioinfo.ucr.edu/projects/internal/Unknowns/external";
-        out.println(
-        "  <font face='sans-serif, Arial, Helvetica, Geneva'>"+
-        "  <img alt='Unknown Database' src='images/unknownspace3.png'>"+
-        "  <table>"+
-        "  <tr>"+
-        "  <td valign='top' bgcolor='#F0F8FF'' width=180 nowrap ><font SIZE=-1>"+
-        "  <a href='"+base+"/index.html'><li>Project</a></li>"+
-        "  <a href='"+base+"/descriptors.html'><li>Unknown Descriptors</a></li>"+
-        "  <a href='unknownsBasicSearch.jsp'><li>Search Options</a></li>"+
-        "  <a href='"+base+"/interaction.html'><li>Protein Interaction</a></li>"+
-        "  <a href='"+base+"/KO_cDNA.html'><li>KO & cDNA Results</a></li>"+
-        "  <a href='"+base+"/profiling.html'><li>Chip Profiling</a></li>"+
-        "  <a href='"+base+"/tools.html'><li>Protocols</a></li>"+
-        "  <a href='"+base+"/external.html'><li>Literature</a></li>"+
-        "  <a href='"+base+"/links.html'><li>Links</a></li>"+
-        "  <a href='"+base+"/downloads.html'><li>Downloads</a></li>"+
-        "  </font></td>"+
-        "  <td>&nbsp;&nbsp;&nbsp;</td>"+
-        "  <td valign='top'' > "); //width=600
-    }
-    public static void printUnknownFooter(Writer w)
-    {
-        PrintWriter out=new PrintWriter(w);
-        out.println("</td></tr></table></font>");
-    }
+    
+   
     public static void printUnknownsSearchLinks(Writer w)
     {
         PrintWriter out=new PrintWriter(w);
@@ -479,5 +355,27 @@ public class Common {
                 return true;
         return false;
     }
+
+//    public static void printHeader(PrintWriter out, boolean b)
+//    {//print the gcd header
+//        printHeader(out,"",b);
+//    }
+//    public static void printHeader(PrintWriter out, String title,boolean b)
+//    {//print the gcd header
+//        HeaderBean header=new HeaderBean();
+//        header.setWriter(out);
+//        header.setPageTitle(title);
+//        header.setLoggedOn(b);
+//        header.printGCDHeader();        
+//    }
+
+//    public static void printUnknownHeader(PrintWriter out,boolean b)
+//    {
+//        HeaderBean header=new HeaderBean();
+//        header.setWriter(out);
+//        header.setLoggedOn(b);
+//        header.printUnknownsHeader();
+//    }
+
 }
 

@@ -22,6 +22,7 @@ public class QueryParameters
     private String sortDir="ASC";    
     private String dataType="mas5";
     private String catagory=null;
+    private String userName="public";
     
     private boolean allGroups=false;
     
@@ -108,6 +109,17 @@ public class QueryParameters
     public void setCatagory(String catagory)
     {
         this.catagory = catagory;
+    }
+
+    public String getUserName()
+    {
+        return userName;
+    }
+
+    public void setUserName(String userName)
+    {
+        if(userName!=null && !userName.equals(""))
+            this.userName = userName;
     }
     
 }

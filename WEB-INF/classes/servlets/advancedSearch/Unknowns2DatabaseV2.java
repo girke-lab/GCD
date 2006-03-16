@@ -83,6 +83,8 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         //as long as we only use fields from tables that have an 'accession_id' column,
         //we don't need any special cases in the query building code.
         
+        
+        //TODO: this is getting ugly, it should be refactored.
         fields=new Field[]{
             new Field("At key",db+"other_accessions_view.other_accession",List.class),
             new Field("Description","general.accessions.description"),
@@ -140,6 +142,10 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
                                 "affy.experiment_set_summary_mv.probe_set_key",List.class),
             new Field(space+"Experiment Set Key",
                                 "affy.experiment_set_summary_mv.experiment_set_key",List.class),
+            
+            new Field(space+"Catagory","affy.experiment_set_summary_mv.catagory",
+                    new String[]{"ALL","Abiotic Stress","Biotic Stress","Development","Chemical Treatment",
+                                "Genotype","Horomone Treatment"}),
             new Field(space+"Intensity type","affy.experiment_set_summary_mv.data_type",
                                 new String[]{"MAS5","RMA"},new String[]{"mas5","rma"}),
             new Field(space+">4 fold change up","affy.experiment_set_summary_mv.up4x",Integer.class),                                
@@ -147,9 +153,14 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
             new Field(space+">2 fold change up","affy.experiment_set_summary_mv.up2x",Integer.class),                                
             new Field(space+">2 fold change down","affy.experiment_set_summary_mv.down2x",Integer.class),
             new Field(space+"PMA on","affy.experiment_set_summary_mv.pma_on",Integer.class),
-            new Field(space+"PMA off","affy.experiment_set_summary_mv.pma_off",Integer.class),                                
+            new Field(space+"PMA off","affy.experiment_set_summary_mv.pma_off",Integer.class),         
+            new Field(space+"Control average","affy.experiment_set_summary_mv.control_average",Float.class),
+            new Field(space+"Treatment average","affy.experiment_set_summary_mv.treatement_average",Float.class),
+            new Field(space+"Control std deviation","affy.experiment_set_summary_mv.control_stddev",Float.class),
+            new Field(space+"Treatment std deviation","affy.experiment_set_summary_mv.treatment_stddev",Float.class),
             
-            new Field("Affy Experiment Comparisions",""), //39
+            
+            new Field("Affy Experiment Comparisions",""), //44  
             new Field(space+"Description","affy.experiment_group_summary_mv.description"),
             new Field(space+"Comparison","affy.experiment_group_summary_mv.comparison",Integer.class),
             new Field(space+"Control mean","affy.experiment_group_summary_mv.control_mean",Float.class),
@@ -157,7 +168,14 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
             new Field(space+"Treatment mean","affy.experiment_group_summary_mv.treatment_mean",Float.class),
             new Field(space+"Treatment PMA","affy.experiment_group_summary_mv.treatement_pma",Integer.class),
             new Field(space+"Ratio (log_2(treat_mean/control_mean))",
-                                "affy.experiment_group_summary_mv.t_c_ratio_lg",Float.class)
+                                "affy.experiment_group_summary_mv.t_c_ratio_lg",Float.class),
+            
+            new Field(space+"Contrast","affy.experiment_group_summary_mv.contrast",Float.class),
+            new Field(space+"P-value","affy.experiment_group_summary_mv.p_value",Float.class),
+            new Field(space+"Adjusted P-value","affy.experiment_group_summary_mv.adj_p_value",Float.class),
+            new Field(space+"pfp up","affy.experiment_group_summary_mv.pfp_up",Float.class),
+            new Field(space+"pfp down","affy.experiment_group_summary_mv.pfp_down",Float.class)
+            
                                         
 //            new Field("Correlations",""), //46
 //            new Field(space+"Catagory","affy.correlation_view.catagory",

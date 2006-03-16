@@ -529,7 +529,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     {
         return "";
     }            
-    public String getAffyExpSetRecordQuery(Collection ids, String dataType, String sortcol, String sortDir)
+    public String getAffyExpSetRecordQuery(Collection ids, String dataType, String sortcol, String sortDir, String userName)
     {
         return "";
     }

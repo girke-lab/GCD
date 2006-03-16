@@ -12,12 +12,12 @@ package servlets.dataViews;
  */
 
 import servlets.*;
-import servlets.dataViews.DataView;
 import servlets.dataViews.queryWideViews.*; 
 import java.util.*;
 import javax.servlet.http.*;
 import java.io.*;
 import org.apache.log4j.Logger;
+import servlets.beans.HeaderBean;
 import servlets.querySets.*;
 
 public class ModelDataView implements DataView
@@ -35,7 +35,9 @@ public class ModelDataView implements DataView
     HttpSession session;
     HttpServletRequest request;
     List data=null;
-    
+    private String userName; 
+    private HeaderBean header=new HeaderBean();
+
     Map storage;
     
     ModelQueryInfo mqi;
@@ -55,14 +57,22 @@ public class ModelDataView implements DataView
     {                
         if(data==null)
             loadData();        
-        printFasta(out,data,mqi.fieldNums,mqi.length,mqi.format);              
+        printFasta(out,data,mqi.fieldNums,mqi.length,mqi.format);      
+        
     }    
     public void printHeader(java.io.PrintWriter out) 
     {        
-        Common.printHeader(out);        
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
+        header.printStdHeader(out,"", userName!=null);
+        
+
         out.println("<p>");
         Common.printForm(out,hid);
     }    
+    public void printFooter(java.io.PrintWriter out)
+    {
+        header.printFooter();
+    }
     public void printStats(java.io.PrintWriter out) 
     {
         if(data==null)
@@ -95,6 +105,10 @@ public class ModelDataView implements DataView
     }
     public void setStorage(Map storage)
     {
+    }
+    public void setUserName(String userName)
+    {
+        this.userName=userName;;
     }
     
     public QueryWideView getQueryWideView() 

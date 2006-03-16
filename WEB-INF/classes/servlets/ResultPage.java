@@ -27,6 +27,7 @@ public class ResultPage
     int hid,rpp,pos;    
     Map storage;
     
+    
     /**
      * Creates a new instance of ResultPage
      * @param dv the dataView object to print
@@ -99,6 +100,7 @@ public class ResultPage
         }
 
         printMismatches(out,search.notFound());
+        dv.printFooter(out);
     }
     
     private void printMismatches(PrintWriter out,List keys)

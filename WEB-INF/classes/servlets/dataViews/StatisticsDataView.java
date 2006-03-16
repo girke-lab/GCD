@@ -7,17 +7,15 @@
 package servlets.dataViews;
 
 /**
- *
+ * not used
  * @author jcui
  */
 
 import servlets.*;
-import servlets.dataViews.DataView;
 import servlets.dataViews.queryWideViews.*;
 import java.util.*;
-import javax.servlet.http.*;
-import java.io.*;
 import org.apache.log4j.Logger;
+import servlets.beans.HeaderBean;
 
 public class StatisticsDataView implements DataView {
     List data = null;
@@ -27,7 +25,9 @@ public class StatisticsDataView implements DataView {
     int keyType;
     String sortCol;
     String[] displayFields;
-    
+    private String userName; 
+    private HeaderBean header=new HeaderBean();
+
     private static Logger log = Logger.getLogger(StatisticsDataView.class);
     
     /** Creates a new instance of StatisticsDataView */
@@ -44,12 +44,20 @@ public class StatisticsDataView implements DataView {
             loadData();
         }
         printResult(out,data);        
+        
     }
 
     public void printHeader(java.io.PrintWriter out) {
-        Common.printHeader(out);
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
+        header.printStdHeader(out,"", userName!=null);
+
+        
         out.println("<p>");
         Common.printForm(out,hid);
+    }
+    public void printFooter(java.io.PrintWriter out)
+    {
+        header.printFooter();
     }
 
     public void printStats(java.io.PrintWriter out) {
@@ -203,6 +211,10 @@ public class StatisticsDataView implements DataView {
 
     public void setParameters(Map parameters)
     {
+    }
+    public void setUserName(String userName)
+    {
+        this.userName=userName;
     }
 
     public void setStorage(Map storage)

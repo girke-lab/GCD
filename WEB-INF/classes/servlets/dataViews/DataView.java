@@ -14,6 +14,7 @@ package servlets.dataViews;
  */
 
 import java.util.Map;
+//import org.apache.naming.java.javaURLContextFactory; 
 import servlets.dataViews.queryWideViews.QueryWideView; 
 
 /**
@@ -54,6 +55,8 @@ public interface DataView extends servlets.KeyTypeUser
     
     void setStorage(Map storage);
     
+    void setUserName(String userName);
+    
     /**
      * Should print just the data. This method will be called last.
      * @param out used for output
@@ -65,6 +68,7 @@ public interface DataView extends servlets.KeyTypeUser
      * @param out used for output
      */    
     void printHeader(java.io.PrintWriter out);
+    void printFooter(java.io.PrintWriter out); 
     /**
      * This should print a table or something contained at least the
      * number of records actually found, along with any other

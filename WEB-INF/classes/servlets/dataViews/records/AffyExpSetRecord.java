@@ -123,7 +123,8 @@ public class AffyExpSetRecord extends AbstractRecord
             }
             public String getQuery(QueryParameters qp,int keyType)
             {
-                return QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(qp.getIds(),qp.getDataType(), qp.getSortCol(), qp.getSortDir());
+                return QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(
+                        qp.getIds(),qp.getDataType(), qp.getSortCol(), qp.getSortDir(), qp.getUserName());
             }
             public int[] getSupportedKeyTypes()
             {

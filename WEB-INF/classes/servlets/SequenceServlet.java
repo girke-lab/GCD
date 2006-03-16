@@ -61,7 +61,7 @@ public class SequenceServlet extends HttpServlet
         out.println("<title>Servlet</title>");
 
         out.println("</head>");
-        Common.printHeader(out);        
+        //Common.printHeader(out,"");        
         Common.printForm(out,hid);
 ////////////////////////////////////////////////////////////////////////////////////////////////
         if(session==null)

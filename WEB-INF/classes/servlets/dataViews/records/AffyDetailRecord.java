@@ -49,7 +49,7 @@ public class AffyDetailRecord extends AbstractRecord
         celFile=(String)values.get(5);
         description=(String)values.get(6);
         intensity=new Float((String)values.get(7));
-        pma=(String)values.get(8);                 
+        pma=(values.get(8)==null? "" : (String)values.get(8));                                
     }
     public Object getPrimaryKey()
     {

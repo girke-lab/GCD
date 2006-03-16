@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import servlets.*;
 import org.apache.log4j.Logger;
+import servlets.beans.HeaderBean;
 import servlets.dataViews.queryWideViews.DefaultQueryWideView;
 import servlets.querySets.QuerySetProvider;
 import servlets.search.Search;
@@ -30,10 +31,13 @@ public class DiffTrackingDataView implements DataView
                              ADDED=9,       REMOVED=10,     UNCHANGED=11,
                              COMP_ID=12,    GENOME=13,      GENOME_ID=14;
     private int keyType;
-    
+    private String userName; 
+    private HeaderBean header;
+        
     /** Creates a new instance of DiffTrackingDataView */
     public DiffTrackingDataView()
     {
+        header=new HeaderBean();        
     }
 
 
@@ -96,11 +100,7 @@ public class DiffTrackingDataView implements DataView
             Map.Entry set=(Map.Entry)i.next();
             out.println(((Genome)set.getValue()).toHtml((String)set.getKey()));
         }
-        out.println("</table>");               
-                        
-        
-        
-        Common.printUnknownFooter(out);
+        out.println("</table>");                                                               
     }
 
     private void printStatsData(PrintWriter out)
@@ -142,7 +142,7 @@ public class DiffTrackingDataView implements DataView
                     out.println("0");
                 else
                     out.println("<a href='"+url+"inputKey="+row.get(3)+" $ "+row.get(1)+"'>"+
-                        "Orothologs ("+row.get(2)+")</a>");    
+                        "Orthologs ("+row.get(2)+")</a>");    
             }
             out.println("</td>");
         }
@@ -159,12 +159,19 @@ public class DiffTrackingDataView implements DataView
                 "   .test a {color: #006699}" +
                 "   .test a:hover {background-color: #AAAAAA}" +
                 "</style>" );       
-        Common.printUnknownHeader(out);
+        
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.POND);
+        header.printStdHeader(out,"", userName!=null);
+        
         out.println("<h1 align='center'>Unknown Sets</h1>   " +
                     "<center>");
         Common.printUnknownsSearchLinks(out); 
         out.println("</center> <div class='test'>");
 
+    }
+    public void printFooter(java.io.PrintWriter out)
+    {
+        header.printFooter();
     }
 
     public void printStats(java.io.PrintWriter out)
@@ -182,6 +189,11 @@ public class DiffTrackingDataView implements DataView
     public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         this.keyType=keyType;
+    }
+    public void setUserName(String userName)
+    {
+        this.userName=userName;
+        header.setLoggedOn(userName!=null);
     }
 
     public void setSortDirection(String dir)

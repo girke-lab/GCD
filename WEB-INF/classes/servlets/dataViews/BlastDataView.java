@@ -17,6 +17,7 @@ import servlets.*;
 import servlets.search.Search;
 import servlets.dataViews.queryWideViews.*; 
 import org.apache.log4j.Logger;
+import servlets.beans.HeaderBean;
 import servlets.querySets.*;
 
 public class BlastDataView implements DataView
@@ -27,6 +28,9 @@ public class BlastDataView implements DataView
     int keyType;
 
     String sortCol,sortDir;
+    private String userName; 
+    private HeaderBean header=new HeaderBean();
+    
     
     private static String[] titles=new String[] {"Hit ID","Description","Organism","E Value","Score","% Identity","Length"};
     private static String[] dbColNames=QuerySetProvider.getDataViewQuerySet().getSortableBlastColumns();
@@ -58,13 +62,23 @@ public class BlastDataView implements DataView
         if(dir!=null && (dir.equals("asc") || dir.equals("desc")))
             sortDir=dir;     
     }
-    
+    public void setUserName(String userName)
+    {
+        this.userName=userName;
+    }
+
     public void printHeader(PrintWriter out)
     {
-        Common.printHeader(out,"Cross-Species Profile");
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
+        header.printStdHeader(out,"Cross-Species Profile", userName!=null);
+        
         out.println("<h5 align='center'>BLASTP against " +
                 "<a href='http://www.expasy.uniprot.org/index.shtml'>UniProt</a>" +
                 " (e-value cutoff: 1e-4)</h5>");
+    }
+    public void printFooter(java.io.PrintWriter out)
+    {
+        header.printFooter();
     }
     public void printStats(PrintWriter out)
     {
@@ -76,7 +90,7 @@ public class BlastDataView implements DataView
         out.println("click on titles to sort");
         //out.println("[ Database is currently updating ]");
         displayData(out,getData());
-        out.println("</td></tr></table></font></body></html>"); //close header
+        
     }
     
     public QueryWideView getQueryWideView()

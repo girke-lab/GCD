@@ -1,19 +1,25 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
+<jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean2' scope='page'/>
+<jsp:useBean id='header' class='servlets.beans.HeaderBean' />
 <html>
-    <head><title>Advanced Search</title></head>
-    <body>
+<% 
+   header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
+   header.printStdHeader(out,"Advanced Search", request.getRemoteUser()!=null);
+%>    
 
-        <jsp:useBean id='bean' class='servlets.advancedSearch.AdvancedSearchBean2' scope='page'/>
-        <jsp:useBean id='common' class='servlets.Common' />
+        
 
-        <%
-            common.printHeader(out,"Advanced Search");
+         <%             
             bean.setDefaultDatabase("common");
             bean.setDatabase("common");
             bean.initPage(application,request,response);
         %>
-        <p align='center'><a href='QueryAdmin?database=<%=bean.getDatabase()%>'>Admin Page</a></p>
+        <p>
+        <center>
+            <a href='QueryAdmin?database=<%=bean.getDatabase()%>'>Admin Page</a>
+        </center>
+        <p>
         <%
             bean.printMessage(out);
                         
@@ -35,5 +41,5 @@
         The limit field determines the total number of results returned, which 
         will be displayed 50 at a time. 
 
-    </body>
+    <% header.printFooter(); %>
 </html>

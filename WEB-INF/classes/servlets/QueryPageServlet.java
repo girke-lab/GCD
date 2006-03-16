@@ -1,4 +1,4 @@
-/*
+    /*
  * ResultSummaryServlet.java
  *
  * Created on February 19, 2003, 2:22 PM
@@ -8,14 +8,12 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
-import java.net.*;
-import java.sql.*;
 import org.apache.log4j.*;
+import servlets.beans.HeaderBean;
 import servlets.exceptions.UnsupportedKeyTypeException;
 
 import servlets.search.*;
 import servlets.dataViews.*;
-import servlets.dataViews.Unknowns2DataView;
 import servlets.querySets.*;
 /**
  *
@@ -73,6 +71,10 @@ public class QueryPageServlet extends HttpServlet
         HttpSession session = request.getSession(true);
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
+        HeaderBean header=new HeaderBean();
+        header.setHeaderType(HeaderBean.HeaderType.COMMON);
+        header.setWriter(out);
+                        
         
         if(wasPost)
             log.info("POST request from "+request.getRemoteAddr());
@@ -96,16 +98,17 @@ public class QueryPageServlet extends HttpServlet
                 log.info("pruning old sessions");
                 for(int i=0;i< history.size()-Common.MAX_SESSIONS;i++)
                     //set old elments to null se we free up some memory.
-                    history.set(i, null);
+                    history.set(i, null); 
             }
-        }
+        } 
+        
+        if(request.getRemoteUser()!=null)
+            log.info("authenticated user: "+request.getRemoteUser());
+        else
+            log.info("not authenticated");
         
         ////////////////////////// HTML headers  ////////////////////////////////////////////
-        out.println("<html>");
-        out.println("<head>");
-        out.println("<title>Query Result Page</title>");        
-        out.println("</head>");      
-        out.println("<body>");
+        out.println("<html>");                
         /////////////////////////// main   ////////////////////////////////////////////////////
         
         Search s=null;
@@ -119,6 +122,16 @@ public class QueryPageServlet extends HttpServlet
         String origin=request.getParameter("origin_page"); //should be the name of a jsp to send errors back to
         if(origin==null || origin.equals(""))
             origin="index.jsp";
+//        if(request.getParameter("log_off")!=null)
+//        {
+//            String referer=request.getHeader("Referer");
+//            log.info("referer="+referer); 
+//            if(referer==null || "".equals(referer))
+//                referer="index.jsp";
+//            session.invalidate();           
+//            response.sendRedirect(referer);
+//            return;
+//        }
         try{
             hid=Integer.parseInt(request.getParameter("hid"));           
             if(hid < 0 || hid >= ((ArrayList)session.getAttribute("history")).size() ||
@@ -152,6 +165,9 @@ public class QueryPageServlet extends HttpServlet
         dv=getDataView(qi.getDisplayType(),qi.getSortCol(),request);
         dv.setStorage((Map)qi.getObject("general_storage"));
         dv.setParameters(request.getParameterMap());
+        log.debug("setting user name to "+request.getRemoteUser());
+        log.debug("dv is a "+dv.getClass());
+        dv.setUserName(request.getRemoteUser());
         
         
         //find a common search key to use
@@ -185,11 +201,11 @@ public class QueryPageServlet extends HttpServlet
         else
         {
             Map generalStor=(Map)qi.getObject("general_storage");
-            ResultPage page=new ResultPage(dv, s, pos, hid, rpp,generalStor); 
+            ResultPage page=new ResultPage(dv, s, pos, hid, rpp,generalStor);             
             page.dipslayPage(out);
         }
                         
-        out.println("</body>");
+            
         out.println("</html>");
 
         out.close();
@@ -302,6 +318,7 @@ public class QueryPageServlet extends HttpServlet
         qi.setSearch(s);
         qi.setInputCount(inputKeys.size());
         qi.setObject("general_storage",new HashMap());
+        qi.setUserName(request.getRemoteUser());
         
         return qi;
     }   

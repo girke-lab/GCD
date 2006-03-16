@@ -429,7 +429,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
             StringTokenizer tok=new StringTokenizer(v);
             String value;
             while(tok.hasMoreTokens())
-            {//TODO: this should be more intelligent about types.
+            {
                 value=tok.nextToken();
                 try{
                     int i=Integer.parseInt(value);

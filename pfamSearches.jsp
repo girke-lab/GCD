@@ -1,14 +1,15 @@
-    <%@page contentType="text/html"%>
+<%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
+<jsp:useBean id='header' class='servlets.beans.HeaderBean' />
+<jsp:useBean id='bean' class='servlets.PfamOptionsBean' scope='request'/>
 <html>
-    <head><title>JSP Page</title></head>
-    <body>
-
-        <jsp:useBean id='common' class='servlets.Common' scope='application'/>
-        <jsp:useBean id='bean' class='servlets.PfamOptionsBean' scope='request'/>
+<% 
+   header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
+   header.printStdHeader(out,"Cluster Retrieval", request.getRemoteUser()!=null);
+%>                         
         
         
-        <%  common.printHeader(out,"Cluster Retrieval");   
+        <%
             String input=request.getParameter("input");
             if(input==null)
                 input="";  
@@ -31,5 +32,5 @@
             </tr>
         </table>
                 
-    </body>
+    <% header.printFooter(); %>
 </html>

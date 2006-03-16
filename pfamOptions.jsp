@@ -1,14 +1,16 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
+<jsp:useBean id='header' class='servlets.beans.HeaderBean' />
+<jsp:useBean id='bean' class='servlets.PfamOptionsBean' scope='request'/>
 
 <html>
-    <head><title>JSP Page</title></head>
-    <body>
-        <jsp:useBean id='common' class='servlets.Common' scope='application'/>
-        <jsp:useBean id='bean' class='servlets.PfamOptionsBean' scope='request'/>
+<% 
+   header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
+   header.printStdHeader(out,"Pfam Options", request.getRemoteUser()!=null);
+%>    
         
-        <% bean.processesInput(request); %>   
-        <% common.printHeader(out,"Pfam Options"); %>
+        
+        <% bean.processesInput(request); %>                                         
         
         <ul>
             <li>Retrieve all proteins containing this Pfam domain            
@@ -23,5 +25,5 @@
                 </ul>
             </li>
         </ul>
-    </body>
+    <% header.printFooter(); %>
 </html>

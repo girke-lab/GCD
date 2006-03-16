@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.*;
+import servlets.beans.HeaderBean;
 import servlets.dataViews.queryWideViews.*;
 import servlets.dataViews.records.*;
 import servlets.search.Search;
@@ -27,10 +28,12 @@ public class CorrelationsDataView implements DataView
     private int keyType, hid;
     private String sortDir, sortCol,action,catagory;
     private int[] dbNums;        
-
+    private String userName;     
+    
+    
     private List corrIds;
     DbConnection dbc=null;  
-    
+    private HeaderBean header;
     
     /** Creates a new instance of CorrelationsDataView */
     public CorrelationsDataView()
@@ -41,6 +44,7 @@ public class CorrelationsDataView implements DataView
         dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection to khoran");
+        header=new HeaderBean();        
                         
     }
 
@@ -78,11 +82,16 @@ public class CorrelationsDataView implements DataView
     public void printData(java.io.PrintWriter out)
     {
         printData(out,getRecords());
+        
     }
 
     public void printHeader(java.io.PrintWriter out)
     {
-        Common.printUnknownHeader(out);                
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.POND);
+        header.printStdHeader(out,"", userName!=null);
+                
+        
+        
         out.println(
                 "<style type='text/css'>" +
                     ".test a {color: #006699}\n" +
@@ -92,6 +101,10 @@ public class CorrelationsDataView implements DataView
         out.println("<div class='test'>");
         
         Common.printUnknownsSearchLinks(out);
+    }
+    public void printFooter(java.io.PrintWriter out)
+    {
+        header.printFooter();
     }
 
     public void printStats(java.io.PrintWriter out)
@@ -117,6 +130,11 @@ public class CorrelationsDataView implements DataView
     public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         this.keyType=keyType;
+    }
+    public void setUserName(String userName)
+    {
+        this.userName=userName;
+        header.setLoggedOn(userName!=null);
     }
 
     public void setParameters(java.util.Map parameters)
@@ -144,7 +162,9 @@ public class CorrelationsDataView implements DataView
         RecordFactory f=RecordFactory.getInstance();
         log.debug("sortCol="+sortCol);
         QueryParameters qp=new QueryParameters(corrIds,sortCol,sortDir);
+        qp.setUserName(userName);
         qp.setCatagory(catagory);
+        
         records=f.getRecords(CorrelationRecord.getRecordInfo(), qp);
         
 

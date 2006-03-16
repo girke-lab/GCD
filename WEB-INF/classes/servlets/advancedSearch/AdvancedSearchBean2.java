@@ -172,14 +172,17 @@ public class AdvancedSearchBean2
         log.debug("tree: "+currentQuery);
         HtmlVisitor hv=new HtmlVisitor(new PrintWriter(out),db);
         hv.setDatabases(dbs, currentState.getDatabase());
-        
-        log.debug("drawing form");
-        currentQuery.accept(hv); //renders the html
-        log.debug("done rendering");
-                
         try{
-            out.println("<p>");
+            log.debug("drawing form");
+            out.println("<table><tr><td width='300'>&nbsp</td><td>");
+            currentQuery.accept(hv); //renders the html
+            
+            log.debug("done rendering");
+                
+        
+            out.println("<br>");
             out.println(printStoreOptions());
+            out.println("</td></tr></table>");
             if(printSql)
             {
                 SqlVisitor sv=new SqlVisitor();

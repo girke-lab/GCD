@@ -16,10 +16,14 @@ import org.apache.log4j.Logger;
 import servlets.dataViews.queryWideViews.*;
 import servlets.search.Search;
 import java.util.*;
+import servlets.beans.HeaderBean;
 
 public class StatsDataView implements DataView
 {
     private static Logger log=Logger.getLogger(StatsDataView.class);
+    private String userName; 
+    private HeaderBean header=new HeaderBean();
+    
     
     /** Creates a new instance of StatsDataView */
     public StatsDataView() {
@@ -43,11 +47,18 @@ public class StatsDataView implements DataView
             out.println("</td></tr>");                        
         }
         out.println("</table>");
+        
     }
     
     public void printHeader(java.io.PrintWriter out) 
     {
-        out.println("Database Stats");
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.COMMON);
+        header.printStdHeader(out,"Database Stats", userName!=null);
+
+    }
+    public void printFooter(java.io.PrintWriter out)
+    {
+        header.printFooter();
     }
     
     public void printStats(java.io.PrintWriter out) {
@@ -80,6 +91,10 @@ public class StatsDataView implements DataView
     public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
        
+    }
+    public void setUserName(String userName)
+    {
+
     }
 
 

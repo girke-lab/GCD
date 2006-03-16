@@ -1,33 +1,34 @@
 <%@page contentType="text/html"%>
-<html>
-<head>
-    <title>GCD</title>
-
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-
-</head>
-<body bgcolor="#FFFFFF" leftmargin="1" topmargin="1" marginwidth="1" marginheight="1" >
-<jsp:useBean id='common' class='servlets.Common' scope='application'/>
+<jsp:useBean id='header' class='servlets.beans.HeaderBean' />        
 <jsp:useBean id='bean'   class='servlets.SimpleSearchBean' scope='page'/>
 
+<html>
+
+<% 
+   header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
+   header.printStdHeader(out,"Single or Batch Search",
+           request.getRemoteUser()!=null);
+%>
+
+
     <% bean.initPage("index.jsp",application,request,response); %>   
-
-    <% common.printHeader(out,"Single or Batch Search"); %>
-
-	
+            
+            
             <TABLE width='70%' align='center' border='0'>
                 <TR>
                     <TD  align='center'>                                              
-                        &nbsp<P>
+                        
                         GCD is a database for genome-wide sequence <BR> family mining in Arabidopsis and Rice.
                         Detailed information about this resource <BR> is available on the <a href='about.jsp'>ReadMe</a> page
                         and the associated publication in <a href='http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=pubmed&dopt=Abstract&list_uids=15888677&query_hl=2'>
                         Plant Physiology: 138, 47-54</a>.
                         <P>
-                        <font color='#FF0000'>News: incorporation of expression data from 1309 Affymetrix chips. TESTING</font>
-                        <P>
-                        <A href='about.jsp#search'>
-                            How to Search GCD</A>                        
+                       <center>
+                            <font color='#FF0000'>News: incorporation of expression data from 1309 Affymetrix chips.</font>
+                            <br><br>                            
+                            <A href='about.jsp#search'>
+                                How to Search GCD</A>                        
+                        </center>
                     </TD>                    
                 </TR>
                 <TR>
@@ -49,6 +50,6 @@
                    </td>
                 </TR>
             </TABLE> 
-            <P>      	
-</body>
+            <P>     
+<% header.printFooter(); %> 	
 </html>

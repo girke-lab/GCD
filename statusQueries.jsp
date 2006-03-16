@@ -1,24 +1,21 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
+<jsp:useBean id="bean" scope="session" class="servlets.StatusQueriesBean" />         
+<jsp:useBean id='header' class='servlets.beans.HeaderBean' />
+<jsp:useBean id='common' class='servlets.Common' scope='application' />
 <html>
-    <head><title>Difference Tracking</title>
-        <style type='text/css'>
-            .test a {color: #006699}
-            .test a:hover {background-color: #AAAAAA}
-        </style>
-    </head>
-    <body>
-
-        <jsp:useBean id="bean" scope="session" class="servlets.StatusQueriesBean" />         
-        <jsp:useBean id='common' class='servlets.Common' />
-
-        <% common.printUnknownHeader(out); %>
+<% 
+   header.setHeaderType(servlets.beans.HeaderBean.HeaderType.POND);
+   header.printStdHeader(out,"", request.getRemoteUser()!=null);
+%>
+             
+        
+                
             <h1 align='center'>Difference Tracking Table</h1>    
             <center><%  common.printUnknownsSearchLinks(out); %></center>
             <div class='test'>
                 <%= bean.printTrackingTable() %>
                 UD: Unknown Descriptor
             </div>
-        <% common.printUnknownFooter(out); %>
-    </body>
+    <% header.printFooter(); %>   
 </html>

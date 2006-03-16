@@ -18,6 +18,10 @@
     <servlet-name>queryAdmin</servlet-name>
     <jsp-file>/as2.jsp</jsp-file>
   </servlet>
+  <servlet>
+    <servlet-name>LogonRouterServlet</servlet-name>
+    <servlet-class>servlets.LogonRouterServlet</servlet-class>
+  </servlet>
   <servlet-mapping>
     <servlet-name>QueryPageServlet</servlet-name>
     <url-pattern>/QueryPageServlet</url-pattern>
@@ -42,9 +46,18 @@
     <servlet-name>queryAdmin</servlet-name>
     <url-pattern>/as2.jsp</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>LogonRouterServlet</servlet-name>
+    <url-pattern>/LogonRouterServlet</url-pattern>
+  </servlet-mapping>
   <session-config>
     <session-timeout>120</session-timeout>
   </session-config>
+  
+  <error-page>
+      <error-code>403</error-code>
+      <location>/index.jsp</location>
+  </error-page>
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>queryAdmin page</web-resource-name>
@@ -56,25 +69,30 @@
     </auth-constraint>
   </security-constraint>
   
-<!--  <security-constraint>
+  <security-constraint>
     <web-resource-collection>
-      <web-resource-name> unknowns </web-resource-name>
-      <url-pattern>/unknownsSearch.jsp</url-pattern>
-      <url-pattern>/unknownsBasicSearch.jsp</url-pattern>
+      <web-resource-name> logon </web-resource-name>
+      <url-pattern>/Proxy.jsp</url-pattern>
     </web-resource-collection>
     <auth-constraint>
-      <role-name>database</role-name>
+      <role-name>public_data</role-name>
     </auth-constraint>
   </security-constraint>
--->  
+  
   <login-config>
-    <auth-method>BASIC</auth-method>
-    <realm-name>UserDatabase</realm-name>
+    <auth-method>FORM</auth-method>
+    <form-login-config>
+      <form-login-page>/login.jsp?action=protected</form-login-page>
+      <form-error-page>/login.jsp?action=error</form-error-page>
+    </form-login-config>
   </login-config>
   <security-role>
     <role-name>query_admin</role-name>
   </security-role>
   <security-role>
     <role-name>database</role-name>
+  </security-role>
+  <security-role>
+    <role-name>public_data</role-name>
   </security-role>
 </web-app>

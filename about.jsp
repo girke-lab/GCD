@@ -1,11 +1,12 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
+<jsp:useBean id='header' class='servlets.beans.HeaderBean' />
 <html>
-    <head><title>JSP Page</title></head>
-    <body>
-        <jsp:useBean id='common' class='servlets.Common' scope='application'/>
-        <% common.printHeader(out,"About GCD"); %>
-
+<% 
+   header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
+    header.printStdHeader(out,"About GCD", request.getRemoteUser()!=null);
+%>                    
+        
         <p>	
         <table><td  width=950, align="justify">
         <ol>
@@ -168,5 +169,5 @@
 
         </ol>
         </table>	
-    </body>
+    <% header.printFooter(); %>
 </html>

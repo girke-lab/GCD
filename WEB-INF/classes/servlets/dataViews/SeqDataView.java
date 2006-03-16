@@ -13,12 +13,10 @@ package servlets.dataViews;
 
 import java.util.*;
 import java.io.*;
-import java.net.URL;
 import servlets.Common;
-import servlets.search.Search;
-import servlets.ResultPage;
 import servlets.dataViews.queryWideViews.*; 
 import org.apache.log4j.Logger;
+import servlets.beans.HeaderBean;
 import servlets.querySets.*;
 
 public class SeqDataView implements DataView 
@@ -29,6 +27,9 @@ public class SeqDataView implements DataView
     String sortCol;
     int[] dbNums;
     List records=null;
+    
+    private String userName; 
+    private HeaderBean header=new HeaderBean();
     
     private final int GENOME_COL=0, P_KEY_COL=1,
                       DESC_COL=2,   MODEL_COL=3,
@@ -55,18 +56,32 @@ public class SeqDataView implements DataView
         this.seq_ids=ids;
         loadData(); //update data to reflect new id numbers
     }
-    public void printHeader(java.io.PrintWriter out) 
+    public void setUserName(String userName)
     {
-        Common.printHeader(out);        
+        this.userName=userName;        
+    }    
+    public void printHeader(java.io.PrintWriter out) 
+    {        
+        log.debug("username="+userName);
+        
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
+        header.printStdHeader(out,"", userName!=null);
+
+        
         out.println("<p>");
         Common.printForm(out,hid);    
     }   
+    public void printFooter(java.io.PrintWriter out)
+    {
+        header.printFooter();
+    }
     public void printData(java.io.PrintWriter out) 
     {        
         if(records==null)
             loadData();
         printSummary(out,records);
         out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");
+        
     }
     public void printStats(java.io.PrintWriter out) {
         if(records==null)

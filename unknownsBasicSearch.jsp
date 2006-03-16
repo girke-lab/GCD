@@ -1,30 +1,30 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
 
+<jsp:useBean id='header' class='servlets.beans.HeaderBean' />
+<jsp:useBean id='common' class='servlets.Common' scope='application'/>
+<jsp:useBean id='bean'   class='servlets.SimpleSearchBean' scope='page'/>
 
 
 <html>
-    <head>
-        
-        <title>JSP Page</title>
-    </head>
-    <body>
-        <jsp:useBean id='common' class='servlets.Common' scope='application'/>
-        <jsp:useBean id='bean'   class='servlets.SimpleSearchBean' scope='page'/>
+<% 
+   header.setHeaderType(servlets.beans.HeaderBean.HeaderType.POND);
+   header.printStdHeader(out,"Search", request.getRemoteUser()!=null);
+%>
 
         <% bean.initPage("unknownsBasicSearch.jsp",application,request,response); %>           
 
-        <% common.printUnknownHeader(out); %>
+       
+                
 
-            <%  common.printUnknownsSearchLinks(out); %>
+            <center><%  common.printUnknownsSearchLinks(out); %></center>
             <P>
             <%  bean.printMessage(out); %>
 
 
             <%  bean.drawForm(out,new String[]{"unknowns2View"},new String[]{"POND"}); %>		                                                                 
 
-        <% common.printUnknownFooter(out); %>
+        <% header.printFooter(); %>
    
-    
-    </body>
+       
 </html>

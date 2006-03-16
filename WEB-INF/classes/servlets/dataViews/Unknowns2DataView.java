@@ -17,6 +17,7 @@ import servlets.*;
 import servlets.dataViews.queryWideViews.*; 
 import servlets.search.Search;
 import org.apache.log4j.Logger;
+import servlets.beans.HeaderBean;
 
 import servlets.dataViews.records.*;
 
@@ -32,9 +33,11 @@ public class Unknowns2DataView implements DataView
     String sortCol,sortDir;
     int[] dbNums;        
     DbConnection dbc=null;    
-    
+    private String userName; 
     
     private static Logger log=Logger.getLogger(Unknowns2DataView.class);    
+    
+    private HeaderBean header;
     
     /** Creates a new instance of Unknowns2DataView */
     public Unknowns2DataView()
@@ -43,6 +46,7 @@ public class Unknowns2DataView implements DataView
         dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection to khoran");
+        header=new HeaderBean();        
     }        
     
     
@@ -53,8 +57,7 @@ public class Unknowns2DataView implements DataView
     public void printData(java.io.PrintWriter out)
     {                
         //printData(out,parseData(getData(seq_ids)));
-        printData(out,getRecords(seq_ids));
-        out.println("</td></table>"); //close page level table
+        printData(out,getRecords(seq_ids));        
     }
     
     /**
@@ -63,7 +66,10 @@ public class Unknowns2DataView implements DataView
      */
     public void printHeader(java.io.PrintWriter out)
     {
-        Common.printUnknownHeader(out);
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.POND);
+        header.printStdHeader(out,"", userName!=null);
+        
+
         Common.printUnknownsSearchLinks(out);
         
         out.println(
@@ -76,7 +82,11 @@ public class Unknowns2DataView implements DataView
         out.println("<div class='test'>");
         
     }
-    
+    public void printFooter(java.io.PrintWriter out)
+    {
+        header.printFooter();
+    }
+   
     /**
      * prints number of records displayed on current page
      * @param out for output
@@ -107,6 +117,11 @@ public class Unknowns2DataView implements DataView
     public void setIds(java.util.List ids)
     {
          this.seq_ids=ids;   
+    }
+    public void setUserName(String userName)
+    {
+        this.userName=userName;
+        header.setLoggedOn(userName!=null);
     }
     
     /**
@@ -154,6 +169,7 @@ public class Unknowns2DataView implements DataView
         Collection unknowns,go, blast, protomics, cluster, external, expSet;
         RecordFactory f=RecordFactory.getInstance();
         QueryParameters qp=new QueryParameters(ids);
+        qp.setUserName(userName);
 
         unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
         f.addSubType(unknowns,GoRecord.getRecordInfo(),qp); 
