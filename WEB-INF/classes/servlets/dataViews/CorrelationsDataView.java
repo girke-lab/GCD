@@ -87,7 +87,7 @@ public class CorrelationsDataView implements DataView
 
     public void printHeader(java.io.PrintWriter out)
     {
-        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.POND);
+        header.setHeaderType(servlets.beans.HeaderBean.HeaderType.PED);
         header.printStdHeader(out,"", userName!=null);
                 
         
