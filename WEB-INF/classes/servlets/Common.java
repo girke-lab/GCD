@@ -131,11 +131,11 @@ public class Common {
             "\t\t<TD><INPUT type=checkbox name='fields' value='8'><a href='titleInfo.html'>5' UTR</a></TD>\n"+
             "\t</TR>\n<TR>\n"+
             "\t\t<TD><INPUT type=checkbox name='fields' value='9'><a href='titleInfo.html'>Protein</a></TD>\n"+
-            "\t\t<TD colspan='2'>Length of Sequence to return: <INPUT name='length' value='' size='5'></TD>\n"+
+            "\t\t<TD colspan='2'><a href='titleInfo.html'>Length of Sequence to return:</a> <INPUT name='length' value='' size='5'></TD>\n"+
             "</TR><TR>\n"+
             //"\t\t<TD align='center' colspan='1'><INPUT type=checkbox name='format' value='1'>fasta format</TD>\n"+            
             "\t\t<TD align='center' colspan='3'>Format: <SELECT name='format'><OPTION value='0'>html" +
-            "\t\t\t<OPTION value='1'>fasta<OPTION value='2'>all fasta</SELECT></TD>\n"+
+            "\t\t\t<OPTION value='1'>fasta<OPTION selected value='2'>all fasta</SELECT></TD>\n"+
             "</TR></TABLE>\n"+ 
             "<TABLE align='center' border='0'>\n"+
             "\t<TR>\n"+

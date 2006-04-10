@@ -236,7 +236,7 @@ public class HeaderBean
     }
     /**
      *  This is currently identical to the unknowns header, so it is not used.
-     *  The two header could theortically vary indepedantly later thought, so we leave this here 
+     *  The two header could theortically vary indepedantly later though, so we leave this here 
      */
     public void printPEDHeader() //PED is plant gene expression database
     {
@@ -309,17 +309,18 @@ public class HeaderBean
             "			<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
             "                       <A href='http://bioweb.ucr.edu/scripts/clusterStats.pl'>Stats</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioweb.ucr.edu/databaseWeb/data'>Downloads</a></td></tr>" +
-            "			<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/external.html'>Literature</a></td></tr>" +
-            "			<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/downloads.html'>Downloads</a></td></tr>"
+            "                       <A href='http://bioweb.ucr.edu/databaseWeb/data'>Downloads</a></td></tr>" 
+
+//            "			<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
+//            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/external.html'>Literature</a></td></tr>" +
+//            "			<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
+//            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/downloads.html'>Downloads</a></td></tr>"
         );   
                     
-        out.println( 
-            "<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "    <A href='login.jsp"+query+"'>"+title+"</a></td></tr>"
-        );
+//        out.println( 
+//            "<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
+//            "    <A href='login.jsp"+query+"'>"+title+"</a></td></tr>"
+//        );
                         
         out.println(
             "		</tbody></table>" +

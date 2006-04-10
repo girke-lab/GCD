@@ -246,7 +246,8 @@ public class ModelDataView implements DataView
                         if(data.length() > 3000) //only trim if it is greater than 3000
                             data=data.substring(0,3000).toUpperCase(); //trim the intergenic to 3000 
                     }
-                    else if(currentFeildNums[index]==3) //dont uppercase the TU
+                    
+                    if(currentFeildNums[index]==3) //dont uppercase the TU
                         ; //dont change data at all                    
                     else if(currentFeildNums[index]==9)//dont trim the protein  
                         data=data.toUpperCase();
@@ -305,7 +306,7 @@ public class ModelDataView implements DataView
 ///////////////////////////  Query stuff  ///////////////////////////////////////////////////////    
    
     
-     private void defineNames()
+    private void defineNames()
     {
         //assign names for later lookup
         fullNames=QuerySetProvider.getDataViewQuerySet().getModelColumns();
@@ -313,7 +314,7 @@ public class ModelDataView implements DataView
         //names to be printed on the screen
         printNames=new String[fieldCount];
         printNames[0]="Id 1";printNames[1]="Id 2";printNames[2]="Description";printNames[3]="Transcription Model";
-        printNames[4]="Promoter 1500";printNames[5]="3`UTR";printNames[6]="Intergenic";printNames[7]="CDS";
+        printNames[4]="Promoter 3000";printNames[5]="3`UTR";printNames[6]="Intergenic";printNames[7]="CDS";
         printNames[8]="5`UTR";printNames[9]="Protein";        
     }
      
