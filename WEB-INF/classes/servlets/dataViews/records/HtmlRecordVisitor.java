@@ -89,7 +89,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         for(int i=0;i<ur.go_unknowns.length;i++)
             out.write("<b>"+names[i]+"</b>: "+ur.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
         String url="QueryPageServlet?searchType=Id&displayType=correlationView&rpp=200&inputKey="+ur.key;
-        out.write("&nbsp&nbsp&nbsp <a href='"+url+"'><font color='red'>Correlations</font></a>");
+        out.write("&nbsp&nbsp&nbsp <a href='"+url+"'><font color='red'>Correlation Data</font></a>");
         out.write("</td></tr>\n");               
                                 
         printSubRecords(out, ur.iterator(),5,0);        
@@ -224,12 +224,18 @@ public class HtmlRecordVisitor implements RecordVisitor
         
         String link="QueryPageServlet?hid="+hid+"&displayType=affyView&es_ids="+ar.expSetId+"&psk_ids="+ar.probeSetId;
         
-        String key=ar.expSetId+"_"+ar.probeSetId;
-        String expSetKeyLink="http://www.arabidopsis.org/servlets/Search?" +
-                "type=expr&search_action=search&" +
-                "name_type_1=submission_number&term_1="+ar.expSetKey+
-                "&search=submit+query";
-        String popup="onmouseover=\"return escape('"+ar.description+"')\"";          
+        String key=ar.expSetId+"_"+ar.probeSetId;        
+        
+        String expSetKeyLink=ar.info_link.replaceAll("\\$\\{key\\}",ar.expSetKey);   
+                
+//                "http://www.arabidopsis.org/servlets/Search?" +
+//                "type=expr&search_action=search&" +
+//                "name_type_1=submission_number&term_1="+ar.expSetKey+
+//                "&search=submit+query";
+        String popup="onmouseover=\"return escape('";
+        if(ar.long_name!=null && !ar.long_name.equals(""))
+            popup+="Data Source: "+ar.long_name+"<p>";
+        popup+=ar.description+"')\"";          
         
         out.write("<tr bgcolor='"+PageColors.catagoryColors.get(ar.catagory)+"'>");
         
@@ -249,8 +255,12 @@ public class HtmlRecordVisitor implements RecordVisitor
             printTreeControls(out,link+"&comp_view=comp",key,ar.iterator());    
         }
         
-        out.write("<td>"+ar.probeSetKey+"</td><td><a href='"+expSetKeyLink+"' "+popup+">"+
-                ar.expSetKey+"</a></td>");
+        out.write("<td>"+ar.probeSetKey+"</td><td>");
+        if(expSetKeyLink!=null && !expSetKeyLink.equals(""))              
+            out.write("<a href='"+expSetKeyLink+"' "+popup+">"+ar.expSetKey+"</a>");                    
+        else
+            out.write("<span "+popup+">"+ar.expSetKey+"</span>");
+        out.write("</td>");
         out.write("<td>"+(ar.name.equals("")?"&nbsp":ar.name)+"</td>"); //  <td>"+ar.description+"</td>");
         out.write("<td>"+ar.up2+"</td><td>"+ar.down2+"</td><td>"+ar.up4+"</td>");
         out.write("<td>"+ar.down4+"</td><td>"+(ar.on==null?"&nbsp":ar.on)+"</td><td>"+(ar.off==null?"&nbsp":ar.off)+"</td>");
@@ -380,7 +390,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     }
 
 
-    public void printHeader(Writer out, ProbeSetRecord psr) throws IOException
+    public void printHeader(Writer out, ProbeSetSummaryRecord psr) throws IOException
     {
         out.write("<tr bgcolor='"+PageColors.title+"'>" +
                 "<th>Affy Probe Set</th>" +
@@ -390,7 +400,7 @@ public class HtmlRecordVisitor implements RecordVisitor
                 "<th>Treatment Std Deviation</th></tr>\n");
         
     }
-    public void printRecord(Writer out, ProbeSetRecord psr) throws IOException
+    public void printRecord(Writer out, ProbeSetSummaryRecord psr) throws IOException
     {
         String link="QueryPageServlet?displayType=affyView&" +
                 "searchType=id&dbs=0&inputKey=exact "+currentAccession;
@@ -403,7 +413,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("<td>"+percent.format(psr.treatAverage)+"</td><td>"+percent.format(psr.treatStddev)+"</td>");
         out.write("</td>");
     }    
-    public void printFooter(Writer out, ProbeSetRecord psr) throws IOException
+    public void printFooter(Writer out, ProbeSetSummaryRecord psr) throws IOException
     {
         
     }
@@ -426,9 +436,181 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printFooter(Writer out, CorrelationRecord cr) throws IOException
     {
     }
+    
+
+    public void printHeader(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+    }
+    public void printRecord(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+    }
+    public void printFooter(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+    }
+
+  
+    
+    public void printHeader(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+        out.write("<tr bgcolor='"+PageColors.title+"'>");
+        String[] titles=new String[]{"AffyID","Exp","Clusters","Comparison","Control Mean",
+                            "Treat Mean","Control PMA","Treat PMA","ratio (log2)",
+                            "Contrast","p-value","Adjusted p-value","PFP up",
+                            "PFP down","Control Description","Treatment Description"};
+        
+//        String[] dbNames=QuerySetProvider.getDataViewQuerySet().getSortableTreatmentColoumns();
+//        printTableTitles(new PrintWriter(out),titles,dbNames,"treatment","");
+//        
+        out.write("</tr>");                    
+    }
+
+    public void printRecord(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+        out.write("<tr>");
+        
+        String expSetKeyLink=cpr.info_link.replaceAll("\\$\\{key\\}",cpr.expSetKey);   
+        String pskLink="";
+        String clusterLink="QueryPageServlet?displayType=probeSetView&searchType=Psk_Cluster" +
+                "&comparisonIds="+cpr.comparison_id+"&inputKey=";
+        
+        String pskPopup;                
+        String expSetPopup="onmouseover=\"return escape('";
+        
+        if(cpr.sourceName!=null && !cpr.sourceName.equals(""))
+            expSetPopup+="Data Source: "+cpr.sourceName+"<p>";
+        expSetPopup+=cpr.expDesc+"')\""; 
+        
+        String clusters="";
+        for(int i=0;i<cpr.cluster_ids.length;i++)
+        {
+            pskPopup="onmouseover=\"return escape('"+cpr.clusterNames[i]+"<br>"+cpr.methods[i]+"')\"";
+            clusters+="<a href='"+clusterLink+cpr.cluster_ids[i]+"' "+pskPopup+">"+
+                    cpr.clusterNames[i]+"("+cpr.sizes[i]+")</a> &nbsp&nbsp ";
+        }
+        
+        
+        Object[] values=new Object[]{
+            "<a href='"+pskLink+"' >"+cpr.probeSetKey+"</a>",
+            "<a href='"+expSetKeyLink+"' "+expSetPopup+" >"+cpr.expSetKey+"</a>",
+            clusters, cpr.group_no, cpr.controlMean,
+            cpr.treatmentMean, cpr.controlPMA, cpr.treatmentPMA, cpr.ratio,
+            cpr.contrast, cpr.pValue, cpr.adjPValue, cpr.pfpUp, cpr.pfpDown,
+            cpr.controlDesc, cpr.treatDesc
+        };
+        for(Object v : values)
+            out.write("<td nowrap >"+v+"</td>");
+                
+        out.write("</tr>");
+        
+        
+    }
+
+    public void printFooter(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+    }
+   
+    
+    
+    
+    public void printHeader(Writer out, ComparisonRecord cr) throws IOException
+    {
+        out.write("<tr bgcolor='"+PageColors.title+"'>");
+        String[] titles=new String[]{"Experiment Set","Comparison",
+                                     "Control Description","Treatment Description"};
+        
+        String[] dbNames=QuerySetProvider.getDataViewQuerySet().getSortableTreatmentColoumns()[DataViewQuerySet.TREAT_COMP];
+        printTableTitles(new PrintWriter(out),titles,dbNames,"comparison","");
+        
+        out.write("</tr>");  
+    }
+
+    public void printRecord(Writer out, ComparisonRecord cr) throws IOException
+    {
+        
+        out.write("<tr bgcolor='"+PageColors.catagoryColors.get(cr.catagory)+"'>");
+        
+        String expSetKeyLink=cr.infoLink.replaceAll("\\$\\{key\\}",cr.expSetKey);   
+        
+        String expSetPopup="onmouseover=\"return escape('";
+        
+        if(cr.sourceName!=null && !cr.sourceName.equals(""))
+            expSetPopup+="Data Source: "+cr.sourceName+"<p>";
+        expSetPopup+=cr.expDesc+"')\""; 
+        
+        
+        Object[] values=new Object[]{            
+            "<a href='"+expSetKeyLink+"' "+expSetPopup+" >"+cr.expSetKey+"</a>",
+            cr.comparison,
+            cr.controlDesc, cr.treatmentDesc
+        };
+        for(Object v : values)
+            out.write("<td nowrap >"+v+"</td>");
+         out.write("</tr>");
+         
+         
+         printSubRecords(out,cr.iterator(),12,0);
+    }
+
+    public void printFooter(Writer out, ComparisonRecord cr) throws IOException
+    {
+    }
+
+    
+    
+    
+    public void printHeader(Writer out, ProbeSetKeyRecord pskr) throws IOException
+    {
+        out.write("<tr bgcolor='"+PageColors.title+"'>");
+        String[] titles=new String[]{"AffyID","Control Mean",
+                            "Treat Mean","Control PMA","Treat PMA","ratio (log2)",
+                            "Contrast","p-value","Adjusted p-value","PFP up",
+                            "PFP down","Clusters"};
+        
+        String[] dbNames=QuerySetProvider.getDataViewQuerySet().getSortableTreatmentColoumns()[DataViewQuerySet.TREAT_PSK];
+        printTableTitles(new PrintWriter(out),titles,dbNames,"psk","");
+        
+        out.write("</tr>");     
+    }
+
+    public void printRecord(Writer out, ProbeSetKeyRecord pskr) throws IOException
+    {
+        
+        out.write("<tr>");
+        
+        String pskLink="QueryPageServlet?displayType=affyView&searchType=Probe_Set&inputKey="+pskr.probeSetKey;
+        String clusterLink="QueryPageServlet?displayType=probeSetView&searchType=Psk_Cluster" +
+                "&inputKey=";
+        
+        String pskPopup;                
+                
+        String clusters="";
+        for(int i=0;i<pskr.cluster_ids.length;i++)
+        {
+            pskPopup="onmouseover=\"return escape('"+pskr.clusterNames[i]+"<br>"+pskr.methods[i]+"')\"";
+            clusters+="<a href='"+clusterLink+pskr.cluster_ids[i]+" "+pskr.comparisonId+"' "+pskPopup+">"+
+                    pskr.clusterNames[i]+"("+pskr.sizes[i]+")</a> &nbsp&nbsp ";
+        }        
+        
+        Object[] values=new Object[]{
+            "<a href='"+pskLink+"' >"+pskr.probeSetKey+"</a>",
+            pskr.controlMean,pskr.treatmentMean, 
+            pskr.controlPMA, pskr.treatmentPMA, pskr.ratio,
+            pskr.contrast, pskr.pValue, pskr.adjPValue, 
+            pskr.pfpUp, pskr.pfpDown,clusters
+        };
+        for(Object v : values)
+            out.write("<td nowrap >"+v+"</td>");
+        
+        
+        out.write("</tr>");
+    }
+
+    public void printFooter(Writer out, ProbeSetKeyRecord pskr) throws IOException
+    {
+    }
     ////////////////////////////////////////////////////////////////////////////
     
-   
+   // <editor-fold defaultstate="collapsed" desc=" utils ">
     private void printSubRecords(java.io.Writer out, Iterator itr,int span, int shift)
         throws java.io.IOException
     {
@@ -443,7 +625,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         for(int i=0;i<shift;i++)
             spaces+="<td>"+spaceData+"</td>";
         Record rec;
-        //log.debug("printing sub records");
+        log.debug("printing sub records");
         while(itr.hasNext())
         {
             log.debug("printing a sub record");
@@ -483,7 +665,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         out.write("</td>");
     }
     
-    private void printTableTitles(PrintWriter out,String[] titles, String[] dbColNames,String prefix,String anchor)
+    protected void printTableTitles(PrintWriter out,String[] titles, String[] dbColNames,String prefix,String anchor)
     {
         String newDir;
         if(titles.length!=dbColNames.length)
@@ -506,18 +688,10 @@ public class HtmlRecordVisitor implements RecordVisitor
         }
     }
 
+    //</editor-fold>
+
    
 
-    public void printHeader(Writer out, AffyExpDefRecord ar) throws IOException
-    {
-    }
-    public void printRecord(Writer out, AffyExpDefRecord ar) throws IOException
-    {
-    }
-    public void printFooter(Writer out, AffyExpDefRecord ar) throws IOException
-    {
-    }
-   
 
    
 

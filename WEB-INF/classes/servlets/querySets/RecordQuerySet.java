@@ -43,11 +43,20 @@ public interface RecordQuerySet extends QuerySet
     public String getAffyExpSetRecordQuery(Collection ids, String dataType, String sortcol, String sortDir, String userName);
     
     // for ProbeSetRecord
-    public String getProbeSetRecordQuery(Collection ids);
+    public String getProbeSetSummaryRecordQuery(Collection ids);
     
     // for CorrelationRecord
     public String getCorrelationRecordQuery(Collection ids, String sortcol, String sortDir, String catagory);
     
     // for AffyExpDefRecord
     public String getAffyExpDefRecordQuery(Collection ids);
+    
+    // for ComparisonPskRecord
+    public String getComparisonPskRecordQuery(Collection pskIds,Collection comparisonIds,String sortCol, String sortDir, String userName,String dataType);
+    
+    // for ComparisonRecord
+    public String getComparisonRecordQuery(Collection comparisonIds,String sortCol, String sortDir, String userName,String dataType);
+    
+    // for ProbeSetKeyRecord
+    public String getProbeSetKeyRecordQuery(Collection pskIds,Collection compIds,String sortCol, String sortDir, String dataType);
 }

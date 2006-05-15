@@ -14,13 +14,47 @@ import servlets.exceptions.UnsupportedKeyTypeException;
 
 /**
  * Used to put together Record objects.
- * This is a singleton
+ * This is a singleton.
+ * 
+ * Some examples:
+ * <PRE>
+ *        Collection unknowns ;
+ *        RecordFactory f=RecordFactory.getInstance();
+ *        QueryParameters qp=new QueryParameters(ids);
+ *        qp.setUserName(userName);
+ * 
+ *        unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
+ *        f.addSubType(unknowns,GoRecord.getRecordInfo(),qp); 
+ *        f.addSubType(unknowns,BlastRecord.getRecordInfo(),qp);    
+ * </PRE>
+ * This will create a root set of UnknownRecords, and then add
+ * a set of GoRecords as children, and a set of BlastRecords as children.
+ * 
+ * You can also add sub-sub-records:
+ * <PRE>
+ *        unknowns=f.getRecords(UnknownRecord.getRecordInfo(),new QueryParameters(accIds));
+ *        f.addSubType(
+ *            f.addSubType(
+ *                f.addSubType(
+ *                    unknowns,  
+ *                    AffyExpSetRecord.getRecordInfo(), qp
+ *                ),
+ *                AffyCompRecord.getRecordInfo(),qp
+ *            ), 
+ *            AffyDetailRecord.getRecordInfo(), qp
+ *        );
+ * </PRE>
+ * This will start with unknowns at the root, then add AffyExpSetRecords as children.
+ * Then a set of AffyCompRecords will be added under the AffyExpSetRecords, and then
+ * a set of AffyDetailRecords under the AffyCompRecords, creating a 4 level tree.
  * @author khoran
  */
 public class RecordFactory
 {
     private static RecordFactory factory=null;
     private static Logger log=Logger.getLogger(RecordFactory.class);    
+    
+    private static final int NO_PARENT_KEY=-2;
     
     private DbConnection dbc=null;
     
@@ -30,22 +64,46 @@ public class RecordFactory
         dbc=DbConnectionManager.getConnection("khoran");
     }
     
+    /**
+     * Returns the instance of this class
+     * @return the instance of this class
+     */
     public static RecordFactory getInstance()
     {
         if(factory==null)
             factory=new RecordFactory();
         return factory;
     }
+    /**
+     * Sets a new database connection to use for retrieving
+     * record data. This should not normally be used. Also note that since
+     * this is a static class, this change will affect all records across all sessions.
+     * @param dbc a new database connection
+     */
     public void setDbConnection(DbConnection dbc)
     {
         this.dbc=dbc;
     }
     
+    /**
+     * retrieves a list of record objects of the given type using the
+     * given query parameters. This should be used first for the root record type.
+     * @param ri The {@link RecordInfo} object of the desired {@link Record} object.
+     * @param qp query parameters to use to get the data
+     * @return a collection of records ( possibly {@link CompositeRecord}s)
+     */
     public Collection<CompositeRecord> getRecords(RecordInfo ri, QueryParameters qp)
     {
-        return getMap(ri,qp, Common.KEY_TYPE_DEFAULT).values();
+        return getMap(ri,qp, NO_PARENT_KEY).values();
     }       
     
+    /**
+     * This can be used to add sub records to an existing collection of records.
+     * @param records a collection of existing records
+     * @param ri the RecordInfo of the type of record to add as a sub-record
+     * @param qp the query parameters to use when querying the sub-records
+     * @return a collection of child records. This can be used to add additional children.
+     */
     public Collection<CompositeRecord> addSubType(Collection<? extends Record> records, RecordInfo ri, QueryParameters qp)
     {  // find a key supported by both records and ri, then create a Map from ri and qp
        //run through each record in records, find it in subRecords, and add it the record.
@@ -62,24 +120,24 @@ public class RecordFactory
         
         Map<Object,CompositeRecord> subRecords=getMap(ri,qp, childKeyType);
 
-        //log.debug("sub record keys are: "+subRecords.keySet());
+        log.debug("sub record keys are: "+subRecords.keySet());
         
         Object primaryKey;
         Record sr,r2;
         for(Record r : records)
         {
-            //log.debug("r is a "+r.getClass());
+            log.debug("r is a "+r.getClass());
             if(r instanceof CompositeRecord) //decend into composites
                 for(Iterator i=r.iterator();i.hasNext();)
                 {
                     r2=(Record)i.next();
-//                    log.debug("r2 is a "+r2.getClass());
+                    log.debug("r2 is a "+r2.getClass());
                     primaryKey=r2.getPrimaryKey();
-//                    log.debug("primary key is a "+primaryKey.getClass());
-//                    log.debug("looking for primary key "+primaryKey);
+                    log.debug("primary key is a "+primaryKey.getClass());
+                    log.debug("looking for primary key "+primaryKey);
                     sr=subRecords.get(primaryKey);
                     if(sr==null)
-                        ;//log.debug("no sub record found with primary key "+primaryKey);
+                        log.debug("no sub record found with primary key "+primaryKey);
                     else
                         r2.addSubRecord(sr);
 
@@ -89,7 +147,7 @@ public class RecordFactory
                 primaryKey=r.getPrimaryKey();
                 sr=subRecords.get(primaryKey);
                 if(sr==null)
-                    ;//log.debug("no sub record found with primary key "+primaryKey);
+                    log.debug("no sub record found with primary key "+primaryKey);
                 else
                     r.addSubRecord(sr);
             }
@@ -101,7 +159,14 @@ public class RecordFactory
     
     /////////////////////// Factory methods  /////////////////////////////////
     
-    public Map<Object,CompositeRecord> getMap(RecordInfo ri, QueryParameters qp,int keyType)
+    /**
+     * This will return a map of record keys to record objects.
+     * @param ri 
+     * @param qp 
+     * @param keyType 
+     * @return 
+     */
+    private Map<Object,CompositeRecord> getMap(RecordInfo ri, QueryParameters qp,int keyType)
     { // query information and store it in a Map of CompositeRecords        
                 
         List data=null;
@@ -114,25 +179,26 @@ public class RecordFactory
         
         List row;
         CompositeRecord cr;
-        String keyStr;
+        Object key;
         Record r;
         Map<Object,CompositeRecord> output=new LinkedHashMap<Object,CompositeRecord>(); 
         for(Iterator i=data.iterator();i.hasNext();)
         {
             row=(List)i.next();
-            keyStr=buildKey(row,ri.getKeyIndecies(keyType));
+            key=ri.buildKey(row,keyType);
             //try to find an existing Record for this key
-            cr=output.get(keyStr);
+            cr=output.get(key);
             if(cr==null)
             { //build and add a new RecordGroup                 
-                cr=new CompositeRecord(keyStr, ri.getCompositeFormat());
-                output.put(keyStr,cr);
+                cr=new CompositeRecord(key, ri.getCompositeFormat());
+                output.put(key,cr);
             }
             //create a new record from data, and add to existing 
             // RecordGroup
             try{                
                 r=ri.getRecord(row.subList(ri.getStart(),ri.getEnd()));
-                r.setKeyType(keyType);
+                if(keyType!=NO_PARENT_KEY) //if we dont have a parent, don't set the key type.
+                    r.setKeyType(keyType);
                 cr.addSubRecord(r);            
             }catch(UnsupportedKeyTypeException e){ 
                 log.error("invalid key: "+e);
@@ -140,21 +206,5 @@ public class RecordFactory
         }
         return output;                                
     }
-    private String buildKey(List data,int[] indecies)
-    {
-        if(indecies==null || indecies.length==0)
-            return "";
-        else if(indecies.length==1)
-            return (String)data.get(indecies[0]);
-        
-        
-        StringBuffer key=new StringBuffer();
-        for(int i=0;i<indecies.length;i++)
-        {
-            key.append(data.get(indecies[i]));
-            if(i+1 < indecies.length) //we have at least one more iteration
-                key.append("_");
-        }        
-        return key.toString();
-    }
+   
 }

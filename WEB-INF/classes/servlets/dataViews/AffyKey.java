@@ -44,12 +44,7 @@ public class AffyKey implements Serializable
         if(!(o instanceof AffyKey))
             return false;
         //log.debug("comparing "+this+" with "+o);
-        AffyKey n=(AffyKey)o;
-    //            if(n.group==null) //if we don't have a group, don't use it
-    //                return (n.acc==acc || n.acc.equals(acc)) &&
-    //                       (n.psk==psk || n.psk.equals(psk)) && 
-    //                       (n.es==es || n.es.equals(es));
-
+        AffyKey n=(AffyKey)o;    
 
         //each pair is either both null or same reference, or, if the n
         // value is not null, they are equal.
@@ -86,10 +81,10 @@ public class AffyKey implements Serializable
         return group;
     }
     
-    public static String buildIdSetCondition(Collection affyKeys,boolean includeGroup)
+    public static String buildIdSetCondition(Collection<AffyKey> affyKeys,boolean includeGroup)
     {
         StringBuffer condition=new StringBuffer();
-        AffyKey af=null;
+        //AffyKey af=null;
         boolean isFirst=true;
         
         log.debug("includeGroup="+includeGroup);
@@ -97,10 +92,8 @@ public class AffyKey implements Serializable
                 
         
         
-        for(Iterator i=affyKeys.iterator();i.hasNext();)
-        {
-            af=(AffyKey)i.next();
-            
+        for(AffyKey af : affyKeys)
+        {            
             //if we want a group, skip sets with no group,
             // if we don't want a group, skip sets with a group
             if( (includeGroup && af.getGroup()==null) ||
@@ -127,7 +120,7 @@ public class AffyKey implements Serializable
             if(af.getEs()!=null) //use expression_set_id if we have it
                 condition.append(" AND experiment_set_id="+af.getEs());                        
 
-            if(includeGroup) //use group if called asked for it
+            if(includeGroup) //use group if caller asked for it
                 condition.append(" AND group_no="+af.getGroup()+")");
             else
                 condition.append(")");

@@ -11,7 +11,10 @@ import java.io.*;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * This bean is used to print out various headings and footers.
+ * The web application is divided into several sections (4 right now), that 
+ * each need a different heading and sidbar links. The HeaderType enum
+ * determines what section this object is for.
  * @author khoran
  */
 public class HeaderBean
@@ -32,26 +35,59 @@ public class HeaderBean
     {        
     }
     
+    /**
+     * Sets the writer to use for all subsequent method calls.  This should be
+     * set before any other calls.  If it is not, a NullPointerException will
+     * occur.  (Basically, we don't check if a writer has been set, we just use it)
+     * 
+     * This can also be set through the {@link printStdHeader } method.
+     * @param out writer to use for print html
+     */
     public void setWriter(Writer out)
     { 
         this.out=new PrintWriter(out);
     }
+    /**
+     * Sets the title of the page.
+     * @param t title string
+     */
     public void setPageTitle(String t)
     {
         this.pageTitle=t;
     }
+    /**
+     * Sets the title that wil appear at the top of the sidebar.
+     * This usually does not need to be called directly.  It will be called
+     * by the setHeaderType method with the correct title.
+     * @param t title bar title string
+     */
     public void setSidebarTitle(String t)
     {
         this.sidebarTitle=t;
     }
+    /**
+     * State whether or not a user is logged on. This determines wether
+     * to print a 'log on' link or a 'log off' link.
+     * @param b log on stat of user
+     */
     public void setLoggedOn(boolean b)
     {
         loggedOn=b;
     }
+    /**
+     * State whether to show a log on/off link at all.
+     * @param b 
+     */
     public void setShowLogOnLink(boolean b)
     {
         showLogOnLink=b;
     }
+    /**
+     * Set the section that this headerBean is for.  This will also
+     * set the correct titleBar title.
+     * This should be called before any method that prints html.
+     * @param headerType the type of header to use
+     */
     public void setHeaderType(HeaderType headerType)
     {
         this.headerType=headerType;
@@ -67,6 +103,15 @@ public class HeaderBean
         }
     }
     
+    /**
+     * This prints the complete header for the headerType which has been set.
+     * This is usually the only thing that needs to be called, after the headerType
+     * as been set.  You should also call the footer method after the rest of the page
+     * has been printed.
+     * @param out writer to use. This will be stored for use by further calls
+     * @param page title of a particular page
+     * @param loggedOn whether or not a user is logged on or not
+     */
     public void printStdHeader(Writer out, String page, boolean loggedOn)
     {
         setWriter(out);
@@ -88,6 +133,10 @@ public class HeaderBean
         }        
         this.out.println("<P><h2 align='center' >"+page+"</h2>");
     }
+    /**
+     * prints the head tag. This will set the page title and include the correct 
+     * style sheet.
+     */
     public void printHead()
     {
         String title;
@@ -110,6 +159,9 @@ public class HeaderBean
                 "   <link rel='stylesheet' type='text/css' href='style.css'>" +
                 "</head>");
     }
+    /**
+     * print the  body tag. This will set the correct colors and background
+     */
     public void printBody()
     {
         out.println(
@@ -119,6 +171,10 @@ public class HeaderBean
                 "topMargin=0 marginheight='0' marginwidth='0'>      "
         );
     }
+    /**
+     * prints the footer.  This will close the table started by the header
+     * and also print a reference line.
+     */
     public void printFooter()
     {            
         for(int i=0;i<50;i++)
@@ -139,6 +195,9 @@ public class HeaderBean
 
    
    
+    /**
+     * Print the top bar for the specified headerType
+     */
     public void printSystomicsHeader()
     {
         String title="";
@@ -189,6 +248,10 @@ public class HeaderBean
         );                       
     }
     
+    /**
+     * print the second level bar for the unknowns section.  This does
+     * not usually need to be called directly, printStdHeader will call it.
+     */
     public void printUnknownsHeader()
     {
         String title="Log on",query="";
@@ -236,7 +299,7 @@ public class HeaderBean
     }
     /**
      *  This is currently identical to the unknowns header, so it is not used.
-     *  The two header could theortically vary indepedantly later though, so we leave this here 
+     *  The two headers could theortically vary indepedantly later though, so we leave this here 
      */
     public void printPEDHeader() //PED is plant gene expression database
     {
@@ -286,6 +349,9 @@ public class HeaderBean
             "	<td class=content vAlign=top width='80%'>"
         );
     }
+    /**
+     * print header for GCD section
+     */
     public void printGCDHeader()
     {        
         String title="Log on",query="";
@@ -328,6 +394,11 @@ public class HeaderBean
             "	<td class=content vAlign=top width='80%'>"                
         );                
     }
+    /**
+     * Print header for common section. This is usually for
+     * pages that are not specific to any section. For example, the log in
+     * page uses this, as well as the query admin page.
+     */
     public void printCommonHeader()
     { 
         //make sure all links off of this page point to 'http' since we may be under 'https', but

@@ -8,6 +8,7 @@
 package servlets.dataViews.records;
 
 import java.util.*; 
+import servlets.dataViews.AffyKey;
 
 /**
  *
@@ -16,7 +17,8 @@ import java.util.*;
 public class QueryParameters
 {
     private Collection ids;
-    private Collection affyKeys;
+    private Collection<AffyKey> affyKeys;
+    private Collection<Integer> comparisonIds;
     
     private String sortCol=null;
     private String sortDir="ASC";    
@@ -76,7 +78,7 @@ public class QueryParameters
         return affyKeys;
     }
 
-    public void setAffyKeys(Collection affyKeys)
+    public void setAffyKeys(Collection<AffyKey> affyKeys)
     {
         this.affyKeys = affyKeys;
     }
@@ -120,6 +122,16 @@ public class QueryParameters
     {
         if(userName!=null && !userName.equals(""))
             this.userName = userName;
+    }
+
+    public Collection<Integer> getComparisonIds()
+    {
+        return comparisonIds;
+    }
+
+    public void setComparisonIds(Collection<Integer> comparisonIds)
+    {
+        this.comparisonIds = comparisonIds;
     }
     
 }

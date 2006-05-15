@@ -62,7 +62,7 @@ public class SearchTreeManager
     /**
      * Create a new SearchTreeManager that reads queries from the 
      * given URL. Can write them also if the URL is a local file.
-     * @param file 
+     * @param file url of query file
      */
     public SearchTreeManager(URL file)
     {
@@ -238,7 +238,7 @@ public class SearchTreeManager
     }
     
     /**
-     * This Comparator orders query entries by thier description field, 
+     * This Comparator orders query entries by their description field, 
      * so that the query listing looks nice on the web page.  
      */
     class QueryComparator implements Comparator

@@ -121,7 +121,19 @@ public class SqlParser
             if(zexp.nbOperands()==0)
                 return null;
             else if(zexp.nbOperands()==1)
-                return new Operation(op,buildExpression(zexp.getOperand(0)),Operation.LEFT);
+            {
+                Expression e=buildExpression(zexp.getOperand(0));
+                
+                // zql though this was an expression, but maybe it was just a negative
+                // number, so see if we have minus sign and a number.
+                if(op.equals("-"))
+                    if(e instanceof IntLiteralValue)
+                        return new IntLiteralValue(-1*((IntLiteralValue)e).getValue());
+                    else if(e instanceof FloatLiteralValue)
+                        return new FloatLiteralValue(-1*((FloatLiteralValue)e).getValue());
+                    
+                return new Operation(op, e ,Operation.LEFT);
+            }
             else if(op.equalsIgnoreCase("in") || op.equalsIgnoreCase("not in"))
             { //first vector element is db field name, rest are values in list
                 log.debug("building in expression");

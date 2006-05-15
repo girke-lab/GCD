@@ -15,6 +15,8 @@ import java.util.*;
 import servlets.Common;
 import servlets.DbConnection;
 import servlets.DbConnectionManager;
+import servlets.advancedSearch.fields.* ;
+import servlets.advancedSearch.fields.Field;
 
 
 public class Unknowns2Database extends DefaultSearchableDatabase
@@ -29,13 +31,7 @@ public class Unknowns2Database extends DefaultSearchableDatabase
         super(DbConnectionManager.getConnection("khoran"),stm);
                 
         if(dbc==null)
-            try{
-                Class.forName("org.postgresql.Driver").newInstance();
-                dbc=new DbConnection("jdbc:postgresql://bioinfo.ucr.edu/khoran","servlet","512256");
-                DbConnectionManager.setConnection("khoran",dbc); 
-            }catch(Exception e){
-                log.error("could not connect to database: "+e.getMessage());
-            }
+            log.error("could not connect to database, 'khoran' not set");
 
         log.debug("fields.length="+fields.length);
     }
@@ -53,62 +49,48 @@ public class Unknowns2Database extends DefaultSearchableDatabase
         //we don't need any special cases in the query building code.
         
         fields=new Field[]{
-            new Field("At key",db+"unknown_keys.key",List.class),
-            new Field("Description",db+"unknown_keys.description"),
-            new Field("Number of ests",db+"unknown_keys.est_count",Integer.class),
+            new StringField("At key",db+"unknown_keys.key",true).setSortable(true),
+            new StringField("Description",db+"unknown_keys.description").setSortable(true),
+            new IntField("Number of ests",db+"unknown_keys.est_count").setSortable(true),
                         
-            new Field("Blast/Pfam Searches (best per db)",""),                        
-            new Field(space+"database",db+"blast_summary_view.db_name",             
+            new StringField("Blast/Pfam Searches (best per db)",""),                        
+            new ListField(space+"database",db+"blast_summary_view.db_name",             
                         new String[]{"swp","pfam","rice","yeast","human/rat/mouse"}),
-            new Field(space+"method",db+"blast_summary_view.method",
+            new ListField(space+"method",db+"blast_summary_view.method",
                         new String[]{"BLASTP","hmmPfam"}),
-            new Field(space+"Blast target accession",db+"blast_summary_view.target_accessicd" +
-            "cdon"),
-            new Field(space+"Blast target description",db+"blast_summary_view.target_description"),    
-            new Field(space+"best e_value",db+"blast_summary_view.e_value",Float.class),       
-            new Field(space+"score",db+"blast_summary_view.score"),
-            new Field(space+"identities",db+"blast_summary_view.identities"),            
+            new StringField(space+"Blast target accession",db+"blast_summary_view.target_accession"),
+            new StringField(space+"Blast target description",db+"blast_summary_view.target_description"),    
+            new FloatField(space+"best e_value",db+"blast_summary_view.e_value"),       
+            new StringField(space+"score",db+"blast_summary_view.score"),
+            new StringField(space+"identities",db+"blast_summary_view.identities"),            
             
-            new Field("GO",""),
-            new Field(space+"number",db+"go_view.go_number",List.class),
-            new Field(space+"description",db+"go_view.text"),
-            new Field(space+"function",db+"go_view.function",
+            new StringField("GO",""),
+            new StringField(space+"number",db+"go_view.go_number",true),
+            new StringField(space+"description",db+"go_view.text"),
+            new ListField(space+"function",db+"go_view.function",
                         new String[]{"process","component","function"}),
-            new Field(space+"Molecular function unknown?",db+"unknown_keys.mfu",  //15
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field(space+"Cellular component unknown?",db+"unknown_keys.ccu",
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field(space+"Biological process unknown?",db+"unknown_keys.bpu",
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
+            new BooleanField(space+"Molecular function unknown?",db+"unknown_keys.mfu").setSortable(true),  //15
+            new BooleanField(space+"Cellular component unknown?",db+"unknown_keys.ccu").setSortable(true),
+            new BooleanField(space+"Biological process unknown?",db+"unknown_keys.bpu").setSortable(true),
                     
                         
-            new Field("Clusters",""),
-            new Field(space+"Score Threshold",db+"cluster_info_and_counts_view.cutoff",Integer.class,
-                        new String[]{"35","50","70"}),
-            new Field(space+"Size",db+"cluster_info_and_counts_view.size",Integer.class),
+            new StringField("Clusters",""),
+            new ListField(space+"Score Threshold",db+"cluster_info_and_counts_view.cutoff",
+                        new String[]{"35","50","70"}).setElementType(Integer.class),
+            new IntField(space+"Size",db+"cluster_info_and_counts_view.size"),
             
-            new Field("Proteomic Stats",""),   //21         
-            new Field(space+"Molecular Weight",db+"proteomics_stats.mol_weight"),
-            new Field(space+"Isoelectric Point",db+"proteomics_stats.ip"),
-            new Field(space+"Charge",db+"proteomics_stats.charge"),
-            new Field(space+"Probability of expression in inclusion bodies",db+"proteomics_stats.prob_in_body"),
-            new Field(space+"Probability is negative",db+"proteomics_stats.prob_is_neg",
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
+            new StringField("Proteomic Stats",""),   //21         
+            new StringField(space+"Molecular Weight",db+"proteomics_stats.mol_weight"),
+            new StringField(space+"Isoelectric Point",db+"proteomics_stats.ip"),
+            new StringField(space+"Charge",db+"proteomics_stats.charge"),
+            new StringField(space+"Probability of expression in inclusion bodies",db+"proteomics_stats.prob_in_body"),
+            new StringField(space+"Probability is negative",db+"proteomics_stats.prob_is_neg"),
                         
-            new Field("External Sources",""),  //27
-            new Field(space+"Source",db+"external_unknowns.source",new String[]{"tigr","citosky"}),
-            new Field(space+"is unknown?",db+"external_unknowns.is_unknown",Boolean.class,
-                        new String[]{"TRUE","FALSE"})
+            new StringField("External Sources",""),  //27
+            new ListField(space+"Source",db+"external_unknowns.source",new String[]{"tigr","citosky"}),
+            new BooleanField(space+"is unknown?",db+"external_unknowns.is_unknown")
         };
-//new Field(space+"",""),
         
-        int[] sortableFields=new int[]{0,1,2,11,15,16,17}; //,21,22,23,24,25,26,27,28,29};
-        for(int i=0;i<sortableFields.length;i++)
-            fields[sortableFields[i]].setSortable(true);
-        
-        operators=new String[]{"=","!=","<",">","<=",">=",
-                "ILIKE","NOT ILIKE","IS NULL","IS NOT NULL"};
-        unaryBoundry=8; //index of first unary op.
         booleans=new String[]{"and","or"};                
     }
 }

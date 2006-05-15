@@ -15,12 +15,17 @@ import java.util.*;
 import servlets.Common;
 import servlets.DbConnection;
 import servlets.DbConnectionManager;
+import servlets.advancedSearch.fields.*;
+import servlets.advancedSearch.fields.Field;
 import servlets.advancedSearch.queryTree.*;
 
 import javax.servlet.http.*;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletContext;
 
+/**
+ * This database is for searching for accessions.
+ */
 public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
 {       
  
@@ -43,6 +48,11 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
 
         log.debug("fields.length="+fields.length);
     }
+    /**
+     * Makes the query distinct on accession_id
+     * @param state 
+     * @return 
+     */
     public Query buildQueryTree(SearchState state)
     {          
         Query q=super.buildQueryTree(state);
@@ -61,6 +71,11 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         q.setOrder(o);
         return q;
     }        
+    /**
+     * adds the accessions table to every query.
+     * TODO: this seems pointless, this table is already the root table.
+     * @return 
+     */
     protected List additionalJoins()
     {
         List j=new ArrayList(1);    
@@ -83,119 +98,91 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
         //as long as we only use fields from tables that have an 'accession_id' column,
         //we don't need any special cases in the query building code.
         
+        String catagoryQuery="SELECT catagory FROM affy.catagory_list ORDER BY catagory";
+        String databaseQuery="SELECT db_name FROM general.genome_database_list ORDER BY db_name";        
+        String analysisQuery="SELECT type_name FROM affy.cel_analysis_type_list ORDER BY type_name";
         
-        //TODO: this is getting ugly, it should be refactored.
         fields=new Field[]{
-            new Field("At key",db+"other_accessions_view.other_accession",List.class),
-            new Field("Description","general.accessions.description"),
-            new Field("is model?","general.accessions.is_model",
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field("Genome","general.genome_databases_view.db_name", 
-                        new String[]{"arab","rice"}),
-            new Field("Number of ests",db+"unknown_data.est_count",Integer.class),
+            new StringField("At key",db+"other_accessions_view.other_accession",true).setSortable(true),
+            new StringField("Description","general.accessions.description").setSortable(true),
+            new BooleanField("is model?","general.accessions.is_model"),
+            new ListField("Genome","general.genome_databases_view.db_name",new String[]{"arab","rice"}).setSortable(true),
+            new IntField("Number of ests",db+"unknown_data.est_count"),
                         
-            new Field("Blast/Pfam Searches (best per db)",""),                        
-            new Field(space+"database","general.blast_summary_mv.db_name",             
-                        new String[]{"swp","pfam","arab","rice","yeast","human/rat/mouse"}),
-            new Field(space+"method","general.blast_summary_mv.method",
-                        new String[]{"BLASTP","hmmPfam"}),
-            new Field(space+"Blast target accession","general.blast_summary_mv.accession"),
-            new Field(space+"Blast target description","general.blast_summary_mv.description"),    
-            new Field(space+"best e_value","general.blast_summary_mv.e_value",Float.class),       
-            new Field(space+"score","general.blast_summary_mv.score"),
-            new Field(space+"identities","general.blast_summary_mv.identities"),            
+            new StringField("Blast/Pfam Searches (best per db)",""),                        
+            new ListField(space+"database","general.blast_summary_mv.db_name",databaseQuery),                                     
+            new ListField(space+"method","general.blast_summary_mv.method", new String[]{"BLASTP","hmmPfam"}),
+            new StringField(space+"Blast target accession","general.blast_summary_mv.accession"),
+            new StringField(space+"Blast target description","general.blast_summary_mv.description"),    
+            new FloatField(space+"best e_value","general.blast_summary_mv.e_value"),       
+            new StringField(space+"score","general.blast_summary_mv.score"),
+            new StringField(space+"identities","general.blast_summary_mv.identities"),            
             
-            new Field("GO",""),  //13
-            new Field(space+"number",db+"go_view.go_number",List.class),
-            new Field(space+"description",db+"go_view.text"),
-            new Field(space+"function",db+"go_view.function",
-                        new String[]{"process","component","function"}),
-            new Field(space+"Molecular function unknown?",db+"unknown_data.mfu",  //17
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field(space+"Cellular component unknown?",db+"unknown_data.ccu",
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
-            new Field(space+"Biological process unknown?",db+"unknown_data.bpu",
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
-                    
-                        
-            new Field("Clusters",""),
-//            new Field(space+"Score Threshold","general.clusters_and_info.cutoff",Integer.class,
-//                        new String[]{"35","50","70"}),
-            new Field(space+"Method","general.clusters_and_info.method",
+            new StringField("GO",""),
+            new StringField(space+"number",db+"go_view.go_number",true),
+            new StringField(space+"description",db+"go_view.text"),
+            new ListField(space+"function",db+"go_view.function", new String[]{"process","component","function"}),
+            new BooleanField(space+"Molecular function unknown?",db+"unknown_data.mfu").setSortable(true),
+            new BooleanField(space+"Cellular component unknown?",db+"unknown_data.ccu").setSortable(true),
+            new BooleanField(space+"Biological process unknown?",db+"unknown_data.bpu").setSortable(true),
+                                            
+            new StringField("Clusters",""),
+            new ListField(space+"Method","general.clusters_and_info.method",
                         new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
-            new Field(space+"Size","general.clusters_and_info.size",Integer.class),
+            new IntField(space+"Size","general.clusters_and_info.size"),
             
-            new Field("Proteomic Stats",""),   //22        
-            new Field(space+"Molecular Weight",db+"proteomics_stats.mol_weight"),
-            new Field(space+"Isoelectric Point",db+"proteomics_stats.ip"),
-            new Field(space+"Charge",db+"proteomics_stats.charge"),
-            new Field(space+"Probability of expression in inclusion bodies",db+"proteomics_stats.prob_in_body"),
-            new Field(space+"Probability is negative",db+"proteomics_stats.prob_is_neg",
-                        Boolean.class,new String[]{"TRUE","FALSE"}),
+            new StringField("Proteomic Stats",""),
+            new StringField(space+"Molecular Weight",db+"proteomics_stats.mol_weight"),
+            new StringField(space+"Isoelectric Point",db+"proteomics_stats.ip"),
+            new StringField(space+"Charge",db+"proteomics_stats.charge"),
+            new StringField(space+"Probability of expression in inclusion bodies",db+"proteomics_stats.prob_in_body"),
+            new BooleanField(space+"Probability is negative",db+"proteomics_stats.prob_is_neg"),
                         
-            new Field("External Sources",""),  //28
-            new Field(space+"Source",db+"external_unknowns.source",new String[]{"tigr","citosky"}),
-            new Field(space+"is unknown?",db+"external_unknowns.is_unknown",Boolean.class,
-                        new String[]{"TRUE","FALSE"}),
-            new Field("Affy Experiment Sets",""), //30
-            new Field(space+"Probe Set Key",
-                                "affy.experiment_set_summary_mv.probe_set_key",List.class),
-            new Field(space+"Experiment Set Key",
-                                "affy.experiment_set_summary_mv.experiment_set_key",List.class),
+            new StringField("External Sources",""),
+            new ListField(space+"Source",db+"external_unknowns.source",new String[]{"tigr","citosky"}),
+            new BooleanField(space+"is unknown?",db+"external_unknowns.is_unknown"),
             
-            new Field(space+"Catagory","affy.experiment_set_summary_mv.catagory",
-                    new String[]{"ALL","Abiotic Stress","Biotic Stress","Development","Chemical Treatment",
-                                "Genotype","Horomone Treatment"}),
-            new Field(space+"Intensity type","affy.experiment_set_summary_mv.data_type",
-                                new String[]{"MAS5","RMA"},new String[]{"mas5","rma"}),
-            new Field(space+">4 fold change up","affy.experiment_set_summary_mv.up4x",Integer.class),                                
-            new Field(space+">4 fold change down","affy.experiment_set_summary_mv.down4x",Integer.class),
-            new Field(space+">2 fold change up","affy.experiment_set_summary_mv.up2x",Integer.class),                                
-            new Field(space+">2 fold change down","affy.experiment_set_summary_mv.down2x",Integer.class),
-            new Field(space+"PMA on","affy.experiment_set_summary_mv.pma_on",Integer.class),
-            new Field(space+"PMA off","affy.experiment_set_summary_mv.pma_off",Integer.class),         
-            new Field(space+"Control average","affy.experiment_set_summary_mv.control_average",Float.class),
-            new Field(space+"Treatment average","affy.experiment_set_summary_mv.treatement_average",Float.class),
-            new Field(space+"Control std deviation","affy.experiment_set_summary_mv.control_stddev",Float.class),
-            new Field(space+"Treatment std deviation","affy.experiment_set_summary_mv.treatment_stddev",Float.class),
+            new StringField("Affy Experiment Sets",""),
+            new StringField(space+"Probe Set Key","affy.experiment_set_summary_view.probe_set_key",true),
+            new StringField(space+"Experiment Set Key","affy.experiment_set_summary_view.experiment_set_key",true),            
+            new ListField(space+"Catagory","affy.experiment_set_summary_view.catagory",catagoryQuery),
+            new ListField(space+"Intensity type","affy.experiment_set_summary_view.data_type",analysisQuery),                                
+            new IntField(space+">4 fold change up","affy.experiment_set_summary_view.up4x"),                                
+            new IntField(space+">4 fold change down","affy.experiment_set_summary_view.down4x"),
+            new IntField(space+">2 fold change up","affy.experiment_set_summary_view.up2x"),                                
+            new IntField(space+">2 fold change down","affy.experiment_set_summary_view.down2x"),
+            new IntField(space+"PMA on","affy.experiment_set_summary_view.pma_on"),
+            new IntField(space+"PMA off","affy.experiment_set_summary_view.pma_off"),         
+            new FloatField(space+"Control average","affy.experiment_set_summary_view.control_average"),
+            new FloatField(space+"Treatment average","affy.experiment_set_summary_view.treatement_average"),
+            new FloatField(space+"Control std deviation","affy.experiment_set_summary_view.control_stddev"),
+            new FloatField(space+"Treatment std deviation","affy.experiment_set_summary_view.treatment_stddev"),
             
-            
-            new Field("Affy Experiment Comparisions",""), //44  
-            new Field(space+"Description","affy.experiment_group_summary_mv.description"),
-            new Field(space+"Comparison","affy.experiment_group_summary_mv.comparison",Integer.class),
-            new Field(space+"Control mean","affy.experiment_group_summary_mv.control_mean",Float.class),
-            new Field(space+"Control PMA","affy.experiment_group_summary_mv.control_pma",Integer.class),
-            new Field(space+"Treatment mean","affy.experiment_group_summary_mv.treatment_mean",Float.class),
-            new Field(space+"Treatment PMA","affy.experiment_group_summary_mv.treatement_pma",Integer.class),
-            new Field(space+"Ratio (log_2(treat_mean/control_mean))",
-                                "affy.experiment_group_summary_mv.t_c_ratio_lg",Float.class),
-            
-            new Field(space+"Contrast","affy.experiment_group_summary_mv.contrast",Float.class),
-            new Field(space+"P-value","affy.experiment_group_summary_mv.p_value",Float.class),
-            new Field(space+"Adjusted P-value","affy.experiment_group_summary_mv.adj_p_value",Float.class),
-            new Field(space+"pfp up","affy.experiment_group_summary_mv.pfp_up",Float.class),
-            new Field(space+"pfp down","affy.experiment_group_summary_mv.pfp_down",Float.class)
-            
+            new StringField("Affy Experiment Comparisions",""),
+            new StringField(space+"Description","affy.experiment_group_summary_view.description"),
+            new IntField(space+"Comparison","affy.experiment_group_summary_view.comparison"),
+            new FloatField(space+"Control mean","affy.experiment_group_summary_view.control_mean"),
+            new IntField(space+"Control PMA","affy.experiment_group_summary_view.control_pma"),
+            new FloatField(space+"Treatment mean","affy.experiment_group_summary_view.treatment_mean"),
+            new IntField(space+"Treatment PMA","affy.experiment_group_summary_view.treatement_pma"),
+            new FloatField(space+"Ratio (log_2(treat_mean/control_mean))","affy.experiment_group_summary_view.t_c_ratio_lg"),
+            new FloatField(space+"Contrast","affy.experiment_group_summary_view.contrast"),
+            new FloatField(space+"P-value","affy.experiment_group_summary_view.p_value"),
+            new FloatField(space+"Adjusted P-value","affy.experiment_group_summary_view.adj_p_value"),
+            new FloatField(space+"pfp up","affy.experiment_group_summary_view.pfp_up"),
+            new FloatField(space+"pfp down","affy.experiment_group_summary_view.pfp_down"),
                                         
-//            new Field("Correlations",""), //46
-//            new Field(space+"Catagory","affy.correlation_view.catagory",
-//                        new String[]{"ALL","Abiotic Stress","Biotic Stress","Development","Chemical Treatment",
-//                                "Genotype","Horomone Treatment"}),
-//            new Field(space+"Correlation","affy.correlation_view.correlation",Float.class),
-//            new Field(space+"P Value","affy.correlation_view.p_value",Float.class)
+            new StringField("Correlations",""),
+            new FloatField(space+"Correlation","affy.correlation_view.correlation"),
+            new FloatField(space+"P Value","affy.correlation_view.p_value")
         };
-//new Field(space+"",""),
         
-        int[] sortableFields=new int[]{0,1,3,17,18,19}; //,21,22,23,24,25,26,27,28,29};
-        for(int i=0;i<sortableFields.length;i++)
-            fields[sortableFields[i]].setSortable(true);        
-        
-        operators=new String[]{"=","!=","<",">","<=",">=",
-                "ILIKE","NOT ILIKE","IS NULL","IS NOT NULL"};
-        unaryBoundry=8; //index of first unary op.
         booleans=new String[]{"and","or"};                
     }
  
+    /**
+     * Sends a list of accession_ids to the unknowns2View dataview
+     */
     protected ServletRequest getNewRequest(SearchState state,HttpServletRequest request,List results)
     { //this can be overridden by sub classes to send different parameters
         NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(

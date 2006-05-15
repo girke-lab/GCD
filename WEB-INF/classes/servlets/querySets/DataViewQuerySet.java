@@ -51,4 +51,10 @@ public interface DataViewQuerySet extends QuerySet
     
     // for CorrelationsDataView
     public String[] getSortableCorrelationColumns();
+    
+    // for TreatmentDataView
+    public static final int TREAT_COMP=0, TREAT_PSK=1;
+    public String[][] getSortableTreatmentColoumns();
+    
+    
 }

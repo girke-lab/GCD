@@ -166,7 +166,7 @@ public class Unknowns2DataView implements DataView
         //Map records=UnknownRecord.getData(dbc,ids,sortCol,sortDir);
         //return records.values(); 
         
-        Collection unknowns,go, blast, protomics, cluster, external, expSet;
+        Collection unknowns ;//,go, blast, protomics, cluster, external, expSet;
         RecordFactory f=RecordFactory.getInstance();
         QueryParameters qp=new QueryParameters(ids);
         qp.setUserName(userName);
@@ -178,7 +178,7 @@ public class Unknowns2DataView implements DataView
         f.addSubType(unknowns,ClusterRecord.getRecordInfo(),qp);
         f.addSubType(unknowns,ExternalUnknownRecord.getRecordInfo(),qp);
         //f.addSubType(unknowns,AffyExpSetRecord.getRecordInfo(),qp);
-        f.addSubType(unknowns,ProbeSetRecord.getRecordInfo(),qp);
+        f.addSubType(unknowns,ProbeSetSummaryRecord.getRecordInfo(),qp);
         
         return unknowns;
         

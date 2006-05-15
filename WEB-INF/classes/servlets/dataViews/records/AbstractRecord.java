@@ -13,7 +13,10 @@ import servlets.Common;
 import servlets.exceptions.UnsupportedKeyTypeException;
 
 /**
- *
+ * This class provides a partial implementation of the Record interface.
+ * It manages child records and which keyType has been set.
+ * It also provides implementations of equals and hashCode so that 
+ * sub-classes work properly in all Collections.
  * @author khoran
  */
 public abstract class AbstractRecord implements Record
@@ -43,11 +46,19 @@ public abstract class AbstractRecord implements Record
     {
         return subRecords.iterator();
     }
+    /**
+     *  Sets the type of key that this record should produce.
+     *  When this record is added as a child of a parent record, 
+     *  the parent will specify which type of key it requires (with the getChildKeyType method).
+     *  If this record supports this key, as returned by the 
+     *  getSupportedKeyTypes method, then these records can
+     *  be linked.
+     * @param keyType value of keyType to use
+     * @throws servlets.exceptions.UnsupportedKeyTypeException if the given keyType is not supported by this record
+     */
     public void setKeyType(int keyType) throws UnsupportedKeyTypeException
     {
-        if(keyType==Common.KEY_TYPE_DEFAULT && this.getSupportedKeyTypes().length!=0)
-            this.keyType=this.getSupportedKeyTypes()[0];
-        else if(!Common.checkType(this, keyType))
+        if(!Common.checkType(this, keyType))
             throw new UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         else
             this.keyType=keyType;
@@ -58,8 +69,35 @@ public abstract class AbstractRecord implements Record
             log.error("key type not set for record "+this.getClass());
         return keyType;
     }
-    public int getChildKeyType()
+//    public int getChildKeyType()
+//    {
+//        return Common.KEY_TYPE_ACC; //default value.
+//    }
+    
+    protected boolean checkList(String name,int reqSize,List values)
+    {        
+        if(values==null || values.size()!=reqSize)
+        {
+            log.error("invalid list in "+name+" constructor");
+            if(values!=null)
+                log.error("recieved list of size "+values.size()+", but expected size of "+reqSize);
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean equals(Object o)
     {
-        return Common.KEY_TYPE_ACC; //default value.
+        if(this==o)
+            return true;
+        if(!(o instanceof Record) || o==null)
+            return false;
+        //check that they are the same class and have the same primary key
+        return this.getClass().equals(o.getClass()) &&
+                ((Record)o).getPrimaryKey().equals(this.getPrimaryKey());
+    }
+    public int hashCode()
+    {
+        return getPrimaryKey().hashCode();
     }
 }

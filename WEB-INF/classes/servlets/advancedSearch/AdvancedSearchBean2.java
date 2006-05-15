@@ -99,6 +99,8 @@ public class AdvancedSearchBean2
             db=dqs.getUnknownsDatabase();            
         else if(name.equals("unknowns2"))
             db=dqs.getUnknowns2Database();
+        else if(name.equals("treatment"))
+            db=dqs.getTreatmentDatabase(request.getRemoteUser());
         else //default to common
             setDatabase(defaultDb);
     }
@@ -174,7 +176,8 @@ public class AdvancedSearchBean2
         hv.setDatabases(dbs, currentState.getDatabase());
         try{
             log.debug("drawing form");
-            out.println("<table><tr><td width='300'>&nbsp</td><td>");
+            //out.println("<table border='1'><tr><td width='300'>&nbsp</td><td>");
+            //out.println("<table border='1'><tr><td>");
             currentQuery.accept(hv); //renders the html
             
             log.debug("done rendering");
@@ -182,12 +185,12 @@ public class AdvancedSearchBean2
         
             out.println("<br>");
             out.println(printStoreOptions());
-            out.println("</td></tr></table>");
+            //out.println("</td></tr></table>");
             if(printSql)
             {
                 SqlVisitor sv=new SqlVisitor();
                 out.println("<p><h4>Sql</h4><p>");
-                out.println("<pre>"+sv.getSql(currentQuery)+"</pre>");
+                out.println("<textarea cols='100' rows='10' >"+sv.getSql(currentQuery)+"</textarea>");
             }
         }catch(IOException e){
             log.warn("could not print : "+e);
@@ -241,8 +244,10 @@ public class AdvancedSearchBean2
         log.debug("epi="+request.getParameter("epi"));
         if(action==null)
         {
-            log.warn("no action given");
-            return; 
+            log.warn("no action given, loading default query");
+            action="load_query";
+            selectedQueryName="default";
+            //return; 
         }
         log.debug("action="+action);
         

@@ -71,11 +71,11 @@ public class CorrelationRecord extends AbstractRecord
     }
     public Object getPrimaryKey()
     {        
-        return psk1_id;
+        return corrId;
     }
     public int getChildKeyType()
     {
-        return Common.KEY_TYPE_PSK;
+        return Common.KEY_TYPE_CORR;
     }
     public int[] getSupportedKeyTypes()
     {
@@ -109,10 +109,7 @@ public class CorrelationRecord extends AbstractRecord
                 return QuerySetProvider.getRecordQuerySet().
                         getCorrelationRecordQuery(qp.getIds(),qp.getSortCol(),qp.getSortDir(), qp.getCatagory());
             }
-            public int[] getSupportedKeyTypes()
-            {
-                return new int[]{Common.KEY_TYPE_CORR};
-            }
+            
             public CompositeFormat getCompositeFormat()
             {
                 return new CorrelationFormat();

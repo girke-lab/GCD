@@ -20,6 +20,8 @@ import javax.servlet.http.*;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletContext;
 import java.io.*;
+import servlets.advancedSearch.fields.*;
+import servlets.advancedSearch.fields.Field;
 import servlets.dataViews.*;
 import servlets.querySets.*;
 
@@ -106,14 +108,11 @@ public class UnknownsDatabase extends DefaultSearchableDatabase
         fields=new Field[dbNames.length];
         for(int i=0;i<fields.length;i++)
         {
-            fields[i]=new Field(printNames[i],dbNames[i]);
+            fields[i]=new StringField(printNames[i],dbNames[i]);
             if(i!=fields.length-1) //last field is not sortable
                 fields[i].setSortable(true);
         }
         
-        operators=new String[]{"=","!=","<",">","<=",">=",
-                "LIKE","NOT LIKE","is NULL","is not NULL"};
-        unaryBoundry=9;
         booleans=new String[]{"and","or"};        
     }
      protected ServletRequest getNewRequest(SearchState state,HttpServletRequest request,List results)

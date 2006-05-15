@@ -14,11 +14,13 @@ public class SeqIdSearch extends AbstractSearch //implements Search, java.io.Ser
     public SeqIdSearch() {
     }
     
-    public java.util.List getResults() {
+    public java.util.List getResults() 
+    {
         return data;
     }
     
-    public void init(java.util.List data, int limit, int[] dbID) {
+    public void init(java.util.List data, int limit, int[] dbID) 
+    {
         this.data=data;
         this.keyType=keyType;
     }
@@ -32,7 +34,7 @@ public class SeqIdSearch extends AbstractSearch //implements Search, java.io.Ser
     public int[] getSupportedKeyTypes()
     { //fix this
         return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_SEQ,
-                Common.KEY_TYPE_MODEL,Common.KEY_TYPE_CLUSTER};
+                Common.KEY_TYPE_MODEL,Common.KEY_TYPE_CLUSTER,Common.KEY_TYPE_PSK};
     }
 
  

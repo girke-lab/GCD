@@ -100,7 +100,7 @@ public class DispatchServlet extends HttpServlet {
         else if(script.equals("alignToHmm"))
             return new AlignToHmmScript();
         else if(script.equals("unknownsText"))
-            return new UnknownsTextScript(request.getParameterMap());
+            return new UnknownsTextScript(request.getParameterMap(),request.getRemoteUser());
         else if(script.equals("treeViewer.pl"))
             return new TreeViewScript(request,response); 
 //        else if(script.equals("affyText"))

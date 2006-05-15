@@ -8,6 +8,7 @@ package servlets.querySets;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import org.apache.log4j.Logger;
 import servlets.Common;
 import servlets.advancedSearch.*;
@@ -232,6 +233,16 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         };
     }
     
+    public String[][] getSortableTreatmentColoumns()
+    {
+        return new String[][]{
+            {"exp_set_key","comparison","control_desc","treatement_desc"},
+            {"probe_set_key","control_Mean",
+                "treatment_mean","control_pma","treatment_pma","t_c_ratio_lg",
+                "contrast","p_value","adj_p_value","pfp_up","pfp_down","cluster_names"}            
+        };
+    }
+    
     //   </editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc=" Record queries "> 
@@ -295,7 +306,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         if(sortCol==null)
             sortCol="source";
-        String query="SELECT DISTINCT ma.model_accession_id,is_unknown,source "+
+        String query="SELECT DISTINCT ma.model_accession_id,is_unknown,source,external_id "+
         "   FROM "+uSchema+".external_unknowns " +
                 "JOIN general.to_model_accessions as ma ON(external_unknowns.accession_id=ma.model_accession_id)" +
         "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
@@ -315,7 +326,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 //                general.accession_gos as ag ON(seq.accession_id=ag.accession_id) JOIN general.go_numbers as gn USING(go_id) 
 //                where md.accession_id=236;
 
-        String query="SELECT DISTINCT ma.model_accession_id, go_numbers.go_number, go_numbers.function,go_numbers.text " +
+        String query="SELECT DISTINCT ma.model_accession_id, go_numbers.go_number, go_numbers.function,go_numbers.text,go_numbers.go_id " +
                 " FROM   general.to_sequence_accessions as sa "+
                 "   JOIN general.accession_gos ON(sa.sequence_accession_id=accession_gos.accession_id) " +
                 "   JOIN general.go_numbers USING(go_id) " +
@@ -329,7 +340,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getProteomicsRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
     {
-        String query="SELECT DISTINCT ma.model_accession_id, mol_weight, ip, charge, prob_in_body, prob_is_neg "+
+        String query="SELECT DISTINCT ma.model_accession_id, mol_weight, ip, charge, prob_in_body, prob_is_neg,prot_stats_id "+
         "   FROM "+uSchema+".proteomics_stats " +
                 "JOIN general.to_model_accessions as ma ON(proteomics_stats.accession_id=ma.model_accession_id)" +
         "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids);
@@ -369,18 +380,25 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 //        String feilds="probe_set_key_id, probe_set_key, " +
 //                "experiment_set_id, experiment_set_key, description, comparison, " +
 //                "control_mean, treatment_mean, control_pma, treatment_pma, t_c_ratio_lg";
-        String feilds="probe_set_key_id, probe_set_key, " +
-                "experiment_set_id, experiment_set_key, comparison, " +
-                "control_mean, treatment_mean, control_pma, treatment_pma, t_c_ratio_lg";
+//        String feilds="probe_set_key_id, probe_set_key, " +
+//                "experiment_set_id, experiment_set_key, comparison, " +
+//                "control_mean, treatment_mean, control_pma, treatment_pma, t_c_ratio_lg";
 
         String query="SELECT * FROM "+                
                 "   (SELECT DISTINCT ON (probe_set_key_id, experiment_set_id, comparison)  * " +
-                    "       FROM affy.experiment_group_summary_mv " +
+                    "       FROM affy.experiment_group_summary_view " +
                 "       WHERE ("+ AffyKey.buildIdSetCondition(affyKeys,false) +") "+
                 "               AND data_type='"+dataType+"' "+
                 "       ORDER BY probe_set_key_id, experiment_set_id, comparison  "+
                 "   ) as t "+
-                "ORDER BY "+ sortcol+" "+sortDir;           
+                "ORDER BY "+ sortcol+" "+sortDir;    
+        
+//        String query=
+//                "SELECT   * " +
+//                    "       FROM affy.experiment_group_summary_view " +
+//                "       WHERE ("+ AffyKey.buildIdSetCondition(affyKeys,false) +") "+
+//                "               AND data_type='"+dataType+"' "+                
+//                "ORDER BY "+ sortcol+" "+sortDir;    
         logQuery(query);
         return query;
     }            
@@ -393,8 +411,16 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         else 
             sortcol="catagory, probe_set_key_id"; 
         
-        String query="SELECT DISTINCT ess.* FROM " +
-                "       affy.experiment_set_summary_mv as ess JOIN " +
+//        String query="SELECT DISTINCT ess.* FROM " +
+//                "       affy.experiment_set_summary_mv as ess JOIN " +
+//                "       affy.es_valid_users as evu USING(experiment_set_id)"+
+//                " WHERE ("+Common.buildIdListCondition("ess.accession_id",ids)+") "+
+//                "               AND ess.data_type='"+dataType+"' "+
+//                "               AND evu.user_name='"+userName+"' "+
+//                " ORDER BY "+sortcol+" "+sortDir; 
+        
+        String query="SELECT ess.* FROM " +
+                "       affy.experiment_set_summary_view as ess JOIN " +
                 "       affy.es_valid_users as evu USING(experiment_set_id)"+
                 " WHERE ("+Common.buildIdListCondition("ess.accession_id",ids)+") "+
                 "               AND ess.data_type='"+dataType+"' "+
@@ -404,7 +430,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;        
     }
-    public String getProbeSetRecordQuery(Collection ids)
+    public String getProbeSetSummaryRecordQuery(Collection ids)
     {
         String query="SELECT * FROM affy.psk_by_model_mv " +                
                 " WHERE "+Common.buildIdListCondition("accession_id",ids)+
@@ -435,7 +461,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         
         String query="SELECT * FROM affy.correlation_view "+
                 " WHERE "+Common.buildIdListCondition("correlation_id",ids)+
-                " ORDER BY psk1_id,  " +order;
+                " ORDER BY probe_set_key_id,  " +order;
                 
                 //"catagory, "+sortCol+" "+sortDir;        
         logQuery(query);
@@ -446,6 +472,73 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         String query="SELECT * FROM affy.experiment_definitions " +
                 "   WHERE "+Common.buildIdListCondition("experiment_name",ids,true);
         
+        logQuery(query);
+        return query;
+    }
+    public String getComparisonPskRecordQuery(Collection pskIds, Collection comparisonIds, 
+            String sortCol, String sortDir, String userName,String dataType)
+    {
+        if(sortCol!=null && sortCol.startsWith("treatment_"))
+            sortCol=sortCol.replaceFirst("treatment_", "");
+        else
+            sortCol="comparison";
+       
+        String query="SELECT * "+                
+                "       FROM affy.psk_summary_view " +
+                "       WHERE ("+ Common.buildIdListCondition("probe_set_key_id",pskIds)+
+                "           AND "+Common.buildIdListCondition("comparison_id",comparisonIds)+") "+                                                
+                "           AND data_type='"+dataType+"' "+
+                "ORDER BY "+ sortCol+" "+sortDir;           
+        logQuery(query);
+        return query;
+        
+    }
+    public String getComparisonRecordQuery(Collection comparisonIds, String sortCol, String sortDir, String userName, String dataType)
+    {
+        if(sortCol!=null && sortCol.startsWith("comparison_"))
+            sortCol=sortCol.replaceFirst("comparison_", "");
+        else
+            sortCol="comparison_id";
+        
+        String query="SELECT comparison_view.* FROM affy.comparison_view " +    
+                "       JOIN affy.es_valid_users USING(experiment_set_id) " +
+                "   WHERE user_name='"+userName+"' AND "+
+                        Common.buildIdListCondition("comparison_id",comparisonIds)+                    
+                "   ORDER BY  "+sortCol+" "+sortDir; //comparison_id
+        
+        logQuery(query);
+        return query;
+    }
+
+    public String getProbeSetKeyRecordQuery(Collection pskIds,Collection compIds, String sortCol, String sortDir, String dataType)
+    {        
+        log.debug("psk record sortCol: "+sortCol);
+        if(sortCol!=null && sortCol.startsWith("psk_"))
+        {
+            sortCol=sortCol.replaceFirst("psk_", "");
+            sortCol=getFieldName(sortCol);
+        }
+        else
+            sortCol="comparison_id";
+        StringBuilder condition=new StringBuilder(pskIds.size()*10); //rough guess of lenth size
+        
+        condition.append("(probe_set_key_id,comparison_id) IN ( ");
+        
+        Iterator pskItr=pskIds.iterator();
+        Iterator compItr=compIds.iterator();
+        while(pskItr.hasNext() && compItr.hasNext())        
+            condition.append("("+pskItr.next()+","+compItr.next()+"),");
+        
+        condition.append("(-1,-1) )"); //just to make the last comma work.
+        
+        String query="SELECT * "+                
+                "       FROM affy.psk_summary_view " +
+                "       WHERE "+   condition+
+//                Common.buildIdListCondition("probe_set_key_id",pskIds)+                
+//                "           AND "+Common.buildIdListCondition("comparison_id",compIds)+
+                "           AND data_type='"+dataType+"' "+
+                " ORDER BY comparison_id, "+ sortCol+" "+sortDir;
+                
         logQuery(query);
         return query;
     }
@@ -468,6 +561,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         return new UnknownsDatabase();
     }    
+    public SearchableDatabase getTreatmentDatabase(String userName)
+    {
+        return new TreatmentDatabase(userName);
+    }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Script queries ">
@@ -928,17 +1025,27 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
-
    
-
     public String getProbeSetKeySearchQuery(Collection input, int limit, int keyType)
     {                  
         String query="SELECT correlation_id, psk1_key FROM affy.correlation_view " +
-                " WHERE "+Common.buildIdListCondition("psk1_id",input)+
+                " WHERE "+Common.buildIdListCondition("probe_set_key_id",input)+
                 " ORDER BY psk1_key ASC, correlation DESC";
         logQuery(query);
         return query;
     }
+    
+    public String getPskClusterSearchQuery(int cluster_id,int keyType)
+    {
+        String query="SELECT probe_set_key_id, cluster_id " +
+                " FROM affy.cluster_summary_view " +
+                " WHERE cluster_id="+cluster_id;
+        logQuery(query);
+        return query;
+    }    
+    
+    
+    
     public String getQueryTestSearchQuery(String query_id, String version, String genome_id)
     {
         String query="SELECT accession_id " +
@@ -1009,17 +1116,21 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     //</editor-fold>
 
    
-  
-
-   
-
-  
-
+    /** Get the field part of a fully qualified column name.
+     *  The expected formt is: schema.table_name.column_name. 
+     *  Any prefix can be missing.
+     */
+    private String getFieldName(String col)
+    { 
+        int i=col.lastIndexOf(".");
+        if(i==-1) //no '.' found
+            return col;
+        else if(i+1 < col.length())
+            return col.substring(i+1); //grab after '.' to end
+        
+        log.warn("malformed column name: "+col);
+        return "";
+    }
     
-
-   
-
-  
-
    
 }

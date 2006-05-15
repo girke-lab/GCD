@@ -74,4 +74,7 @@ public interface SearchQuerySet extends QuerySet
     
     // for QueryStatsSearch
     public String getQueryStatsSearchQuery(List query_ids,List DBs);
+    
+    // for PskClusterSearch
+    public String getPskClusterSearchQuery(int cluster_id,int keyType);
 }

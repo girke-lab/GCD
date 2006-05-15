@@ -63,11 +63,7 @@ public class UnknownRecord extends AbstractRecord
         if(!(o instanceof UnknownRecord))
             return false;
         return ((UnknownRecord)o).key.equals(key);
-    }
-    public int hashCode()
-    {
-        return key.hashCode();
-    }
+    }   
   
     public String toString()
     {
@@ -81,9 +77,12 @@ public class UnknownRecord extends AbstractRecord
     }
     public Object getPrimaryKey()
     {
-        return key_id+"";
+        return key_id;
     }
-    
+    public int getChildKeyType()
+    {
+        return Common.KEY_TYPE_ACC;
+    }
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printHeader(out,this);        
@@ -115,27 +114,10 @@ public class UnknownRecord extends AbstractRecord
                 return QuerySetProvider.getRecordQuerySet().getUnknownRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
             }
             public int[] getSupportedKeyTypes() 
-            {
+            { //no parents usually
                 return new int[]{Common.KEY_TYPE_ACC};
             }
         };
-    }
-    
-    
- 
-   
-//    public static Map getData(DbConnection dbc, List ids, String sortCol, String sortDir)
-//    {
-//
-//        Map[] subRecordMaps=new Map[]{
-//            GoRecord.getData(dbc,ids),
-//            BlastRecord.getData(dbc,ids),            
-//            ProteomicsRecord.getData(dbc,ids),
-//            ClusterRecord.getData(dbc,ids),
-//            ExternalUnknownRecord.getData(dbc,ids),
-//            AffyExpSetRecord.getData(dbc,ids,sortCol,sortDir) 
-//        };//array of maps of ids to RecordGroups
-//        return getData(dbc,ids,sortCol,sortDir, subRecordMaps);
-//    }
+    }         
    
 }

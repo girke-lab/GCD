@@ -252,7 +252,10 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     {
         return new UnknownsDatabase();
     }
-    
+    public SearchableDatabase getTreatmentDatabase()
+    {
+        return null;
+    }
     //////////////////////////////////////////////////
     //////////////// ScriptQuerySet methods
     //////////////////////////////////////////////////    
@@ -544,7 +547,7 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return "";
     }
 
-    public String getProbeSetRecordQuery(Collection ids)
+    public String getProbeSetSummaryRecordQuery(Collection ids)
     {
         return "";
     }
@@ -583,5 +586,35 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
     {
         return "";
     }
-  
+
+    public String getComparisonPskRecordQuery(Collection pskIds, Collection comparisonIds, String sortCol, String sortDir, String userName, String dataType)
+    {
+        return "";
+    }
+
+    public String[][] getSortableTreatmentColoumns()
+    {
+        return new String[][]{};
+    }
+
+    public String getPskClusterSearchQuery(int cluster_id, int keyType)
+    {
+        return "";
+    }
+
+    public String getComparisonRecordQuery(Collection comparisonIds, String sortCol, String sortDir, String userName, String dataType)
+    {
+        return "";
+    }
+
+    public String getProbeSetKeyRecordQuery(Collection pskIds, Collection compIds, String sortCol, String sortDir, String dataType)
+    {
+        return "";
+    }
+
+    public SearchableDatabase getTreatmentDatabase(String userName)
+    {
+        return null;
+    }
+
 }

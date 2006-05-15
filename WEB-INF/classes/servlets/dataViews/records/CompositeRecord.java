@@ -17,12 +17,12 @@ import servlets.dataViews.records.CompositeFormat;
 public class CompositeRecord extends AbstractRecord
 {
     /** this key should be shared by all sub records of this record */
-    private String key;
+    private Object key;
     
     private CompositeFormat format;
     
     /** Creates a new instance of CompositeRecord */
-    public CompositeRecord(String key,CompositeFormat format)
+    public CompositeRecord(Object key,CompositeFormat format)
     {
         this.key=key;
         this.format=format;
@@ -57,7 +57,7 @@ public class CompositeRecord extends AbstractRecord
         if(i.hasNext())
             return ((Record)i.next()).getChildKeyType();
         else
-            return super.getChildKeyType();
+            return -1;
     }
     public Object getPrimaryKey()
     {

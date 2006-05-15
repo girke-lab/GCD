@@ -25,5 +25,6 @@ public interface DatabaseQuerySet extends QuerySet
 {
     public SearchableDatabase getUnknownsDatabase();
     public SearchableDatabase getUnknowns2Database();
-    public SearchableDatabase getCommonDatabase();    
+    public SearchableDatabase getCommonDatabase();   
+    public SearchableDatabase getTreatmentDatabase(String userName);
 }

@@ -1,9 +1,10 @@
-    /*
+/*
  * ResultSummaryServlet.java
  *
  * Created on February 19, 2003, 2:22 PM
  */
 package servlets;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
@@ -16,8 +17,11 @@ import servlets.search.*;
 import servlets.dataViews.*;
 import servlets.querySets.*;
 /**
- *
- * @author  Kevin Horan
+ * This is the main servlet for this web application.  It basically
+ * takes a search type, some input for the search, and a dataview type.
+ * It runs the search on the input and passes the output to the dataview.  This 
+ * way one servlet can be used for any view.
+ * @author Kevin Horan
  * @version 1.0
  */
 
@@ -27,7 +31,13 @@ public class QueryPageServlet extends HttpServlet
     private static Logger log; 
     //private static Properties searches=null,dataViews=null;
     private static Properties settings=null;
-    
+        
+            
+    /**
+     * This is called once with the application starts (not per request).
+     * It initializes the Log4j logging system and calls {@link initQuerySets }.
+     * It also loads the 'queryPage.properties' file.
+     */
     public void init(ServletConfig config) throws ServletException
     {       
         super.init(config);       
@@ -51,6 +61,11 @@ public class QueryPageServlet extends HttpServlet
         
         initQuerySets();
     }    
+    /**
+     * This is called once when the application is shutdown.  It makes sure that
+     * all the database connections are closed properly. This shouldn't normally 
+     * be neccasary, but I had some problems with hanging connections in the past.
+     */
     public void destroy()
     {     
         log.info("servlet shutting down");
@@ -211,6 +226,17 @@ public class QueryPageServlet extends HttpServlet
         out.close();
         /////////////////////////////////  end of main  ////////////////////////////////////////////
     }
+    /**
+     * Takes the dataview name, looks up the class name from the settings property set
+     * (which is loaded from the queryPage.properties file), and instatiates it with
+     * a parameterless constructor.  If any step fails, a SeqDatView object is
+     * returned.  This could cause some confustion since if a dataview fails you still
+     * get a valid dataview, so this may be changed to throw an exception in the future.
+     * @param displayType name of dataview as given in the queryPage.properties file ( after the 'dataview.' part)
+     * @param sortCol name of sort column, if any given. This can be null
+     * @param request The current request object
+     * @return a new {@link DataView}
+     */
     private DataView getDataView(String displayType,String sortCol,HttpServletRequest request)
     {                
         if(displayType!=null)
@@ -250,6 +276,13 @@ public class QueryPageServlet extends HttpServlet
         }
         return new SeqDataView();
     }
+    /**
+     * This works much like the {@link getDataView } method.  A search name is
+     * given and the class name is looked up and instantiated. If any step fails, an
+     * IdSearch object is returned.
+     * @param type search name
+     * @return a new {@link Search} object
+     */
     private Search getSearchObj(String type) 
     {           
         if(type==null)
@@ -362,6 +395,12 @@ public class QueryPageServlet extends HttpServlet
         
     }
     
+    /**
+     * This sets the QuerySet object to use for each type of query set.  
+     * This probably won't change again, unless a massive database overhaul
+     * occurs and you need both the new and old databases to be able to 
+     * run at the same time (not in the same server, I mean one as a test and one live).
+     */
     private void initQuerySets()
     {
         //V1QuerySets qs=new V1QuerySets();

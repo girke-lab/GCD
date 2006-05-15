@@ -19,6 +19,14 @@ import servlets.KeyTypeUser;
  * This interface is used to store information that can be printed in a formatted
  * way.  A RecordVisitor is used to do the acutal printing, so a given set of
  * records can be printed in many different ways.
+ *
+ *  The getSupportedKeyTypes method here is interpreted as returning 
+ *  a list of keys that this record can be linked with. i.e., possable
+ *  parents of this record are those whose childKeyType is one of
+ *  these supported keys. 
+ *
+ *  If this record is not intended to have any parents, the 
+ *  getSupportedKeyTypes method can return an empty array. 
  */
 public interface Record extends Iterable, KeyTypeUser
 {
@@ -46,7 +54,17 @@ public interface Record extends Iterable, KeyTypeUser
         
         public void addSubRecord(Record r);
         
+        /**
+         *  This key is used to lookup subrecords in a Map.
+         *  This is ONLY used when adding subrecords.
+         *  This key should be unqiue for each instance of the record
+         */
         public Object getPrimaryKey();
         
+        /**
+         *  This should return the type of the primary key of this record.
+         *  When adding a subrecord, they must support this key type or 
+         *  they cannot be linked to this record.
+         */
         public int getChildKeyType();
 }

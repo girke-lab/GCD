@@ -7,8 +7,9 @@
 package servlets.dataViews.records;
 
 /**
- *
+ * This class is no longer used.
  * @author khoran
+ * @deprecated replaced by {@link RecordInfo }
  */
 public abstract class RecordSource 
 {

@@ -206,15 +206,15 @@ public class DebugRecordVisitor implements RecordVisitor
         out.write("footer for "+ur.getClass()+"\n");
     }
 
-    public void printFooter(Writer out, ProbeSetRecord psr) throws IOException
+    public void printFooter(Writer out, ProbeSetSummaryRecord psr) throws IOException
     {
     }
 
-    public void printHeader(Writer out, ProbeSetRecord psr) throws IOException
+    public void printHeader(Writer out, ProbeSetSummaryRecord psr) throws IOException
     {
     }
 
-    public void printRecord(Writer out, ProbeSetRecord psr) throws IOException
+    public void printRecord(Writer out, ProbeSetSummaryRecord psr) throws IOException
     {
     }
 
@@ -239,6 +239,42 @@ public class DebugRecordVisitor implements RecordVisitor
     }
 
     public void printRecord(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+    }
+
+    public void printHeader(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+    }
+
+    public void printRecord(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+    }
+
+    public void printFooter(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+    }
+
+    public void printHeader(Writer out, ComparisonRecord cr) throws IOException
+    {
+    }
+
+    public void printRecord(Writer out, ComparisonRecord cr) throws IOException
+    {
+    }
+
+    public void printFooter(Writer out, ComparisonRecord cr) throws IOException
+    {
+    }
+
+    public void printHeader(Writer out, ProbeSetKeyRecord pskr) throws IOException
+    {
+    }
+
+    public void printRecord(Writer out, ProbeSetKeyRecord pskr) throws IOException
+    {
+    }
+
+    public void printFooter(Writer out, ProbeSetKeyRecord pskr) throws IOException
     {
     }
 }

@@ -31,7 +31,7 @@ public class AffyDataView implements DataView
     private int keyType, hid;
     private String sortDir, sortCol,action,compView;
     private int[] dbNums;        
-    private Set nodeSet=null;
+    private Set<AffyKey> nodeSet=null;
     private List[] newIds;
     private List accIds;
     private int dataType;
@@ -161,13 +161,13 @@ public class AffyDataView implements DataView
         header.setHeaderType(servlets.beans.HeaderBean.HeaderType.PED);
         header.printStdHeader(out,"", userName!=null);
         
-        out.println(
-                "<style type='text/css'>" +
-                    ".test a {color: #006699}\n" +
-                    ".test a:hover {background-color: #AAAAAA}\n" +
-                "</style>");
-        
-        out.println("<div class='test'>");
+//        out.println(
+//                "<style type='text/css'>" +
+//                    ".test a {color: #006699}\n" +
+//                    ".test a:hover {background-color: #AAAAAA}\n" +
+//                "</style>");
+//        
+//        out.println("<div class='test'>");
         
         Common.printUnknownsSearchLinks(out);
         
@@ -185,7 +185,7 @@ public class AffyDataView implements DataView
     }
     public void printData(java.io.PrintWriter out)
     {        
-        printColorKey(out);
+        PageColors.printColorKey(out);
         out.println("<P>");
         printData(out,getRecords());        
         out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");        
@@ -273,7 +273,7 @@ public class AffyDataView implements DataView
         nodeSet=(Set)storage.get(accIds); //use the accession_id list as a per-page key
         if(nodeSet==null) //first page of query
         {
-            nodeSet=new HashSet();
+            nodeSet=new HashSet<AffyKey>();
             storage.put(accIds,nodeSet);                    
         }                                
         //now that we have a new/existing set of keys, add the ids for this request
@@ -355,14 +355,7 @@ public class AffyDataView implements DataView
         
         out.println("</TABLE></div>");
     }        
-    private void printColorKey(PrintWriter out)
-    {
-        out.println("<table cellspacing='0' cellpadding='3'><tr>");
-        out.println("<td nowrap >Experiment set catagories: &nbsp&nbsp</td>");
-        for(Map.Entry<String,WebColor> r : PageColors.catagoryColors.entrySet())
-            out.println("<td nowrap bgcolor='"+r.getValue()+"'>"+r.getKey()+"</td>");        
-        out.println("</tr></table>");
-    }
+    
 
    
 

@@ -29,6 +29,12 @@ public abstract class RecordInfo
         this.start=start;
         this.end=end;
     }
+    public RecordInfo(int key, int start, int end)
+    {
+        this.key=new int[]{key};
+        this.start=start;
+        this.end=end;
+    }
     public RecordInfo(int start,int end)
     {
         this.start=start;
@@ -38,7 +44,11 @@ public abstract class RecordInfo
     
     public abstract String getQuery(QueryParameters qp,int keyType);
     public abstract Record getRecord(List l);
-    public abstract int[] getSupportedKeyTypes();    
+    
+    public int[] getSupportedKeyTypes()
+    {
+        return new int[]{};
+    }
     
     public int getStart()
     {
@@ -60,4 +70,51 @@ public abstract class RecordInfo
         return new CompositeFormat();
     }
         
+    /**
+     *  This key is used to identify this record in a Map.
+     *  It is used only when another record is adding this
+     *  record as a subrecord.
+     *  The primary key of the parent record will be compared
+     *  to this key to see if this record should be a child of
+     *  that parent. 
+     *
+     *  So if several of these records return the same 
+     *  key here, they will all become children of the same
+     *  parent record.
+     *
+     *  The default method of building a key is this:
+     *      If there is only one item in the list, it is
+     *      returned unchanged.
+     *
+     *      If there are multiple items, they are cast to
+     *      Strings and run together with '_' as a sperator.
+     *
+     *  This format must match the format returned by the
+     *  getPrimaryKey method of the parent node.
+     */
+    public Object buildKey(List data,int keyType)
+    {
+        int[] indecies=getKeyIndecies(keyType);
+        
+        if(indecies==null || indecies.length==0)
+            return "";
+        else if(indecies.length==1)
+        {
+            try{ //try to return an int, if that fails return a String
+                return new Integer((String)data.get(indecies[0]));
+            }catch(NumberFormatException e){
+                return (String)data.get(indecies[0]);
+            }            
+        }
+        
+        
+        StringBuffer key=new StringBuffer();
+        for(int i=0;i<indecies.length;i++)
+        {
+            key.append(data.get(indecies[i]));
+            if(i+1 < indecies.length) //we have at least one more iteration
+                key.append("_");
+        }        
+        return key.toString();
+    }
 }

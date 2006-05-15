@@ -26,7 +26,7 @@ public class BlastRecord extends AbstractRecord
     String target,targetDesc,score,ident,positives,gaps,dbname,link,method,purpose;
     int length;
     double evalue;
-    Integer accId;
+    Integer accId,blastId;
     
     private static Logger log=Logger.getLogger(BlastRecord.class);
     
@@ -41,33 +41,36 @@ public class BlastRecord extends AbstractRecord
      */
     public BlastRecord(List values)
     {
-        if(values==null || values.size()!=13)
+        if(values==null || values.size()!=14)
         {
             log.error("invalid values list in BlastRecord constructor");
             if(values!=null)
-                log.error("recieved list of size "+values.size()+", but expected size of 13");
+                log.error("recieved list of size "+values.size()+", but expected size of 14");
             return;
         }
         
-        accId=new Integer((String)values.get(0));
-        if(values.get(1)==null || values.get(1).equals("no hit")) //this is a no hit
+        
+        accId=new Integer((String)values.get(1));
+        if(values.get(2)==null || values.get(2).equals("no hit")) //this is a no hit
         {
+            blastId=-1; //special case, if we ever need to deal with it, -1 should cause a problem somewhere so we notice.
             target="no hit";
         }
         else
         {            
-            target=(String)values.get(1);
-            targetDesc=(String)values.get(2);
-            evalue=Double.parseDouble((String)values.get(3));
-            score=(String)values.get(4);
-            ident=(String)values.get(5);
-            length=Integer.parseInt((String)values.get(6));
-            positives=(String)values.get(7);
-            gaps=(String)values.get(8);
-            dbname=(String)values.get(9);
-            link=buildLink((String)values.get(10),target); 
-            method=(String)values.get(11);
-            purpose=(String)values.get(12);
+            blastId=new Integer((String)values.get(0));
+            target=(String)values.get(2);
+            targetDesc=(String)values.get(3);
+            evalue=Double.parseDouble((String)values.get(4));
+            score=(String)values.get(5);
+            ident=(String)values.get(6);
+            length=Integer.parseInt((String)values.get(7));
+            positives=(String)values.get(8);
+            gaps=(String)values.get(9);
+            dbname=(String)values.get(10);
+            link=buildLink((String)values.get(11),target); 
+            method=(String)values.get(12);
+            purpose=(String)values.get(13);
         }
     }
     private String buildLink(String link,String key)
@@ -84,7 +87,11 @@ public class BlastRecord extends AbstractRecord
     
     public Object getPrimaryKey()
     {
-        return accId;
+        return blastId;
+    }
+    public int getChildKeyType()
+    {
+        return Common.KEY_TYPE_BLAST;
     }
     /**
      * 
@@ -98,20 +105,10 @@ public class BlastRecord extends AbstractRecord
         if(!(o instanceof BlastRecord))
             return false;
         BlastRecord br=(BlastRecord)o;
-        //everything must match
-        return br.target.equals(target) &&
-               br.dbname.equals(dbname) &&
-               br.evalue==evalue &&
-               br.score.equals(score) &&
-               br.ident.equals(ident) &&
-               br.positives.equals(positives) &&
-               br.gaps.equals(gaps) &&
-               br.length==length;
+
+        return br.blastId.intValue()==blastId.intValue();
     }
-    public int hashCode()
-    {
-        return target.hashCode()+dbname.hashCode()+length;
-    }
+
     /**
      * 
      * @return 
@@ -160,7 +157,7 @@ public class BlastRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(new int[]{1}, 1,14){
+        return new RecordInfo(new int[]{1}, 0,14){
             public Record getRecord(List l)
             {
                 return new BlastRecord(l);

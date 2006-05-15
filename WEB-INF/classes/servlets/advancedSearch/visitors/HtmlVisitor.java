@@ -14,7 +14,7 @@ package servlets.advancedSearch.visitors;
 import java.util.*;
 import java.io.*;
 import servlets.advancedSearch.SearchableDatabase;
-import servlets.advancedSearch.Field;
+import servlets.advancedSearch.fields.Field;
 import servlets.advancedSearch.queryTree.*;
 import org.apache.log4j.Logger;
 import servlets.PageColors;

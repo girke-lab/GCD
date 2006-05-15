@@ -24,13 +24,13 @@ public class ProteomicsRecord extends AbstractRecord
 {
     float mol_weight,ip,charge,prob;
     boolean prob_is_neg;
-    Integer accId;
+    Integer accId,protStatId;
     
     private static Logger log=Logger.getLogger(ProteomicsRecord.class);
             
     public ProteomicsRecord(List values)
     {
-        if(values==null || values.size()!=6)
+        if(values==null || values.size()!=7)
         {
             log.error("invalid list in ProteomicsRecord constructor");
             return;
@@ -41,6 +41,7 @@ public class ProteomicsRecord extends AbstractRecord
         charge=Float.parseFloat((String)values.get(3));
         prob=Float.parseFloat((String)values.get(4));
         prob_is_neg=getBoolean((String)values.get(5));
+        protStatId=new Integer((String)values.get(6));
     }
     private boolean getBoolean(String str)
     {
@@ -49,7 +50,11 @@ public class ProteomicsRecord extends AbstractRecord
     }
     public Object getPrimaryKey()
     {
-        return accId;
+        return protStatId;
+    }
+    public int getChildKeyType()
+    {
+        return -1;        
     }
     public boolean equals(Object o)
     {
@@ -58,14 +63,9 @@ public class ProteomicsRecord extends AbstractRecord
         if(!(o instanceof ProteomicsRecord))
             return false;
         ProteomicsRecord rec=(ProteomicsRecord)o;
-        return mol_weight==rec.mol_weight && ip==rec.ip &&
-               charge==rec.charge && prob==rec.prob &&
-               prob_is_neg==rec.prob_is_neg;                
+        return rec.protStatId.intValue()==protStatId.intValue();        
     }
-    public int hashCode()
-    {
-        return new Integer((int)(mol_weight+charge+prob+ip)).hashCode();
-    }
+   
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printHeader(out,this);   
@@ -85,7 +85,7 @@ public class ProteomicsRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(new int[]{0}, 0,6){
+        return new RecordInfo(new int[]{0}, 0,7){
             public Record getRecord(List l)
             {
                 return new ProteomicsRecord(l);

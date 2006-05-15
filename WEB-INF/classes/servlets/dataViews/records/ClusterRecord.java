@@ -47,17 +47,21 @@ public class ClusterRecord extends AbstractRecord
     }
     public Object getPrimaryKey()
     {
-        switch(this.getKeyType()){
-            case Common.KEY_TYPE_ACC:
-                return accId;
-            case Common.KEY_TYPE_CLUSTER:
-                return cluster_id;
-            default:
-                log.error("invalid key type: "+this.getKeyType());
-                return null;
-        }
+//        switch(this.getKeyType()){
+//            case Common.KEY_TYPE_ACC:
+//                return accId;
+//            case Common.KEY_TYPE_CLUSTER:
+//                return cluster_id;
+//            default:
+//                log.error("invalid key type: "+this.getKeyType());
+//                return null;
+//        }
+        return cluster_id;
     }
-    
+    public int getChildKeyType()
+    {
+        return Common.KEY_TYPE_CLUSTER;
+    }
     public boolean equals(Object o)
     {
         if(this==o)
@@ -65,12 +69,8 @@ public class ClusterRecord extends AbstractRecord
         if(!(o instanceof ClusterRecord))
             return false;
         ClusterRecord rec=(ClusterRecord)o;        
-        return rec.size==size && rec.method.equals(method);
-    }
-    public int hashCode()
-    {
-        return cluster_id;
-    }
+        return rec.cluster_id==cluster_id;        
+    }  
     
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
@@ -93,7 +93,7 @@ public class ClusterRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(0,6){
+        return new RecordInfo(0,0,6){
             public Record getRecord(List l)
             {
                 return new ClusterRecord(l);
@@ -104,20 +104,9 @@ public class ClusterRecord extends AbstractRecord
             }
             public int[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_CLUSTER};
+                return new int[]{Common.KEY_TYPE_ACC};
             }
-            public int[] getKeyIndecies(int keyType)
-            {
-                switch(keyType){
-                    case Common.KEY_TYPE_ACC:
-                        return new int[]{0};
-                    case Common.KEY_TYPE_CLUSTER:
-                        return new int[]{4};
-                    default:
-                        log.error("invalid key type: "+keyType);
-                        return null;
-                }
-            }
+           
         };
     }
        

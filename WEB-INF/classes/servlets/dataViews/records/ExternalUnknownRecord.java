@@ -24,13 +24,13 @@ public class ExternalUnknownRecord extends AbstractRecord
 {
     String source;
     boolean isUnknown;
-    Integer accId;
+    Integer accId,externalId;
     
     private static Logger log=Logger.getLogger(ExternalUnknownRecord.class);
         
     public ExternalUnknownRecord(List values)
     {
-        if(values==null || values.size()!=3)
+        if(values==null || values.size()!=4)
         {
             log.error("invalid list in ExternalUnknownRecord constructor");
             return;
@@ -38,6 +38,7 @@ public class ExternalUnknownRecord extends AbstractRecord
         accId=new Integer((String)values.get(0));
         isUnknown=getBoolean((String)values.get(1));         
         source=(String)values.get(2);
+        externalId=new Integer((String)values.get(3));
     }
     private boolean getBoolean(String str)
     {
@@ -46,7 +47,11 @@ public class ExternalUnknownRecord extends AbstractRecord
     }
     public Object getPrimaryKey()
     {
-        return accId;
+        return externalId;
+    }
+    public int getChildKeyType()
+    {
+        return -1;
     }
     public boolean equals(Object o)
     {
@@ -55,13 +60,9 @@ public class ExternalUnknownRecord extends AbstractRecord
         if(!(o instanceof ExternalUnknownRecord))
             return false;
         ExternalUnknownRecord eur=(ExternalUnknownRecord)o;        
-        return source.equals(eur.source) && isUnknown==eur.isUnknown;
+        return eur.externalId.intValue()==externalId.intValue();        
     }
-    public int hashCode()
-    {
-        return source.hashCode();
-    }
-    
+  
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
         visitor.printHeader(out,this);
@@ -84,7 +85,7 @@ public class ExternalUnknownRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(new int[]{0}, 0,3){
+        return new RecordInfo(new int[]{0}, 0,4){
             public Record getRecord(List l)
             {
                 return new ExternalUnknownRecord(l);

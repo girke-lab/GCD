@@ -79,7 +79,21 @@ public interface Search extends java.io.Serializable, servlets.KeyTypeUser
      */    
     Map getStats();    
     
+    /**
+     * Returns a list of names to be displayed on the web page. The order
+     * of these names should be the same as the order of positions returned 
+     * by the {@link getBookMarkPositions } method.
+     * @return list of label names
+     */
     Collection<String> getBookmarkLabels();
+    /**
+     * Returns a list of indexes into the list returned by {@link getResults }.
+     * These can be any values, but usually they correspond to the begining of
+     * an interesting section of the result set which would otherwise be hard
+     * to find. Each value should have a corresponding name given by the {@link getBookmarkLables }
+     * method.
+     * @return a list of index values into the {@link getResults} list.
+     */
     Collection<Integer> getBookmarkPositions();
     
 }

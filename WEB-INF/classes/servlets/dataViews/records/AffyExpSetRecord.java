@@ -25,6 +25,7 @@ public class AffyExpSetRecord extends AbstractRecord
     
     String probeSetKey,expSetKey,link;
     String catagory,name,description;
+    String short_name, long_name, info_link;
     Integer up4,down4, up2, down2,on, off;
     Integer accId,probeSetId, expSetId;    
     Float controlAverage, treatAverage;
@@ -36,7 +37,7 @@ public class AffyExpSetRecord extends AbstractRecord
     /** Creates a new instance of AffyExpSetRecord */
     public AffyExpSetRecord(List values)
     {
-        int reqSize=20;
+        int reqSize=23;
         if(values==null || values.size()!=reqSize)
         {
             log.error("invalid list in AffyExpSetRecord constructor");
@@ -53,7 +54,7 @@ public class AffyExpSetRecord extends AbstractRecord
         catagory=(String)values.get(5);
         name=(String)values.get(6);
         description=(String)values.get(7);
-        link=(String)values.get(8);
+        //link=(String)values.get(8); //skip link, we don't ever use it.
         up4=Integer.parseInt((String)values.get(9));
         down4=Integer.parseInt((String)values.get(10));
         up2=Integer.parseInt((String)values.get(11));
@@ -65,6 +66,9 @@ public class AffyExpSetRecord extends AbstractRecord
         treatAverage=getFloat(values.get(17));
         controlStddev=getFloat(values.get(18));
         treatStddev=getFloat(values.get(19));
+        //skip short_name, 20
+        long_name=(String)values.get(21);
+        info_link=(String)values.get(22);
     }
     private Float getFloat(Object o)
     {
@@ -76,7 +80,7 @@ public class AffyExpSetRecord extends AbstractRecord
     }
     public int getChildKeyType()
     {
-        return Common.KEY_TYPE_COMP;
+        return Common.KEY_TYPE_PSK_EXP;
     }
     
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
@@ -116,7 +120,7 @@ public class AffyExpSetRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(new int[]{0}, 0,20){
+        return new RecordInfo(new int[]{0}, 0,23){
             public Record getRecord(List l)
             {
                 return new AffyExpSetRecord(l);

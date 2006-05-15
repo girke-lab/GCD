@@ -23,10 +23,11 @@ public class UnknownsTextScript implements Script
     
     private String dataType;
     private String intensityType;
+    private String userName;
     private boolean printDescription;
     
     /** Creates a new instance of UnknownsTextScript */
-    public UnknownsTextScript(Map parameters)
+    public UnknownsTextScript(Map parameters,String userName)
     {        
         dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
@@ -38,7 +39,10 @@ public class UnknownsTextScript implements Script
                 dataType=((String[])parameters.get("dataType"))[0];
             if(parameters.containsKey("intensityType") && ((String[])parameters.get("intensityType")).length!=0)
                 intensityType=((String[])parameters.get("intensityType"))[0];
-        }
+        }        
+        this.userName=userName;
+        if(this.userName==null)
+            this.userName="public";
     }    
 
     public void run(java.io.OutputStream os, java.util.List ids)
@@ -87,6 +91,10 @@ public class UnknownsTextScript implements Script
     }   
     private Collection getRecords(List ids)
     { 
+        if(dataType.equals("Comparison"))
+            return getComparisonRecords(ids);
+        
+        
         Collection unknowns=null;
         RecordFactory f=RecordFactory.getInstance();
         QueryParameters qp=new QueryParameters();
@@ -94,6 +102,7 @@ public class UnknownsTextScript implements Script
         
         qp.setIds(ids);
         qp.setDataType(intensityType);
+        qp.setUserName(userName);
         
         
         Collection<AffyKey> affyKeys=new LinkedList<AffyKey>();
@@ -110,6 +119,12 @@ public class UnknownsTextScript implements Script
         else if(dataType.equals("AffyExpDef"))
         {
             unknowns=f.getRecords(AffyExpDefRecord.getRecordInfo(), qp);
+            return unknowns;
+        }
+        else if(dataType.equals("Comparison"))
+        {
+            unknowns=f.getRecords(ComparisonRecord.getRecordInfo(),qp);
+            f.addSubType(unknowns,ProbeSetKeyRecord.getRecordInfo(),qp);
             return unknowns;
         }
         
@@ -169,6 +184,43 @@ public class UnknownsTextScript implements Script
         return rv;
     }
   
+    private Collection getComparisonRecords(List ids)
+    {
+        Collection records=null;
+        RecordFactory f=RecordFactory.getInstance();
+        List pskIds=new LinkedList(),comparisonIds=new LinkedList();
+        StringTokenizer tok;
+        String id;
+        
+        for(Iterator i=ids.iterator();i.hasNext();)
+        {         
+            id=(String)i.next();
+            tok=new StringTokenizer(id,"_");
+            if(tok.hasMoreTokens())
+                pskIds.add(tok.nextToken());
+            else
+                log.error("bad key for probe set dataview: "+id);
+            
+            if(tok.hasMoreTokens())
+                comparisonIds.add(tok.nextToken());
+            else
+                log.error("bad key for probe set dataview: "+id);
+        }
+                        
+        QueryParameters compQp=new QueryParameters(comparisonIds);        
+        compQp.setUserName(userName);
+        compQp.setDataType(intensityType);
+        
+        QueryParameters pskQp=new QueryParameters(pskIds);                
+        pskQp.setComparisonIds(comparisonIds);
+        pskQp.setDataType(intensityType);
+        
+        
+        records=f.getRecords(ComparisonRecord.getRecordInfo(),compQp);
+        f.addSubType(records,ProbeSetKeyRecord.getRecordInfo(),pskQp);
+        
+        return records;
+    }
     public String getContentType()
     {        
         //return "text/csv";

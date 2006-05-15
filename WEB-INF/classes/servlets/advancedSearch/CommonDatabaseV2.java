@@ -16,6 +16,8 @@ import servlets.Common;
 import javax.servlet.http.*;
 import javax.servlet.*;
 import servlets.*;
+import servlets.advancedSearch.fields.*;
+import servlets.advancedSearch.fields.Field;
 import servlets.advancedSearch.queryTree.*;
 
 public class CommonDatabaseV2 extends DefaultSearchableDatabase
@@ -39,23 +41,22 @@ public class CommonDatabaseV2 extends DefaultSearchableDatabase
         rootTableName="general.accessions";
         primaryKey="accession_id";
         defaultColumn="accession";
+                
         
-        fields=new Field[]{ new Field("Loci Id", "general.accessions.accession",List.class), 
-                            new Field("Loci Description","general.accessions.description"),
-                            new Field("Cluster Id","common.sequence_clusters.key",List.class),
-                            new Field("Cluster Name","common.sequence_clusters.name"),                            
-                            new Field("Cluster Size","common.sequence_clusters.size",Integer.class),
-                            new Field("Clustering Method","common.sequence_clusters.method",
-                                new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
-                            new Field("# arab keys in cluster","common.sequence_clusters.arab_count",Integer.class),
-                            new Field("# rice keys in cluster","common.sequence_clusters.rice_count",Integer.class),
-                            new Field("Database","general.genome_databases_view.db_name",new String[]{"arab","rice"}),
-                            new Field("GO Number","general.go_view.go_number",List.class)
+        fields=new Field[]{ 
+            new StringField("Loci Id", "general.accessions.accession",true).setSortable(true), 
+            new StringField("Loci Description","general.accessions.description").setSortable(true),
+            new StringField("Cluster Id","common.sequence_clusters.key",true),
+            new StringField("Cluster Name","common.sequence_clusters.name"),                            
+            new IntField("Cluster Size","common.sequence_clusters.size"),
+            new ListField("Clustering Method","common.sequence_clusters.method",
+                new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
+            new IntField("# arab keys in cluster","common.sequence_clusters.arab_count"),
+            new IntField("# rice keys in cluster","common.sequence_clusters.rice_count"),
+            new ListField("Database","general.genome_databases_view.db_name",new String[]{"arab","rice"}),
+            new StringField("GO Number","general.go_view.go_number",true)
         };
-        int[] sortableFields=new int[]{0,1};
-        for(int i=0;i<sortableFields.length;i++)
-            fields[sortableFields[i]].setSortable(true);
-        operators=new String[]{"=","!=","<",">","<=",">=",Common.ILIKE,"NOT "+Common.ILIKE};
+
         booleans=new String[]{"and","or"};        
     }
   

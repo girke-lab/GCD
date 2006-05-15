@@ -56,8 +56,8 @@ public class AffyDetailRecord extends AbstractRecord
         return probeSetId+"_"+expSetId+"_"+comparison+"_"+celFile; 
     }
     public int getChildKeyType()
-    {
-        return -1;
+    { 
+        return Common.KEY_TYPE_DETAIL;
     }
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
@@ -92,7 +92,7 @@ public class AffyDetailRecord extends AbstractRecord
                         for(Iterator i=qp.getIds().iterator();i.hasNext();)
                             affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
                         return QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(affyKeys,qp.getDataType(), true,qp.getSortCol(), qp.getSortDir());
-                    case Common.KEY_TYPE_DETAIL:
+                    case Common.KEY_TYPE_PSK_EXP_COMP:
                         return QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(qp.getAffyKeys(),qp.getDataType(), qp.isAllGroups(),qp.getSortCol(), qp.getSortDir());
                     default:
                         return null;
@@ -101,7 +101,7 @@ public class AffyDetailRecord extends AbstractRecord
             }
             public int[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_DETAIL};
+                return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_PSK_EXP_COMP};
             }
             public int[] getKeyIndecies(int keyType)
             {
@@ -109,7 +109,7 @@ public class AffyDetailRecord extends AbstractRecord
                 {
                     case Common.KEY_TYPE_ACC:
                         return new int[]{0};
-                    case Common.KEY_TYPE_DETAIL:
+                    case Common.KEY_TYPE_PSK_EXP_COMP:
                         return new int[]{1,2,3};
                     default:
                         log.error("invalid key type given: "+keyType);

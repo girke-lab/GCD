@@ -25,6 +25,8 @@ public class TextRecordVisitor implements RecordVisitor
     static Logger log=Logger.getLogger(TextRecordVisitor.class);
     String currentAccession="";
     boolean printDescription;
+    LinkedList<String> dataStack=new LinkedList<String>();
+    LinkedList<String> headerStack=new LinkedList<String>();
     
     /** Creates a new instance of TextRecordVisitor */
     public TextRecordVisitor()
@@ -226,14 +228,14 @@ public class TextRecordVisitor implements RecordVisitor
 
 
 
-    public void printHeader(Writer out, ProbeSetRecord psr) throws IOException
+    public void printHeader(Writer out, ProbeSetSummaryRecord psr) throws IOException
     {
     }
 
-    public void printRecord(Writer out, ProbeSetRecord psr) throws IOException
+    public void printRecord(Writer out, ProbeSetSummaryRecord psr) throws IOException
     {
     }
-    public void printFooter(Writer out, ProbeSetRecord psr) throws IOException
+    public void printFooter(Writer out, ProbeSetSummaryRecord psr) throws IOException
     {
     }
 
@@ -277,5 +279,100 @@ public class TextRecordVisitor implements RecordVisitor
     }
     public void printFooter(Writer out, AffyExpDefRecord ar) throws IOException
     {
+    }
+
+    
+    public void printHeader(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+    }
+
+    public void printRecord(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+    }
+
+    public void printFooter(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+    }
+
+    
+    
+    public void printHeader(Writer out, ComparisonRecord cr) throws IOException
+    {
+        headerStack.addLast("Experiment Set\tComparision\tData Source\tControl Description\t" +
+                "Treatment Description\tExperiment Set Description");
+        if(cr==null || !cr.iterator().hasNext()) //no children
+            printStack(out,headerStack);
+        else //must explicitly list children here.
+            printHeader(out,(ProbeSetKeyRecord)null);
+    }
+
+    public void printRecord(Writer out, ComparisonRecord cr) throws IOException
+    {
+        String data=cr.expSetKey+"\t"+cr.comparison+"\t"+cr.sourceName+"\t"+
+                    cr.controlDesc+"\t"+cr.treatmentDesc+"\t"+cr.expDesc;
+        
+        pushData(out,data,cr);
+        
+    }
+
+    public void printFooter(Writer out, ComparisonRecord cr) throws IOException
+    {
+    }
+
+    public void printHeader(Writer out, ProbeSetKeyRecord pskr) throws IOException
+    {
+        headerStack.addLast("Affy Id\tControl Mean\tTreatment Mean\tControl PMA\ttreatement PMA" +
+                "Ratio\tContrast\tp-value\tAdjusted p-value\tPFP up\t PFP down\tClusters");
+        if(pskr==null || !pskr.iterator().hasNext()) //no children
+            printStack(out,headerStack);
+        
+    } 
+
+    public void printRecord(Writer out, ProbeSetKeyRecord pskr) throws IOException
+    {
+        String clusters="";
+        for(int i=0;i<pskr.clusterNames.length;i++)
+            clusters+=pskr.clusterNames[i]+"("+pskr.sizes[i]+") ";
+        
+        Object[] values=new Object[]{
+            pskr.probeSetKey,
+            pskr.controlMean,pskr.treatmentMean, 
+            pskr.controlPMA, pskr.treatmentPMA, pskr.ratio,
+            pskr.contrast, pskr.pValue, pskr.adjPValue, 
+            pskr.pfpUp, pskr.pfpDown
+        };
+        StringBuilder sb=new StringBuilder();
+        for(Object o : values)
+            sb.append(o+"\t");
+        sb.append(clusters);
+        
+        pushData(out,sb.toString(),pskr);
+    }
+
+    public void printFooter(Writer out, ProbeSetKeyRecord pskr) throws IOException
+    {
+    }
+    
+    //////////////////////// Utils /////////////////////////////////////////////
+    void printStack(Writer out,LinkedList<String> stack) throws IOException
+    {
+        String s;
+        for(Iterator<String> i=stack.iterator();i.hasNext();)
+        {
+            out.write(i.next());
+            if(i.hasNext())
+                out.write("\t");
+        }
+        out.write("\n");
+    }
+    void pushData(Writer out,String data, Record r) throws IOException
+    {
+        dataStack.addLast(data);
+        if(!r.iterator().hasNext())
+            printStack(out,dataStack);
+        else  
+            for(Object o : r)
+                ((Record)o).printRecord(out,this);
+        dataStack.removeLast();
     }
 }

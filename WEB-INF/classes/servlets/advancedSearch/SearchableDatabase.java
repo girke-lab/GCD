@@ -13,6 +13,7 @@ package servlets.advancedSearch;
 
 import javax.servlet.http.*;
 import javax.servlet.ServletContext;
+import servlets.advancedSearch.fields.Field;
 
 /**
  * Defines an interface for classes that can be used by the AdvancedSearchBean.
@@ -24,12 +25,12 @@ public interface SearchableDatabase
      * returns an array of Field objects
      * @return array of Field objects.
      */
-    public Field[] getFields();
+    public servlets.advancedSearch.fields.Field[] getFields();
     /**
      * returns an array of operators.
      * @return an array of Strings
      */
-    public String[] getOperators();
+//    public String[] getOperators();
     /**
      * return array of booleans for combining fields. Usually consists of just
      * 'and' and 'or'.

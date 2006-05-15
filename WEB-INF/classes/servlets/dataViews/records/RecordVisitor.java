@@ -6,6 +6,8 @@
 
 package servlets.dataViews.records;
 
+import java.io.Writer;
+
 /**
  * This interface is used to create classes that can print information
  * stored in Record classes.
@@ -59,9 +61,9 @@ public interface RecordVisitor
     public void printRecord(java.io.Writer out, CompositeRecord cr) throws java.io.IOException;
     public void printFooter(java.io.Writer out, CompositeRecord cr) throws java.io.IOException;
 
-    public void printHeader(java.io.Writer out, ProbeSetRecord psr) throws java.io.IOException;
-    public void printRecord(java.io.Writer out, ProbeSetRecord psr) throws java.io.IOException;
-    public void printFooter(java.io.Writer out, ProbeSetRecord psr) throws java.io.IOException;
+    public void printHeader(java.io.Writer out, ProbeSetSummaryRecord psr) throws java.io.IOException;
+    public void printRecord(java.io.Writer out, ProbeSetSummaryRecord psr) throws java.io.IOException;
+    public void printFooter(java.io.Writer out, ProbeSetSummaryRecord psr) throws java.io.IOException;
     
     public void printHeader(java.io.Writer out, CorrelationRecord cr) throws java.io.IOException;
     public void printRecord(java.io.Writer out, CorrelationRecord cr) throws java.io.IOException;
@@ -70,8 +72,21 @@ public interface RecordVisitor
     public void printHeader(java.io.Writer out, AffyExpDefRecord ar) throws java.io.IOException;
     public void printRecord(java.io.Writer out, AffyExpDefRecord ar) throws java.io.IOException;
     public void printFooter(java.io.Writer out, AffyExpDefRecord ar) throws java.io.IOException;
+
+    public void printHeader(java.io.Writer out, ComparisonPskRecord cpr) throws java.io.IOException;
+    public void printRecord(java.io.Writer out, ComparisonPskRecord cpr) throws java.io.IOException;
+    public void printFooter(java.io.Writer out, ComparisonPskRecord cpr) throws java.io.IOException;
+
+    public void printHeader(java.io.Writer out, ComparisonRecord cr) throws java.io.IOException;
+    public void printRecord(java.io.Writer out, ComparisonRecord cr) throws java.io.IOException;
+    public void printFooter(java.io.Writer out, ComparisonRecord cr) throws java.io.IOException;    
+
+    public void printHeader(java.io.Writer out, ProbeSetKeyRecord pskr) throws java.io.IOException;
+    public void printRecord(java.io.Writer out, ProbeSetKeyRecord pskr) throws java.io.IOException;
+    public void printFooter(java.io.Writer out, ProbeSetKeyRecord pskr) throws java.io.IOException;    
+
     
     //public void printHeader(java.io.Writer out) throws java.io.IOException;
     //public void printRecord(java.io.Writer out) throws java.io.IOException;
-    //public void printFooter(java.io.Writer out) throws java.io.IOException;
+    //public void printFooter(java.io.Writer out) throws java.io.IOException;    
 }

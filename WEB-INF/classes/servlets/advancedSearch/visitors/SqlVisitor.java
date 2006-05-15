@@ -160,7 +160,9 @@ public class SqlVisitor implements QueryTreeVisitor
         n.getOrder().accept(this);
         if(!zqlOutput)
             sql.append("\nLIMIT "+n.getLimit()); 
-        sql.append(";");
+        
+        if(zqlOutput)
+            sql.append(";");
     }
 
     public void visit(servlets.advancedSearch.queryTree.QueryTreeNode n)

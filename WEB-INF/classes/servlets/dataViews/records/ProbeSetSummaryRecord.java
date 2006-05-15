@@ -1,5 +1,5 @@
 /*
- * ProbeSetRecord.java
+ * ProbeSetSummaryRecord.java
  *
  * Created on September 14, 2005, 12:16 PM
  *
@@ -18,17 +18,19 @@ import servlets.querySets.QuerySetProvider;
  *
  * @author khoran
  */
-public class ProbeSetRecord extends AbstractRecord
+public class ProbeSetSummaryRecord extends AbstractRecord
 {    
-    private static Logger log=Logger.getLogger(ProbeSetRecord.class);
+    private static Logger log=Logger.getLogger(ProbeSetSummaryRecord.class);
     
     Integer probeSetId;
     String probeSetKey;
     Float controlAverage, treatAverage;
     Float controlStddev, treatStddev;
     
-    /** Creates a new instance of ProbeSetRecord */
-    public ProbeSetRecord(List values)
+    /**
+     * Creates a new instance of ProbeSetSummaryRecord
+     */
+    public ProbeSetSummaryRecord(List values)
     {
         int reqSize=6;
         if(values==null || values.size()!=reqSize)
@@ -52,7 +54,10 @@ public class ProbeSetRecord extends AbstractRecord
     {
         return probeSetId;
     }
-
+    public int getChildKeyType()
+    {
+        return Common.KEY_TYPE_PSK;
+    }
     public int[] getSupportedKeyTypes()
     {
         return this.getRecordInfo().getSupportedKeyTypes();
@@ -75,23 +80,19 @@ public class ProbeSetRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(1,7){
+        return new RecordInfo(0,1,7){
             public Record getRecord(List l)
             {
-                return new ProbeSetRecord(l);
+                return new ProbeSetSummaryRecord(l);
             }
             public String getQuery(QueryParameters qp,int keyType)
             {
-                return QuerySetProvider.getRecordQuerySet().getProbeSetRecordQuery(qp.getIds());                
+                return QuerySetProvider.getRecordQuerySet().getProbeSetSummaryRecordQuery(qp.getIds());                
             }
             public int[] getSupportedKeyTypes()
             {
                 return new int[]{Common.KEY_TYPE_ACC};
-            }
-            public int[] getKeyIndecies(int keyType)
-            {
-                return new int[]{0};                
-            }
+            }            
         };
     }
     

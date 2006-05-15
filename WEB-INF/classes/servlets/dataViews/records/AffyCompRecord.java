@@ -72,7 +72,7 @@ public class AffyCompRecord extends AbstractRecord
     }
     public int getChildKeyType()
     {
-        return Common.KEY_TYPE_DETAIL;
+        return Common.KEY_TYPE_PSK_EXP_COMP;
     }
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
@@ -125,7 +125,7 @@ public class AffyCompRecord extends AbstractRecord
                         for(Iterator i=qp.getIds().iterator();i.hasNext();)
                             affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
                         return QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(affyKeys,qp.getDataType(), qp.getSortCol(), qp.getSortDir());        
-                    case Common.KEY_TYPE_COMP:
+                    case Common.KEY_TYPE_PSK_EXP:
                         return QuerySetProvider.getRecordQuerySet().getAffyCompRecordQuery(qp.getAffyKeys(),qp.getDataType(), qp.getSortCol(), qp.getSortDir());
                     default:
                         return null;
@@ -133,7 +133,7 @@ public class AffyCompRecord extends AbstractRecord
             }
             public int[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_COMP};
+                return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_PSK_EXP};
             }
             public int[] getKeyIndecies(int keyType)
             {
@@ -141,7 +141,7 @@ public class AffyCompRecord extends AbstractRecord
                 {
                     case Common.KEY_TYPE_ACC:
                         return new int[]{0};
-                    case Common.KEY_TYPE_COMP:
+                    case Common.KEY_TYPE_PSK_EXP:
                         return new int[]{1,3};
                     default:
                         log.error("invalid key type given: "+keyType);
@@ -190,21 +190,7 @@ public class AffyCompRecord extends AbstractRecord
                 if(!i.hasNext())
                     rec.printFooter(out, visitor);
                 isFirst=false;                
-            }
-            
-            
-//            out.write("<tr bgcolor='"+PageColors.title+"'><th>Comparision</th><th>ratio</th><th>contrast</th><th>P-value</th><th>adj P-value</th>"+
-//                    "<th>pfp up</th><th>pfp down</th>");
-//            for(Iterator i=ib.iterator();i.hasNext();)
-//            {
-//                rec=(AffyCompRecord)i.next();
-//                out.write("<tr>");
-//                out.write("<td>"+rec.comparison+"</td>");
-//                out.write("<td>"+rec.ratio+"</td><td>"+rec.contrast+"</td>"+
-//                        "<td>"+rec.pValue+"</td><td>"+rec.adjPValue+"</td>"+
-//                        "<td>"+rec.pfpUp+"</td><td>"+rec.pfpDown+"</td>");
-//                out.write("</tr>");
-//            }
+            }            
         }
         
     }

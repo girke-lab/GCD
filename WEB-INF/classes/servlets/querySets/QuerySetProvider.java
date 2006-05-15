@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
  * This is a singlton  class that provides QuerySet objects.
  * This provides a central place to store QuerySet objects so 
  * that other classes can always find them.  This object should
- * be configured before an query related classes are used.  
+ * be configured before any query related classes are used.  
  * @author khoran
  */
 

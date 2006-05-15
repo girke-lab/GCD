@@ -28,7 +28,7 @@
                      &nbsp&nbsp&nbsp&nbsp 
                     <a href='QueryAdmin?database=<%=bean.getDatabase()%>'>Admin Page</a>                        
                 </center>
-                <%  bean.drawSearchForm(out,new String[]{"unknowns","unknowns2"}); %>
+                <%  bean.drawSearchForm(out,new String[]{"unknowns","unknowns2","treatment"}); %>
 
 
 

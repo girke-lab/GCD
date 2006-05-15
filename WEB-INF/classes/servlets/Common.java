@@ -16,13 +16,15 @@ import servlets.beans.HeaderBean;
 public class Common {
     public final static int arab=0, rice=1;    
     public final static int dbCount=2;
+    //TODO: change these to enums.
     public static final int KEY_TYPE_SEQ=0,     KEY_TYPE_MODEL=1,
                             KEY_TYPE_CLUSTER=2, KEY_TYPE_BLAST=3,
                             KEY_TYPE_ACC=4,     KEY_TYPE_QUERY=5,
-                            KEY_TYPE_DEFAULT=6, 
+                            //KEY_TYPE_DEFAULT=6, 
                             KEY_TYPE_COMP=8,    KEY_TYPE_DETAIL=9,
                             KEY_TYPE_PSK=10,    KEY_TYPE_CORR=11,
-                            KEY_TYPE_EXP_DEF=12;
+                            KEY_TYPE_EXP_DEF=12,KEY_TYPE_COMP_PSK=13,
+                            KEY_TYPE_PSK_EXP=14,KEY_TYPE_PSK_EXP_COMP=15;
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
 //    public final static String dataColor="D3D3D3",titleColor="AAAAAA";        
@@ -160,6 +162,10 @@ public class Common {
                 "&nbsp&nbsp&nbsp" +
                 "<A href='unknownsSearch.jsp'>Advanced Search</A>" +
                 "&nbsp&nbsp&nbsp" +
+                
+                "<A href='treatmentSearch.jsp'>Expression Search</A>" +
+                "&nbsp&nbsp&nbsp" +
+
                 "<a href='QueryPageServlet?searchType=seq_id&displayType=diffTrackingView&inputKey=hello'>Unknown Sets</a>");
     }
     public static void printUnknownDownloadLinks(Writer w,int hid,int end)

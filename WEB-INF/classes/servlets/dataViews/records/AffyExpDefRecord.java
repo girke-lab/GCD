@@ -44,7 +44,10 @@ public class AffyExpDefRecord extends AbstractRecord
     {
         return expName+"_"+celFileName+"_"+expType+"_"+groupNo;
     }
-
+    public int getChildKeyType()
+    { 
+        return Common.KEY_TYPE_EXP_DEF;
+    }
     public int[] getSupportedKeyTypes()
     {
         return getRecordInfo().getSupportedKeyTypes();
@@ -77,10 +80,7 @@ public class AffyExpDefRecord extends AbstractRecord
                 return QuerySetProvider.getRecordQuerySet(). 
                         getAffyExpDefRecordQuery(qp.getIds());
             }
-            public int[] getSupportedKeyTypes()
-            {
-                return new int[]{Common.KEY_TYPE_EXP_DEF};
-            }
+           
          };
      }
 }

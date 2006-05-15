@@ -23,27 +23,29 @@ import servlets.querySets.*;
 public class GoRecord extends AbstractRecord
 {
     String go_number,text,function;
-    Integer accId;
+    Integer accId,goId;
     
     private static Logger log=Logger.getLogger(GoRecord.class);
     
     
     public GoRecord(List values)
     {
-        if(values==null || values.size()!=4)
-        {
-            log.error("invalid values list in GoRecord constructor");
+        if(!checkList("GoRecord",5,values))
             return;
-        }
+        
         accId=new Integer((String)values.get(0));
         go_number=(String)values.get(1);
         function=(String)values.get(2);
         text=(String)values.get(3);
-        
+        goId=new Integer((String)values.get(4));
     }
     public Object getPrimaryKey()
     {
-        return accId;
+        return goId;
+    }
+    public int getChildKeyType()
+    {
+        return -1;
     }
     public boolean equals(Object o)
     {
@@ -51,12 +53,9 @@ public class GoRecord extends AbstractRecord
             return true;
         if(!(o instanceof GoRecord))
             return false;
-        return ((GoRecord)o).go_number.equals(go_number);
+        return ((GoRecord)o).goId.intValue()==goId.intValue();
     }
-    public int hashCode()
-    {
-        return go_number.hashCode();
-    }
+   
     public String toString()
     {
         return go_number+" "+text;
@@ -82,7 +81,7 @@ public class GoRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(new int[]{0}, 0,4){
+        return new RecordInfo(new int[]{0}, 0,5){
             public Record getRecord(List l)
             {
                 return new GoRecord(l);

@@ -56,6 +56,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
 //            return 0;
 //        return db.length;
 //    }
+    
     /**
      * Returns the <CODE>data</CODE> list.  If <CODE>data</CODE> is null,
      * <CODE>loadData()</CODE> is called first.
@@ -97,7 +98,8 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
         return keysFound;
     }
     
-    //this method should load the data list.
+    /**this method should load the data list.
+     */
     abstract void loadData();
     
     /**

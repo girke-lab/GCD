@@ -20,6 +20,7 @@ import javax.servlet.http.*;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletContext;
 import java.io.*;
+import servlets.advancedSearch.fields.Field;
 import servlets.dataViews.*;
 import servlets.advancedSearch.queryTree.*;
 import servlets.advancedSearch.visitors.*;
@@ -34,12 +35,12 @@ public class DefaultSearchableDatabase implements SearchableDatabase
     final static int rpp=25;
     
     /////  These values should be defined in the defineOptions method
-    Field[] fields;
-    String[] operators;
+    servlets.advancedSearch.fields.Field[] fields;
+    //String[] operators;
     String[] booleans; 
     
     String rootTableName,primaryKey,defaultColumn; 
-    int unaryBoundry; //seperates unary and binary ops in operators array        
+    //int unaryBoundry; //seperates unary and binary ops in operators array        
     ///////////////////////////
     
     static DbConnection dbc=null;  //need a connection to a different database
@@ -61,7 +62,15 @@ public class DefaultSearchableDatabase implements SearchableDatabase
     
         defineOptions();
     }
+    public DefaultSearchableDatabase(DbConnection dbc,SearchTreeManager stm,boolean runDefine)
+    {
+        log.debug("createing new DefauleSearchableDatabase");
+        this.dbc=dbc;
+        this.stm=stm;
     
+        if(runDefine)
+            defineOptions();
+    }
     /**
      * Takes a {@link SearchState} object and generates an AST.  The classes in
      * the queryTree package are used to build the AST. 
@@ -111,7 +120,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
      * overridden by subclasses to specify the parameters they want sent.  
      *  <P>
      *  By defualt, it will set searchType to seq_id, dataView to 
-     *  'unknowns2View', and the orig_page to 'as2.jsp'.  
+     *  'unknowns2View', and the origin_page to 'index.jsp'.  
      *
      * @param state current state of query page
      * @param context context of jsp page
@@ -126,6 +135,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
             Query queryTree=buildQueryTree(state);
             SqlVisitor sv=new SqlVisitor();            
             String sql=sv.getSql(queryTree);
+            sql=modifySql(sql); //apply any changes a subclass might define.
             log.debug("sql="+sql);
             results=dbc.sendQuery(sql);
        }catch(Exception e){
@@ -206,19 +216,19 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         fields[i]=f;
     }
     
-    public String[] getOperators()
-    {
-        return operators;
-    }
-    
-    public String getOperator(int i)
-    {
-        return operators[i];
-    }  
-    public void setOperator(int i,String op)
-    {
-        operators[i]=op;
-    }
+//    public String[] getOperators()
+//    {
+//        return operators;
+//    }
+//    
+//    public String getOperator(int i)
+//    {
+//        return operators[i];
+//    }  
+//    public void setOperator(int i,String op)
+//    {
+//        operators[i]=op;
+//    }
     
     public SearchTreeManager getSearchManager()
     {
@@ -275,6 +285,15 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         return new ArrayList(0);
     }
     /**
+     * this method allows subclasses to modify the final sql statemnt
+     *  before it is executed.  One must take care that none of existing
+     *  feilds are removed or rearanged
+     */
+    protected String modifySql(String sql)
+    {
+        return sql;
+    }
+    /**
      * 
      * @param state 
      * @param tables 
@@ -292,7 +311,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
         {
             fid=state.getSelectedField(index).intValue();
             oid=state.getSelectedOp(index).intValue();
-            value=state.getValue(index);
+            value=state.getValue(index); 
             if(index>0)
                 bid=state.getSelectedBool(index-1).intValue();
             else 
@@ -340,7 +359,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
             
             //add regular condition
             Operation op;
-            DbField field=new DbField(getFields()[fid].dbName,getFields()[fid].type);
+            DbField field=new DbField(getFields()[fid].dbName,getFields()[fid].getType());
             
 //            if(isUnaryOp(oid))
 //                op=new Operation(getOperators()[oid],field,Operation.LEFT);
@@ -405,25 +424,25 @@ public class DefaultSearchableDatabase implements SearchableDatabase
     private LiteralValue getLiteralValue(Field f,String v)
     {
         log.debug("getting literal value for field "+f+" with value +"+v);
-        if(f.type==String.class)
+        if(f.getType()==String.class)
             return new StringLiteralValue(v);
-        else if(f.type==Integer.class)
+        else if(f.getType()==Integer.class)
             try{
                 return new IntLiteralValue(Integer.valueOf(v));
             }catch(Exception e){
                 log.warn("integer format exception :"+e);
                 return new IntLiteralValue(0);
             }            
-        else if(f.type==Float.class)
+        else if(f.getType()==Float.class)
             try{
                 return new FloatLiteralValue(Float.valueOf(v));
             }catch(Exception e){
                 log.warn("float format exception :"+e);
                 return new FloatLiteralValue(0);
             }
-        else if(f.type==Boolean.class)                  
+        else if(f.getType()==Boolean.class)                  
             return new BooleanLiteralValue(Common.getBoolean(v));
-        else if(f.type==List.class)
+        else if(f.getType()==List.class)
         {
             List l=new LinkedList();
             StringTokenizer tok=new StringTokenizer(v);
@@ -447,7 +466,7 @@ public class DefaultSearchableDatabase implements SearchableDatabase
             return new ListLiteralValue(l);
         }            
         else
-            log.error("unknown type: "+f.type.getName());
+            log.error("unknown type: "+f.getType().getName());
         return null;
     }
     /**
@@ -499,10 +518,10 @@ public class DefaultSearchableDatabase implements SearchableDatabase
      * @param opId 
      * @return 
      */
-    private boolean isUnaryOp(int opId)
-    {
-        return opId >= unaryBoundry;
-    }
+//    private boolean isUnaryOp(int opId)
+//    {
+//        return opId >= unaryBoundry;
+//    }
     
     /**     
      * This method defines the available fields, operators and values ranges

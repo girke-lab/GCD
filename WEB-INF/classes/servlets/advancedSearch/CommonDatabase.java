@@ -16,6 +16,8 @@ import servlets.Common;
 import javax.servlet.http.*;
 import javax.servlet.*;
 import servlets.*;
+import servlets.advancedSearch.fields.*;
+import servlets.advancedSearch.fields.Field;
 import servlets.advancedSearch.queryTree.*;
 
 /**
@@ -35,59 +37,28 @@ public class CommonDatabase extends DefaultSearchableDatabase
         super(DbConnectionManager.getConnection("common"),stm);
        
     }
-//    void defineOptions2()
-//    {   
-//        Map cn=QuerySetProvider.getSearchableDatabaseQuerySet().getCommonColumnNames();
-//        
-//        rootTableName=(String)cn.get("rootTableName");
-//        primaryKey=(String)cn.get("primaryKey");
-//        defaultColumn=(String)cn.get("defaultColumn");
-//        
-//        //don't set column names here
-//        fields=new Field[]{ new Field("Loci Id","",List.class), 
-//                            new Field("Loci Description",""),
-//                            new Field("Cluster Id","",List.class),
-//                            new Field("Cluster Name",""),                            
-//                            new Field("Cluster Size","",Integer.class),
-//                            new Field("Clustering Method","",
-//                                new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
-//                            new Field("# arab keys in cluster","",Integer.class),
-//                            new Field("# rice keys in cluster","",Integer.class),
-//                            new Field("Database","",new String[]{"arab","rice"}),
-//                            new Field("GO Number","",List.class)
-//        };
-//        int[] sortableFields=new int[]{0,1};
-//        for(int i=0;i<sortableFields.length;i++)        
-//            fields[sortableFields[i]].setSortable(true);
-//        for(int i=0;i<fields.length;i++) //set column names from map
-//            fields[i].dbName=(String)cn.get(fields[i].displayName);
-//        
-//        operators=new String[]{"=","!=","<",">","<=",">=",Common.ILIKE,"NOT "+Common.ILIKE};
-//        booleans=new String[]{"and","or"};        
-//    }
     
     void defineOptions()
     {   
         rootTableName="sequences";
         primaryKey="seq_id";
         defaultColumn="primary_key";
+                
         
-        fields=new Field[]{ new Field("Loci Id", "sequences.primary_key",List.class), 
-                            new Field("Loci Description","sequences.description"),
-                            new Field("Cluster Id","clusters_and_info.filename",List.class),
-                            new Field("Cluster Name","clusters_and_info.name"),                            
-                            new Field("Cluster Size","clusters_and_info.size",Integer.class),
-                            new Field("Clustering Method","clusters_and_info.method",
-                                new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
-                            new Field("# arab keys in cluster","clusters_and_info.arab_count",Integer.class),
-                            new Field("# rice keys in cluster","clusters_and_info.rice_count",Integer.class),
-                            new Field("Database","sequences.Genome",new String[]{"arab","rice"}),
-                            new Field("GO Number","go.go",List.class)
+        fields=new Field[]{ 
+            new StringField("Loci Id", "sequences.primary_key",true).setSortable(true), 
+            new StringField("Loci Description","sequences.description").setSortable(true),
+            new StringField("Cluster Id","clusters_and_info.filename",true),
+            new StringField("Cluster Name","clusters_and_info.name"),                            
+            new IntField("Cluster Size","clusters_and_info.size"),
+            new ListField("Clustering Method","clusters_and_info.method",
+                new String[]{"BLASTCLUST_35","BLASTCLUST_50","BLASTCLUST_70","Domain Composition"}),
+            new IntField("# arab keys in cluster","clusters_and_info.arab_count"),
+            new IntField("# rice keys in cluster","clusters_and_info.rice_count"),
+            new ListField("Database","sequences.Genome",new String[]{"arab","rice"}),
+            new StringField("GO Number","go.go",true)
         };
-        int[] sortableFields=new int[]{0,1};
-        for(int i=0;i<sortableFields.length;i++)
-            fields[sortableFields[i]].setSortable(true);
-        operators=new String[]{"=","!=","<",">","<=",">=",Common.ILIKE,"NOT "+Common.ILIKE};
+        
         booleans=new String[]{"and","or"};        
     }
   

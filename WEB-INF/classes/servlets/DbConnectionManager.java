@@ -6,11 +6,6 @@
 
 package servlets;
 
-/**
- *
- * @author  khoran
- */
-
 import java.util.*;
 import org.apache.log4j.Logger;
 
@@ -18,6 +13,7 @@ import org.apache.log4j.Logger;
  * This is a static class that maintains a synchronized collection of DbConnection
  * objects.  Each DbConnection should be to a different database.  Also 
  * creates some default connections.
+ * @author khoran
  */
 public class DbConnectionManager
 {
@@ -59,8 +55,15 @@ public class DbConnectionManager
     {
         if(connections==null)
             initMap();
-        return (DbConnection)connections.get(name);        
+        DbConnection dbc=(DbConnection)connections.get(name);
+        if(dbc==null)
+            log.error("db connection '"+name+"' not found");
+        return dbc;
     }
+    /**
+     * Return a list of all connection names available
+     * @return a collection of valid connection names
+     */
     public static Collection<String> getConnectionNames()
     {
         if(connections==null)
@@ -86,11 +89,11 @@ public class DbConnectionManager
         try{
             Class.forName("org.postgresql.Driver").newInstance();
                 //for deployment
-                connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5433/khoran","servlet","512256")); //connect to postgres            
+                connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres            
                 
                 //for testing
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); 
-                //connections.put("khoran",new DbConnection("jdbc:postgresql://db2.bioinfo.ucr.edu:5432/khoran","servlet","512256")); 
+                //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran","servlet","512256")); 
 
                 //for home testing
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://localhost:5430/khoran_loading","khoran","512_256_1024")); //connect to postgres            
