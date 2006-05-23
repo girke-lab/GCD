@@ -617,4 +617,9 @@ public class V1QuerySets implements DataViewQuerySet, RecordQuerySet, DatabaseQu
         return null;
     }
 
+    public String getCompCountDataViewQuery(String userName)
+    {
+        return "";
+    }
+
 }
