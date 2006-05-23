@@ -536,6 +536,46 @@ public class AdvancedSearchBean2
         return out.toString();
     }
      
+    public void printUsage(Writer out) 
+    {
+        try{
+            out.write(
+                        "<h4> Usage: </h4>" +
+            "                    <p>" +
+            "                    This page allows you to create a more complex and detailed query.  " +
+            "                    The first feild specifies the data feild to restrict.  The second" +
+            "                    feild is a list of operators which  can be applied to the selected" +
+            "                    data.  The third column is the value of the data." +
+            "                    <p>" +
+            "                    The 'IN' operator lets you specifiy a list of strings in the value feild." +
+            "                    It will return all records that match one of them exactly." +
+            "                    This is faster than 'ILIKE', so you should use 'IN' if an exact match will work." +
+            "                    <p>                    " +
+            "                    'NOT IN' will match any record wich does not match any of the given strings" +
+            "                    exactly." +
+            "                    <p>                    " +
+            "                    'ILIKE' will match any record which contains any of the given strings.  " +
+            "                    You can also specify a list of pattern matches. " +
+            "                    If you use the '%', any number of characters can appear there and " +
+            "                    it will still match.  If you use the '_', any one character can" +
+            "                    apear there.  For example, if you wanted to find any string containing" +
+            "                    the word 'kinase' followed by 'protein' later in the string, you could enter: '%kinase%protein%'. " +
+            "                    <p>                    " +
+            "                    'NOT ILIKE' is like 'ILIKE', except that only records that don't" +
+            "                    match any pattern are returned." +
+            "                    <P>" +
+            "                    You can set the 'sort by' feild to sort the whole result set by that " +
+            "                    feild.  Once you get to the result set, you can only sort records" +
+            "                    on the current page." +
+            "                    <P>" +
+            "                    The 'add sub expression' button is still experimental, but you can" +
+            "                    try it if you like.  It tries to add a sub expression inside a set of parithesis" +
+            "                    so you can create more complex expressions.   " 
+            );
+        }catch(IOException e){
+            log.error("io error: "+e);
+        }
+    }
     
     private List getIntList(String[] strings)
     {

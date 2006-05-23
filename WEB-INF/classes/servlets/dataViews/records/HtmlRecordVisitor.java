@@ -519,8 +519,9 @@ public class HtmlRecordVisitor implements RecordVisitor
                                      "Control Description","Treatment Description"};
         
         String[] dbNames=QuerySetProvider.getDataViewQuerySet().getSortableTreatmentColoumns()[DataViewQuerySet.TREAT_COMP];
-        printTableTitles(new PrintWriter(out),titles,dbNames,"comparison","");
+        printTableTitles(new PrintWriter(out),titles,dbNames,"comparison","","width='10%'");
         
+        out.write("<td>&nbsp</td>");
         out.write("</tr>");  
     }
 
@@ -537,14 +538,15 @@ public class HtmlRecordVisitor implements RecordVisitor
             expSetPopup+="Data Source: "+cr.sourceName+"<p>";
         expSetPopup+=cr.expDesc+"')\""; 
         
-        
         Object[] values=new Object[]{            
             "<a href='"+expSetKeyLink+"' "+expSetPopup+" >"+cr.expSetKey+"</a>",
             cr.comparison,
-            cr.controlDesc, cr.treatmentDesc
+            cr.controlDesc, cr.treatmentDesc,"&nbsp"
         };
-        for(Object v : values)
-            out.write("<td nowrap >"+v+"</td>");
+//        String thOptions="align='left' bgcolor='"+PageColors.title+"' width='10%'";
+//        String tdOptions="bgcolor='"+PageColors.catagoryColors.get(cr.catagory)+"'";
+        for(int i=0;i<values.length;i++)
+            out.write("<td nowrap >"+values[i]+"</td>");
          out.write("</tr>");
          
          
@@ -561,10 +563,10 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printHeader(Writer out, ProbeSetKeyRecord pskr) throws IOException
     {
         out.write("<tr bgcolor='"+PageColors.title+"'>");
-        String[] titles=new String[]{"AffyID","Control Mean",
+        String[] titles=new String[]{"AffyID","Accessions","Control Mean",
                             "Treat Mean","Control PMA","Treat PMA","ratio (log2)",
                             "Contrast","p-value","Adjusted p-value","PFP up",
-                            "PFP down","Clusters"};
+                            "PFP down","Clusters","Accession Descriptions"};
         
         String[] dbNames=QuerySetProvider.getDataViewQuerySet().getSortableTreatmentColoumns()[DataViewQuerySet.TREAT_PSK];
         printTableTitles(new PrintWriter(out),titles,dbNames,"psk","");
@@ -580,6 +582,7 @@ public class HtmlRecordVisitor implements RecordVisitor
         String pskLink="QueryPageServlet?displayType=affyView&searchType=Probe_Set&inputKey="+pskr.probeSetKey;
         String clusterLink="QueryPageServlet?displayType=probeSetView&searchType=Psk_Cluster" +
                 "&inputKey=";
+        String accLink="QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
         
         String pskPopup;                
                 
@@ -589,14 +592,21 @@ public class HtmlRecordVisitor implements RecordVisitor
             pskPopup="onmouseover=\"return escape('"+pskr.clusterNames[i]+"<br>"+pskr.methods[i]+"')\"";
             clusters+="<a href='"+clusterLink+pskr.cluster_ids[i]+" "+pskr.comparisonId+"' "+pskPopup+">"+
                     pskr.clusterNames[i]+"("+pskr.sizes[i]+")</a> &nbsp&nbsp ";
-        }        
+        }       
+        StringBuilder accSb=new StringBuilder();
+        StringBuilder descSb=new StringBuilder();
+        
+        for(String s : pskr.accessions)
+            accSb.append("<a href='"+accLink+s+"'>"+s+"</a> &nbsp ");
+        for(String s : pskr.accDescriptions)
+            descSb.append(s+" &nbsp&nbsp&nbsp ");
         
         Object[] values=new Object[]{
-            "<a href='"+pskLink+"' >"+pskr.probeSetKey+"</a>",
+            "<a href='"+pskLink+"' >"+pskr.probeSetKey+"</a>",accSb.toString(),
             pskr.controlMean,pskr.treatmentMean, 
-            pskr.controlPMA, pskr.treatmentPMA, pskr.ratio,
+            cn(pskr.controlPMA), cn(pskr.treatmentPMA), pskr.ratio,
             pskr.contrast, pskr.pValue, pskr.adjPValue, 
-            pskr.pfpUp, pskr.pfpDown,clusters
+            pskr.pfpUp, pskr.pfpDown,clusters,descSb.toString()
         };
         for(Object v : values)
             out.write("<td nowrap >"+v+"</td>");
@@ -667,6 +677,10 @@ public class HtmlRecordVisitor implements RecordVisitor
     
     protected void printTableTitles(PrintWriter out,String[] titles, String[] dbColNames,String prefix,String anchor)
     {
+        printTableTitles(out,titles, dbColNames,prefix,anchor,"");
+    }
+    protected void printTableTitles(PrintWriter out,String[] titles, String[] dbColNames,String prefix,String anchor,String headerOptions)
+    {
         String newDir;
         if(titles.length!=dbColNames.length)
         {
@@ -683,11 +697,14 @@ public class HtmlRecordVisitor implements RecordVisitor
             
             if(sortCol!=null && sortCol.equals(prefix+"_"+dbColNames[i])) //reverse current sort col
                 newDir=(sortDir.equals("asc"))? "desc":"asc"; //flip direction
-            out.println("<th nowrap ><a href='QueryPageServlet?hid="+hid+"&sortCol="+prefix+"_"+dbColNames[i]+
+            out.println("<th nowrap "+headerOptions+"  ><a href='QueryPageServlet?hid="+hid+"&sortCol="+prefix+"_"+dbColNames[i]+
                 "&sortDirection="+newDir+"#"+anchor+"'>"+titles[i]+"</a></th>");             
         }
     }
-
+    private String cn(String s)
+    {
+        return s==null?"&nbsp":s;
+    }
     //</editor-fold>
 
    

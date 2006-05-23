@@ -337,7 +337,7 @@ public class TextRecordVisitor implements RecordVisitor
         Object[] values=new Object[]{
             pskr.probeSetKey,
             pskr.controlMean,pskr.treatmentMean, 
-            pskr.controlPMA, pskr.treatmentPMA, pskr.ratio,
+            cn(pskr.controlPMA), cn(pskr.treatmentPMA), pskr.ratio,
             pskr.contrast, pskr.pValue, pskr.adjPValue, 
             pskr.pfpUp, pskr.pfpDown
         };
@@ -374,5 +374,9 @@ public class TextRecordVisitor implements RecordVisitor
             for(Object o : r)
                 ((Record)o).printRecord(out,this);
         dataStack.removeLast();
+    }
+    private String cn(String s)
+    {
+        return s==null?"":s;
     }
 }

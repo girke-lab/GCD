@@ -189,7 +189,7 @@ public class CorrelationRecord extends AbstractRecord
                     if(!i.hasNext())
                     {// last element
                         //print accessions
-                        String accUrl="QueryPageServlet?searchType=Id&displayType=affyView&inputKey=";
+                        String accUrl="QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
                         out.write("<td nowrap > &nbsp ");
                         for(int j=0;j<rec.accessions.length;j++)
                             out.write("<a href='"+accUrl+rec.accessions[j]+"'>"+

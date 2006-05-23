@@ -26,6 +26,7 @@ public class SqlVisitor implements QueryTreeVisitor
     private static Logger log=Logger.getLogger(SqlVisitor.class);
     StringBuffer sql;
     boolean printParinths;
+    boolean isPattern=false;
 
     /**
      * Set to true when generating sql that should be parsable
@@ -108,6 +109,9 @@ public class SqlVisitor implements QueryTreeVisitor
         }
         
         sql.append(" "+n.getOperation()+" ");
+        String op=n.getOperation();        
+        if(op.indexOf("like")!=-1)
+            isPattern=true;
                 
         if(n.getRight()!=null) //could be an unary operator
         {
@@ -115,6 +119,7 @@ public class SqlVisitor implements QueryTreeVisitor
                     && !((Operation)n.getRight()).getOperation().equals(n.getOperation()));
             n.getRight().accept(this);
         }
+        isPattern=false;
         
         if(localPrintParinths)
             sql.append(")\n");
@@ -184,11 +189,12 @@ public class SqlVisitor implements QueryTreeVisitor
             sql.append("('')");
             return;
         }
-        sql.append("(");
+        sql.append("(");        
         for(Iterator i=n.getValues().iterator();i.hasNext();)
         {
             //sql.append(i.next());
             ((LiteralValue)i.next()).accept(this);
+
             if(i.hasNext())
                 sql.append(",");
         }
@@ -197,7 +203,11 @@ public class SqlVisitor implements QueryTreeVisitor
     public void visit(servlets.advancedSearch.queryTree.StringLiteralValue n)
     {
         log.debug("visiting "+n.getClass().getName());
-        sql.append("'"+n.getValue()+"'");
+        String value=n.getValue();
+        if(isPattern && value.indexOf('%')==-1 && value.indexOf('_')==-1)
+            sql.append("'%"+n.getValue()+"%'");
+        else
+            sql.append("'"+n.getValue()+"'");
     }
 
     public void visit(BooleanLiteralValue n)
@@ -242,7 +252,7 @@ public class SqlVisitor implements QueryTreeVisitor
             return;
         }
             
-        
+        isPattern=true;
         sql.append("(");
         for(Iterator i=llv.getValues().iterator();i.hasNext();)
         {
@@ -252,6 +262,7 @@ public class SqlVisitor implements QueryTreeVisitor
                 sql.append(" OR ");
         }
         sql.append(")");
+        isPattern=false;
     }
     private void printDistinct(Query n)
     {

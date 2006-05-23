@@ -19,6 +19,7 @@
             <tr>
                 <td>
                     <center><%  common.printUnknownsSearchLinks(out); %></center>
+                    
                 </td>
             </tr>
             <tr>
@@ -29,7 +30,13 @@
             <tr>
                 <td align='center'>
                         
-                        <a href='QueryAdmin?database=<%=bean.getDatabase()%>'>Admin Page</a>                        
+                        <a href='QueryAdmin?database=<%=bean.getDatabase()%>'>Admin Page</a>      
+                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        
+                        <A  href='QueryPageServlet?searchType=seq_id&displayType=compCountsView&inputKey=hello' >
+                            <font color='#FF0000'>    Select experiment and comparison</font>
+                        </a>
+                        
                 </td>
             </tr>
             <tr>
@@ -38,16 +45,8 @@
                 </td>
             </tr>
             <tr>
-                <td>
-            
-
-                    <h4> Usage: </h4>
-                    <p>
-                    Most operators work as expected.  The LIKE and NOT LIKE operators can be used
-                    to match patterns.  The symbol '%' will match any number of characters,
-                    while the '_' will match any one character. 
-                    <p>                    
-                    The limit field determines the total number of results returned.                    
+                <td>            
+                    <% bean.printUsage(out);     %>
                 </td>
             </tr>
         </table>

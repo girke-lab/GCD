@@ -237,10 +237,20 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         return new String[][]{
             {"exp_set_key","comparison","control_desc","treatement_desc"},
-            {"probe_set_key","control_Mean",
+            {"probe_set_key","accessions","control_Mean",
                 "treatment_mean","control_pma","treatment_pma","t_c_ratio_lg",
-                "contrast","p_value","adj_p_value","pfp_up","pfp_down","cluster_names"}            
+                "contrast","p_value","adj_p_value","pfp_up","pfp_down",
+                "cluster_names","acc_descriptions"}            
         };
+    }
+    public String getCompCountDataViewQuery(String userName)
+    {
+        if(userName==null || userName.equals(""))
+            userName="public";
+        String query="SELECT * FROM affy.comparison_counts " +
+                " WHERE user_name='"+userName+"'";
+        logQuery(query);
+        return query;
     }
     
     //   </editor-fold> 
@@ -1131,6 +1141,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         log.warn("malformed column name: "+col);
         return "";
     }
-    
+
+   
    
 }

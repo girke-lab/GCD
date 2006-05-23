@@ -32,13 +32,7 @@
 
 
 
-                <h4> Usage: </h4>
-                <p>
-                Most operators work as expected.  The LIKE and NOT LIKE operators can be used
-                to match patterns.  The symbol '%' will match any number of characters,
-                while the '_' will match any one character. 
-                <p>                    
-                The limit field determines the total number of results returned.                    
+                <% bean.printUsage(out);     %>                
 
     <% header.printFooter(); %>
 </html>

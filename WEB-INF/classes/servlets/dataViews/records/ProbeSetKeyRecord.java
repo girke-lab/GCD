@@ -21,14 +21,14 @@ import servlets.querySets.QuerySetProvider;
 public class ProbeSetKeyRecord extends AbstractRecord
 {
     private static Logger log=Logger.getLogger(ProbeSetKeyRecord.class);        
-    private static int reqSize=19;
+    private static int reqSize=21;
     
     Integer pskId,expSetId,comparisonId;
     
     String probeSetKey,controlPMA,treatmentPMA;    
     
     int[] cluster_ids,sizes;
-    String[] clusterNames, methods;
+    String[] clusterNames, methods,accessions,accDescriptions;
     
     Float controlMean, treatmentMean,ratio;
     Float contrast, pValue, adjPValue, pfpUp,pfpDown;
@@ -60,8 +60,11 @@ public class ProbeSetKeyRecord extends AbstractRecord
         methods=getStringArray((java.sql.Array)values.get(17));
         sizes=getIntArray((java.sql.Array)values.get(18));
         
-        if(controlPMA==null) controlPMA="&nbsp";
-        if(treatmentPMA==null) treatmentPMA="&nbsp";        
+        accessions=getStringArray((java.sql.Array)values.get(19));
+        accDescriptions=getStringArray((java.sql.Array)values.get(20));
+        
+//        if(controlPMA==null) controlPMA="";
+//        if(treatmentPMA==null) treatmentPMA="";        
     }
 
     private String[] getStringArray(java.sql.Array a)

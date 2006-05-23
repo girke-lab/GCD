@@ -144,7 +144,7 @@ public class TreatmentDatabase extends DefaultSearchableDatabase
             new StringField(space+"Probe Set Key",
                                 "affy.experiment_group_summary_view.probe_set_key",true).setSortable(true),
             new ListField(space+"Experiment Set Key",
-                                "affy.experiment_group_summary_view.experiment_set_key",expSetQuery).setSortable(true),            
+                                "affy.experiment_group_summary_view.experiment_set_key",expSetQuery),            
 
             new StringField("Affy Experiment Sets",""), 
             new ListField(space+"Catagory","affy.experiment_set_summary_view.catagory",catagoryQuery),                    
