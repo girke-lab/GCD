@@ -68,7 +68,7 @@ public class UnknownResultsServlet extends HttpServlet {
            ids.add(tok.nextToken());
         dv.setData(sortCol, new int[]{},0);
         try{
-            dv.setKeyType(Common.KEY_TYPE_MODEL);
+            dv.setKeyType(KeyTypeUser.KeyType.MODEL);
         }catch(servlets.exceptions.UnsupportedKeyTypeException e){
             log.error(e);
         }

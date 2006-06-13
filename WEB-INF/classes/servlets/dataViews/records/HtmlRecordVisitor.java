@@ -89,7 +89,20 @@ public class HtmlRecordVisitor implements RecordVisitor
         for(int i=0;i<ur.go_unknowns.length;i++)
             out.write("<b>"+names[i]+"</b>: "+ur.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
         String url="QueryPageServlet?searchType=Id&displayType=correlationView&rpp=200&inputKey="+ur.key;
-        out.write("&nbsp&nbsp&nbsp <a href='"+url+"'><font color='red'>Correlation Data</font></a>");
+        if(ur.probe_set_key_id!=-1) // -1 indicates that no psk is associated with this accession.
+            out.write("&nbsp&nbsp&nbsp <a href='"+url+"'><font color='red'>Correlation Data</font></a>&nbsp&nbsp");
+        
+        String pskPopup;                
+        String clusterLink="QueryPageServlet?displayType=correlationView&searchType=Cluster_Corr" +
+                "&inputKey=";
+        
+        for(int i=0;i<ur.cluster_ids.length;i++)
+        {
+            pskPopup="onmouseover=\"return escape('"+ur.clusterNames[i]+"<br>"+ur.methods[i]+"')\"";
+            out.write(" &nbsp&nbsp <a href='"+clusterLink+ur.cluster_ids[i]+" "+ur.probe_set_key_id+"' "+pskPopup+">"+
+                    ur.clusterNames[i]+"("+ur.sizes[i]+")</a>  ");
+        }       
+        
         out.write("</td></tr>\n");               
                                 
         printSubRecords(out, ur.iterator(),5,0);        

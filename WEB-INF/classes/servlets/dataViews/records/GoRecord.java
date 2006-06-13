@@ -43,9 +43,9 @@ public class GoRecord extends AbstractRecord
     {
         return goId;
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
-        return -1;
+        return null;
     }
     public boolean equals(Object o)
     {
@@ -74,7 +74,7 @@ public class GoRecord extends AbstractRecord
     public void printFooter(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
     }
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return this.getRecordInfo().getSupportedKeyTypes();
     }
@@ -86,13 +86,13 @@ public class GoRecord extends AbstractRecord
             {
                 return new GoRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 return QuerySetProvider.getRecordQuerySet().getGoRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
             }
-            public int[] getSupportedKeyTypes()
+            public KeyType[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_ACC};
+                return new KeyType[]{KeyType.ACC};
             }
         };
     }

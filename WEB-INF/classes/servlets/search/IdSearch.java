@@ -64,9 +64,9 @@ public class IdSearch extends AbstractSearch
         temp.removeAll(keysFound);
         return temp;        
     }
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL,
-                         Common.KEY_TYPE_CORR};
+        return new KeyType[]{KeyType.SEQ,KeyType.MODEL,
+                         KeyType.CORR};
     }  
 }

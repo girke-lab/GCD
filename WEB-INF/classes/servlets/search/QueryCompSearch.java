@@ -26,7 +26,7 @@ public class QueryCompSearch implements Search
     String comp_id,status;
     List data=null;
     boolean noData=false;
-    int keyType;
+    KeyType keyType;
     
     private static Logger log=Logger.getLogger(QueryCompSearch.class);
     private static DbConnection dbc=DbConnectionManager.getConnection("khoran");    
@@ -98,19 +98,19 @@ public class QueryCompSearch implements Search
     {
         return new ArrayList();
     }
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }
    
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL};
+        return new KeyType[]{KeyType.SEQ,KeyType.MODEL};
     }  
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         boolean isValid=false;
-        int[] keys=getSupportedKeyTypes();
+        KeyType[] keys=getSupportedKeyTypes();
         for(int i=0;i<keys.length;i++)
             if(keyType == keys[i]){
                 isValid=true;

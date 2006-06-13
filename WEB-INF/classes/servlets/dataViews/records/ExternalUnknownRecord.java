@@ -49,9 +49,9 @@ public class ExternalUnknownRecord extends AbstractRecord
     {
         return externalId;
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
-        return -1;
+        return null;
     }
     public boolean equals(Object o)
     {
@@ -78,7 +78,7 @@ public class ExternalUnknownRecord extends AbstractRecord
     
     
     
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return this.getRecordInfo().getSupportedKeyTypes();
     }
@@ -90,13 +90,13 @@ public class ExternalUnknownRecord extends AbstractRecord
             {
                 return new ExternalUnknownRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 return QuerySetProvider.getRecordQuerySet().getExternlUnknwownsRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
             }
-            public int[] getSupportedKeyTypes()
+            public KeyType[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_ACC};
+                return new KeyType[]{KeyType.ACC};
             }
         };
     }

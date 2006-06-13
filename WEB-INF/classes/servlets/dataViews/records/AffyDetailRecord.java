@@ -55,9 +55,9 @@ public class AffyDetailRecord extends AbstractRecord
     {
         return probeSetId+"_"+expSetId+"_"+comparison+"_"+celFile; 
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     { 
-        return Common.KEY_TYPE_DETAIL;
+        return KeyType.DETAIL;
     }
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
@@ -72,7 +72,7 @@ public class AffyDetailRecord extends AbstractRecord
         visitor.printFooter(out,this); 
     }
         
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return this.getRecordInfo().getSupportedKeyTypes();
     }
@@ -84,32 +84,32 @@ public class AffyDetailRecord extends AbstractRecord
             {
                 return new AffyDetailRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 switch(keyType){
-                    case Common.KEY_TYPE_ACC:
+                    case ACC:
                         Collection<AffyKey> affyKeys=new LinkedList<AffyKey>();
                         for(Iterator i=qp.getIds().iterator();i.hasNext();)
                             affyKeys.add(new AffyKey(new Integer((String)i.next()),null,null));
                         return QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(affyKeys,qp.getDataType(), true,qp.getSortCol(), qp.getSortDir());
-                    case Common.KEY_TYPE_PSK_EXP_COMP:
+                    case PSK_EXP_COMP:
                         return QuerySetProvider.getRecordQuerySet().getAffyDetailRecordQuery(qp.getAffyKeys(),qp.getDataType(), qp.isAllGroups(),qp.getSortCol(), qp.getSortDir());
                     default:
                         return null;
                 }
                 
             }
-            public int[] getSupportedKeyTypes()
+            public KeyType[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_PSK_EXP_COMP};
+                return new KeyType[]{KeyType.ACC,KeyType.PSK_EXP_COMP};
             }
-            public int[] getKeyIndecies(int keyType)
+            public int[] getKeyIndecies(KeyType keyType)
             {
                 switch(keyType)
                 {
-                    case Common.KEY_TYPE_ACC:
+                    case ACC:
                         return new int[]{0};
-                    case Common.KEY_TYPE_PSK_EXP_COMP:
+                    case PSK_EXP_COMP:
                         return new int[]{1,2,3};
                     default:
                         log.error("invalid key type given: "+keyType);

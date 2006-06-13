@@ -8,12 +8,12 @@ package servlets.querySets;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import org.apache.log4j.Logger;
 import servlets.Common;
+import servlets.KeyTypeUser;
 import servlets.advancedSearch.*;
 import servlets.dataViews.AffyKey;
-
+import static servlets.KeyTypeUser.*;
 
 /**
  * This class implements all the different QuerySet objects to
@@ -38,7 +38,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     }
     
     // <editor-fold defaultstate="collapsed" desc=" DataView queries ">
-    public String getBlastDataViewQuery(java.util.Collection ids, String sortCol, String sortDir, int keyType)
+    public String getBlastDataViewQuery(java.util.Collection ids, String sortCol, String sortDir, KeyType keyType)
     {
         String query=
             "SELECT query.accession,target.accession,gd.link,target.description, " +
@@ -59,7 +59,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return new String[] { "target.accession","target.description",
                             "o.name","br.e_value","br.score","br.identities","br.length"};
     }
-    public String getClusterDataViewQuery(java.util.Collection ids, String order, int[] DBs, int keyType)
+    public String getClusterDataViewQuery(java.util.Collection ids, String order, int[] DBs, KeyType keyType)
     {
         order=order.replaceAll("(general\\.)?cluster_sizes_by_model_mv", "csm");
         String query="SELECT DISTINCT clusters.key, clusters.name,csm.arab_count," +
@@ -70,7 +70,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;   
     }
-    public String getUnknownsDataViewQuery(java.util.Collection ids, String sortCol, String sortDir, int keyType)
+    public String getUnknownsDataViewQuery(java.util.Collection ids, String sortCol, String sortDir, KeyType keyType)
     {
         String query="SELECT unknowns.*,treats.treat " +
             " FROM old_unknowns.unknowns LEFT JOIN old_unknowns.treats USING(unknown_id) " +
@@ -102,7 +102,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         };  
     }
 
-    public String getModelDataViewQuery(java.util.Collection ids, String fields, int keyType)
+    public String getModelDataViewQuery(java.util.Collection ids, String fields, KeyType keyType)
     {        
         String query="SELECT "+fields+
                 " FROM general.genome_databases " +
@@ -127,7 +127,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             "genome_databases.db_name"};
     }
    
-    public String getSeqDataViewQuery(java.util.Collection ids, String order, int[] DBs, int keyType)
+    public String getSeqDataViewQuery(java.util.Collection ids, String order, int[] DBs, KeyType keyType)
     {
         StringBuffer query=new StringBuffer();
         //account for local aliases
@@ -270,12 +270,18 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         else if(sortCol.equals("unknowns.arab_accessions.description"))
             sortCol="accessions.description";
         
-        String query="SELECT  ma.model_accession_id, accessions.accession, accessions.description, " +
+        String query="SELECT DISTINCT  " +
+                 " ma.model_accession_id, accessions.accession, accessions.description, " +
                  " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
-                 " unknown_data.version" +
-        "   FROM general.accessions " +
+                 //" unknown_data.version" +
+                 " cbp.probe_set_key_id, cbp.cluster_ids, cbp.cluster_names, cbp.methods, cbp.sizes "+
+        "   FROM general.accessions " +        
         "       JOIN general.to_model_accessions as ma ON(accessions.accession_id=ma.model_accession_id) " +
         "       JOIN "+uSchema+".unknown_data ON(ma.model_accession_id=unknown_data.accession_id) " +
+                
+        "       JOIN general.to_sequence_accessions as sa ON(ma.accession_id=sa.accession_id) "+
+        "       LEFT JOIN affy.psk_to_accession_view as pska ON(sa.sequence_accession_id=pska.accession_id) "+
+        "       LEFT JOIN affy.clusters_by_psk as cbp USING(probe_set_key_id) "+
         "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
                 
@@ -642,7 +648,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
      /////////////////////////////////
     //////// SearchQuerySet methods
     /////////////////////////////////
-    public String getBlastSearchQuery(Collection dbNames, java.util.Collection keys, int keyType)
+    public String getBlastSearchQuery(Collection dbNames, java.util.Collection keys, KeyType keyType)
     {
         String query=
             "SELECT br.blast_id " +
@@ -655,10 +661,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
 
-    public String getClusterIDSearchQuery(java.util.Collection input, int limit, int[] DBs, int keyType)
+    public String getClusterIDSearchQuery(java.util.Collection input, int limit, int[] DBs, KeyType keyType)
     {
         String translateTable="sequence";
-        if(keyType==Common.KEY_TYPE_MODEL)
+        if(keyType==KeyType.MODEL) 
             translateTable="model";
         String q="SELECT distinct "+translateTable+"_accession_id,clusters.key, genome_databases.db_name " +
                 " FROM    general.clusters" +
@@ -682,7 +688,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return q;
     }
 
-    public String getClusterNameSearchQuery(java.util.Collection input, int limit, int[] DBs, int keyType)
+    public String getClusterNameSearchQuery(java.util.Collection input, int limit, int[] DBs, KeyType keyType)
     {
         String q="SELECT distinct accessions.accession_id, genome_databases.db_name " +
                 " FROM  general.clusters " +
@@ -710,10 +716,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return q;
     }
 
-    public String getDescriptionSearchQuery(java.util.Collection input, int limit, int[] DBs, int keyType)
+    public String getDescriptionSearchQuery(java.util.Collection input, int limit, int[] DBs, KeyType keyType)
     {        
         String isModel="FALSE";
-        if(keyType==Common.KEY_TYPE_MODEL)
+        if(keyType==KeyType.MODEL)
             isModel="TRUE";
         String id="SELECT DISTINCT accessions.accession_id, genome_databases.db_name " +
                 "FROM general.accessions JOIN general.genome_databases USING(genome_db_id) " +
@@ -732,10 +738,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return id;
     }
 
-    public String getGoSearchQuery(java.util.Collection input, int limit, int keyType)
+    public String getGoSearchQuery(java.util.Collection input, int limit, KeyType keyType)
     {
         String query;
-        if(keyType==Common.KEY_TYPE_MODEL)
+        if(keyType==KeyType.MODEL)
             query="SELECT DISTINCT model_accession_id, go_numbers.go_number, " +
                 "       genome_databases.db_name" +
                 " FROM general.accessions JOIN general.genome_databases USING(genome_db_id) " +
@@ -758,10 +764,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
 
-    public String getGoTextSearchQuery(java.util.Collection input, int limit, int keyType)
+    public String getGoTextSearchQuery(java.util.Collection input, int limit, KeyType keyType)
     {
         String query;
-        if(keyType==Common.KEY_TYPE_MODEL)
+        if(keyType==KeyType.MODEL)
             query="SELECT DISTINCT to_model_accessions.model_accession_id, genome_databases.db_name" +
                 " FROM general.genome_databases JOIN general.accessions USING(genome_db_id) "+
                 "   JOIN general.accession_gos USING(accession_id)" +
@@ -782,9 +788,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
 
-    public String getIdSearchQuery(java.util.Collection input, int limit, int[] DBs, int keyType)
+    public String getIdSearchQuery(java.util.Collection input, int limit, int[] DBs, KeyType keyType)
     {        
-        if(keyType==Common.KEY_TYPE_CORR)
+        if(keyType==KeyType.CORR)
         {
             String query="SELECT correlation_id, accession, probe_set_key " +
                     " FROM affy.accessions_to_psk_corr "+
@@ -797,7 +803,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         
         
         String translateTable="sequence";        
-        if(keyType==Common.KEY_TYPE_MODEL)
+        if(keyType==KeyType.MODEL)
             translateTable="model";
         String id="SELECT DISTINCT a.accession_id, oa.other_accession, gd.db_name "+
                 " FROM  general.other_accessions as oa " +
@@ -839,10 +845,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return id;
     }
 
-    public String getQueryCompSearchQuery(String comp_id, String status, int keyType)
+    public String getQueryCompSearchQuery(String comp_id, String status, KeyType keyType)
     {
         String query;
-        if(keyType==Common.KEY_TYPE_MODEL)
+        if(keyType==KeyType.MODEL)
             query="SELECT model_accession_id " +
                   "FROM updates.diffs JOIN general.to_model_accessions USING(accession_id) " +
                   "WHERE comp_id="+comp_id+" AND difference='"+status+"'";
@@ -855,14 +861,14 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
 
-    public String getQuerySearchQuery(String queries_id, int keyType)
+    public String getQuerySearchQuery(String queries_id, KeyType keyType)
     {
         String query="select sql from updates.queries where queries_id="+queries_id;
         logQuery(query);
         return query;
     }
 
-    public String getSeqModelSearchQuery(java.util.Collection model_ids, int keyType)
+    public String getSeqModelSearchQuery(java.util.Collection model_ids, KeyType keyType)
     {
        //TODO: needs testing.
         String query="SELECT clusters.method, count(distinct cluster_members.cluster_id) " +
@@ -990,7 +996,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     }   
     
     
-    public String getUnknownClusterIdSearchQuery(int cluster_id, int keyType)
+    public String getUnknownClusterIdSearchQuery(int cluster_id, KeyType keyType)
     {
         //TODO: should not be used for version 2.
         String query="SELECT DISTINCT accessions.accession" +
@@ -1000,11 +1006,11 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }    
 
-    public String getProbeSetSearchQuery(Collection input, int limit, int keyType)
+    public String getProbeSetSearchQuery(Collection input, int limit, KeyType keyType)
     {
 
         String query="";
-        if(keyType==Common.KEY_TYPE_MODEL)
+        if(keyType==KeyType.MODEL)
             query="SELECT DISTINCT to_model_accessions.model_accession_id, genome_databases.db_name " +
                     " FROM general.genome_databases " +
                     "   JOIN general.accessions USING(genome_db_id) " +
@@ -1014,7 +1020,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                     " ORDER BY genome_databases.db_name " +
                     " LIMIT "+limit;
             
-        else if(keyType==Common.KEY_TYPE_SEQ)
+        else if(keyType==KeyType.SEQ)
             query="SELECT DISTINCT accessions.accession_id, genome_databases.db_name " +
                     " FROM general.genome_databases " +
                     "   JOIN general.accessions USING(genome_db_id) " +
@@ -1022,7 +1028,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                     " WHERE "+Common.buildLikeCondition("pska.key",input,limit)+
                     " ORDER BY genome_databases.db_name " +
                     " LIMIT "+limit;
-        else if(keyType==Common.KEY_TYPE_CORR)
+        else if(keyType==KeyType.CORR)
             query="SELECT correlation_id, psk1_key " +
                   " FROM affy.correlation_view"+
                   " WHERE "+Common.buildLikeCondition("psk1_key",input)+
@@ -1036,7 +1042,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
    
-    public String getProbeSetKeySearchQuery(Collection input, int limit, int keyType)
+    public String getProbeSetKeySearchQuery(Collection input, int limit, KeyType keyType)
     {                  
         String query="SELECT correlation_id, psk1_key FROM affy.correlation_view " +
                 " WHERE "+Common.buildIdListCondition("probe_set_key_id",input)+
@@ -1045,15 +1051,29 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
     
-    public String getPskClusterSearchQuery(int cluster_id,int keyType)
+    public String getPskClusterSearchQuery(int cluster_id,KeyType keyType)
     {
-        String query="SELECT probe_set_key_id, cluster_id " +
+        String query="";
+        if(keyType==KeyType.PSK_COMP)               
+            query="SELECT probe_set_key_id, cluster_id " +
                 " FROM affy.cluster_summary_view " +
-                " WHERE cluster_id="+cluster_id;
+                " WHERE cluster_id="+cluster_id;                                
+        
         logQuery(query);
         return query;
     }    
     
+    public String getClusterCorrSearchQuery(int cluster_id, int psk_id, KeyTypeUser.KeyType keyType)
+    {
+        String query="SELECT corr.correlation_id, csv.cluster_id " +
+                     " FROM affy.cluster_summary_view as csv " +
+            "               JOIN affy.correlation_view as corr ON(corr.psk2_id=csv.probe_set_key_id) " +
+                    "  WHERE corr.probe_set_key_id="+psk_id+" AND csv.cluster_id="+cluster_id+
+                    " ORDER BY corr.correlation DESC";
+        
+        logQuery(query);
+        return query;        
+    }
     
     
     public String getQueryTestSearchQuery(String query_id, String version, String genome_id)
@@ -1142,6 +1162,4 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return "";
     }
 
-   
-   
 }

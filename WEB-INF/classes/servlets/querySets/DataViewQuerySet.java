@@ -7,6 +7,7 @@
 package servlets.querySets;
 
 import java.util.*;
+import servlets.KeyTypeUser;
 
 /**
  * Provides queries for DataView objects. Also provides some 
@@ -20,21 +21,21 @@ public interface DataViewQuerySet extends QuerySet
 {
  
     // for BlastDataView
-    public String getBlastDataViewQuery(Collection ids,String sortCol, String sortDir, int keyType);
+    public String getBlastDataViewQuery(Collection ids,String sortCol, String sortDir, KeyTypeUser.KeyType keyType);
     public String[] getSortableBlastColumns();
     
     // for ClusterDataView
-    public String getClusterDataViewQuery(Collection ids, String order, int[] DBs, int keyType);
+    public String getClusterDataViewQuery(Collection ids, String order, int[] DBs, KeyTypeUser.KeyType keyType);
     
     // for ModelDataView
-    public String getModelDataViewQuery(Collection ids, String fields, int keyType);
+    public String getModelDataViewQuery(Collection ids, String fields, KeyTypeUser.KeyType keyType);
     public String[] getModelColumns();
     
     // for SeqDataView
-    public String getSeqDataViewQuery(Collection ids, String order, int[] DBs, int keyType);
+    public String getSeqDataViewQuery(Collection ids, String order, int[] DBs, KeyTypeUser.KeyType keyType);
     
     // for UnknownsDataView
-    public String getUnknownsDataViewQuery(Collection ids, String sortCol, String sortDir, int keyType);
+    public String getUnknownsDataViewQuery(Collection ids, String sortCol, String sortDir, KeyTypeUser.KeyType keyType);
     public String[] getSortableUnknownsColumns();        
     
     // for the pfamOptions.jsp page. No, this is not a DataView but I'm

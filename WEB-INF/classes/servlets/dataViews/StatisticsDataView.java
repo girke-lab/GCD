@@ -22,7 +22,7 @@ public class StatisticsDataView implements DataView {
     List seq_ids;
     int [] dbs;
     int hid;
-    int keyType;
+    KeyType keyType;
     String sortCol;
     String[] displayFields;
     private String userName; 
@@ -184,27 +184,20 @@ public class StatisticsDataView implements DataView {
                     "se.genome"};
     }   
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-         return new int[]{Common.KEY_TYPE_SEQ};
+         return new KeyType[]{KeyType.SEQ};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
-        boolean isValid=false;
-        int[] keys=getSupportedKeyTypes();
-        for(int i=0;i<keys.length;i++)
-            if(keyType == keys[i]){
-                isValid=true;
-                break;
-            }
-        if(!isValid)
-            throw new servlets.exceptions.UnsupportedKeyTypeException(keys,keyType);
+        if(!Common.checkType(this, keyType))
+            throw new servlets.exceptions.UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         this.keyType=keyType;
     }
 
 
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }

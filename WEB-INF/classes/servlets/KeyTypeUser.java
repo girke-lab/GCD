@@ -9,7 +9,7 @@ package servlets;
 /**
  * This interface should be implemented by classes that either use or
  * provide internal database id numbers. Right now, this is only
- * Search objects and Dataview objects.  The idea is this:
+ * Search objects, Dataview objects and Records.  The idea is this:
  * Search objects state which key types they can provide with the
  * getSupportedKeyTypes() method.  Dataviews state which key types
  * they can use to find data  with the same method.  Then a third class
@@ -28,12 +28,22 @@ package servlets;
  */
 public interface KeyTypeUser
 {
+    enum KeyType {  SEQ,        MODEL,
+                    CLUSTER,    BLAST,
+                    ACC,        QUERY,                    
+                    COMP,       DETAIL,
+                    PSK,        CORR,
+                    EXP_DEF,    PSK_COMP,
+                    PSK_EXP,    PSK_EXP_COMP
+    };
+    
+    
     /**
      * A list of key types that this class can make use of.  Values
      * should be one of the Common.KEY_TYPE_* variables.
      * @return array of supported key types
      */
-    public int[] getSupportedKeyTypes();
+    public KeyType[] getSupportedKeyTypes();
         
     /**
      * After a key type has been decided upon by the used class, 
@@ -44,11 +54,11 @@ public interface KeyTypeUser
      * @param keyType One of the Common.KEY_TYPE_* values
      * @throws servlets.exceptions.UnsupportedKeyTypeException if the given key type is not supported
      */
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException;
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException;
     /**
      * Returns the key type in use.  Will return an invalid
      * id if the setKeyType() method has not been called yet.
      * @return key type in use
      */
-    public int  getKeyType();
+    public KeyType  getKeyType();
 }

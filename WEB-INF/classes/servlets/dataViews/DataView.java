@@ -84,5 +84,5 @@ public interface DataView extends servlets.KeyTypeUser
      */    
     public QueryWideView getQueryWideView();
     
-    public void setSortDirection(String dir);
+    public void setSortDirection(String dir);    
 } 

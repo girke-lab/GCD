@@ -24,7 +24,7 @@ public abstract class AbstractRecord implements Record
     
     private static Logger log=Logger.getLogger(AbstractRecord.class); 
     private Collection subRecords;
-    private int keyType=-1;
+    private KeyType keyType=null;
     
     /** Creates a new instance of AbstractRecord */
     public AbstractRecord()
@@ -56,22 +56,22 @@ public abstract class AbstractRecord implements Record
      * @param keyType value of keyType to use
      * @throws servlets.exceptions.UnsupportedKeyTypeException if the given keyType is not supported by this record
      */
-    public void setKeyType(int keyType) throws UnsupportedKeyTypeException
+    public void setKeyType(KeyType  keyType) throws UnsupportedKeyTypeException
     {
         if(!Common.checkType(this, keyType))
             throw new UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         else
             this.keyType=keyType;
     }
-    public int  getKeyType()
+    public KeyType getKeyType()
     {
-        if(keyType==-1)
+        if(keyType==null)
             log.error("key type not set for record "+this.getClass());
         return keyType;
     }
 //    public int getChildKeyType()
 //    {
-//        return Common.KEY_TYPE_ACC; //default value.
+//        return KeyType.ACC; //default value.
 //    }
     
     protected boolean checkList(String name,int reqSize,List values)

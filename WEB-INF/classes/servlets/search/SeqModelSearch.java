@@ -79,7 +79,7 @@ public class SeqModelSearch extends AbstractSearch
         return SearchQuerySet.STAT_MODEL_CLUSTERS | SearchQuerySet.STAT_GENOMES;
     }
    
-    public java.util.List getResults() {        
+    public List getResults() {        
         //use these keys to look up data
         return seq_ids;
     }
@@ -88,9 +88,9 @@ public class SeqModelSearch extends AbstractSearch
         //use these keys for the stats
         data=model_ids;
     }
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_SEQ};
+        return new KeyType[]{KeyType.SEQ};
     }
 
     public Collection<String> getBookmarkLabels()

@@ -186,7 +186,7 @@ public class QueryPageServlet extends HttpServlet
         
         
         //find a common search key to use
-        int commonKeyType=Common.findCommonKeyType(s.getSupportedKeyTypes(), dv.getSupportedKeyTypes());
+        KeyTypeUser.KeyType commonKeyType=Common.findCommonKeyType(s.getSupportedKeyTypes(), dv.getSupportedKeyTypes());
         
         try{//try setting the key, if a key type is unsupported, an exception is thrown.
             log.debug("setting search key type to "+commonKeyType);

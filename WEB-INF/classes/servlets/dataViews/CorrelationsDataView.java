@@ -25,7 +25,8 @@ public class CorrelationsDataView implements DataView
     
     private static Logger log=Logger.getLogger(CorrelationsDataView.class);    
     
-    private int keyType, hid;
+    private KeyType keyType;
+    private int hid;
     private String sortDir, sortCol,action,catagory;
     private int[] dbNums;        
     private String userName;     
@@ -38,17 +39,17 @@ public class CorrelationsDataView implements DataView
     /** Creates a new instance of CorrelationsDataView */
     public CorrelationsDataView()
     {
-        sortCol=null;
+        sortCol=null; 
         sortDir="DESC";        
         
         dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection to khoran");
         header=new HeaderBean();        
-                        
+                                
     }
 
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }
@@ -74,9 +75,9 @@ public class CorrelationsDataView implements DataView
          };        
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_CORR};
+        return new KeyType[]{KeyType.CORR};
     }
 
     public void printData(java.io.PrintWriter out)
@@ -92,18 +93,19 @@ public class CorrelationsDataView implements DataView
                 
         
         
-        out.println(
-                "<style type='text/css'>" +
-                    ".test a {color: #006699}\n" +
-                    ".test a:hover {background-color: #AAAAAA}\n" +
-                "</style>");
-        
-        out.println("<div class='test'>");
+//        out.println(
+//                "<style type='text/css'>" +
+//                    ".test a {color: #006699}\n" +
+//                    ".test a:hover {background-color: #AAAAAA}\n" +
+//                "</style>");
+//        
+//        out.println("<div class='test'>");
         
         Common.printUnknownsSearchLinks(out);
     }
     public void printFooter(java.io.PrintWriter out)
     {
+        out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");        
         header.printFooter();
     }
 
@@ -127,8 +129,10 @@ public class CorrelationsDataView implements DataView
         corrIds=ids;
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
+        if(!Common.checkType(this, keyType))
+            throw new servlets.exceptions.UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         this.keyType=keyType;
     }
     public void setUserName(String userName)

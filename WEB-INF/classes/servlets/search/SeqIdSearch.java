@@ -31,10 +31,10 @@ public class SeqIdSearch extends AbstractSearch //implements Search, java.io.Ser
       
     public void loadData() {       
     }
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     { //fix this
-        return new int[]{Common.KEY_TYPE_ACC,Common.KEY_TYPE_SEQ,
-                Common.KEY_TYPE_MODEL,Common.KEY_TYPE_CLUSTER,Common.KEY_TYPE_PSK};
+        return new KeyType[]{KeyType.ACC,KeyType.SEQ,
+                KeyType.MODEL,KeyType.CLUSTER,KeyType.PSK};
     }
 
  

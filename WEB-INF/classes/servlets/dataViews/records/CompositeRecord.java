@@ -43,21 +43,21 @@ public class CompositeRecord extends AbstractRecord
         visitor.printRecord(out,this); 
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         Iterator i=this.iterator();
         if(i.hasNext())
             return ((Record)i.next()).getSupportedKeyTypes();
         else
-            return new int[]{};
+            return new KeyType[]{};
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
         Iterator i=this.iterator();
         if(i.hasNext())
             return ((Record)i.next()).getChildKeyType();
         else
-            return -1;
+            return null;
     }
     public Object getPrimaryKey()
     {

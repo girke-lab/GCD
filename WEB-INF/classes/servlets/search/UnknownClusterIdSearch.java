@@ -81,17 +81,17 @@ public class UnknownClusterIdSearch implements Search
     {
         return seqIdSearch.getStats();
     }
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return seqIdSearch.getKeyType();
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_ACC};
+        return new KeyType[]{KeyType.ACC};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         seqIdSearch.setKeyType(keyType);
     }

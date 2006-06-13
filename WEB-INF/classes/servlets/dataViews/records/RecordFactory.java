@@ -53,8 +53,7 @@ public class RecordFactory
 {
     private static RecordFactory factory=null;
     private static Logger log=Logger.getLogger(RecordFactory.class);    
-    
-    private static final int NO_PARENT_KEY=-2;
+        
     
     private DbConnection dbc=null;
     
@@ -94,7 +93,7 @@ public class RecordFactory
      */
     public Collection<CompositeRecord> getRecords(RecordInfo ri, QueryParameters qp)
     {
-        return getMap(ri,qp, NO_PARENT_KEY).values();
+        return getMap(ri,qp, null).values();
     }       
     
     /**
@@ -111,7 +110,7 @@ public class RecordFactory
         if(records==null || records.size()==0)
             return null;
                 
-        int childKeyType=records.iterator().next().getChildKeyType();
+        KeyTypeUser.KeyType childKeyType=records.iterator().next().getChildKeyType();
                 
         if(!Common.checkKeyType(ri.getSupportedKeyTypes(),childKeyType)){
             log.error("key "+childKeyType+" not supported by given child: "+ri.getRecord(new LinkedList()).getClass());
@@ -166,7 +165,7 @@ public class RecordFactory
      * @param keyType 
      * @return 
      */
-    private Map<Object,CompositeRecord> getMap(RecordInfo ri, QueryParameters qp,int keyType)
+    private Map<Object,CompositeRecord> getMap(RecordInfo ri, QueryParameters qp,KeyTypeUser.KeyType keyType)
     { // query information and store it in a Map of CompositeRecords        
                 
         List data=null;
@@ -197,7 +196,7 @@ public class RecordFactory
             // RecordGroup
             try{                
                 r=ri.getRecord(row.subList(ri.getStart(),ri.getEnd()));
-                if(keyType!=NO_PARENT_KEY) //if we dont have a parent, don't set the key type.
+                if(keyType!=null) //if we dont have a parent, don't set the key type.
                     r.setKeyType(keyType);
                 cr.addSubRecord(r);            
             }catch(UnsupportedKeyTypeException e){ 

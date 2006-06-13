@@ -7,6 +7,7 @@
 package servlets.querySets;
 
 import java.util.*;
+import servlets.KeyTypeUser;
 
 /**
  * This QuerySet provides queries for Search objects. It also
@@ -31,43 +32,43 @@ public interface SearchQuerySet extends QuerySet
     public String getStatsByQuery(String query,int stats);
     
     // for BlastSearch
-    public String getBlastSearchQuery(Collection dbNames, Collection keys, int keyType);
+    public String getBlastSearchQuery(Collection dbNames, Collection keys, KeyTypeUser.KeyType keyType);
     
     //for ClusterIDSearch
-    public String getClusterIDSearchQuery(Collection input, int limit, int[] DBs, int keyType);
+    public String getClusterIDSearchQuery(Collection input, int limit, int[] DBs, KeyTypeUser.KeyType keyType);
     
     // for ClusterNameSearch
-    public String getClusterNameSearchQuery(Collection input, int limit, int[] DBs, int keyType);
+    public String getClusterNameSearchQuery(Collection input, int limit, int[] DBs, KeyTypeUser.KeyType keyType);
     
     // for DescriptionSearch
-    public String getDescriptionSearchQuery(Collection input, int limit, int[] DBs, int keyType);
+    public String getDescriptionSearchQuery(Collection input, int limit, int[] DBs, KeyTypeUser.KeyType keyType);
     
     // for GoSearch 
-    public String getGoSearchQuery(Collection input, int limit, int keyType);
+    public String getGoSearchQuery(Collection input, int limit, KeyTypeUser.KeyType keyType);
     
     // for GoTextSearch
-    public String getGoTextSearchQuery(Collection input, int limit, int keyType);
+    public String getGoTextSearchQuery(Collection input, int limit, KeyTypeUser.KeyType keyType);
     
     // for IdSearch
-    public String getIdSearchQuery(Collection input, int limit, int[] DBs, int keyType);
+    public String getIdSearchQuery(Collection input, int limit, int[] DBs, KeyTypeUser.KeyType keyType);
     
     // for QueryCompSearch
-    public String getQueryCompSearchQuery(String comp_id, String status, int keyType);
+    public String getQueryCompSearchQuery(String comp_id, String status, KeyTypeUser.KeyType keyType);
     
     // for QuerySearch
-    public String getQuerySearchQuery(String queries_id, int keyType);        
+    public String getQuerySearchQuery(String queries_id, KeyTypeUser.KeyType keyType);        
     
     // for SeqModelSearch
-    public String getSeqModelSearchQuery(Collection model_ids, int keyType);
+    public String getSeqModelSearchQuery(Collection model_ids, KeyTypeUser.KeyType keyType);
     
     // for UnknowclusterIdSearch
-    public String getUnknownClusterIdSearchQuery(int cluster_id, int keyType);
+    public String getUnknownClusterIdSearchQuery(int cluster_id, KeyTypeUser.KeyType keyType);
        
     // for ProbeSetSearch
-    public String getProbeSetSearchQuery(Collection input, int limit, int keyType);
+    public String getProbeSetSearchQuery(Collection input, int limit, KeyTypeUser.KeyType keyType);
     
     // for ProbeSetKeySearch
-    public String getProbeSetKeySearchQuery(Collection input, int limit, int keyType);
+    public String getProbeSetKeySearchQuery(Collection input, int limit, KeyTypeUser.KeyType keyType);
     
     // for QueryTestSearch
     public String getQueryTestSearchQuery(String query_id, String version, String genome_id);
@@ -76,5 +77,9 @@ public interface SearchQuerySet extends QuerySet
     public String getQueryStatsSearchQuery(List query_ids,List DBs);
     
     // for PskClusterSearch
-    public String getPskClusterSearchQuery(int cluster_id,int keyType);
+    public String getPskClusterSearchQuery(int cluster_id,KeyTypeUser.KeyType keyType);
+    
+    // for ClusterCorrSearch
+    public String getClusterCorrSearchQuery(int cluster_id, int psk_id, KeyTypeUser.KeyType keyType);
+    
 }

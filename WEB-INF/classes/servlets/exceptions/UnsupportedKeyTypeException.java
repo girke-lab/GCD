@@ -6,6 +6,7 @@
  */
 
 package servlets.exceptions;
+import servlets.KeyTypeUser;
 
 /**
  * This excpetion is thrown when a class is told to use a keytype 
@@ -31,12 +32,12 @@ public class UnsupportedKeyTypeException extends java.lang.Exception
     {
         super(msg);
     }
-    public UnsupportedKeyTypeException(int[] supportedKeys, int givenKey)
+    public UnsupportedKeyTypeException(KeyTypeUser.KeyType[] supportedKeys, KeyTypeUser.KeyType givenKey)
     {
         super(buildMessage(supportedKeys, givenKey));
         
     }
-    private static String buildMessage(int[] keys,int givenKey)
+    private static String buildMessage(KeyTypeUser.KeyType[] keys,KeyTypeUser.KeyType givenKey)
     {
         StringBuffer keyList=new StringBuffer();
         for(int i=0;i<keys.length;i++)

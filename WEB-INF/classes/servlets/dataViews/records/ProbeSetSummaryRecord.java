@@ -54,11 +54,11 @@ public class ProbeSetSummaryRecord extends AbstractRecord
     {
         return probeSetId;
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
-        return Common.KEY_TYPE_PSK;
+        return KeyType.PSK;
     }
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return this.getRecordInfo().getSupportedKeyTypes();
     }
@@ -85,13 +85,13 @@ public class ProbeSetSummaryRecord extends AbstractRecord
             {
                 return new ProbeSetSummaryRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 return QuerySetProvider.getRecordQuerySet().getProbeSetSummaryRecordQuery(qp.getIds());                
             }
-            public int[] getSupportedKeyTypes()
+            public KeyType[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_ACC};
+                return new KeyType[]{KeyType.ACC};
             }            
         };
     }

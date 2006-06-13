@@ -28,11 +28,13 @@ public class CorrelationRecord extends AbstractRecord
     String catagory,psk1_key,psk2_key;
     Float correlation,p_value;
     Object acc;
-    String[] accessions,descriptions;
+    int[] cluster_ids,sizes;
+    String[] clusterNames, methods,accessions,descriptions;
+    
     /** Creates a new instance of CorrelationRecord */
     public CorrelationRecord(List values)
     {
-        int reqSize=10;
+        int reqSize=14;
         if(values==null || values.size()!=reqSize)
         {
             log.error("invalid list in CorrelationRecord constructor");
@@ -51,33 +53,25 @@ public class CorrelationRecord extends AbstractRecord
         correlation=Float.parseFloat((String)values.get(6));
         p_value=Float.parseFloat((String)values.get(7));
         
-        accessions=getArray((java.sql.Array)values.get(8));
-        descriptions=getArray((java.sql.Array)values.get(9));
+        accessions=Common.getStringArray((java.sql.Array)values.get(8));
+        descriptions=Common.getStringArray((java.sql.Array)values.get(9));
+        
+        cluster_ids=Common.getIntArray((java.sql.Array)values.get(10));
+        clusterNames=Common.getStringArray((java.sql.Array)values.get(11));
+        methods=Common.getStringArray((java.sql.Array)values.get(12));
+        sizes=Common.getIntArray((java.sql.Array)values.get(13));
     }
 
-    private String[] getArray(java.sql.Array a)
-    {
-        String[] strings;
-        try{
-            if(a==null)
-                strings=new String[]{};
-            else
-                strings=(String[])(a.getArray());            
-        }catch(java.sql.SQLException e){
-            log.warn("exception while grabbing array: "+e);
-            strings=new String[]{};
-        }        
-        return strings;
-    }
+    
     public Object getPrimaryKey()
     {        
         return corrId;
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
-        return Common.KEY_TYPE_CORR;
+        return KeyType.CORR;
     }
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return this.getRecordInfo().getSupportedKeyTypes();
     }
@@ -99,12 +93,12 @@ public class CorrelationRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(new int[]{1},0,10){
+        return new RecordInfo(new int[]{1},0,14){
             public Record getRecord(List l)
             {
                 return new CorrelationRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 return QuerySetProvider.getRecordQuerySet().
                         getCorrelationRecordQuery(qp.getIds(),qp.getSortCol(),qp.getSortDir(), qp.getCatagory());
@@ -146,7 +140,16 @@ public class CorrelationRecord extends AbstractRecord
             Set<String> catagories=new TreeSet<String>();
             String psk1_key="";
             String url="QueryPageServlet?displayType=affyView&searchType=Probe_Set&inputKey=";
+            String clusterLink="QueryPageServlet?displayType=correlationView&searchType=Cluster_Corr" +
+                "&inputKey=";
+            String clusterPicLink="http://bioweb.ucr.edu/scripts/plotAffyCluster.pl?cluster_id=";
+            String[] methods=null;
             
+            //This mess is to deal with multiple catagories, which arrive
+            // serially, but must be printed out in parallel.
+            // Its kind of a waste though since we only have one catagory
+            // with correlation data, and it does not seem like this
+            // will change any time soon. Oh well, its done now. 
             for(Object o : ib)
             { //load the hash
                 rec=(CorrelationRecord)o;
@@ -160,11 +163,14 @@ public class CorrelationRecord extends AbstractRecord
                 catagoryMap.put(rec.catagory,rec);                
                 //this will be the same key for every record.
                 psk1_key=rec.psk1_key;
+                
+                if(methods==null || rec.methods.length > methods.length)
+                    methods=rec.methods;
             }
            
             //now print the table
             boolean isFirst;
-            printHeader(out,catagories, psk1_key);
+            printHeader(out,catagories, psk1_key,methods);
             for(Map<String,CorrelationRecord> cm : records.values())
             {                
                 isFirst=true;                
@@ -188,6 +194,13 @@ public class CorrelationRecord extends AbstractRecord
                         out.write("<td>"+rec.correlation+"</td><td>"+rec.p_value+"</td>");
                     if(!i.hasNext())
                     {// last element
+                        // print clusters                                                
+                        for(int j=0;j<rec.cluster_ids.length;j++)                        
+                            out.write("<td nowrap ><a href='"+clusterLink+rec.cluster_ids[j]+" "+rec.psk1_id+"' >"+
+                                    rec.clusterNames[j]+"("+rec.sizes[j]+")</a>&nbsp" +
+                                    "<a href='"+clusterPicLink +rec.cluster_ids[j]+"'><img border=0 src='images/ts_icon.png' height=14/></a>"+
+                                    " </td> ");                        
+                        
                         //print accessions
                         String accUrl="QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
                         out.write("<td nowrap > &nbsp ");
@@ -203,84 +216,9 @@ public class CorrelationRecord extends AbstractRecord
                 out.write("</tr>");
             }
             
-        }
-         
-         
-        
-        public void printRecords2(Writer out, RecordVisitor visitor, Iterable ib)
-            throws IOException
-        { //not used
-            CorrelationRecord rec;
-            Integer lastPsk=null;            
-            Set catagories;
-            
-            int c=0,catNum=0;
-            
-            log.debug("using correlation format");
-            
-            
-            //we assume that the records are sorted by psk1,psk2, and catagory.
-            
-            for(Iterator i=ib.iterator(); i.hasNext();c++)
-            {
-                rec=(CorrelationRecord)i.next();
-                
-                if(c == 0)
-                {
-                    catagories=printHeader(out,ib,rec.psk1_key);
-                    catNum=catagories.size();
-                    log.debug("catNum="+catNum);
-
-//                    out.write("<tr><th align='left' colspan='"+(catNum*2+1)+
-//                            "' bgcolor='"+PageColors.title+"'>"+rec.psk1_key+"</th></tr>");
-                    out.write("<tr>");                    
-                }
-                
-                if(!rec.psk2_id.equals(lastPsk))
-                {   //we have moved to the next key, but have not finsihed
-                    // all the catagories, so print blanks for the
-                    // remaining catagories.
-                    while(c % catNum !=0)
-                    {
-                        c++;
-                        out.write("<td>&nbsp</td><td>&nbsp</td>");
-                    }
-                }
-                lastPsk=rec.psk2_id;
-                if(c % catNum == 0)
-                {
-                    out.write("</tr><tr>");
-                    out.write("<td>"+rec.psk2_key+"</td>");    
-                }
-                
-                
-                out.write("<td>"+rec.correlation+"</td><td>"+rec.p_value+"</td>");
-                
-                //rec.printRecord(out, visitor);
-            }
-            out.write("</td>");
-        }
-
-        private Set printHeader(Writer out, Iterable ib,String psk1)
-            throws IOException
-        { //not used
-            Set<String> catagories=new TreeSet<String>();
-            Iterator i=ib.iterator();
-            while(i.hasNext())
-                catagories.add(((CorrelationRecord)i.next()).catagory);
-
-            out.write("<tr bgcolor='"+PageColors.title+"'><th>Affy ID</th>");
-            for(String s : catagories)
-                out.write("<th colspan='2'>"+s+"</th>");
-            out.write("</tr>");
-            out.write("<tr bgcolor='"+PageColors.title+"'><th>"+psk1+"</th>");
-            for(String s : catagories)
-                out.write("<th>Corr</th><th>P values</th>");
-            out.write("</tr>");
-            
-            return catagories;
-        }
-        private void printHeader(Writer out, Set<String> catagories,String psk1)
+        }        
+       
+        private void printHeader(Writer out, Set<String> catagories,String psk1,String[] methods)
             throws IOException
         {
             String newDir;
@@ -292,7 +230,8 @@ public class CorrelationRecord extends AbstractRecord
             
             out.write("<tr bgcolor='"+PageColors.title+"'><th>Affy ID</th>");
             for(String s : catagories)
-                out.write("<th colspan='2'>"+s+"</th>");
+                out.write("<th colspan='2'>"+s+"</th>");            
+            out.write("<th colspan='"+methods.length+"'>Clusters</th>");
             out.write("<th>Accessions</th></tr>");
             
             newDir="asc";
@@ -313,18 +252,11 @@ public class CorrelationRecord extends AbstractRecord
                             "&sortDirection="+newDir+"&catagory="+catagory+"'>"+titles[j]+"</a></th>\n");
                 }                            
                 
+            for(String m : methods)
+                out.write("<th>"+m+"</th>");
+            
             out.write("<th>&nbsp</th></tr>");
         }
-//        static class CorrelationKey
-//        {
-//            public Integer psk2_id;
-//            public String catagory;
-//            public CorrelationKey(Integer psk2_id, String catagory)
-//            {                
-//                this.psk2_id=psk2_id;
-//                this.catagory=catagory;
-//            }
-//        }
     }
     
     

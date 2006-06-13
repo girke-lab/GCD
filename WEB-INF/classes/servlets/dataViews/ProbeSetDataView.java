@@ -30,9 +30,10 @@ public class ProbeSetDataView implements DataView
     private static final String[] dataTypes=new String[]{"mas5","rma"};
     private static final String[] dataTypeTitles=new String[]{"MAS 5","RMA"};
     
-    private int keyType, hid;
+    private int hid;
     private String sortDir, sortCol,action;
     private int[] dbNums;       
+    private KeyType keyType;
     //private List pskIds,comparisonIds;
     private List ids;
     private int dataType;
@@ -207,12 +208,12 @@ public class ProbeSetDataView implements DataView
             sortDir=dir;   
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_PSK};  //also requires that 'comparisonIds' be set.
+        return new KeyType[]{KeyType.PSK_COMP};
     }
 
-    public void setKeyType(int keyType) throws UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws UnsupportedKeyTypeException
     {
         if(Common.checkType(this,keyType))
             this.keyType=keyType;
@@ -220,7 +221,7 @@ public class ProbeSetDataView implements DataView
             throw new UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
     }
 
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }

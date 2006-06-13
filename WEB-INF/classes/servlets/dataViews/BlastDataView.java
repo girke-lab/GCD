@@ -25,7 +25,7 @@ public class BlastDataView implements DataView
     
     List seq_ids;
     int hid;
-    int keyType;
+    KeyType keyType;
 
     String sortCol,sortDir;
     private String userName; 
@@ -168,7 +168,7 @@ public class BlastDataView implements DataView
     private List getData()
     {
                 
-        String query=QuerySetProvider.getDataViewQuerySet().getBlastDataViewQuery(seq_ids, sortCol, sortDir, -1);
+        String query=QuerySetProvider.getDataViewQuerySet().getBlastDataViewQuery(seq_ids, sortCol, sortDir, null);
         
         try{
             return dbc.sendQuery(query);            
@@ -178,26 +178,19 @@ public class BlastDataView implements DataView
         return null;
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-         return new int[]{Common.KEY_TYPE_BLAST};
+         return new KeyType[]{KeyType.BLAST};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
-        boolean isValid=false;
-        int[] keys=getSupportedKeyTypes();
-        for(int i=0;i<keys.length;i++)
-            if(keyType == keys[i]){
-                isValid=true;
-                break;
-            }
-        if(!isValid)
-            throw new servlets.exceptions.UnsupportedKeyTypeException(keys,keyType);
+        if(!Common.checkType(this, keyType))
+            throw new servlets.exceptions.UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         this.keyType=keyType;
     }
 
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }

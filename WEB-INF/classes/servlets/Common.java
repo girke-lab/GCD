@@ -17,14 +17,7 @@ public class Common {
     public final static int arab=0, rice=1;    
     public final static int dbCount=2;
     //TODO: change these to enums.
-    public static final int KEY_TYPE_SEQ=0,     KEY_TYPE_MODEL=1,
-                            KEY_TYPE_CLUSTER=2, KEY_TYPE_BLAST=3,
-                            KEY_TYPE_ACC=4,     KEY_TYPE_QUERY=5,
-                            //KEY_TYPE_DEFAULT=6, 
-                            KEY_TYPE_COMP=8,    KEY_TYPE_DETAIL=9,
-                            KEY_TYPE_PSK=10,    KEY_TYPE_CORR=11,
-                            KEY_TYPE_EXP_DEF=12,KEY_TYPE_COMP_PSK=13,
-                            KEY_TYPE_PSK_EXP=14,KEY_TYPE_PSK_EXP_COMP=15;
+    
     public final static String[] dbRealNames=new String[]{"arab","rice"};
     public final static String[] dbPrintNames=new String[]{"Arabidopsis","Rice"};
 //    public final static String dataColor="D3D3D3",titleColor="AAAAAA";        
@@ -328,19 +321,19 @@ public class Common {
                 str.compareToIgnoreCase("t")==0|| str.equals("1");
     }
     
-    public static int findCommonKeyType(int[] searchKeys,int[] dataviewKeys)
+    public static KeyTypeUser.KeyType findCommonKeyType(KeyTypeUser.KeyType[] searchKeys,KeyTypeUser.KeyType[] dataviewKeys)
     {
         //log.debug("comparingin "+printArray(searchKeys)+" to "+printArray(dataviewKeys));
-        int common=-1;
+        KeyTypeUser.KeyType common=null;
         //simple method
         for(int i=0;i<searchKeys.length;i++) //prefer search keys
             for(int j=0;j<dataviewKeys.length;j++)
                 if(searchKeys[i]==dataviewKeys[j])
                 {
-                    common=searchKeys[i];
+                    common=searchKeys[i]; 
                     break;
                 }
-        if(common==-1)
+        if(common==null)
         {
             log.warn("could not find a common key");
             log.warn("possable search keys: "+printArray(searchKeys));
@@ -350,11 +343,11 @@ public class Common {
             log.debug("found common key "+common);
         return common; // -1 indicates an error, will eventually cause an UnsupportedKeyType exception.
     }
-    public static boolean checkType(KeyTypeUser ktu,int keyType)
+    public static boolean checkType(KeyTypeUser ktu, KeyTypeUser.KeyType keyType)
     {
         return checkKeyType(ktu.getSupportedKeyTypes(),keyType);
     }
-    public static boolean checkKeyType(int[] keys,int keyType)
+    public static boolean checkKeyType(KeyTypeUser.KeyType[] keys, KeyTypeUser.KeyType keyType)
     {
         for(int i=0;i<keys.length;i++)
             if(keyType == keys[i])
@@ -362,6 +355,35 @@ public class Common {
         return false;
     }
 
+    public static String[] getStringArray(java.sql.Array a)
+    {
+        String[] strings;
+        try{
+            if(a==null)
+                strings=new String[]{};
+            else
+                strings=(String[])(a.getArray());            
+        }catch(java.sql.SQLException e){
+            log.warn("exception while grabbing array: "+e);
+            strings=new String[]{};
+        }        
+        return strings;
+    }
+    public static int[] getIntArray(java.sql.Array a)
+    {
+        int[] values=null;
+        try{
+            if(a==null)
+                values=new int[]{};
+            else 
+                values=(int[])(a.getArray());                        
+        }catch(java.sql.SQLException e){
+            log.warn("exception while grabbing array: "+e);
+            values=new int[]{};
+        }        
+        return values;
+    }
+    
 //    public static void printHeader(PrintWriter out, boolean b)
 //    {//print the gcd header
 //        printHeader(out,"",b);

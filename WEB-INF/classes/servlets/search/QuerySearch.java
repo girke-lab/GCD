@@ -70,7 +70,7 @@ public class QuerySearch implements Search
         List results=null;
         try{
             log.debug("looking for "+queries_id);
-            results=dbc.sendQuery(QuerySetProvider.getSearchQuerySet().getQuerySearchQuery(queries_id, -1));
+            results=dbc.sendQuery(QuerySetProvider.getSearchQuerySet().getQuerySearchQuery(queries_id, null));
             if(results==null || results.size()==0)
                 throw new Exception("no query found for "+queries_id);
             log.debug("queries_id results: "+results);
@@ -84,17 +84,17 @@ public class QuerySearch implements Search
         for(Iterator i=results.iterator();i.hasNext();)
             data.add(((List)i.next()).get(0));        
     }
-    public int getKeyType()
+    public KeyType getKeyType()
     {
-        return Common.KEY_TYPE_ACC;
+        return KeyType.ACC;
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_ACC};
+        return new KeyType[]{KeyType.ACC};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
     }
 

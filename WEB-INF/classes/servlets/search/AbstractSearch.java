@@ -27,7 +27,8 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
     List input,keysFound,data=null;
     Map stats=null;
     String seqId_query=null;
-    int limit,keyType;
+    int limit;
+    KeyType keyType;
     int[] db=null;
     //int[] dbStartPositions;  //index of first occurance of each database in dataset
     Map<Integer,String> bookmarks=new TreeMap();
@@ -161,15 +162,15 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
         return SearchQuerySet.STAT_CLUSTERS | SearchQuerySet.STAT_MODELS;
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_SEQ};
+        return new KeyType[]{KeyType.SEQ};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
         boolean isValid=false;
-        int[] keys=getSupportedKeyTypes();
+        KeyType[] keys=getSupportedKeyTypes();
         for(int i=0;i<keys.length;i++)
             if(keyType == keys[i]){
                 isValid=true;
@@ -179,7 +180,7 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
             throw new servlets.exceptions.UnsupportedKeyTypeException(keys,keyType);
         this.keyType=keyType;
     }
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }

@@ -76,7 +76,7 @@ public class BlastSearch implements Search
             return;
         }
                 
-        String query=QuerySetProvider.getSearchQuerySet().getBlastSearchQuery(blastDbs,keys, -1);
+        String query=QuerySetProvider.getSearchQuerySet().getBlastSearchQuery(blastDbs,keys, null);
 
         List results=null;
         try{
@@ -105,17 +105,17 @@ public class BlastSearch implements Search
         return new HashMap();
     }
     
-    public int getKeyType()
+    public KeyType getKeyType()
     {
-        return Common.KEY_TYPE_BLAST;
+        return KeyType.BLAST;
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_BLAST};
+        return new KeyType[]{KeyType.BLAST};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
     }
 

@@ -26,14 +26,16 @@ public class UnknownRecord extends AbstractRecord
     String key,description;
     int estCount,key_id;
     boolean[] go_unknowns;
-
-    //Map subRecords=new LinkedHashMap();
+    int[] cluster_ids,sizes;
+    String[] clusterNames, methods;
+    int probe_set_key_id;
+    
     private static Logger log=Logger.getLogger(UnknownRecord.class);
 
     
     public UnknownRecord(List values)
     {
-        if(values==null || values.size()!=7)
+        if(values==null || values.size()!=12)
         {
             log.error("invalid list in UnknownRecord constructor");
             if(values!=null)
@@ -48,6 +50,26 @@ public class UnknownRecord extends AbstractRecord
         go_unknowns[0]=getBoolean((String)values.get(4));
         go_unknowns[1]=getBoolean((String)values.get(5));
         go_unknowns[2]=getBoolean((String)values.get(6));
+        
+        if(values.get(7)!=null)
+        {
+            probe_set_key_id=Integer.parseInt((String)values.get(7));
+            cluster_ids=Common.getIntArray((java.sql.Array)values.get(8));
+            clusterNames=Common.getStringArray((java.sql.Array)values.get(9));
+            methods=Common.getStringArray((java.sql.Array)values.get(10));
+            sizes=Common.getIntArray((java.sql.Array)values.get(11));
+        }
+        else
+        {
+            int[] emptyInts=new int[0];
+            String[] emptyStrings=new String[0];
+            
+            probe_set_key_id=-1;
+            cluster_ids=emptyInts;
+            clusterNames=emptyStrings;
+            methods=emptyStrings;
+            sizes=emptyInts;
+        }
     }
     private boolean getBoolean(String str)
     {
@@ -79,9 +101,9 @@ public class UnknownRecord extends AbstractRecord
     {
         return key_id;
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
-        return Common.KEY_TYPE_ACC;
+        return KeyType.ACC;
     }
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
     {
@@ -97,25 +119,25 @@ public class UnknownRecord extends AbstractRecord
     }    
     
     
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return this.getRecordInfo().getSupportedKeyTypes();
     }
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(new int[]{0}, 0,7){
+        return new RecordInfo(new int[]{0}, 0,12){
             public Record getRecord(List l)
             {
                 return new UnknownRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 return QuerySetProvider.getRecordQuerySet().getUnknownRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
             }
-            public int[] getSupportedKeyTypes() 
+            public KeyType[] getSupportedKeyTypes() 
             { //no parents usually
-                return new int[]{Common.KEY_TYPE_ACC};
+                return new KeyType[]{KeyType.ACC};
             }
         };
     }         

@@ -78,9 +78,9 @@ public class AffyExpSetRecord extends AbstractRecord
     {
         return probeSetId+"_"+expSetId;
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
-        return Common.KEY_TYPE_PSK_EXP;
+        return KeyType.PSK_EXP;
     }
     
     public void printHeader(java.io.Writer out, RecordVisitor visitor) throws java.io.IOException
@@ -113,7 +113,7 @@ public class AffyExpSetRecord extends AbstractRecord
     }
     
     
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return this.getRecordInfo().getSupportedKeyTypes();
     }
@@ -125,14 +125,14 @@ public class AffyExpSetRecord extends AbstractRecord
             {
                 return new AffyExpSetRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 return QuerySetProvider.getRecordQuerySet().getAffyExpSetRecordQuery(
                         qp.getIds(),qp.getDataType(), qp.getSortCol(), qp.getSortDir(), qp.getUserName());
             }
-            public int[] getSupportedKeyTypes()
+            public KeyType[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_ACC};
+                return new KeyType[]{KeyType.ACC};
             }
         };
     }        

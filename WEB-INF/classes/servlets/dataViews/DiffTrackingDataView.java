@@ -30,7 +30,7 @@ public class DiffTrackingDataView implements DataView
                              COUNT=6,       VERSION_A=7,    UPDATED_ON=8,
                              ADDED=9,       REMOVED=10,     UNCHANGED=11,
                              COMP_ID=12,    GENOME=13,      GENOME_ID=14;
-    private int keyType;
+    private KeyType keyType;
     private String userName; 
     private HeaderBean header;
         
@@ -186,8 +186,10 @@ public class DiffTrackingDataView implements DataView
     {
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
+        if(!Common.checkType(this, keyType))
+            throw new servlets.exceptions.UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         this.keyType=keyType;
     }
     public void setUserName(String userName)
@@ -199,7 +201,7 @@ public class DiffTrackingDataView implements DataView
     public void setSortDirection(String dir)
     {
     }
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }
@@ -213,10 +215,10 @@ public class DiffTrackingDataView implements DataView
         };
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_ACC,Common.KEY_TYPE_BLAST,
-                        Common.KEY_TYPE_CLUSTER,Common.KEY_TYPE_MODEL,Common.KEY_TYPE_QUERY};
+        return new KeyType[]{KeyType.SEQ,KeyType.ACC,KeyType.BLAST,
+                        KeyType.CLUSTER,KeyType.MODEL,KeyType.QUERY};
     }
 
     public void setParameters(Map parameters)

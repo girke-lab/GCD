@@ -25,7 +25,7 @@ public class ClusterNameSearch extends AbstractSearch
     {
         List rs;
         
-        seqId_query=QuerySetProvider.getSearchQuerySet().getClusterNameSearchQuery(input, limit,db, -1);
+        seqId_query=QuerySetProvider.getSearchQuerySet().getClusterNameSearchQuery(input, limit,db, keyType);
         rs=Common.sendQuery(seqId_query);
         
         ArrayList al=new ArrayList();

@@ -16,14 +16,16 @@ import java.io.*;
 import servlets.Common;
 import servlets.dataViews.queryWideViews.*; 
 import org.apache.log4j.Logger;
+import servlets.KeyTypeUser.KeyType;
 import servlets.beans.HeaderBean;
+import servlets.exceptions.UnsupportedKeyTypeException;
 import servlets.querySets.*;
 
 public class SeqDataView implements DataView 
 {
     List seq_ids;
     int hid;
-    int keyType;
+    KeyType keyType;
     String sortCol;
     int[] dbNums;
     List records=null;
@@ -206,7 +208,7 @@ public class SeqDataView implements DataView
     
     private List getData(List input, String order, int[] db)
     {
-        return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getSeqDataViewQuery(input,order,db, -1));
+        return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getSeqDataViewQuery(input,order,db, null));
     }
     private String buildSeqViewStatement(String conditions,String order, int[] DBs)
     {
@@ -241,27 +243,22 @@ public class SeqDataView implements DataView
     {
     }    
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-         return new int[]{Common.KEY_TYPE_SEQ};
+         return new KeyType[]{KeyType.SEQ};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
-        boolean isValid=false;
-        int[] keys=getSupportedKeyTypes();
-        for(int i=0;i<keys.length;i++)
-            if(keyType == keys[i]){
-                isValid=true;
-                break;
-            }
-        if(!isValid)
-            throw new servlets.exceptions.UnsupportedKeyTypeException(keys,keyType);
-        this.keyType=keyType;
+        if(Common.checkType(this,keyType))
+            this.keyType=keyType;
+        else
+            throw new UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
+
     }
 
 
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }

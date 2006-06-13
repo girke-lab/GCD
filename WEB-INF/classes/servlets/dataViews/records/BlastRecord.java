@@ -89,9 +89,9 @@ public class BlastRecord extends AbstractRecord
     {
         return blastId;
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
-        return Common.KEY_TYPE_BLAST;
+        return KeyType.BLAST;
     }
     /**
      * 
@@ -150,7 +150,7 @@ public class BlastRecord extends AbstractRecord
     {
     }
      
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return this.getRecordInfo().getSupportedKeyTypes();
     }
@@ -162,13 +162,13 @@ public class BlastRecord extends AbstractRecord
             {
                 return new BlastRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 return QuerySetProvider.getRecordQuerySet().getBlastRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
             }
-            public int[] getSupportedKeyTypes()
+            public KeyType[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_ACC};
+                return new KeyType[]{KeyType.ACC};
             }
             public CompositeFormat getCompositeFormat()
             {

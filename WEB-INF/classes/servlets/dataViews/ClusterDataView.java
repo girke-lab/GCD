@@ -25,7 +25,7 @@ public class ClusterDataView implements DataView
     
     List seq_ids;
     int hid;
-    int keyType;
+    KeyType keyType;
     String sortCol;
     int[] dbNums;
     private String userName; 
@@ -171,7 +171,7 @@ public class ClusterDataView implements DataView
        
     private List getData(List input, String order, int[] db)
     {
-        return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getClusterDataViewQuery(input, order, db, -1));         
+        return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getClusterDataViewQuery(input, order, db, null));         
     }
     
      private String buildClusterViewStatement(String conditions, String order, int[] DBs)
@@ -196,27 +196,20 @@ public class ClusterDataView implements DataView
      {
      }     
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-         return new int[]{Common.KEY_TYPE_CLUSTER};
+         return new KeyType[]{KeyType.CLUSTER};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
-        boolean isValid=false;
-        int[] keys=getSupportedKeyTypes();
-        for(int i=0;i<keys.length;i++)
-            if(keyType == keys[i]){
-                isValid=true;
-                break;
-            }
-        if(!isValid)
-            throw new servlets.exceptions.UnsupportedKeyTypeException(keys,keyType);
+        if(!Common.checkType(this, keyType))
+            throw new servlets.exceptions.UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         this.keyType=keyType;
     }
 
 
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }

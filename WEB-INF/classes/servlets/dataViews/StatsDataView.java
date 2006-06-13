@@ -83,12 +83,12 @@ public class StatsDataView implements DataView
     {
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-         return new int[]{};
+         return new KeyType[]{};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
        
     }
@@ -98,9 +98,9 @@ public class StatsDataView implements DataView
     }
 
 
-    public int getKeyType()
+    public KeyType getKeyType()
     {
-        return -1;
+        return null;
     }
 
     public void setParameters(Map parameters)

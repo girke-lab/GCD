@@ -33,12 +33,12 @@ public class PskClusterSearch extends AbstractSearch
         int comparison_id;
         
         if(input==null || input.size()!=2)
-        {
-            log.error("bad input list: "+input);
+        {            
+            log.error("bad input for "+keyType+": "+input);
             data=new ArrayList(0);
             return;
         }
-        
+               
         cluster_id=new Integer((String)input.get(0));
         comparison_id=new Integer((String)input.get(1));
 
@@ -68,8 +68,8 @@ public class PskClusterSearch extends AbstractSearch
      * The search returns probe_set_key_ids with the comparison_id tacked on.
      * @return  
      */
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     { 
-        return new int[]{Common.KEY_TYPE_PSK};
+        return new KeyType[]{KeyType.PSK_COMP};
     }
 }

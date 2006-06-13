@@ -1,37 +1,43 @@
 /*
- * ProbeSetKeySearch.java
+ * ClusterCorrSearch.java
  *
- * Created on November 29, 2005, 12:25 PM
+ * Created on May 30, 2006, 1:03 PM
  *
  */
 
 package servlets.search;
-
-import org.apache.log4j.Logger;
-import servlets.Common;
 import java.util.*;
+import servlets.Common;
+import servlets.KeyTypeUser.KeyType;
 import servlets.querySets.QuerySetProvider;
 
 /**
- * given psk id numbers, returns correlation_ids.
+ *
  * @author khoran
  */
-public class ProbeSetKeySearch extends AbstractSearch
+public class ClusterCorrSearch extends AbstractSearch
 {
     
-    
-    private static Logger log=Logger.getLogger(ProbeSetKeySearch.class);
-    
-    /** Creates a new instance of ProbeSetKeySearch */
-    public ProbeSetKeySearch()
+    /** Creates a new instance of ClusterCorrSearch */
+    public ClusterCorrSearch()
     {
     }
 
-    
     void loadData()
     {
-        log.debug("loading correlation ids for psks: "+input);
-        seqId_query=QuerySetProvider.getSearchQuerySet().getProbeSetKeySearchQuery(input,limit, keyType);
+        
+        int cluster_id;
+        int psk_id;
+        if(input==null || input.size()!=2)
+        {
+            log.error("bad input for ClusterCorrSearch, usage: <cluster_id> <psk_id>");
+            data=new ArrayList(0);
+            return;
+        }
+        cluster_id=Integer.parseInt((String)input.get(0));
+        psk_id=Integer.parseInt((String)input.get(1));
+        
+        seqId_query=QuerySetProvider.getSearchQuerySet().getClusterCorrSearchQuery(cluster_id,psk_id, keyType);
         List rs=Common.sendQuery(seqId_query);
                                
         String lastLabel=null;
@@ -50,14 +56,10 @@ public class ProbeSetKeySearch extends AbstractSearch
         }
             
         data=output;
+        
     }
-           
-  
     public KeyType[] getSupportedKeyTypes()
     { 
         return new KeyType[]{KeyType.CORR};
     }
-
-    
-    
 }

@@ -29,7 +29,7 @@ public class Unknowns2DataView implements DataView
 {
     List seq_ids;
     int hid;
-    int keyType;
+    KeyType keyType;
     String sortCol,sortDir;
     int[] dbNums;        
     DbConnection dbc=null;    
@@ -211,19 +211,19 @@ public class Unknowns2DataView implements DataView
     
     
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_MODEL};
+        return new KeyType[]{KeyType.MODEL};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {                
         if(!Common.checkType(this, keyType))
             throw new servlets.exceptions.UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         this.keyType=keyType;
     }
 
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }

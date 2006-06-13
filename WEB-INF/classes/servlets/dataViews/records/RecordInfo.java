@@ -8,7 +8,7 @@
 package servlets.dataViews.records;
 
 import java.util.List;
-import servlets.dataViews.records.CompositeFormat;
+import servlets.KeyTypeUser;
 
 /**
  * holds data that is constant over a group of
@@ -42,12 +42,12 @@ public abstract class RecordInfo
         key=null;
     }
     
-    public abstract String getQuery(QueryParameters qp,int keyType);
+    public abstract String getQuery(QueryParameters qp,KeyTypeUser.KeyType keyType);
     public abstract Record getRecord(List l);
     
-    public int[] getSupportedKeyTypes()
+    public KeyTypeUser.KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{};
+        return new KeyTypeUser.KeyType[]{};
     }
     
     public int getStart()
@@ -60,7 +60,7 @@ public abstract class RecordInfo
         return end;
     }
 
-    public int[] getKeyIndecies(int keyType)
+    public int[] getKeyIndecies(KeyTypeUser.KeyType keyType)
     {
         return key;
     }    
@@ -92,7 +92,7 @@ public abstract class RecordInfo
      *  This format must match the format returned by the
      *  getPrimaryKey method of the parent node.
      */
-    public Object buildKey(List data,int keyType)
+    public Object buildKey(List data,KeyTypeUser.KeyType keyType)
     {
         int[] indecies=getKeyIndecies(keyType);
         

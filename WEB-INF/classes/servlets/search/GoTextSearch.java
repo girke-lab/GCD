@@ -44,9 +44,9 @@ public class GoTextSearch extends AbstractSearch {
     }
     
     
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_SEQ,Common.KEY_TYPE_MODEL};
+        return new KeyType[]{KeyType.SEQ,KeyType.MODEL};
     }  
  
 }

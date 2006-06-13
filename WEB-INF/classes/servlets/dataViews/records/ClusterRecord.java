@@ -48,9 +48,9 @@ public class ClusterRecord extends AbstractRecord
     public Object getPrimaryKey()
     {
 //        switch(this.getKeyType()){
-//            case Common.KEY_TYPE_ACC:
+//            case KeyType.ACC:
 //                return accId;
-//            case Common.KEY_TYPE_CLUSTER:
+//            case KeyType.CLUSTER:
 //                return cluster_id;
 //            default:
 //                log.error("invalid key type: "+this.getKeyType());
@@ -58,9 +58,9 @@ public class ClusterRecord extends AbstractRecord
 //        }
         return cluster_id;
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
-        return Common.KEY_TYPE_CLUSTER;
+        return KeyType.CLUSTER;
     }
     public boolean equals(Object o)
     {
@@ -86,7 +86,7 @@ public class ClusterRecord extends AbstractRecord
     }
         
     
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return this.getRecordInfo().getSupportedKeyTypes();
     }
@@ -98,13 +98,13 @@ public class ClusterRecord extends AbstractRecord
             {
                 return new ClusterRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 return QuerySetProvider.getRecordQuerySet().getClusterRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
             }
-            public int[] getSupportedKeyTypes()
+            public KeyType[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_ACC};
+                return new KeyType[]{KeyType.ACC};
             }
            
         };

@@ -66,5 +66,5 @@ public interface Record extends Iterable, KeyTypeUser
          *  When adding a subrecord, they must support this key type or 
          *  they cannot be linked to this record.
          */
-        public int getChildKeyType();
+        public KeyType getChildKeyType();
 }

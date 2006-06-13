@@ -28,7 +28,8 @@ public class AffyDataView implements DataView
     private static final String[] dataTypes=new String[]{"mas5","rma"};
     private static final String[] dataTypeTitles=new String[]{"MAS 5","RMA"};
     
-    private int keyType, hid;
+    private KeyType keyType;
+    private int hid;
     private String sortDir, sortCol,action,compView;
     private int[] dbNums;        
     private Set<AffyKey> nodeSet=null;
@@ -62,7 +63,7 @@ public class AffyDataView implements DataView
         header=new HeaderBean();        
     }
 
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }
@@ -113,9 +114,9 @@ public class AffyDataView implements DataView
          };        
     }
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-        return new int[]{Common.KEY_TYPE_MODEL};
+        return new KeyType[]{KeyType.MODEL};
     }
    
     public void setData(String sortCol, int[] dbList, int hid)
@@ -135,8 +136,10 @@ public class AffyDataView implements DataView
         updateNodeSet();
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
+        if(!Common.checkType(this, keyType))
+            throw new servlets.exceptions.UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         this.keyType=keyType;
     }
 

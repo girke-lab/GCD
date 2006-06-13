@@ -24,7 +24,7 @@ public class UnknownsDataView implements DataView
 {
     List seq_ids;
     int hid;
-    int keyType;
+    KeyType keyType;
     String sortCol,sortDir;
     int[] dbNums;    
     File tempDir;
@@ -241,7 +241,7 @@ public class UnknownsDataView implements DataView
     private List getData()
     {        
         try{
-            return dbc.sendQuery(QuerySetProvider.getDataViewQuerySet().getUnknownsDataViewQuery(seq_ids,sortCol,sortDir, -1));
+            return dbc.sendQuery(QuerySetProvider.getDataViewQuerySet().getUnknownsDataViewQuery(seq_ids,sortCol,sortDir, null));
         }catch(Exception e){
             log.error("could not send query: "+e.getMessage());
         }
@@ -285,27 +285,20 @@ public class UnknownsDataView implements DataView
             "Treatments"
         };
 
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
-         return new int[]{Common.KEY_TYPE_MODEL};
+         return new KeyType[]{KeyType.MODEL};
     }
 
-    public void setKeyType(int keyType) throws servlets.exceptions.UnsupportedKeyTypeException
+    public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException
     {
-        boolean isValid=false;
-        int[] keys=getSupportedKeyTypes();
-        for(int i=0;i<keys.length;i++)
-            if(keyType == keys[i]){
-                isValid=true;
-                break;
-            }
-        if(!isValid)
-            throw new servlets.exceptions.UnsupportedKeyTypeException(keys,keyType);
+        if(!Common.checkType(this, keyType))
+            throw new servlets.exceptions.UnsupportedKeyTypeException(this.getSupportedKeyTypes(),keyType);
         this.keyType=keyType;
     }
 
 
-    public int getKeyType()
+    public KeyType getKeyType()
     {
         return keyType;
     }

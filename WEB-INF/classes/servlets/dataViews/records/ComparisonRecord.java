@@ -65,9 +65,9 @@ public class ComparisonRecord extends AbstractRecord
     {
         return comparisonId;
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
-        return Common.KEY_TYPE_COMP;
+        return KeyType.COMP;
     }
     
     public boolean equals(Object o)
@@ -79,7 +79,7 @@ public class ComparisonRecord extends AbstractRecord
         return ((ComparisonRecord)o).getPrimaryKey().equals(getPrimaryKey());
     }
     
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return getRecordInfo().getSupportedKeyTypes();
     }
@@ -90,7 +90,7 @@ public class ComparisonRecord extends AbstractRecord
             {
                 return new ComparisonRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 return QuerySetProvider.getRecordQuerySet().
                         getComparisonRecordQuery(qp.getIds(),

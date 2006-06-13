@@ -55,46 +55,19 @@ public class ProbeSetKeyRecord extends AbstractRecord
         pfpUp=new Float((String)values.get(12));
         pfpDown=new Float((String)values.get(13));        
         comparisonId=new Integer((String)values.get(14));    
-        cluster_ids=getIntArray((java.sql.Array)values.get(15));
-        clusterNames=getStringArray((java.sql.Array)values.get(16));
-        methods=getStringArray((java.sql.Array)values.get(17));
-        sizes=getIntArray((java.sql.Array)values.get(18));
+        cluster_ids=Common.getIntArray((java.sql.Array)values.get(15));
+        clusterNames=Common.getStringArray((java.sql.Array)values.get(16));
+        methods=Common.getStringArray((java.sql.Array)values.get(17));
+        sizes=Common.getIntArray((java.sql.Array)values.get(18));
         
-        accessions=getStringArray((java.sql.Array)values.get(19));
-        accDescriptions=getStringArray((java.sql.Array)values.get(20));
+        accessions=Common.getStringArray((java.sql.Array)values.get(19));
+        accDescriptions=Common.getStringArray((java.sql.Array)values.get(20));
         
 //        if(controlPMA==null) controlPMA="";
 //        if(treatmentPMA==null) treatmentPMA="";        
     }
 
-    private String[] getStringArray(java.sql.Array a)
-    {
-        String[] strings;
-        try{
-            if(a==null)
-                strings=new String[]{};
-            else
-                strings=(String[])(a.getArray());            
-        }catch(java.sql.SQLException e){
-            log.warn("exception while grabbing array: "+e);
-            strings=new String[]{};
-        }        
-        return strings;
-    }
-    private int[] getIntArray(java.sql.Array a)
-    {
-        int[] values=null;
-        try{
-            if(a==null)
-                values=new int[]{};
-            else 
-                values=(int[])(a.getArray());                        
-        }catch(java.sql.SQLException e){
-            log.warn("exception while grabbing array: "+e);
-            values=new int[]{};
-        }        
-        return values;
-    }
+   
     
     public void printHeader(Writer out, RecordVisitor visitor) throws IOException
     {
@@ -112,9 +85,9 @@ public class ProbeSetKeyRecord extends AbstractRecord
     {
         return pskId+"";
     }
-    public int getChildKeyType()
+    public KeyType getChildKeyType()
     {
-        return Common.KEY_TYPE_PSK;
+        return KeyType.PSK;
     }
     
     public boolean equals(Object o)
@@ -126,7 +99,7 @@ public class ProbeSetKeyRecord extends AbstractRecord
         return ((ProbeSetKeyRecord)o).getPrimaryKey().equals(getPrimaryKey());
     }
     
-    public int[] getSupportedKeyTypes()
+    public KeyType[] getSupportedKeyTypes()
     {
         return getRecordInfo().getSupportedKeyTypes();
     }
@@ -137,15 +110,15 @@ public class ProbeSetKeyRecord extends AbstractRecord
             {
                 return new ProbeSetKeyRecord(l);
             }
-            public String getQuery(QueryParameters qp,int keyType)
+            public String getQuery(QueryParameters qp,KeyType keyType)
             {
                 return QuerySetProvider.getRecordQuerySet().
                         getProbeSetKeyRecordQuery(qp.getIds(),qp.getComparisonIds(),
                             qp.getSortCol(),qp.getSortDir(), qp.getDataType());
             }
-            public int[] getSupportedKeyTypes()
+            public KeyType[] getSupportedKeyTypes()
             {
-                return new int[]{Common.KEY_TYPE_COMP};
+                return new KeyType[]{KeyType.COMP};
             }            
         };
     }
