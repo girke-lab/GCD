@@ -22,6 +22,7 @@
     <servlet-name>LogonRouterServlet</servlet-name>
     <servlet-class>servlets.LogonRouterServlet</servlet-class>
   </servlet>
+  
   <servlet-mapping>
     <servlet-name>QueryPageServlet</servlet-name>
     <url-pattern>/QueryPageServlet</url-pattern>
@@ -45,7 +46,7 @@
   <servlet-mapping>
     <servlet-name>queryAdmin</servlet-name>
     <url-pattern>/as2.jsp</url-pattern>
-  </servlet-mapping>
+  </servlet-mapping>  
   <servlet-mapping>
     <servlet-name>LogonRouterServlet</servlet-name>
     <url-pattern>/LogonRouterServlet</url-pattern>
@@ -65,7 +66,9 @@
       <web-resource-name>queryAdmin page</web-resource-name>
       <url-pattern>/as2.jsp</url-pattern>
       <url-pattern>/QueryAdmin</url-pattern>
+      <url-pattern>/dbAdmin.jsp</url-pattern>
     </web-resource-collection>
+
     <auth-constraint>
       <role-name>query_admin</role-name>
     </auth-constraint>

@@ -41,10 +41,17 @@ public class DbConnectionManager
     {
         if(connections==null)
             initMap();
-        //must be syncronized
-        synchronized(connections){
-            connections.put(name,dbc);        
-        }
+        connections.put(name,dbc);        
+    }
+    public static boolean removeConnection(String name)
+    {
+        if(connections==null || !connections.containsKey(name))
+            return false;
+        DbConnection dbc=connections.remove(name);
+        if(dbc==null)
+            return false;
+        dbc.close();
+        return true;
     }
     /**
      * get the given connection.
@@ -76,7 +83,7 @@ public class DbConnectionManager
      */
     private static synchronized void initMap()
     {
-        connections=new HashMap<String,DbConnection>();
+        connections=Collections.synchronizedMap(new HashMap<String,DbConnection>());
         
         //add some default connections
 //        try{
@@ -95,7 +102,7 @@ public class DbConnectionManager
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); 
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://db2.bioinfo.ucr.edu:5432/khoran","servlet","512256")); 
 
-                //for home testing
+                //for home testing  
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://localhost:5430/khoran_loading","khoran","512_256_1024")); //connect to postgres            
         }catch(Exception e){            
             log.warn("failed to connect to khoran database: "+e.getMessage());

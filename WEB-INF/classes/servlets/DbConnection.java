@@ -119,6 +119,7 @@ public class DbConnection
         userName=name;
         password=pass;
         connectionURI=connectURI;
+        hostname=connectURI;
         //log.setLevel(org.apache.log4j.Level.WARN);
         //log.setLevel(org.apache.log4j.Level.DEBUG);
         
@@ -151,7 +152,7 @@ public class DbConnection
      * @return name of host currently connected to
      */
     public String getHostName()
-    {
+    {        
         return hostname;
     }
     /**
@@ -228,6 +229,8 @@ public class DbConnection
         Connection conn=null;
         ResultSet rs=null;
         Statement stmt=null;
+        if(dataSource==null)
+            log.warn("null datasource, hostname: "+getHostName());
         try{
             conn=dataSource.getConnection();
             stmt=conn.createStatement();       

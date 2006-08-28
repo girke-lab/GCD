@@ -50,4 +50,9 @@ public class CompositeFormat
                r.printFooter(out, visitor);
        } 
     }    
+    public void printFooter(Writer out, RecordVisitor visitor, Iterable ib)
+        throws IOException
+    {        
+    }
+    
 }

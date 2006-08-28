@@ -117,6 +117,9 @@ public class CorrelationRecord extends AbstractRecord
 
         HtmlRecordVisitor visitor;
         
+        private static final String plotScript="http://bioweb.ucr.edu/scripts/plotAffyCluster.pl";
+        //private static final String plotScript="http://bioinfo.ucr.edu/cgi-bin/plotAffyCluster.pl";
+        
         /** Creates a new instance of CorrelationFormat */
         public CorrelationFormat()
         {
@@ -142,7 +145,7 @@ public class CorrelationRecord extends AbstractRecord
             String url="QueryPageServlet?displayType=affyView&searchType=Probe_Set&inputKey=";
             String clusterLink="QueryPageServlet?displayType=correlationView&searchType=Cluster_Corr" +
                 "&inputKey=";
-            String clusterPicLink="http://bioweb.ucr.edu/scripts/plotAffyCluster.pl?cluster_id=";
+            String clusterPicLink=plotScript+"?script=plot&cluster_id=";            
             String[] methods=null;
             
             //This mess is to deal with multiple catagories, which arrive
@@ -176,6 +179,8 @@ public class CorrelationRecord extends AbstractRecord
                 isFirst=true;                
                 out.write("<tr>");
                 
+                
+                
                 String catagory;    
                 for(Iterator i=catagories.iterator();i.hasNext();)
                 {
@@ -185,6 +190,7 @@ public class CorrelationRecord extends AbstractRecord
                     {
                         if(rec==null)
                             continue;
+                        out.write("<td><INPUT type=checkbox name='probe_set_key' value='"+rec.psk2_key+"'></td>");
                         out.write("<td><a href='"+url+rec.psk2_key+"'>"+rec.psk2_key+"</a></td>");    
                         isFirst=false;
                     }
@@ -218,6 +224,8 @@ public class CorrelationRecord extends AbstractRecord
             
         }        
        
+        /** this is not the same printHeader as in the super class
+         */
         private void printHeader(Writer out, Set<String> catagories,String psk1,String[] methods)
             throws IOException
         {
@@ -228,7 +236,11 @@ public class CorrelationRecord extends AbstractRecord
             String [] titles=new String[]{"Correlations","P value"};
             String[] colNames=QuerySetProvider.getDataViewQuerySet().getSortableCorrelationColumns();
             
-            out.write("<tr bgcolor='"+PageColors.title+"'><th>Affy ID</th>");
+            out.write("&nbsp&nbsp&nbsp");
+            printFormTop(out);            
+            
+            
+            out.write("<tr bgcolor='"+PageColors.title+"'><td>&nbsp</nbsp><th>Affy ID</th>");
             for(String s : catagories)
                 out.write("<th colspan='2'>"+s+"</th>");            
             out.write("<th colspan='"+methods.length+"'>Clusters</th>");
@@ -237,7 +249,7 @@ public class CorrelationRecord extends AbstractRecord
             newDir="asc";
             if(sortCol!=null && sortCol.equals(prefix+"_"+colNames[0]))
                 newDir=(sortDir.equals("asc"))? "desc" : "asc"; //flip direction
-            out.write("<tr bgcolor='"+PageColors.title+"'><th><a "+
+            out.write("<tr bgcolor='"+PageColors.title+"'><td>&nbsp</td><th><a "+
                     "href='QueryPageServlet?hid="+visitor.getHid()+"&sortCol="+
                     prefix+"_"+colNames[0]+"&sortDirection="+newDir+"'>"+
                     psk1+"</a></th>\n");
@@ -257,6 +269,20 @@ public class CorrelationRecord extends AbstractRecord
             
             out.write("<th>&nbsp</th></tr>");
         }
+
+        public void printFooter(Writer out, RecordVisitor visitor, Iterable ib) throws IOException
+        {
+            out.write("</FORM>");
+        }
+        
+        private void printFormTop(Writer out) throws IOException
+        {            
+            out.write("<FORM method=GET action="+plotScript+">");
+            out.write("<INPUT type=hidden name='script' value='junk'>");
+            out.write("<INPUT type=submit value='Mine selected' onClick=\"script.value='';submit()\">");
+            out.write("<INPUT type=submit value='Plot Selected' onClick=\"script.value='plot';submit()\">");
+        }
+
     }
     
     

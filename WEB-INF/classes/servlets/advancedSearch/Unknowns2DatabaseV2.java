@@ -170,11 +170,11 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
             new FloatField(space+"P-value","affy.experiment_group_summary_view.p_value"),
             new FloatField(space+"Adjusted P-value","affy.experiment_group_summary_view.adj_p_value"),
             new FloatField(space+"pfp up","affy.experiment_group_summary_view.pfp_up"),
-            new FloatField(space+"pfp down","affy.experiment_group_summary_view.pfp_down"),
+            new FloatField(space+"pfp down","affy.experiment_group_summary_view.pfp_down")
                                         
-            new StringField("Correlations",""),
-            new FloatField(space+"Correlation","affy.correlation_view.correlation"),
-            new FloatField(space+"P Value","affy.correlation_view.p_value")
+//            new StringField("Correlations",""), // this no longer has an accession_id field
+//            new FloatField(space+"Correlation","affy.correlation_view.correlation"),
+//            new FloatField(space+"P Value","affy.correlation_view.p_value")
         };
         
         booleans=new String[]{"and","or"};                

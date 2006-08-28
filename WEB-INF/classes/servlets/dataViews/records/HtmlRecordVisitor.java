@@ -211,6 +211,7 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printFooter(Writer out, CompositeRecord cr) throws IOException
     {
         log.debug("composite footer");
+        cr.getFormat().printFooter(out,this,cr);
     }
 
     //</editor-fold>
