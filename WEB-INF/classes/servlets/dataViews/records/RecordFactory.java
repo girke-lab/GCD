@@ -90,7 +90,7 @@ public class RecordFactory
      * @param ri The {@link RecordInfo} object of the desired {@link Record} object.
      * @param qp query parameters to use to get the data
      * @return a collection of records ( possibly {@link CompositeRecord}s)
-     */
+     */           //CompositeRecord
     public Collection<CompositeRecord> getRecords(RecordInfo ri, QueryParameters qp)
     {
         return getMap(ri,qp, null).values();
@@ -103,7 +103,7 @@ public class RecordFactory
      * @param qp the query parameters to use when querying the sub-records
      * @return a collection of child records. This can be used to add additional children.
      */
-    public Collection<CompositeRecord> addSubType(Collection<? extends Record> records, RecordInfo ri, QueryParameters qp)
+     public Collection<CompositeRecord> addSubType(Collection<? extends Record> records, RecordInfo ri, QueryParameters qp)
     {  // find a key supported by both records and ri, then create a Map from ri and qp
        //run through each record in records, find it in subRecords, and add it the record.
         
@@ -156,6 +156,11 @@ public class RecordFactory
         return subRecords.values();
     }
     
+    
+    
+    
+   
+    
     /////////////////////// Factory methods  /////////////////////////////////
     
     /**
@@ -167,7 +172,7 @@ public class RecordFactory
      */
     private Map<Object,CompositeRecord> getMap(RecordInfo ri, QueryParameters qp,KeyTypeUser.KeyType keyType)
     { // query information and store it in a Map of CompositeRecords        
-                
+                    
         List data=null;
         try{
             data=dbc.sendQuery(ri.getQuery(qp, keyType));
@@ -203,7 +208,129 @@ public class RecordFactory
                 log.error("invalid key: "+e);
             }   
         }
+        
+        log.debug("created new map, keys: "+output.keySet());
         return output;                                
     }
+     
+     
+     
+     
+     
+   
    
 }
+
+/*
+ public Collection<Record> addSubType(Collection<? extends Record> records, RecordInfo ri, QueryParameters qp)
+    {  // find a key supported by both records and ri, then create a Map from ri and qp
+       //run through each record in records, find it in subRecords, and add it the record.
+        
+        if(records==null || records.size()==0)
+            return null;
+                
+        KeyTypeUser.KeyType childKeyType=records.iterator().next().getChildKeyType();
+                
+        if(!Common.checkKeyType(ri.getSupportedKeyTypes(),childKeyType)){
+            log.error("key "+childKeyType+" not supported by given child: "+ri.getRecord(new LinkedList()).getClass());
+            return null;
+        }                
+        
+        Map<Object,Record> subRecords=getMap(ri,qp, childKeyType);
+
+        log.debug("sub record keys are: "+subRecords.keySet());
+        
+        Object primaryKey;
+        Record sr,r2;
+        for(Record r : records)
+        {
+            log.debug("r is a "+r.getClass());
+            if(r instanceof CompositeRecord) //decend into composites
+                for(Iterator i=r.iterator();i.hasNext();)
+                {
+                    r2=(Record)i.next();
+                    log.debug("r2 is a "+r2.getClass());
+                    primaryKey=r2.getPrimaryKey();
+                    log.debug("primary key is a "+primaryKey.getClass());
+                    log.debug("looking for primary key "+primaryKey);
+                    sr=subRecords.get(primaryKey);
+                    if(sr==null)
+                        log.debug("no sub record found with primary key "+primaryKey);
+                    else
+                        r2.addSubRecord(sr);
+
+                }
+            else
+            {
+                primaryKey=r.getPrimaryKey();
+                sr=subRecords.get(primaryKey);
+                if(sr==null)
+                    log.debug("no sub record found with primary key "+primaryKey);
+                else
+                    r.addSubRecord(sr);
+            }
+                
+            
+        }
+        return subRecords.values();
+    }
+  
+    private Map<Object,Record> getMap(RecordInfo ri, QueryParameters qp,KeyTypeUser.KeyType keyType)
+    { // query information and store it in a Map of CompositeRecords        
+                    
+        List data=null;
+        try{
+            data=dbc.sendQuery(ri.getQuery(qp, keyType));
+        }catch(java.sql.SQLException e){
+            log.error("could not send Record query: "+e.getMessage());
+            return new HashMap<Object,Record>();
+        }
+        
+        List row;
+        CompositeRecord cr;
+        Object key;
+        Record r,temp;
+        Map<Object,Record> output=new LinkedHashMap<Object,Record>(); 
+        
+        for(Iterator i=data.iterator();i.hasNext();)
+        {
+            row=(List)i.next();
+            key=ri.buildKey(row,keyType);
+            
+
+            //create a new record from data, and add to existing 
+            // RecordGroup
+            try{                
+                r=ri.getRecord(row.subList(ri.getStart(),ri.getEnd()));
+                if(keyType!=null) //if we dont have a parent, don't set the key type.
+                    r.setKeyType(keyType);
+            }catch(UnsupportedKeyTypeException e){ 
+                log.error("invalid key: "+e);
+                continue;
+            }               
+
+            //try to find an existing Record for this key
+            
+            temp=output.get(key);
+            if(temp==null) // record not already there
+            {
+                output.put(key,r);
+            }
+            else if(temp instanceof CompositeRecord)
+                temp.addSubRecord(r);
+            else // we have more than one, so move it into a composite
+            {
+                cr=new CompositeRecord(key,ri.getCompositeFormat());
+                cr.addSubRecord(temp);
+                cr.addSubRecord(r);
+                output.put(key,cr);
+            }
+        }
+        
+        log.debug("created new map, keys: "+output.keySet());
+        return output;                                
+    }
+ 
+ */
+
+

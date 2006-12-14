@@ -23,7 +23,7 @@ public class Common {
 //    public final static String dataColor="D3D3D3",titleColor="AAAAAA";        
     //maximum number of results that can be returned per database query
     public final static int MAXKEYS=100000; 
-    public final static int SCRIPT_LIMIT=500;
+    public final static int SCRIPT_LIMIT=500; 
     public final static int MAX_QUERY_KEYS=10000; //max number of keys to list in a query
     public final static int MAX_SESSIONS=5; //maximum number of sessions a user can store
     
@@ -380,6 +380,20 @@ public class Common {
         }catch(java.sql.SQLException e){
             log.warn("exception while grabbing array: "+e);
             values=new int[]{};
+        }        
+        return values;
+    }
+    public static double[] getDoubleArray(java.sql.Array a)
+    {
+        double[] values=null;
+        try{
+            if(a==null)
+                values=new double[]{};
+            else 
+                values=(double[])(a.getArray());                        
+        }catch(java.sql.SQLException e){
+            log.warn("exception while grabbing array: "+e);
+            values=new double[]{};
         }        
         return values;
     }

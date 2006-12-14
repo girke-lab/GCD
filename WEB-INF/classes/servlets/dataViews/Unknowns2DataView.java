@@ -193,15 +193,23 @@ public class Unknowns2DataView implements DataView
         Record rec;
         RecordVisitor visitor=new HtmlRecordVisitor();        
         ((HtmlRecordVisitor)visitor).setHid(hid);
-        //RecordVisitor visitor=new DebugRecordVisitor();
+        
         try{
+            RecordVisitor debugVisitor=new DebugRecordVisitor();
+            Writer out2=new BufferedWriter(new FileWriter("/home/khoran/debug.out"));
             for(Iterator i=data.iterator();i.hasNext();)
             {
                 rec=(Record)i.next();
                 rec.printHeader(out, visitor);
                 rec.printRecord(out, visitor);
                 rec.printFooter(out,visitor);
-            }                
+                
+                
+                rec.printHeader(out2, debugVisitor);
+                rec.printRecord(out2, debugVisitor);
+                rec.printFooter(out2, debugVisitor);
+            } 
+            out2.close();
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());
         }

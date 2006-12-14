@@ -87,7 +87,7 @@ public abstract class RecordInfo
      *      returned unchanged.
      *
      *      If there are multiple items, they are cast to
-     *      Strings and run together with '_' as a sperator.
+     *      Strings and run together with '_' as a separator.
      *
      *  This format must match the format returned by the
      *  getPrimaryKey method of the parent node.

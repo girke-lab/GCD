@@ -26,15 +26,17 @@ public class CorrelationRecord extends AbstractRecord
     Long corrId;
     Integer psk1_id,psk2_id;
     String catagory,psk1_key,psk2_key;
-    Float correlation,p_value;
+    //Float correlation,p_value;
+    Float pearson,spearman;
     Object acc;
     int[] cluster_ids,sizes;
-    String[] clusterNames, methods,accessions,descriptions;
+    double[] confidences;
+    String[] clusterNames,parentNames, methods,accessions,descriptions;
     
     /** Creates a new instance of CorrelationRecord */
     public CorrelationRecord(List values)
     {
-        int reqSize=14;
+        int reqSize=16;
         if(values==null || values.size()!=reqSize)
         {
             log.error("invalid list in CorrelationRecord constructor");
@@ -50,8 +52,8 @@ public class CorrelationRecord extends AbstractRecord
         psk1_key=(String)values.get(4);
         psk2_key=(String)values.get(5);
         
-        correlation=Float.parseFloat((String)values.get(6));
-        p_value=Float.parseFloat((String)values.get(7));
+        pearson=Float.parseFloat((String)values.get(6));
+        spearman=Float.parseFloat((String)values.get(7));
         
         accessions=Common.getStringArray((java.sql.Array)values.get(8));
         descriptions=Common.getStringArray((java.sql.Array)values.get(9));
@@ -60,6 +62,9 @@ public class CorrelationRecord extends AbstractRecord
         clusterNames=Common.getStringArray((java.sql.Array)values.get(11));
         methods=Common.getStringArray((java.sql.Array)values.get(12));
         sizes=Common.getIntArray((java.sql.Array)values.get(13));
+        
+        parentNames=Common.getStringArray((java.sql.Array)values.get(14));
+        confidences=Common.getDoubleArray((java.sql.Array)values.get(15));
     }
 
     
@@ -93,7 +98,7 @@ public class CorrelationRecord extends AbstractRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(new int[]{1},0,14){
+        return new RecordInfo(new int[]{1},0,16){
             public Record getRecord(List l)
             {
                 return new CorrelationRecord(l);
@@ -197,7 +202,7 @@ public class CorrelationRecord extends AbstractRecord
                     if(rec==null)
                         out.write("<td>&nbsp</td><td>&nbsp</td>");
                     else
-                        out.write("<td>"+rec.correlation+"</td><td>"+rec.p_value+"</td>");
+                        out.write("<td>"+rec.pearson+"</td><td>"+rec.spearman+"</td>");
                     if(!i.hasNext())
                     {// last element
                         // print clusters                                                
@@ -205,7 +210,9 @@ public class CorrelationRecord extends AbstractRecord
                             out.write("<td nowrap ><a href='"+clusterLink+rec.cluster_ids[j]+" "+rec.psk1_id+"' >"+
                                     rec.clusterNames[j]+"("+rec.sizes[j]+")</a>&nbsp" +
                                     "<a href='"+clusterPicLink +rec.cluster_ids[j]+"'><img border=0 src='images/ts_icon.png' height=14/></a>"+
-                                    " </td> ");                        
+                                    " </td> ");  
+                        for(int j=rec.cluster_ids.length; j<methods.length; j++)
+                            out.write("<td> &nbsp </td>");
                         
                         //print accessions
                         String accUrl="QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
@@ -233,7 +240,7 @@ public class CorrelationRecord extends AbstractRecord
             String prefix="corr";
             String sortCol=visitor.getSortCol();
             String sortDir=visitor.getSortDir();
-            String [] titles=new String[]{"Correlations","P value"};
+            String [] titles=new String[]{"Pearson","Spearman"};
             String[] colNames=QuerySetProvider.getDataViewQuerySet().getSortableCorrelationColumns();
             
             out.write("&nbsp&nbsp&nbsp");
@@ -269,7 +276,6 @@ public class CorrelationRecord extends AbstractRecord
             
             out.write("<th>&nbsp</th></tr>");
         }
-
         public void printFooter(Writer out, RecordVisitor visitor, Iterable ib) throws IOException
         {
             out.write("</FORM>");
@@ -279,10 +285,9 @@ public class CorrelationRecord extends AbstractRecord
         {            
             out.write("<FORM method=GET action="+plotScript+">");
             out.write("<INPUT type=hidden name='script' value='junk'>");
-            out.write("<INPUT type=submit value='Mine selected' onClick=\"script.value='';submit()\">");
+            out.write("<INPUT type=submit value='RBC Tools' onClick=\"script.value='';submit()\">");
             out.write("<INPUT type=submit value='Plot Selected' onClick=\"script.value='plot';submit()\">");
         }
-
     }
     
     

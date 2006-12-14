@@ -229,7 +229,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     public String[] getSortableCorrelationColumns()
     {
         return new String[] {
-            "psk2_key","correlation", "p_value"
+            "psk2_key","pearson", "spearman"
         };
     }
     
@@ -237,7 +237,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         return new String[][]{
             {"exp_set_key","comparison","control_desc","treatement_desc"},
-            {"probe_set_key","accessions","control_Mean",
+            {"probe_set_key","accessions","control_mean",
                 "treatment_mean","control_pma","treatment_pma","t_c_ratio_lg",
                 "contrast","p_value","adj_p_value","pfp_up","pfp_down",
                 "cluster_names","acc_descriptions"}            
@@ -462,7 +462,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         if(sortCol!=null && sortCol.startsWith("corr_"))
             sortCol=sortCol.replaceFirst("corr_", "");
         else
-            sortCol="correlation";
+            sortCol="pearson";
         
         if(catagory==null || catagory.equals(""))
             catagory="All";            
@@ -494,20 +494,21 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     public String getComparisonPskRecordQuery(Collection pskIds, Collection comparisonIds, 
             String sortCol, String sortDir, String userName,String dataType)
     {
-        if(sortCol!=null && sortCol.startsWith("treatment_"))
-            sortCol=sortCol.replaceFirst("treatment_", "");
-        else
-            sortCol="comparison";
-       
-        String query="SELECT * "+                
-                "       FROM affy.psk_summary_view " +
-                "       WHERE ("+ Common.buildIdListCondition("probe_set_key_id",pskIds)+
-                "           AND "+Common.buildIdListCondition("comparison_id",comparisonIds)+") "+                                                
-                "           AND data_type='"+dataType+"' "+
-                "ORDER BY "+ sortCol+" "+sortDir;           
-        logQuery(query);
-        return query;
+        throw new UnsupportedOperationException("comparisonPsk record is deprecated");
         
+//        if(sortCol!=null && sortCol.startsWith("treatment_"))
+//            sortCol=sortCol.replaceFirst("treatment_", "");
+//        else
+//            sortCol="comparison";
+//       
+//        String query="SELECT * "+                
+//                "       FROM affy.psk_summary_view " +
+//                "       WHERE ("+ Common.buildIdListCondition("probe_set_key_id",pskIds)+
+//                "           AND "+Common.buildIdListCondition("comparison_id",comparisonIds)+") "+                                                
+//                "           AND data_type='"+dataType+"' "+
+//                "ORDER BY "+ sortCol+" "+sortDir;           
+//        logQuery(query);
+//        return query;        
     }
     public String getComparisonRecordQuery(Collection comparisonIds, String sortCol, String sortDir, String userName, String dataType)
     {
@@ -1032,7 +1033,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             query="SELECT correlation_id, psk1_key " +
                   " FROM affy.correlation_view"+
                   " WHERE "+Common.buildLikeCondition("psk1_key",input)+
-                  " OERDER BY psk1_key ASC, correlation DESC"+
+                  " OERDER BY psk1_key ASC, pearson DESC"+
                   " LIMIT "+limit;
         else        
             log.error("invalid key type: "+keyType);
@@ -1046,7 +1047,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {                  
         String query="SELECT correlation_id, psk1_key FROM affy.correlation_view " +
                 " WHERE "+Common.buildIdListCondition("probe_set_key_id",input)+
-                " ORDER BY psk1_key ASC, correlation DESC";
+                " ORDER BY psk1_key ASC, pearson DESC";
         logQuery(query);
         return query;
     }
@@ -1069,7 +1070,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                      " FROM affy.cluster_summary_view as csv " +
             "               JOIN affy.correlation_view as corr ON(corr.psk2_id=csv.probe_set_key_id) " +
                     "  WHERE corr.probe_set_key_id="+psk_id+" AND csv.cluster_id="+cluster_id+
-                    " ORDER BY corr.correlation DESC";
+                    " ORDER BY corr.pearson DESC";
         
         logQuery(query);
         return query;        

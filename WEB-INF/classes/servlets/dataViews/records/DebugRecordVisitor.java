@@ -25,6 +25,7 @@ public class DebugRecordVisitor implements RecordVisitor
     /** Creates a new instance of DebugRecordVisitor */
     public DebugRecordVisitor()
     {
+        log.debug("createing a debug visitor");
     }
 
     private void indent(Writer out) throws IOException
@@ -44,7 +45,7 @@ public class DebugRecordVisitor implements RecordVisitor
             child.printRecord(out,this);
             child.printFooter(out,this);
         }
-        depth--;
+        depth--; 
     }
 
     public void printHeader(java.io.Writer out, AffyCompRecord ar) throws java.io.IOException
@@ -96,6 +97,36 @@ public class DebugRecordVisitor implements RecordVisitor
     {
         indent(out);
         out.write("header for "+ur.getClass()+"\n");
+    }
+    public void printHeader(Writer out, ProbeSetSummaryRecord psr) throws IOException
+    {
+        indent(out);
+        out.write("header for "+psr.getClass()+"\n");
+    }
+    public void printHeader(Writer out, CorrelationRecord cr) throws IOException
+    {
+        indent(out);
+        out.write("header for "+cr.getClass()+"\n");
+    }
+    public void printHeader(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+        indent(out);
+        out.write("header for "+ar.getClass()+"\n");
+    }
+    public void printHeader(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+        indent(out);
+        out.write("header for "+cpr.getClass()+"\n");
+    }
+    public void printHeader(Writer out, ComparisonRecord cr) throws IOException
+    {
+        indent(out);
+        out.write("header for "+cr.getClass()+"\n");
+    }
+    public void printHeader(Writer out, ProbeSetKeyRecord pskr) throws IOException
+    {
+        indent(out);
+        out.write("header for "+pskr.getClass()+"\n");
     }
 
     
@@ -166,6 +197,42 @@ public class DebugRecordVisitor implements RecordVisitor
         out.write(ur.getClass()+": "+ur.getPrimaryKey()+", "+ur.key+"\n");
         printChildren(out,ur);
     }
+    public void printRecord(Writer out, ProbeSetSummaryRecord psr) throws IOException
+    {
+        indent(out);
+        out.write(psr.getClass()+": "+psr.getPrimaryKey()+", "+psr.probeSetKey+"\n");
+        printChildren(out,psr);
+    }
+    public void printRecord(Writer out, CorrelationRecord cr) throws IOException
+    {
+        indent(out);
+        out.write(cr.getClass()+": "+cr.getPrimaryKey()+", "+cr.corrId+"\n");
+        printChildren(out,cr);
+    }
+    public void printRecord(Writer out, AffyExpDefRecord ar) throws IOException
+    {
+        indent(out);
+        out.write(ar.getClass()+": "+ar.getPrimaryKey()+", "+ar.celFileName+"\n");
+        printChildren(out,ar);
+    }
+    public void printRecord(Writer out, ComparisonPskRecord cpr) throws IOException
+    {
+        indent(out);
+        out.write(cpr.getClass()+": "+cpr.getPrimaryKey()+", "+cpr.probeSetKey+"\n");
+        printChildren(out,cpr);
+    }
+    public void printRecord(Writer out, ComparisonRecord cr) throws IOException
+    {
+        indent(out);
+        out.write(cr.getClass()+": "+cr.getPrimaryKey()+", "+cr.comparisonId+"\n");
+        printChildren(out,cr);
+    }
+    public void printRecord(Writer out, ProbeSetKeyRecord pskr) throws IOException
+    {
+        indent(out);
+        out.write(pskr.getClass()+": "+pskr.getPrimaryKey()+", "+pskr.probeSetKey+"\n");
+        printChildren(out,pskr);
+    }
     
     
     
@@ -205,76 +272,34 @@ public class DebugRecordVisitor implements RecordVisitor
         indent(out);
         out.write("footer for "+ur.getClass()+"\n");
     }
-
     public void printFooter(Writer out, ProbeSetSummaryRecord psr) throws IOException
     {
+        indent(out);
+        out.write("footer for "+psr.getClass()+"\n");
     }
-
-    public void printHeader(Writer out, ProbeSetSummaryRecord psr) throws IOException
-    {
-    }
-
-    public void printRecord(Writer out, ProbeSetSummaryRecord psr) throws IOException
-    {
-    }
-
     public void printFooter(Writer out, CorrelationRecord cr) throws IOException
     {
+        indent(out);
+        out.write("footer for "+cr.getClass()+"\n");
     }
-
-    public void printHeader(Writer out, CorrelationRecord cr) throws IOException
-    {
-    }
-
-    public void printRecord(Writer out, CorrelationRecord cr) throws IOException
-    {
-    }
-
     public void printFooter(Writer out, AffyExpDefRecord ar) throws IOException
     {
+        indent(out);
+        out.write("footer for "+ar.getClass()+"\n");
     }
-
-    public void printHeader(Writer out, AffyExpDefRecord ar) throws IOException
-    {
-    }
-
-    public void printRecord(Writer out, AffyExpDefRecord ar) throws IOException
-    {
-    }
-
-    public void printHeader(Writer out, ComparisonPskRecord cpr) throws IOException
-    {
-    }
-
-    public void printRecord(Writer out, ComparisonPskRecord cpr) throws IOException
-    {
-    }
-
     public void printFooter(Writer out, ComparisonPskRecord cpr) throws IOException
     {
+        indent(out);
+        out.write("footer for "+cpr.getClass()+"\n");
     }
-
-    public void printHeader(Writer out, ComparisonRecord cr) throws IOException
-    {
-    }
-
-    public void printRecord(Writer out, ComparisonRecord cr) throws IOException
-    {
-    }
-
     public void printFooter(Writer out, ComparisonRecord cr) throws IOException
     {
+        indent(out);
+        out.write("footer for "+cr.getClass()+"\n");
     }
-
-    public void printHeader(Writer out, ProbeSetKeyRecord pskr) throws IOException
-    {
-    }
-
-    public void printRecord(Writer out, ProbeSetKeyRecord pskr) throws IOException
-    {
-    }
-
     public void printFooter(Writer out, ProbeSetKeyRecord pskr) throws IOException
     {
+        indent(out);
+        out.write("footer for "+pskr.getClass()+"\n");
     }
 }
