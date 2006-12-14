@@ -437,15 +437,15 @@ public class HtmlRecordVisitor implements RecordVisitor
     public void printHeader(Writer out, CorrelationRecord cr) throws IOException
     {
         out.write("<tr bgcolor='"+PageColors.title+"'>"+
-                "<th>Catagory</th><th>Correlation</th><th>P value</th></tr>");
+                "<th>Catagory</th><th>Pearson</th><th>Spearman</th></tr>");
     }
     public void printRecord(Writer out, CorrelationRecord cr) throws IOException
     {
         //QueryPageServlet?displayType=affyView&searchType=id&dbs=0&inputKey=exact%20At1g01070.1
         String url="QueryPageServlet?displayType=affyView&searchType=Probe_Set&inputKey="+cr.psk2_key;
         out.write("<tr>");
-        out.write("<td><a href='"+url+"'>"+cr.psk2_key+"</a></td><td>"+cr.correlation+"</td>");
-        out.write("<td>"+cr.p_value+"</td></tr>");
+        out.write("<td><a href='"+url+"'>"+cr.psk2_key+"</a></td><td>"+cr.pearson+"</td>");
+        out.write("<td>"+cr.spearman+"</td></tr>");
     }
     public void printFooter(Writer out, CorrelationRecord cr) throws IOException
     {

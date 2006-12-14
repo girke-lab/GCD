@@ -242,12 +242,12 @@ public class TextRecordVisitor implements RecordVisitor
     
     public void printHeader(Writer out, CorrelationRecord cr) throws IOException
     {
-        out.write("catagory\taffyID1\taffyID2\tcorrelation\tp_value\taccessions\tdescriptions\n");
+        out.write("catagory\taffyID1\taffyID2\tpearson_correlation\tspearman_correlation\taccessions\tdescriptions\n");
     }
     public void printRecord(Writer out, CorrelationRecord cr) throws IOException
     {
         out.write(cr.catagory+"\t"+cr.psk1_key+"\t"+cr.psk2_key+"\t"+
-                cr.correlation+"\t"+cr.p_value+"\t");
+                cr.pearson+"\t"+cr.spearman+"\t");
         for(int i=0;i<cr.accessions.length;i++)
         {
             if(i!=0)
