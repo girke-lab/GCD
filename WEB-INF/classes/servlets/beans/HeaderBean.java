@@ -265,7 +265,9 @@ public class HeaderBean
             "	<tr><td class=navcol vAlign=top width='13%' height=500 bgColor=#d8d8d8>"+sidebarTitle+"<br><br>" +
             "		<table cellSpacing=3 cellPadding=4 width='100%' border=0><tbody>" +
             "			<tr><td class=foot bgColor=#f0f0f0><a href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html'>Project</a></td></tr>" +
+            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html'>Project</a></td></tr>" +            
+            "			<tr><td class=foot bgColor=#f0f0f0><a href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
+            "                       <A href='http://bioweb.ucr.edu/bapdb'>BAP DB</a></td></tr>" +                
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
             "                       <A href='index.jsp'>GCD Search</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +

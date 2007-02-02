@@ -143,21 +143,18 @@ public class CorrelationRecord extends AbstractRecord
             
             Map<Integer,Map<String,CorrelationRecord>> records=
                     new LinkedHashMap<Integer,Map<String,CorrelationRecord>>();
-            Map<String,CorrelationRecord> catagoryMap;
-            
+            Map<String,CorrelationRecord> catagoryMap;            
             Set<String> catagories=new TreeSet<String>();
+            
             String psk1_key="";
             String url="QueryPageServlet?displayType=affyView&searchType=Probe_Set&inputKey=";
-            String clusterLink="QueryPageServlet?displayType=correlationView&searchType=Cluster_Corr" +
-                "&inputKey=";
-            String clusterPicLink=plotScript+"?script=plot&cluster_id=";            
             String[] methods=null;
             
             //This mess is to deal with multiple catagories, which arrive
             // serially, but must be printed out in parallel.
             // Its kind of a waste though since we only have one catagory
             // with correlation data, and it does not seem like this
-            // will change any time soon. Oh well, its done now. 
+            // will change any time soon. Oh well, its done now.             
             for(Object o : ib)
             { //load the hash
                 rec=(CorrelationRecord)o;
@@ -179,6 +176,7 @@ public class CorrelationRecord extends AbstractRecord
             //now print the table
             boolean isFirst;
             printHeader(out,catagories, psk1_key,methods);
+            
             for(Map<String,CorrelationRecord> cm : records.values())
             {                
                 isFirst=true;                
@@ -205,14 +203,8 @@ public class CorrelationRecord extends AbstractRecord
                         out.write("<td>"+rec.pearson+"</td><td>"+rec.spearman+"</td>");
                     if(!i.hasNext())
                     {// last element
-                        // print clusters                                                
-                        for(int j=0;j<rec.cluster_ids.length;j++)                        
-                            out.write("<td nowrap ><a href='"+clusterLink+rec.cluster_ids[j]+" "+rec.psk1_id+"' >"+
-                                    rec.clusterNames[j]+"("+rec.sizes[j]+")</a>&nbsp" +
-                                    "<a href='"+clusterPicLink +rec.cluster_ids[j]+"'><img border=0 src='images/ts_icon.png' height=14/></a>"+
-                                    " </td> ");  
-                        for(int j=rec.cluster_ids.length; j<methods.length; j++)
-                            out.write("<td> &nbsp </td>");
+                                                          
+                        printClusters(out,methods,rec);
                         
                         //print accessions
                         String accUrl="QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
@@ -231,6 +223,33 @@ public class CorrelationRecord extends AbstractRecord
             
         }        
        
+        private void printClusters(Writer out, String[] methods, CorrelationRecord rec) throws IOException
+        {
+            String clusterLink="QueryPageServlet?displayType=correlationView&searchType=Cluster_Corr" +
+                "&inputKey=";
+            String clusterPicLink=plotScript+"?script=plot&cluster_id=";            
+            
+            //temp hack
+            methods= new String[]{"PCC 0.7","PCC 0.8","PCC 0.9","PCC 0.95","cl3-l1","cl3-l1","kmeans-1","kmeans-1"};            
+
+            int methodIdx=0;
+            for(int j=0; j < methods.length; j++)
+            {
+                if(methodIdx >= rec.methods.length || !methods[j].equals(rec.methods[methodIdx]))
+                    out.write("<td> &nbsp </td>");
+                else
+                {
+                    out.write("<td nowrap ><a href='"+clusterLink+rec.cluster_ids[methodIdx]+" "+rec.psk1_id+"' >"+
+                        rec.clusterNames[methodIdx]+" "+
+                            (rec.confidences[methodIdx]==-1?"":rec.confidences[methodIdx])  +
+                            " ("+rec.sizes[methodIdx]+")</a>&nbsp" +
+                        "<a href='"+clusterPicLink +rec.cluster_ids[methodIdx]+"'><img border=0 src='images/ts_icon.png' height=14/></a>"+
+                        " </td> ");                  
+                    methodIdx++;
+                }
+            }                                   
+        }
+        
         /** this is not the same printHeader as in the super class
          */
         private void printHeader(Writer out, Set<String> catagories,String psk1,String[] methods)
@@ -243,6 +262,9 @@ public class CorrelationRecord extends AbstractRecord
             String [] titles=new String[]{"Pearson","Spearman"};
             String[] colNames=QuerySetProvider.getDataViewQuerySet().getSortableCorrelationColumns();
             
+            // temporary hack
+            methods= new String[]{"PCC 0.7","PCC 0.8","PCC 0.9","PCC 0.95","cl3-l1","cl3-l1 split","kmeans-1","kmeans-1 split"};
+            
             out.write("&nbsp&nbsp&nbsp");
             printFormTop(out);            
             
@@ -250,7 +272,7 @@ public class CorrelationRecord extends AbstractRecord
             out.write("<tr bgcolor='"+PageColors.title+"'><td>&nbsp</nbsp><th>Affy ID</th>");
             for(String s : catagories)
                 out.write("<th colspan='2'>"+s+"</th>");            
-            out.write("<th colspan='"+methods.length+"'>Clusters</th>");
+            out.write("<th colspan='"+methods.length+"'>Clusters ( key confidence (size) )</th>");
             out.write("<th>Accessions</th></tr>");
             
             newDir="asc";
@@ -272,7 +294,7 @@ public class CorrelationRecord extends AbstractRecord
                 }                            
                 
             for(String m : methods)
-                out.write("<th>"+m+"</th>");
+                out.write("<th nowrap >"+m+"</th>");
             
             out.write("<th>&nbsp</th></tr>");
         }
