@@ -170,9 +170,9 @@ public class Common {
         
         PrintWriter out=new PrintWriter(w);
         String link="DispatchServlet?hid="+hid+"&script=unknownsText&range=0-"+end;
-        String[] dataTypes=new String[]{"Unknown","Go","Blast","Proteomics","Cluster",
+        String[] dataTypes=new String[]{"Unknown","Go","Blast","Proteomics","Cluster","ProbeCluster",
                 "ExternalUnknown","AffyExpSet","AffyComp","AffyDetail"};
-        String[] linkNames=new String[]{"Keys","Go","Blast","Proteomics","Clusters",
+        String[] linkNames=new String[]{"Keys","Go","Blast","Proteomics","Sequence Clusters","Expression Clusters",
                 "External Sources","Experiment Sets","Comparisons",
                 "Cel"};
         for(int i=0;i<linkNames.length;i++)
@@ -349,6 +349,8 @@ public class Common {
     }
     public static boolean checkKeyType(KeyTypeUser.KeyType[] keys, KeyTypeUser.KeyType keyType)
     {
+        if(keyType == KeyTypeUser.KeyType.ANY)
+            return true;
         for(int i=0;i<keys.length;i++)
             if(keyType == keys[i])
                 return true;

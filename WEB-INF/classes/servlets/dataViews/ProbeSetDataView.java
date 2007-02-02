@@ -9,14 +9,24 @@ package servlets.dataViews;
 
 import java.io.*;
 import java.util.*;
+import servlets.dataViews.dataSource.records.ComparisonRecord;
+import servlets.dataViews.dataSource.records.ProbeSetKeyRecord;
+import servlets.dataViews.dataSource.QueryParameters;
+import servlets.dataViews.dataSource.structure.RecordFactory;
 import servlets.dataViews.queryWideViews.QueryWideView;
 import servlets.exceptions.UnsupportedKeyTypeException;
 
 import org.apache.log4j.Logger;
 import servlets.*;
+import servlets.KeyTypeUser.KeyType;
 import servlets.beans.HeaderBean;
+import servlets.dataViews.dataSource.display.DisplayParameters;
+import servlets.dataViews.dataSource.display.PatternedRecordPrinter;
+import servlets.dataViews.dataSource.display.html.HtmlPatternFactory;
+import servlets.dataViews.dataSource.display.html.ProbeSetInfoFormat;
+import servlets.dataViews.dataSource.records.ProbeClusterRecord;
+import servlets.dataViews.dataSource.records.SequenceRecord;
 import servlets.dataViews.queryWideViews.DefaultQueryWideView;
-import servlets.dataViews.records.*;
 import servlets.search.Search;
 
 /**
@@ -232,7 +242,7 @@ public class ProbeSetDataView implements DataView
     
     private Collection getRecords()
     {
-        Collection records=null;
+        Collection records=null,pskRecords;
         RecordFactory f=RecordFactory.getInstance();
         List pskIds=new LinkedList(),comparisonIds=new LinkedList();
         StringTokenizer tok;
@@ -265,7 +275,10 @@ public class ProbeSetDataView implements DataView
         
         
         records=f.getRecords(ComparisonRecord.getRecordInfo(),compQp);
-        f.addSubType(records,ProbeSetKeyRecord.getRecordInfo(),pskQp);
+        pskRecords=f.addSubType(records,ProbeSetKeyRecord.getRecordInfo(),pskQp);
+        
+        f.addSubType(pskRecords,ProbeClusterRecord.getRecordInfo(),pskQp);
+        f.addSubType(pskRecords,SequenceRecord.getRecordInfo(),pskQp);
         
         return records;
     }
@@ -274,33 +287,52 @@ public class ProbeSetDataView implements DataView
     {    //recieves a list of RecordGroups
         
         //log.debug("printing "+data.size()+" records");
-        out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
-            " align='center' border='1' cellspacing='0' cellpadding='0'>");
-        Record rec;
-        HtmlRecordVisitor visitor=new HtmlRecordVisitor();
-        
-        log.debug("hid in printData="+hid);
-        
-        visitor.setHid(hid);
-        visitor.setSortInfo(sortCol, sortDir);
-        boolean isFirst=true;
         
         try{
-            for(Iterator i=data.iterator();i.hasNext();)
-            {
-                rec=(Record)i.next();
-                
-                if(isFirst)                                        
-                    rec.printHeader(out, visitor);                
-                isFirst=false;
-                rec.printRecord(out, visitor);
-                if(i.hasNext())
-                    rec.printFooter(out, visitor);
-            }          
+            
+            DisplayParameters dp=new DisplayParameters(out);
+            dp.setHid(hid);
+            dp.setSortCol(sortCol);
+            dp.setSortDir(sortDir);
+                        
+            PatternedRecordPrinter prp=new PatternedRecordPrinter(dp);            
+            prp.addFormat(new ProbeSetInfoFormat());
+            prp.addFormat(HtmlPatternFactory.getAllPatterns());
+            prp.printRecord(data);            
+
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());
         }
         
-        out.println("</TABLE></div>");
+        
+        
+//        out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
+//            " align='center' border='1' cellspacing='0' cellpadding='0'>");
+//        Record rec;
+//        HtmlRecordVisitor visitor=new HtmlRecordVisitor();
+//        
+//        log.debug("hid in printData="+hid);
+//        
+//        visitor.setHid(hid);
+//        visitor.setSortInfo(sortCol, sortDir);
+//        boolean isFirst=true;
+//        
+//        try{
+//            for(Iterator i=data.iterator();i.hasNext();)
+//            {
+//                rec=(Record)i.next();
+//                
+//                if(isFirst)                                        
+//                    rec.printHeader(out, visitor);                
+//                isFirst=false;
+//                rec.printRecord(out, visitor);
+//                if(i.hasNext())
+//                    rec.printFooter(out, visitor);
+//            }          
+//        }catch(IOException e){
+//            log.error("could not print to output: "+e.getMessage());
+//        }
+//        
+        out.println("</div>");
     }              
 }

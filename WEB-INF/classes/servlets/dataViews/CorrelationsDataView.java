@@ -11,9 +11,18 @@ import java.io.*;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.*;
+import servlets.KeyTypeUser.KeyType;
 import servlets.beans.HeaderBean;
+import servlets.dataViews.dataSource.display.html.CorrelationSetFormat;
+import servlets.dataViews.dataSource.records.CorrelationRecord;
+import servlets.dataViews.dataSource.QueryParameters;
+import servlets.dataViews.dataSource.display.DisplayParameters;
+import servlets.dataViews.dataSource.display.PatternedRecordPrinter;
+import servlets.dataViews.dataSource.display.html.HtmlPatternFactory;
+import servlets.dataViews.dataSource.records.ProbeClusterRecord;
+import servlets.dataViews.dataSource.records.SequenceRecord;
+import servlets.dataViews.dataSource.structure.RecordFactory;
 import servlets.dataViews.queryWideViews.*;
-import servlets.dataViews.records.*;
 import servlets.search.Search;
 
 /**
@@ -171,43 +180,34 @@ public class CorrelationsDataView implements DataView
         
         records=f.getRecords(CorrelationRecord.getRecordInfo(), qp);
         
+        f.addSubType(records,ProbeClusterRecord.getRecordInfo(),qp);
+        f.addSubType(records,SequenceRecord.getRecordInfo(),qp);
+        
 
         return records;
     }        
     
     private void printData(PrintWriter out,Collection data)
     {    //recieves a list of RecordGroups
-        
-        //log.debug("printing "+data.size()+" records");
-        out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
-            " align='center' border='1' cellspacing='0' cellpadding='0'>");
-        Record rec;
-        HtmlRecordVisitor visitor=new HtmlRecordVisitor();                        
-        visitor.setHid(hid);
-        visitor.setSortInfo(sortCol, sortDir);
-        /* we need to find the first psk here.
-         * then we need to figure out what catagories we have and print
-         * them out in the header
-         */                
-        boolean isFirst=true;
-        
+                
         try{
-            for(Iterator i=data.iterator();i.hasNext();)
-            {
-                rec=(Record)i.next();                
-                log.debug("printing "+rec);
-                if(isFirst)                                        
-                    rec.printHeader(out, visitor);                
-                isFirst=false;
-                rec.printRecord(out, visitor);
-                if(i.hasNext())
-                    rec.printFooter(out, visitor);
-            }          
+            
+            DisplayParameters dp=new DisplayParameters(out);
+            dp.setHid(hid);
+            dp.setSortCol(sortCol);
+            dp.setSortDir(sortDir);
+                        
+            PatternedRecordPrinter prp=new PatternedRecordPrinter(dp);            
+            prp.addFormat(new CorrelationSetFormat());
+            prp.addFormat(HtmlPatternFactory.getAllPatterns());
+            prp.printGroup(data);            
+            
+ 
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());
         }
         
-        out.println("</TABLE></div>");
+        out.println("</div>");
     }        
     
 }

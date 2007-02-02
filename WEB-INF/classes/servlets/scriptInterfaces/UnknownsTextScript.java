@@ -10,7 +10,19 @@ import java.io.*;
 import org.apache.log4j.Logger;
 import servlets.*;
 import servlets.dataViews.AffyKey;
-import servlets.dataViews.records.*;
+import servlets.dataViews.dataSource.display.PatternedRecordPrinter;
+import servlets.dataViews.dataSource.display.text.ComparisonExtFormat;
+import servlets.dataViews.dataSource.display.text.CorrelationExtFormat;
+import servlets.dataViews.dataSource.records.*;
+import servlets.dataViews.dataSource.QueryParameters;
+import servlets.dataViews.dataSource.display.DisplayParameters;
+import servlets.dataViews.dataSource.structure.RecordFactory;
+import servlets.dataViews.dataSource.display.RecordVisitor;
+import servlets.dataViews.dataSource.display.TextRecordVisitorFactory;
+import servlets.dataViews.dataSource.display.text.TextPatternFactory;
+import servlets.dataViews.dataSource.records.ProbeClusterRecord;
+import servlets.dataViews.dataSource.records.SequenceRecord;
+import servlets.dataViews.dataSource.records.UnknownRecord;
 
 
 public class UnknownsTextScript implements Script
@@ -54,41 +66,54 @@ public class UnknownsTextScript implements Script
     
     private void writeData(PrintWriter out,List ids)
     {
-        RecordVisitor visitor=getRecordVisitor();
-        //RecordVisitor visitor=new TextRecordVisitor();
-        //RecordVisitor visitor=new DebugRecordVisitor();
-        Collection data=null;
-        Record rec=null;
-        boolean isFirst=true;                
+        Collection data;
+        DisplayParameters dp=new DisplayParameters(out);        
+        PatternedRecordPrinter prp=new PatternedRecordPrinter(dp);
+        
+        addCustomFormats(prp);
+        prp.addFormat(TextPatternFactory.getAllPatterns());
         
         try{
-            for(int j=0;j<ids.size();j+=batchSize)
-            { //send data in batches to avoid queries that are too long.
-                int end=(j+batchSize>ids.size())?ids.size():j+batchSize;
-                //log.debug("j="+j+", size="+ids.size()+", end="+end);                
+            int end;
+                        
+            //Writer out2=new BufferedWriter(new FileWriter("/home/khoran/debug_text.out"));            
+            log.debug("start of writeData");
+            for(int j=0; j < ids.size(); j+=batchSize)
+            {
+                log.debug("j="+j);
+                end= j+batchSize > ids.size()? ids.size() : j+batchSize;
                 data=getRecords(ids.subList(j,end));
-                ((TextRecordVisitor)visitor).setPrintDescription(printDescription);
+                if(data!=null)
+                    log.debug("data size="+data.size());
+                else
+                    log.debug("data is null");
+                prp.printTabular(data,j==0); //print header only when j==0
                 
-                for(Iterator i=data.iterator();i.hasNext();)
-                {
-                    rec=(Record)i.next();
-
-                    if(isFirst)//print header for first batch                    
-                        rec.printHeader(out, visitor);       
-                    
-                    rec.printRecord(out, visitor);
-                    
-                    if(j+batchSize >= ids.size() && !i.hasNext()) //footer for last batch                    
-                        rec.printFooter(out,visitor);
-                                        
-                    isFirst=false;
-                }
+//                if(log.isDebugEnabled())
+//                {
+//                    
+//                     dp=new DisplayParameters(out2);                     
+//
+//                     prp=new PatternedRecordPrinter(dp);            
+//                     prp.addFormat(DebugPatternFactory.getAllPatterns());            
+//                     prp.printRecord(data);                                                
+//                    out2.close();
+//                }
+ 
             }
         }catch(IOException e){
-            log.error("io error: "+e);
+               log.error("io error: "+e);
         }
+    }        
 
-    }   
+    private void addCustomFormats(PatternedRecordPrinter prp)
+    {
+        if(dataType.equals("Correlation"))
+            prp.addFormat(new CorrelationExtFormat());
+        if(dataType.equals("Comparison"))
+            prp.addFormat(new ComparisonExtFormat());
+    }
+    
     private Collection getRecords(List ids)
     { 
         if(dataType.equals("Comparison"))
@@ -114,6 +139,8 @@ public class UnknownsTextScript implements Script
         if(dataType.equals("Correlation"))
         {
             unknowns=f.getRecords(CorrelationRecord.getRecordInfo(), qp);
+            //f.addSubType(unknowns,ProbeClusterRecord.getRecordInfo(),qp);
+            f.addSubType(unknowns,SequenceRecord.getRecordInfo(),qp);
             return unknowns;
         }
         else if(dataType.equals("AffyExpDef"))
@@ -121,24 +148,16 @@ public class UnknownsTextScript implements Script
             unknowns=f.getRecords(AffyExpDefRecord.getRecordInfo(), qp);
             return unknowns;
         }
-        else if(dataType.equals("Comparison"))
-        {
-            unknowns=f.getRecords(ComparisonRecord.getRecordInfo(),qp);
-            f.addSubType(unknowns,ProbeSetKeyRecord.getRecordInfo(),qp);
-            return unknowns;
-        }
         
         unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
          
         if(dataType.equals("AffyComp"))
-            f.addSubType(
-                f.addSubType(
-                    unknowns,
-                    AffyExpSetRecord.getRecordInfo(), qp
-                ),
-                AffyCompRecord.getRecordInfo(),qp
-            );                    
+        {
+            qp.setSortCol("comp_experiment_set_id");
+            f.addSubType(unknowns, AffyCompRecord.getRecordInfo(),qp);
+        }
         else if(dataType.equals("AffyDetail"))    
+        {
             f.addSubType(
                 f.addSubType(
                     f.addSubType(
@@ -149,12 +168,15 @@ public class UnknownsTextScript implements Script
                 ), 
                 AffyDetailRecord.getRecordInfo(), qp
             );
+        }
         else if(dataType.equals("AffyExpSet"))    
             f.addSubType(unknowns, AffyExpSetRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Blast"))    
             f.addSubType(unknowns, BlastRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Cluster")) 
-            f.addSubType(unknowns, ClusterRecord.getRecordInfo(),qp);            
+            f.addSubType(unknowns, ClusterRecord.getRecordInfo(),qp);       
+        else if(dataType.equals("ProbeCluster"))
+            f.addSubType(unknowns,ProbeClusterRecord.getRecordInfo(),qp);
         else if(dataType.equals("ExternalUnknown"))    
             f.addSubType(unknowns, ExternalUnknownRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Go"))    
@@ -169,6 +191,7 @@ public class UnknownsTextScript implements Script
         return unknowns;
     }
     
+    @Deprecated
     private RecordVisitor getRecordVisitor()
     {
         RecordVisitor rv;
@@ -186,7 +209,7 @@ public class UnknownsTextScript implements Script
   
     private Collection getComparisonRecords(List ids)
     {
-        Collection records=null;
+        Collection records=null,pskRecords;
         RecordFactory f=RecordFactory.getInstance();
         List pskIds=new LinkedList(),comparisonIds=new LinkedList();
         StringTokenizer tok;
@@ -217,7 +240,10 @@ public class UnknownsTextScript implements Script
         
         
         records=f.getRecords(ComparisonRecord.getRecordInfo(),compQp);
-        f.addSubType(records,ProbeSetKeyRecord.getRecordInfo(),pskQp);
+        pskRecords=f.addSubType(records,ProbeSetKeyRecord.getRecordInfo(),pskQp);
+        
+        f.addSubType(pskRecords,ProbeClusterRecord.getRecordInfo(),pskQp);
+        //f.addSubType(pskRecords,SequenceRecord.getRecordInfo(),pskQp);
         
         return records;
     }

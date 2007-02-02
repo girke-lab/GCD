@@ -232,7 +232,10 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             "psk2_key","pearson", "spearman"
         };
     }
-    
+    public String getClusterMethodsQuery()
+    {
+        return "SELECT name,description FROM affy.cluster_methods_view";
+    }
     public String[][] getSortableTreatmentColoumns()
     {
         return new String[][]{
@@ -260,7 +263,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     //////// RecordQuerySet methods
     ///////////////////////////////
     String uSchema="unknowns";
-    public String getUnknownRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
+    public String getUnknownRecordQuery(java.util.Collection ids, String sortCol, String sortDir,KeyType keyType)
     {
         log.debug("sort col for unknown data query:"+sortCol+":");
         if(sortCol==null || sortCol.equals(""))
@@ -269,21 +272,41 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
             sortCol="accessions.accession";
         else if(sortCol.equals("unknowns.arab_accessions.description"))
             sortCol="accessions.description";
-        
-        String query="SELECT DISTINCT  " +
-                 " ma.model_accession_id, accessions.accession, accessions.description, " +
-                 " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
-                 //" unknown_data.version" +
-                 " cbp.probe_set_key_id, cbp.cluster_ids, cbp.cluster_names, cbp.methods, cbp.sizes "+
-        "   FROM general.accessions " +        
-        "       JOIN general.to_model_accessions as ma ON(accessions.accession_id=ma.model_accession_id) " +
-        "       JOIN "+uSchema+".unknown_data ON(ma.model_accession_id=unknown_data.accession_id) " +
                 
-        "       JOIN general.to_sequence_accessions as sa ON(ma.accession_id=sa.accession_id) "+
-        "       LEFT JOIN affy.psk_to_accession_view as pska ON(sa.sequence_accession_id=pska.accession_id) "+
-        "       LEFT JOIN affy.clusters_by_psk as cbp USING(probe_set_key_id) "+
-        "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
-        "   ORDER BY "+sortCol+" "+sortDir;
+        
+        String query="";
+        
+        switch(keyType){
+            case ANY:  // if key type does not matter, use fastest query
+            case ACC:       
+                query="SELECT DISTINCT  " +
+                         " ma.model_accession_id, accessions.accession, accessions.description, " +
+                         " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
+                         " gd.db_name "+
+                "   FROM general.accessions " +        
+                "       JOIN general.genome_databases as gd USING(genome_db_id) "+
+                "       JOIN general.to_model_accessions as ma ON(accessions.accession_id=ma.model_accession_id) " +
+                "       JOIN "+uSchema+".unknown_data ON(ma.model_accession_id=unknown_data.accession_id) " +
+                "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
+                "   ORDER BY "+sortCol+" "+sortDir;                
+                break;
+            case PSK:                        
+                if(sortCol.startsWith("psk_"))
+                    sortCol="accession"; //pska."+getFieldName(sortCol);
+                query="SELECT DISTINCT  " +
+                         " ma.model_accession_id, accessions.accession, accessions.description, " +
+                         " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
+                         " gd.db_name, pska.probe_set_key_id "+
+                "   FROM general.accessions " +        
+                "       JOIN general.genome_databases as gd USING(genome_db_id) "+
+                "       JOIN general.to_model_accessions as ma ON(accessions.accession_id=ma.model_accession_id) " +
+                "       JOIN "+uSchema+".unknown_data ON(ma.model_accession_id=unknown_data.accession_id) " +
+                "       JOIN general.to_sequence_accessions as sa ON(ma.accession_id=sa.accession_id) "+
+                "       LEFT JOIN affy.psk_to_accession_view as pska ON(sa.sequence_accession_id=pska.accession_id) "+                
+                "   WHERE "+Common.buildIdListCondition("pska.probe_set_key_id",ids)+
+                "   ORDER BY "+sortCol+" "+sortDir;
+                break;           
+        }
                 
         logQuery(query);
         return query;
@@ -342,11 +365,12 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 //                general.accession_gos as ag ON(seq.accession_id=ag.accession_id) JOIN general.go_numbers as gn USING(go_id) 
 //                where md.accession_id=236;
 
-        String query="SELECT DISTINCT ma.model_accession_id, go_numbers.go_number, go_numbers.function,go_numbers.text,go_numbers.go_id " +
+        String query="SELECT DISTINCT md.accession_id, go_numbers.go_number, go_numbers.function,go_numbers.text,go_numbers.go_id " +
                 " FROM   general.to_sequence_accessions as sa "+
                 "   JOIN general.accession_gos ON(sa.sequence_accession_id=accession_gos.accession_id) " +
                 "   JOIN general.go_numbers USING(go_id) " +
-                "   JOIN general.to_model_accessions as ma ON(sa.sequence_accession_id=ma.accession_id) "+
+                //"   JOIN general.to_model_accessions as ma ON(sa.sequence_accession_id=ma.accession_id) "+
+                "   JOIN common.model_data as md ON(md.sequence_accession_id=sa.sequence_accession_id) "+
                 " WHERE "+Common.buildIdListCondition("sa.accession_id",ids)+
                 " ORDER BY go_numbers.function, "+sortCol+" "+sortDir;
 
@@ -387,7 +411,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
-    public String getAffyCompRecordQuery(Collection affyKeys, String dataType, String sortcol, String sortDir)
+    public String getAffyCompRecordQuery(Collection affyKeys, String dataType, String sortcol, String sortDir,String userName)
     {
         if(sortcol!=null && sortcol.startsWith("comp_"))
             sortcol=sortcol.replaceFirst("comp_", "");
@@ -400,21 +424,16 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 //                "experiment_set_id, experiment_set_key, comparison, " +
 //                "control_mean, treatment_mean, control_pma, treatment_pma, t_c_ratio_lg";
 
-        String query="SELECT * FROM "+                
+        String query="SELECT t.* FROM "+                
                 "   (SELECT DISTINCT ON (probe_set_key_id, experiment_set_id, comparison)  * " +
                     "       FROM affy.experiment_group_summary_view " +
                 "       WHERE ("+ AffyKey.buildIdSetCondition(affyKeys,false) +") "+
                 "               AND data_type='"+dataType+"' "+
                 "       ORDER BY probe_set_key_id, experiment_set_id, comparison  "+
                 "   ) as t "+
-                "ORDER BY "+ sortcol+" "+sortDir;    
-        
-//        String query=
-//                "SELECT   * " +
-//                    "       FROM affy.experiment_group_summary_view " +
-//                "       WHERE ("+ AffyKey.buildIdSetCondition(affyKeys,false) +") "+
-//                "               AND data_type='"+dataType+"' "+                
-//                "ORDER BY "+ sortcol+" "+sortDir;    
+                "   JOIN affy.es_valid_users as evu USING(experiment_set_id) "+
+                "WHERE evu.user_name='"+userName+"' "+
+                "ORDER BY "+ sortcol+" "+sortDir;            
         logQuery(query);
         return query;
     }            
@@ -425,7 +444,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         if(sortcol!=null && sortcol.startsWith("expset_"))
             sortcol=sortcol.replaceFirst("expset_", "");
         else 
-            sortcol="catagory, probe_set_key_id"; 
+            sortcol="probe_set_key_id, catagory"; 
         
 //        String query="SELECT DISTINCT ess.* FROM " +
 //                "       affy.experiment_set_summary_mv as ess JOIN " +
@@ -559,7 +578,91 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         logQuery(query);
         return query;
     }
-
+    
+    public String getProbeClusterRecordQuery(Collection ids, String sortCol, String sortDir,KeyType keyType)
+    {
+        
+        sortCol="csv.probe_set_key_id, csv.cluster_method_id";
+        sortDir="";
+        
+        String query="";
+        switch(keyType){
+            case ACC:
+                query="SELECT DISTINCT csv.cluster_id, csv.probe_set_key_id,csv.cluster_name, csv.method_name, cs.size," +
+                                    "csv.parent_cluster_id is not null as is_child, csv.confidence, csv.psk_key, " +
+                                    "pm.accession_id,csv.cluster_method_id "+
+                      "FROM   affy.cluster_summary_view as csv " +
+                      "       JOIN affy.cluster_sizes as cs USING(cluster_id)" +
+                      "       JOIN affy.psk_by_model_mv as pm USING(probe_set_key_id) "  +
+                        
+                      //"       JOIN affy.psk_to_accession_view as pska USING(probe_set_key_id) "+
+                      //"       JOIN general.to_model_accessions as ma USING(accession_id) "+
+                      //"WHERE  "+Common.buildIdListCondition("ma.model_accession_id",ids) + 
+                        "WHERE  "+Common.buildIdListCondition("pm.accession_id",ids) + 
+                      " ORDER BY "+sortCol+" "+sortDir;
+                break;
+            case CORR:
+                query="SELECT DISTINCT csv.cluster_id, csv.probe_set_key_id,csv.cluster_name, csv.method_name, cs.size, " +
+                                        "csv.parent_cluster_id is not null as is_child, csv.confidence, csv.psk_key, " +
+                                        "correlation_id,csv.cluster_method_id "+
+                      "FROM   affy.cluster_summary_view as csv " +
+                      "       JOIN affy.cluster_sizes as cs USING(cluster_id)" +
+                      "       JOIN affy.correlation_view as cv ON(csv.probe_set_key_id=cv.psk2_id) "+
+                      "WHERE  "+Common.buildIdListCondition("cv.correlation_id",ids) + 
+                      " ORDER BY "+sortCol+" "+sortDir;
+                break;
+            case PSK:
+                query="SELECT DISTINCT csv.cluster_id, csv.probe_set_key_id,csv.cluster_name, csv.method_name, cs.size," +
+                                        "csv.parent_cluster_id is not null as is_child,csv.confidence, csv.psk_key, " +
+                                        "csv.probe_set_key_id,csv.cluster_method_id "+
+                      "FROM   affy.cluster_summary_view as csv " +
+                      "       JOIN affy.cluster_sizes as cs USING(cluster_id)" +                      
+                      "WHERE  "+Common.buildIdListCondition("csv.probe_set_key_id",ids) + 
+                      " ORDER BY "+sortCol+" "+sortDir;
+                break;
+        }
+        
+        
+        return query;
+    }
+    public String getSequenceRecordQuery(Collection ids, String sortCol, String sortDir,KeyType keyType)
+    {
+        String query="";                
+        if(sortCol!=null && sortCol.startsWith("seq_"))
+        {
+            sortCol=sortCol.replaceFirst("seq_", "");
+            sortCol=getFieldName(sortCol);
+        }
+        else
+            sortCol="a.accession";
+        
+        
+        switch(keyType){
+            case ACC:
+                query="SELECT   a.accession_id, a.accession, a.description " +
+                      " FROM     general.accessions as a" +
+                      " WHERE "+Common.buildIdListCondition("a.accession_id",ids)+
+                      " ORDER BY "+sortCol+" "+sortDir;
+                break;
+            case CORR:
+                query="SELECT   DISTINCT a.accession_id, a.accession, a.description, cv.correlation_id " +
+                      " FROM     general.accessions as a" +
+                      "            JOIN affy.psk_to_accession_view as pska USING(accession_id)" +
+                      "            JOIN affy.correlation_view as cv ON(pska.probe_set_key_id=cv.psk2_id) " +
+                      " WHERE "+Common.buildIdListCondition("cv.correlation_id",ids)+
+                      " ORDER BY "+sortCol+" "+sortDir;
+                break;
+            case PSK:
+                query="SELECT   DISTINCT a.accession_id, a.accession, a.description, pska.probe_set_key_id " +
+                      " FROM     general.accessions as a" +
+                      "            JOIN affy.psk_to_accession_view as pska USING(accession_id)" +                      
+                      " WHERE "+Common.buildIdListCondition("pska.probe_set_key_id",ids)+
+                      " ORDER BY "+sortCol+" "+sortDir;
+                break;            
+        }
+        
+        return query;
+    }
 // </editor-fold>
    
     // <editor-fold defaultstate="collapsed" desc=" Database methods ">
@@ -1045,9 +1148,22 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
    
     public String getProbeSetKeySearchQuery(Collection input, int limit, KeyType keyType)
     {                  
-        String query="SELECT correlation_id, psk1_key FROM affy.correlation_view " +
+        String query="";
+        
+        if(keyType==KeyType.CORR)
+            query="SELECT correlation_id, psk1_key FROM affy.correlation_view " +
                 " WHERE "+Common.buildIdListCondition("probe_set_key_id",input)+
                 " ORDER BY psk1_key ASC, pearson DESC";
+        else if(keyType==KeyType.MODEL)
+            query="SELECT DISTINCT to_model_accessions.model_accession_id, genome_databases.db_name " +
+                    " FROM general.genome_databases " +
+                    "   JOIN general.accessions USING(genome_db_id) " +
+                    "   JOIN affy.psk_to_accession_view as pska USING(accession_id) " +
+                    "   JOIN general.to_model_accessions USING(accession_id) " +
+                    " WHERE "+Common.buildIdListCondition("pska.probe_set_key_id",input,limit)+
+                    " ORDER BY genome_databases.db_name " +
+                    " LIMIT "+limit;
+        
         logQuery(query);
         return query;
     }
@@ -1162,5 +1278,4 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         log.warn("malformed column name: "+col);
         return "";
     }
-
 }

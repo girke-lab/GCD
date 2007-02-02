@@ -14,13 +14,25 @@ package servlets.dataViews;
 import java.util.*;
 import java.io.*;
 import servlets.*;
+import servlets.dataViews.dataSource.display.PatternedRecordPrinter;
+import servlets.dataViews.dataSource.display.html.BlastPurposeFormat;
+import servlets.dataViews.dataSource.records.BlastRecord;
+import servlets.dataViews.dataSource.records.ClusterRecord;
+import servlets.dataViews.dataSource.records.ExternalUnknownRecord;
+import servlets.dataViews.dataSource.records.GoRecord;
+import servlets.dataViews.dataSource.records.ProbeSetSummaryRecord;
+import servlets.dataViews.dataSource.records.ProteomicsRecord;
+import servlets.dataViews.dataSource.QueryParameters;
+import servlets.dataViews.dataSource.structure.RecordFactory;
+import servlets.dataViews.dataSource.records.UnknownRecord;
 import servlets.dataViews.queryWideViews.*; 
 import servlets.search.Search;
 import org.apache.log4j.Logger;
+import servlets.KeyTypeUser.KeyType;
 import servlets.beans.HeaderBean;
-
-import servlets.dataViews.records.*;
-
+import servlets.dataViews.dataSource.display.DisplayParameters;
+import servlets.dataViews.dataSource.display.html.*;
+import servlets.dataViews.dataSource.records.ProbeClusterRecord;
 
 /**
  * This is the main view for the new unknowns database
@@ -58,6 +70,7 @@ public class Unknowns2DataView implements DataView
     {                
         //printData(out,parseData(getData(seq_ids)));
         printData(out,getRecords(seq_ids));        
+        out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");  
     }
     
     /**
@@ -174,47 +187,44 @@ public class Unknowns2DataView implements DataView
         unknowns=f.getRecords(UnknownRecord.getRecordInfo(), qp);
         f.addSubType(unknowns,GoRecord.getRecordInfo(),qp); 
         f.addSubType(unknowns,BlastRecord.getRecordInfo(),qp);
-        f.addSubType(unknowns,ProteomicsRecord.getRecordInfo(),qp);
+        f.addSubType(unknowns,ProteomicsRecord.getRecordInfo(),qp);        
+        f.addSubType(unknowns,ExternalUnknownRecord.getRecordInfo(),qp);        
         f.addSubType(unknowns,ClusterRecord.getRecordInfo(),qp);
-        f.addSubType(unknowns,ExternalUnknownRecord.getRecordInfo(),qp);
-        //f.addSubType(unknowns,AffyExpSetRecord.getRecordInfo(),qp);
-        f.addSubType(unknowns,ProbeSetSummaryRecord.getRecordInfo(),qp);
         
-        return unknowns;
+        f.addSubType(unknowns,ProbeSetSummaryRecord.getRecordInfo(),qp);        
+        f.addSubType(unknowns,ProbeClusterRecord.getRecordInfo(),qp);
         
+        return unknowns;        
     }        
     
     private void printData(PrintWriter out,Collection data)
     {    //recieves a list of RecordGroups
         
-        //log.debug("printing "+data.size()+" records");
-        out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
-            " align='center' border='1' cellspacing='0' cellpadding='0'>");        
-        Record rec;
-        RecordVisitor visitor=new HtmlRecordVisitor();        
-        ((HtmlRecordVisitor)visitor).setHid(hid);
-        
-        try{
-            RecordVisitor debugVisitor=new DebugRecordVisitor();
-            Writer out2=new BufferedWriter(new FileWriter("/home/khoran/debug.out"));
-            for(Iterator i=data.iterator();i.hasNext();)
-            {
-                rec=(Record)i.next();
-                rec.printHeader(out, visitor);
-                rec.printRecord(out, visitor);
-                rec.printFooter(out,visitor);
-                
-                
-                rec.printHeader(out2, debugVisitor);
-                rec.printRecord(out2, debugVisitor);
-                rec.printFooter(out2, debugVisitor);
-            } 
-            out2.close();
+        try{                        
+            DisplayParameters dp=new DisplayParameters(out);
+            dp.setHid(hid);
+                        
+            PatternedRecordPrinter prp=new PatternedRecordPrinter(dp);            
+            prp.addFormat(new Unknowns2MainFormat());
+            prp.addFormat(new BlastPurposeFormat());
+            prp.addFormat(HtmlPatternFactory.getAllPatterns());
+            
+            prp.printRecord(data);            
+            
+//            Writer out2=new BufferedWriter(new FileWriter("/home/khoran/debug.out"));            
+//             dp=new DisplayParameters(out2);
+//             dp.setHid(hid);
+//             
+//             prp=new PatternedRecordPrinter(dp);            
+//             prp.addFormat(DebugPatternFactory.getAllPatterns());            
+//             prp.printRecord(data);                                                
+//            out2.close();
+            
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());
         }
         
-        out.println("</TABLE></div>");        
+        out.println("</div>");        
     }
     
     

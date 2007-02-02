@@ -52,6 +52,7 @@ public interface DataViewQuerySet extends QuerySet
     
     // for CorrelationsDataView
     public String[] getSortableCorrelationColumns();
+    public String getClusterMethodsQuery();
     
     // for TreatmentDataView
     public static final int TREAT_COMP=0, TREAT_PSK=1;

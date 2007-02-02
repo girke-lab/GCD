@@ -63,6 +63,8 @@ public class UnknownsDataView implements DataView
         TempFileCleaner.getInstance().setDirectory(tempDir);
         if(!TempFileCleaner.getInstance().isAlive())
             TempFileCleaner.getInstance().start();
+        
+        header=new HeaderBean();        
     }
     public void printData(java.io.PrintWriter out) 
     {

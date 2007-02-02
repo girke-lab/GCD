@@ -34,13 +34,15 @@ public interface KeyTypeUser
                     COMP,       DETAIL,
                     PSK,        CORR,
                     EXP_DEF,    PSK_COMP,
-                    PSK_EXP,    PSK_EXP_COMP
+                    PSK_EXP,    PSK_EXP_COMP,
+                    GO,         PROT,
+                    EXTERNAL,   PSK_EXP_COMP_CEL,
+                    PROBE_CLUST,ANY
     };
     
     
     /**
-     * A list of key types that this class can make use of.  Values
-     * should be one of the Common.KEY_TYPE_* variables.
+     * A list of key types that this class can make use of. 
      * @return array of supported key types
      */
     public KeyType[] getSupportedKeyTypes();
@@ -51,7 +53,7 @@ public interface KeyTypeUser
      * it supported keys it should actually use.
      * 
      * This method must be called before the class is used.
-     * @param keyType One of the Common.KEY_TYPE_* values
+     * @param keyType 
      * @throws servlets.exceptions.UnsupportedKeyTypeException if the given key type is not supported
      */
     public void setKeyType(KeyType keyType) throws servlets.exceptions.UnsupportedKeyTypeException;

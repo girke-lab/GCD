@@ -55,7 +55,7 @@ public class ProbeSetKeySearch extends AbstractSearch
   
     public KeyType[] getSupportedKeyTypes()
     { 
-        return new KeyType[]{KeyType.CORR};
+        return new KeyType[]{KeyType.CORR,KeyType.MODEL};
     }
 
     

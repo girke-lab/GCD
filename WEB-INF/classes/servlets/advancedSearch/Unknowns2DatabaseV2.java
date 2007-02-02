@@ -181,10 +181,11 @@ public class Unknowns2DatabaseV2 extends DefaultSearchableDatabase
     }
  
     /**
-     * Sends a list of accession_ids to the unknowns2View dataview
+     * Sends a list of accession_ids to the unknowns2View dataview.
+     * this can be overridden by sub classes to send different parameters
      */
     protected ServletRequest getNewRequest(SearchState state,HttpServletRequest request,List results)
-    { //this can be overridden by sub classes to send different parameters
+    { 
         NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(
                     (HttpServletRequest)request,new HashMap(),false,"POST");
         

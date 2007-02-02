@@ -7,6 +7,7 @@
 package servlets.querySets;
 
 import java.util.*;
+import servlets.KeyTypeUser.KeyType;
 
 /**
  * This is a QuerySet that provides queries for Record objects.
@@ -35,11 +36,14 @@ public interface RecordQuerySet extends QuerySet
     public String getProteomicsRecordQuery(Collection ids, String sortCol, String sortDir);
  
     // for UnknownRecord
-    public String getUnknownRecordQuery(Collection ids, String sortCol, String sortDir);
+    public String getUnknownRecordQuery(Collection ids, String sortCol, String sortDir,KeyType keyType);
+    
+    // for SequenceRecord
+    public String getSequenceRecordQuery(Collection ids, String sortCol, String sortDir,KeyType keyType);
     
     // for Affy*Record
     public String getAffyDetailRecordQuery(Collection affyKeys, String dataType, boolean allGroups, String sortcol, String sortDir);
-    public String getAffyCompRecordQuery(Collection affyKeys, String dataType, String sortcol, String sortDir);
+    public String getAffyCompRecordQuery(Collection affyKeys, String dataType, String sortcol, String sortDir,String userName);
     public String getAffyExpSetRecordQuery(Collection ids, String dataType, String sortcol, String sortDir, String userName);
     
     // for ProbeSetRecord
@@ -59,4 +63,7 @@ public interface RecordQuerySet extends QuerySet
     
     // for ProbeSetKeyRecord
     public String getProbeSetKeyRecordQuery(Collection pskIds,Collection compIds,String sortCol, String sortDir, String dataType);
+    
+    // for ProbeClusterRecord
+    public String getProbeClusterRecordQuery(Collection ids, String sortCol, String sortDir,KeyType keyType);
 }

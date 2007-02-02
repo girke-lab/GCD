@@ -11,9 +11,24 @@ import java.io.*;
 import java.util.*;
 import org.apache.log4j.Logger;
 import servlets.*;
+import servlets.KeyTypeUser.KeyType;
 import servlets.beans.HeaderBean;
+import servlets.dataViews.dataSource.display.html.AffyCompFormat;
+import servlets.dataViews.dataSource.records.AffyCompRecord;
+import servlets.dataViews.dataSource.records.AffyDetailRecord;
+import servlets.dataViews.dataSource.records.AffyExpSetRecord;
+import servlets.dataViews.dataSource.display.HtmlRecordVisitor;
+import servlets.dataViews.dataSource.QueryParameters;
+import servlets.dataViews.dataSource.display.DebugRecordVisitor;
+import servlets.dataViews.dataSource.display.DisplayParameters;
+import servlets.dataViews.dataSource.display.PatternedRecordPrinter;
+import servlets.dataViews.dataSource.display.RecordVisitor;
+import servlets.dataViews.dataSource.display.html.HtmlPatternFactory;
+import servlets.dataViews.dataSource.records.ProbeClusterRecord;
+import servlets.dataViews.dataSource.structure.Record;
+import servlets.dataViews.dataSource.structure.RecordFactory;
+import servlets.dataViews.dataSource.records.UnknownRecord;
 import servlets.dataViews.queryWideViews.DefaultQueryWideView;
-import servlets.dataViews.records.*;
 import servlets.search.Search;
 
 /**
@@ -310,12 +325,14 @@ public class AffyDataView implements DataView
         RecordFactory f=RecordFactory.getInstance();
         log.debug("sortCol="+sortCol);
         QueryParameters qp=new QueryParameters(accIds,sortCol,sortDir);
-
         qp.setUserName(userName);
         qp.setAffyKeys(nodeSet);
         qp.setDataType(dataTypes[dataType]);
+        
+        QueryParameters accQp=new QueryParameters(accIds);
                         
-        unknowns=f.getRecords(UnknownRecord.getRecordInfo(),new QueryParameters(accIds));
+        unknowns=f.getRecords(UnknownRecord.getRecordInfo(),accQp);
+        f.addSubType(unknowns,ProbeClusterRecord.getRecordInfo(),accQp);
         f.addSubType(
             f.addSubType(
                 f.addSubType(
@@ -334,37 +351,30 @@ public class AffyDataView implements DataView
     {    //recieves a list of RecordGroups
         
         //log.debug("printing "+data.size()+" records");
-        out.println("<TABLE bgcolor='"+PageColors.data+"' width='100%'" +
-            " align='center' border='1' cellspacing='0' cellpadding='0'>");
-        Record rec;
-
-        HtmlRecordVisitor visitor=new HtmlRecordVisitor();
-                
-        visitor.setHid(hid);
-        visitor.setSortInfo(sortCol, sortDir);
-        visitor.setCompView(compView);
-                
+        
         try{
-        //    RecordVisitor debugVisitor=new DebugRecordVisitor();
-        //    Writer out2=new BufferedWriter(new FileWriter("/home/khoran/debug.out"));
+            Writer out2=new BufferedWriter(new FileWriter("/home/khoran/debug_affy.out"));
             
-            for(Iterator i=data.iterator();i.hasNext();)
-            {
-                rec=(Record)i.next();
-                rec.printHeader(out, visitor);
-                rec.printRecord(out, visitor);
-                rec.printFooter(out, visitor);
-                
-          //      rec.printHeader(out2, debugVisitor);
-            //    rec.printRecord(out2, debugVisitor);
-              //  rec.printFooter(out2, debugVisitor);
-            }          
-            //out2.close();
+            DisplayParameters dp=new DisplayParameters(out);
+            dp.setHid(hid);
+            dp.setSortCol(sortCol);
+            dp.setSortDir(sortDir);
+            dp.setCompView(compView);
+            
+            PatternedRecordPrinter prp=new PatternedRecordPrinter(dp);
+            //prp.addFormat(DebugPatternFactory.getAllPatterns());
+            prp.addFormat(HtmlPatternFactory.getAllPatterns());
+            if("comp".equals(compView))
+                prp.addFormat(new AffyCompFormat());
+            
+            prp.printRecord(data);
+            
+            out2.close();
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());
         }
         
-        out.println("</TABLE></div>");
+        out.println("</div>");
     }        
     
 
