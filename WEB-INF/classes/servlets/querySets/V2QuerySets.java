@@ -794,14 +794,32 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 
     public String getClusterNameSearchQuery(java.util.Collection input, int limit, int[] DBs, KeyType keyType)
     {
-        String q="SELECT distinct accessions.accession_id, genome_databases.db_name " +
-                " FROM  general.clusters " +
-                "       JOIN general.cluster_members USING(cluster_id) " +
-                "       JOIN general.to_sequence_accessions USING(accession_id) " +
-                "       JOIN general.accessions ON(to_sequence_accessions.sequence_accession_id=accessions.accession_id) " +
-                "       JOIN general.genome_databases USING(genome_db_id) " +
-                " WHERE NOT accessions.is_model AND (";
-                
+        String q;
+        
+        switch(keyType){
+            case SEQ:
+                q="SELECT distinct accessions.accession_id, genome_databases.db_name " +
+                    " FROM  general.clusters " +
+                    "       JOIN general.cluster_members USING(cluster_id) " +
+                    "       JOIN general.to_sequence_accessions USING(accession_id) " +
+                    "       JOIN general.accessions ON(to_sequence_accessions.sequence_accession_id=accessions.accession_id) " +
+                    "       JOIN general.genome_databases USING(genome_db_id) " +
+                    " WHERE NOT accessions.is_model AND (";
+                break;
+            case MODEL:
+                q="SELECT distinct accessions.accession_id, genome_databases.db_name " +
+                    " FROM  general.clusters " +
+                    "       JOIN general.cluster_members USING(cluster_id) " +
+                    "       JOIN general.to_model_accessions USING(accession_id) " +
+                    "       JOIN general.accessions ON(to_model_accessions.model_accession_id=accessions.accession_id) " +
+                    "       JOIN general.genome_databases USING(genome_db_id) " +
+                    " WHERE accessions.is_model AND (";
+                break;
+            default:
+                log.warn("no query defined for keyType "+keyType);
+                return "";
+        }
+        
 //                "FROM general.accessions JOIN general.cluster_members USING(accession_id) " +
 //                "   JOIN general.clusters USING(cluster_id) JOIN general.genome_databases USING(genome_db_id) " +
 //                "WHERE accessions.is_model=FALSE AND (";                       

@@ -9,6 +9,7 @@ package servlets.search;
  * @author  khoran
  */
 import java.util.*;
+import servlets.KeyTypeUser;
 import servlets.search.Search;
 import servlets.Common;
 import servlets.querySets.*;
@@ -29,7 +30,8 @@ public class GoSearch extends AbstractSearch
         seqId_query=QuerySetProvider.getSearchQuerySet().getGoSearchQuery(input, limit, keyType);
         rs=Common.sendQuery(seqId_query);
 
-        Set al=new HashSet();
+        //Set al=new HashSet();
+        List al=new LinkedList();
         String lastDb="";
         int c=0;
         for(Iterator i=rs.iterator();i.hasNext();c++)
@@ -42,7 +44,7 @@ public class GoSearch extends AbstractSearch
             al.add(t.get(0));
             keysFound.add(t.get(1));
         }
-        data=new ArrayList(al);
+        data=al; //new ArrayList(al);
         //if(data.size() > Common.MAX_QUERY_KEYS)         
         //    stats=(List)Common.sendQuery(buildStatsStatement(conditions.toString(),db)).get(0);
     }
@@ -60,6 +62,11 @@ public class GoSearch extends AbstractSearch
         }        
         temp.removeAll(keysFound);
         return temp;        
+    }
+
+    public KeyTypeUser.KeyType[] getSupportedKeyTypes()
+    {
+        return new KeyTypeUser.KeyType[]{KeyType.SEQ,KeyType.MODEL};
     }
 
    

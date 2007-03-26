@@ -9,8 +9,9 @@ package servlets.search;
  * @author  khoran
  */
 import java.util.*;
-import servlets.search.Search;
 import servlets.Common;
+import servlets.KeyTypeUser;
+import servlets.KeyTypeUser.KeyType;
 import servlets.querySets.*;
 
 public class ClusterNameSearch extends AbstractSearch
@@ -28,7 +29,7 @@ public class ClusterNameSearch extends AbstractSearch
         seqId_query=QuerySetProvider.getSearchQuerySet().getClusterNameSearchQuery(input, limit,db, keyType);
         rs=Common.sendQuery(seqId_query);
         
-        ArrayList al=new ArrayList();
+        List al=new LinkedList();
         String lastDb="";
         List row;
         int c=0;
@@ -43,6 +44,9 @@ public class ClusterNameSearch extends AbstractSearch
         }                
         data=al;                
     }        
-
+    public KeyTypeUser.KeyType[] getSupportedKeyTypes()
+    {
+        return new KeyTypeUser.KeyType[]{KeyType.SEQ,KeyType.MODEL};
+    }
    
 }
