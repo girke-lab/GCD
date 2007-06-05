@@ -39,12 +39,14 @@ public class CorrelationSetFormat extends AbstractPatternFormat<CorrelationRecor
     
     private static DecimalFormat percent=new DecimalFormat("0%");
     
-    private static final Collection<String[]> clusterMethods=getClusterMethods();
+    //private static final Collection<String[]> clusterMethods=getClusterMethods();
+    private Collection<String[]> clusterMethods;
         
     
     /** Creates a new instance of CorrelationSetFormat */
     public CorrelationSetFormat()
     {
+        clusterMethods=getClusterMethods();
     }
 
     private static RecordPattern buildPattern()
