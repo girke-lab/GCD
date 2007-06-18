@@ -167,10 +167,11 @@ public class CorrelationSetFormat extends AbstractPatternFormat<CorrelationRecor
             "&inputKey=";
         String clusterPicLink=plotScript+"?script=plot&cluster_id=";            
         
-        ProbeClusterRecord pcr;
+        ProbeClusterRecord pcr=null;
         Iterator<Record> ri=records.iterator();
         
-        pcr=(ProbeClusterRecord)ri.next();
+        if(ri.hasNext())
+            pcr=(ProbeClusterRecord)ri.next(); 
         for(String[] method : clusterMethods)
         {            
             if(pcr==null || !pcr.method.equals(method[0]))

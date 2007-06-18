@@ -94,7 +94,12 @@ public class QueryPageServlet extends HttpServlet
         if(wasPost)
             log.info("POST request from "+request.getRemoteAddr());
         else
+        {
             log.info("GET request from "+request.getRemoteAddr());
+            // only count GET requests because all POST requests are redirected
+            // as GET requests after the data has been fetched.
+            HitCounter.increment();
+        }
         
         int hid,pos,rpp;
         if(session.getAttribute("hid")==null)
@@ -217,7 +222,11 @@ public class QueryPageServlet extends HttpServlet
         {
             Map generalStor=(Map)qi.getObject("general_storage");
             ResultPage page=new ResultPage(dv, s, pos, hid, rpp,generalStor);             
-            page.dipslayPage(out);
+            try{
+                page.dipslayPage(out);
+            }catch(Exception e){
+                log.error("page error: "+e.getMessage(),e);
+            }
         }
                         
             

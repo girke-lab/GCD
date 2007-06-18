@@ -9,6 +9,7 @@ package servlets.beans;
 
 import java.io.*;
 import org.apache.log4j.Logger;
+import servlets.HitCounter;
 
 /**
  * This bean is used to print out various headings and footers.
@@ -180,6 +181,7 @@ public class HeaderBean
         for(int i=0;i<50;i++)
             out.println("<br>");
         out.println(
+            "This site has been hit "+HitCounter.getHitCount()+" times."+
             "</td></tr></table>" +
             "<p> <p>" +
             "<table class=foot cellSpacing=0 cellPadding=1 width='100%' bgColor=#aaaaaa border=0><tbody>" +
