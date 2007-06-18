@@ -94,12 +94,7 @@ public class QueryPageServlet extends HttpServlet
         if(wasPost)
             log.info("POST request from "+request.getRemoteAddr());
         else
-        {
             log.info("GET request from "+request.getRemoteAddr());
-            // only count GET requests because all POST requests are redirected
-            // as GET requests after the data has been fetched.
-            HitCounter.increment();
-        }
         
         int hid,pos,rpp;
         if(session.getAttribute("hid")==null)

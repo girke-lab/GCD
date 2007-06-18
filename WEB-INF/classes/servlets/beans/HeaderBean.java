@@ -175,9 +175,13 @@ public class HeaderBean
     /**
      * prints the footer.  This will close the table started by the header
      * and also print a reference line.
+     *  Also increment the page counter here since every page has a footer.
      */
     public void printFooter()
     {            
+        
+        HitCounter.increment(); 
+        
         for(int i=0;i<50;i++)
             out.println("<br>");
         out.println(
