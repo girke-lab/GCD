@@ -32,11 +32,10 @@ public class AffyExpSetRecord extends UniChildRecord
     public String short_name, long_name, info_link;
     public Integer up4,down4, up2, down2,on, off;
     public Integer accId,probeSetId, expSetId;    
-    public Float controlAverage, treatAverage;
-    public Float controlStddev, treatStddev;
+    public Float average, stddev,mfc;
     
     private static Logger log=Logger.getLogger(AffyExpSetRecord.class);
-    private static int reqSize=23;
+    private static int reqSize=22;
     
     
     /** Creates a new instance of AffyExpSetRecord */
@@ -64,13 +63,12 @@ public class AffyExpSetRecord extends UniChildRecord
         on=(values.get(13)==null? null : Integer.parseInt((String)values.get(13)));        
         off=(values.get(14)==null? null : Integer.parseInt((String)values.get(14)));     
         //skip data_type field, 15
-        controlAverage=getFloat(values.get(16));
-        treatAverage=getFloat(values.get(17));
-        controlStddev=getFloat(values.get(18));
-        treatStddev=getFloat(values.get(19));
-        //skip short_name, 20
-        long_name=(String)values.get(21);
-        info_link=(String)values.get(22);
+        average=getFloat(values.get(16));
+        stddev=getFloat(values.get(17));
+        mfc=getFloat(values.get(18));
+        //skip short_name,19 
+        long_name=(String)values.get(20);
+        info_link=(String)values.get(21);
     }
     private Float getFloat(Object o)
     {

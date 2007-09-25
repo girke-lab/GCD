@@ -543,12 +543,12 @@ public class AdvancedSearchBean2
                         "<h4> Usage: </h4>" +
             "                    <p>" +
             "                    This page allows you to create a more complex and detailed query.  " +
-            "                    The first feild specifies the data feild to restrict.  The second" +
-            "                    feild is a list of operators which  can be applied to the selected" +
+            "                    The first field specifies the data field to restrict.  The second" +
+            "                    field is a list of operators which  can be applied to the selected" +
             "                    data.  The third column is the value of the data." +
             "                    <p>" +
-            "                    The 'IN' operator lets you specifiy a list of strings in the value feild." +
-            "                    It will return all records that match one of them exactly." +
+            "                    The 'IN' operator lets you specifiy a list of strings in the value field, " +
+            "                    it will return all records that match one of them exactly." +
             "                    This is faster than 'ILIKE', so you should use 'IN' if an exact match will work." +
             "                    <p>                    " +
             "                    'NOT IN' will match any record wich does not match any of the given strings" +
@@ -564,12 +564,12 @@ public class AdvancedSearchBean2
             "                    'NOT ILIKE' is like 'ILIKE', except that only records that don't" +
             "                    match any pattern are returned." +
             "                    <P>" +
-            "                    You can set the 'sort by' feild to sort the whole result set by that " +
-            "                    feild.  Once you get to the result set, you can only sort records" +
+            "                    You can set the 'sort by' field to sort the whole result set by that " +
+            "                    field.  Once you get to the result set, you can only sort records" +
             "                    on the current page." +
             "                    <P>" +
             "                    The 'add sub expression' button is still experimental, but you can" +
-            "                    try it if you like.  It tries to add a sub expression inside a set of parithesis" +
+            "                    try it if you like.  It tries to add a sub expression inside a set of parenthesis" +
             "                    so you can create more complex expressions.   " 
             );
         }catch(IOException e){

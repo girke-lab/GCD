@@ -28,11 +28,11 @@ import servlets.querySets.QuerySetProvider;
 public class ProbeClusterRecord extends  UniChildRecord
 {
     private static final Logger log=Logger.getLogger(ProbeClusterRecord.class);
-    private static final int reqSize=8;
+    private static final int reqSize=9;
         
     public Integer probeClusterId,pskId,size;    
     public Float confidence=null;
-    public String name,method,pskKey;    
+    public String name,method,pskKey,methodDesc;    
     
     /** Creates a new instance of ProbeClusterRecord */
     public ProbeClusterRecord(List values)
@@ -44,12 +44,13 @@ public class ProbeClusterRecord extends  UniChildRecord
         pskId=new Integer((String)values.get(1));
         name=(String)values.get(2);
         method=(String)values.get(3);
-        size=new Integer((String)values.get(4));                   
-        if(Common.getBoolean((String)values.get(5)))
+        methodDesc=(String)values.get(4);
+        size=new Integer((String)values.get(5));                   
+        if(Common.getBoolean((String)values.get(6)))
             method+=" split";
-        if(values.get(6) != null)
-            confidence=new Float((String)values.get(6));
-        pskKey=(String)values.get(7);
+        if(values.get(7) != null)
+            confidence=new Float((String)values.get(7));
+        pskKey=(String)values.get(8);
         
             
     }

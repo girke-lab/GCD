@@ -9,11 +9,11 @@ package servlets.dataViews.dataSource.display.html;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import org.apache.log4j.Logger;
 import servlets.PageColors;
 import servlets.dataViews.dataSource.display.AbstractPatternFormat;
 import servlets.dataViews.dataSource.display.RecordPattern;
-import servlets.dataViews.dataSource.records.CorrelationRecord;
 import servlets.dataViews.dataSource.records.ProbeClusterRecord;
 import servlets.dataViews.dataSource.records.ProbeSetKeyRecord;
 import servlets.dataViews.dataSource.records.SequenceRecord;
@@ -52,13 +52,22 @@ public class ProbeSetInfoFormat extends AbstractPatternFormat<ProbeSetKeyRecord>
     {
         Utilities.startTable(out);
         out.write("<tr bgcolor='"+PageColors.title+"'>");
-        String[] titles=new String[]{"AffyID","Accessions","Control Mean",
+        String[] titles=new String[]{"Control Mean",
                             "Treat Mean","Control PMA","Treat PMA","ratio (log2)",
                             "Contrast","p-value","Adjusted p-value","PFP up",
-                            "PFP down","Clusters","Accession Descriptions"};
+                            "PFP down"};
+            //,"Clusters","Accession Descriptions"};
 
         String[] dbNames=QuerySetProvider.getDataViewQuerySet().getSortableTreatmentColoumns()[DataViewQuerySet.TREAT_PSK];
-        Utilities.printTableTitles(new PrintWriter(out),getParameters(),titles,dbNames,"psk","");
+        
+       PrintWriter wout=new PrintWriter(out);
+       Utilities.printTableTitles(wout,getParameters(),new String[]{"AffyID"},new String[]{dbNames[0]},"psk","");
+       wout.println("<th nowrap> Accessions</th>");
+       
+       dbNames=Arrays.asList(dbNames).subList(1,dbNames.length).toArray(new String[]{});
+       Utilities.printTableTitles(new PrintWriter(out),getParameters(),titles,dbNames,"psk","");
+       wout.println("<th nowrap> Clusters</th><th nowrap> Accession Descriptions</th>");
+       
 
         out.write("</tr>");                                  
     }

@@ -87,8 +87,8 @@ public class Unknowns2Database extends DefaultSearchableDatabase
             new StringField(space+"Probability is negative",db+"proteomics_stats.prob_is_neg"),
                         
             new StringField("External Sources",""),  //27
-            new ListField(space+"Source",db+"external_unknowns.source",new String[]{"tigr","citosky"}),
-            new BooleanField(space+"is unknown?",db+"external_unknowns.is_unknown")
+            new ListField(space+"Source",db+"external_unknowns_view.source",new String[]{"tigr","citosky"}),
+            new BooleanField(space+"is unknown?",db+"external_unknowns_view.is_unknown")
         };
         
         booleans=new String[]{"and","or"};                

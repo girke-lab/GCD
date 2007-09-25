@@ -29,9 +29,10 @@ public class UnknownRecord extends MultiChildRecord
 {
     public String key;
     public String description,dbName;    
-    public int estCount;
+    public Integer estCount;
     public int key_id;
-    public boolean[] go_unknowns;
+    public Boolean[] go_unknowns;
+    public Boolean swp_is_unknown, pfam_is_unknown;
     
     
 //    public int[] cluster_ids;
@@ -41,7 +42,7 @@ public class UnknownRecord extends MultiChildRecord
 //    public int probe_set_key_id;
     
     private static Logger log=Logger.getLogger(UnknownRecord.class);
-    private static int reqSize=8;
+    private static int reqSize=10;
     
     public UnknownRecord(List values)
     {
@@ -52,12 +53,14 @@ public class UnknownRecord extends MultiChildRecord
         key_id=Integer.parseInt((String)values.get(0));
         key=(String)values.get(1);
         description=(String)values.get(2);
-        estCount=Integer.parseInt((String)values.get(3));
-        go_unknowns=new boolean[3];
+        estCount=values.get(3)==null?null:Integer.parseInt((String)values.get(3));
+        go_unknowns=new Boolean[3];
         go_unknowns[0]=getBoolean((String)values.get(4));
         go_unknowns[1]=getBoolean((String)values.get(5));
         go_unknowns[2]=getBoolean((String)values.get(6));
-        dbName=(String)values.get(7);
+        pfam_is_unknown=getBoolean((String)values.get(7));
+        swp_is_unknown=getBoolean((String)values.get(8));
+        dbName=(String)values.get(9);
         
 //        if(values.get(7)!=null)
 //        {
@@ -79,8 +82,10 @@ public class UnknownRecord extends MultiChildRecord
 //            sizes=emptyInts;
 //        }
     }
-    private boolean getBoolean(String str)
+    private Boolean getBoolean(String str)
     {
+        if(str==null)
+            return null;
         return str.compareToIgnoreCase("true")==0 || str.compareToIgnoreCase("yes")==0 ||
                 str.compareToIgnoreCase("t")==0|| str.equals("1");
     }           

@@ -107,7 +107,7 @@ public class HeaderBean
     /**
      * This prints the complete header for the headerType which has been set.
      * This is usually the only thing that needs to be called, after the headerType
-     * as been set.  You should also call the footer method after the rest of the page
+     * has been set.  You should also call the footer method after the rest of the page
      * has been printed.
      * @param out writer to use. This will be stored for use by further calls
      * @param page title of a particular page
@@ -126,9 +126,9 @@ public class HeaderBean
             case GCD:
                 printGCDHeader(); break;
             case POND:
+                printUnknownsHeader(); break;
             case PED:
-                printUnknownsHeader(); 
-                break;    
+                printPEDHeader(); break;    
             case COMMON:
                 printCommonHeader(); break;
         }        
@@ -317,33 +317,42 @@ public class HeaderBean
             query="?action=log_off";
         }            
         
-        
+        /*
+       <table cellSpacing=0 cellPadding=4 width='100%' bgColor=#ffffff border=0><tbody>	<tr><td class=navcol vAlign=top width='13%' height=500 bgColor=#d8d8d8>PED Toolbar<br><br>
+           <table cellSpacing=3 cellPadding=4 width='100%' border=0><tbody>			<tr><td class=foot bgColor=#f0f0f0 nowrap ><a href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>    
+           <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/express.html'>About PED</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>     
+           <A href='index.jsp'>Gene Search</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>          
+           <A href='treatmentSearch.jsp'>DEG Search</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>            
+           <A href='http://bioweb.ucr.edu/scripts/plotAffyCluster.pl'>R/BioC Tools</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>      
+           <A href='unknownsBasicSearch.jsp'>POND Search</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>             
+           <A href='http://bioweb.ucr.edu/bapdb>BAP DB</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>            
+           <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/links.html'>Links</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>           
+           <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html#participants'>Contacts</a></td></tr>
+         */
+
+ 
         out.println(
             "<table cellSpacing=0 cellPadding=4 width='100%' bgColor=#ffffff border=0><tbody>" +
             "	<tr><td class=navcol vAlign=top width='13%' height=500 bgColor=#d8d8d8>"+sidebarTitle+"<br><br>" +
+           
             "		<table cellSpacing=3 cellPadding=4 width='100%' border=0><tbody>" +
             "			<tr><td class=foot bgColor=#f0f0f0 nowrap ><a href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>" +
-                "                    <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html'>Project</a></td></tr>" +
+                "                    <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/express.html'>About PED</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-                "                   <A href='index.jsp'>GCD Search</a></td></tr>" +
+                "                   <A href='index.jsp'>Gene Search</a></td></tr>" +
+            "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
+                "                   <A href='treatmentSearch.jsp'>DEG Search</a></td></tr>" +
+            "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
+                "                    <A href='http://bioweb.ucr.edu/scripts/plotAffyCluster.pl'>R/BioC Tools</a></td></tr>"+
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
                 "                   <A href='unknownsBasicSearch.jsp'>POND Search</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-                "                   <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/express.html'>Expression (PED)</a></td></tr>" +
-            "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-                "                   <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/interaction.html'>Interactome</a></td></tr>" +
-            "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-                "                   <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/tools.html'>Protocols</a></td></tr>" +
-            "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-                "                   <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/external.html'>Literature</a></td></tr>" +
-            "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-                "                   <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/downloads.html'>Downloads</a></td></tr>" +
+                "                    <A href='http://bioweb.ucr.edu/bapdb'>BAP DB</a></td></tr>"+
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
                 "                   <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/links.html'>Links</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
                 "                   <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html#participants'>Contacts</a></td></tr>"                 
-                                
-        );
+       );
                        
         
         out.println( 

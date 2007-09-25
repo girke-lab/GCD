@@ -86,9 +86,10 @@ public abstract class RecordInfo
      *  parent record.
      *
      *  The default method of building a key is this:
-     *      If there is only one item in the list, it is
-     *      returned unchanged.
-     *
+     *      If there is only one item in the list we first try
+     *      to cast it to an int and return it. If that fails, the
+     *      string representation is returned
+     * 
      *      If there are multiple items, they are cast to
      *      Strings and run together with '_' as a separator.
      *

@@ -74,7 +74,7 @@ public class CorrelationsDataView implements DataView
             public void printGeneral(PrintWriter out, Search search, String position,Map storage)
             {
                 String link="DispatchServlet?hid="+hid+"&script=unknownsText&range=0-"+search.getResults().size();
-                out.println("Download data: &nbsp");
+                out.println(DescriptionManager.wrapText("download","Download data:")+" &nbsp");
                 out.println("&nbsp<a href='"+link+"&dataType=Correlation'>Correlations</a>");
             }            
 

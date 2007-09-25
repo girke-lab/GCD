@@ -24,12 +24,11 @@ import servlets.querySets.QuerySetProvider;
 public class ProbeSetSummaryRecord extends MultiChildRecord
 {    
     private static Logger log=Logger.getLogger(ProbeSetSummaryRecord.class);    
-    private static int reqSize=6;
+    private static int reqSize=5;
     
     public Integer probeSetId;
     public String probeSetKey;
-    public Float controlAverage, treatAverage;
-    public Float controlStddev, treatStddev;
+    public Float average,stddev,mfc;
     
     /**
      * Creates a new instance of ProbeSetSummaryRecord
@@ -42,10 +41,9 @@ public class ProbeSetSummaryRecord extends MultiChildRecord
         
         probeSetId=new Integer((String)values.get(0));
         probeSetKey=(String)values.get(1);
-        controlAverage=Float.parseFloat((String)values.get(2));
-        controlStddev=Float.parseFloat((String)values.get(3));
-        treatAverage=Float.parseFloat((String)values.get(4));
-        treatStddev=Float.parseFloat((String)values.get(5));
+        average=Float.parseFloat((String)values.get(2));
+        stddev=Float.parseFloat((String)values.get(3));
+        mfc=Float.parseFloat((String)values.get(4));
         
     }
 

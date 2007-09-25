@@ -210,35 +210,7 @@ public class SeqDataView implements DataView
     {
         return Common.sendQuery(QuerySetProvider.getDataViewQuerySet().getSeqDataViewQuery(input,order,db, null));
     }
-    private String buildSeqViewStatement(String conditions,String order, int[] DBs)
-    {
-        StringBuffer query=new StringBuffer();
-        
-        query.append("SELECT sequence_view.genome, sequence_view.primary_key,sequence_view.description,models.model_accession," +
-                    " go.go, cluster_info.filename,cluster_info.size,cluster_info.name,cluster_info.arab_count,cluster_info.rice_count,cluster_info.method,sequence_view.v3Key "+
-                "FROM sequence_view LEFT JOIN models USING (seq_id) LEFT JOIN clusters USING (seq_id) LEFT JOIN cluster_info USING (cluster_id) LEFT JOIN go ON (sequence_view.seq_id=go.seq_id)"+
-                //clusters, cluster_info, sequence_view LEFT JOIN go USING (seq_id) "+
-                "WHERE  ");
-        
-                
-        query.append("  (");
-        for(int i=0;i<DBs.length;i++)
-        {
-            query.append("sequence_view.genome='"+Common.dbRealNames[DBs[i]]+"' ");
-            if(i+1 < DBs.length)
-                query.append(" or ");
-        }
-        
-        query.append(") AND ( "+conditions+" ) ");
-        query.append("ORDER BY sequence_view.genome,");
-        if(order!=null && order != "")
-            query.append(order+", ");
-        //query.append(" sequence_view.primary_key,clusters.model_id, go.go,cluster_info.filename ");        
-        query.append(" sequence_view.primary_key,cluster_info.filename, go.go ");        
-        log.info("sequence view query: "+query);
-        return query.toString();
-    }
-    
+      
     public void setSortDirection(String dir)
     {
     }    
@@ -537,7 +509,9 @@ public class SeqDataView implements DataView
              
              // link to affy page
              String affyUrl="QueryPageServlet?searchType=Id&displayType=affyView&inputKey="+key;
-             out.println("&nbsp&nbsp&nbsp <a href='"+affyUrl+"'><font color='dark green'>Genome Cluster Expression</font></a>");
+             out.println("&nbsp&nbsp&nbsp PED: <a href='"+affyUrl+"'><font color='dark green'>Expression</font></a>");
+             affyUrl="QueryPageServlet?searchType=Id&displayType=correlationView&inputKey="+key;
+             out.println("&nbsp <a href='"+affyUrl+"'><font color='dark green'>Co-Expression</font></a>");
         }        
     }
 }

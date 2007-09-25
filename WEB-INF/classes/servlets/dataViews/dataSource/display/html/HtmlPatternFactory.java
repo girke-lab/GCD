@@ -9,10 +9,10 @@ package servlets.dataViews.dataSource.display.html;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.util.*;
 import org.apache.log4j.Logger;
+import servlets.DescriptionManager;
 import servlets.PageColors;
 import servlets.dataViews.dataSource.display.AbstractPatternFormat;
 import servlets.dataViews.dataSource.display.PatternFormat;
@@ -39,6 +39,7 @@ public class HtmlPatternFactory
     private static DecimalFormat df=new DecimalFormat("0.00");
     private static DecimalFormat percent=new DecimalFormat("0%");
     private static DecimalFormat ldf=new DecimalFormat("0.##E0");
+    private static final DescriptionManager dm=DescriptionManager.getInstance();
     
     String expDefURL="http://bioweb.ucr.edu/databaseWeb/data/exp_definitions";
     
@@ -94,24 +95,26 @@ public class HtmlPatternFactory
         public void printRecord( UnknownRecord r) throws IOException
         {
             out.write("<tr><td>");         
-            //http://www.arabidopsis.org/servlets/TairObject?type=locus&name=
             String accUrl="QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
             
-            //if(r.dbName.equals("arab"))
                 out.write("<a href='"+accUrl+
                     r.key.subSequence(0,r.key.lastIndexOf('.'))+"'>"+r.key+"</a>");
-//            else
-//                out.write(r.key);                    
+                
             out.write("</td><td>"+r.description+"</td></tr>\n");
             
+            out.write("<tr><td colspan='2'><b>PUF Profile</b>  GOMF: "+Utilities.cn(r.go_unknowns[0]));
+            out.write(" &nbsp&nbsp Pfam: "+Utilities.cn(r.pfam_is_unknown)+" &nbsp&nbsp SWP: "+Utilities.cn(r.swp_is_unknown));
+            out.write("</td></tr>");
+            /*
             String[] names=new String[]{"mfu","ccu","bpu"};
             out.write("<tr><td colspan='2'>\n");
             for(int i=0;i<r.go_unknowns.length;i++)
                 out.write("<b>"+names[i]+"</b>: "+r.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
-            String url="QueryPageServlet?searchType=Id&displayType=correlationView&rpp=200&inputKey="+r.key;
-                                    
-            if(r.getGroupList().contains(AffyExpSetRecord.class))
-                out.write("&nbsp&nbsp&nbsp <a href='"+url+"'><font color='red'>Correlation Data</font></a>&nbsp&nbsp");
+             */
+            
+            //String url="QueryPageServlet?searchType=Id&displayType=correlationView&rpp=200&inputKey="+r.key;
+            //if(r.getGroupList().contains(AffyExpSetRecord.class))
+                //out.write("&nbsp&nbsp&nbsp <a href='"+url+"'><font color='red'>Correlation Data</font></a>&nbsp&nbsp");
 
             String pskPopup;                
             String clusterLink="QueryPageServlet?displayType=correlationView&searchType=Cluster_Corr" +
@@ -171,19 +174,25 @@ public class HtmlPatternFactory
         }
 
         public void printRecord(ProbeClusterRecord r) throws IOException
-        {            
+        {          
             String page="QueryPageServlet?" +
                     "displayType=correlationView&searchType=Cluster_Corr&inputKey="+
                     r.probeClusterId+" "+r.pskId;             
-            String pskPopup="onmouseover=\"return escape('"+r.method+"')\"";
+            String pskPopup="onmouseover=\"return escape('"+r.method+"<br>"+r.methodDesc+"')\"";
+            String corrUrl="QueryPageServlet?searchType=Probe_Set_Key&displayType=correlationView&rpp=200&inputKey="+r.pskId;
             
-            if(multipleKeys && (lastPskKey==null || !lastPskKey.equals(r.pskKey)))
+            if( lastPskKey==null || !lastPskKey.equals(r.pskKey)  )
             {
-                if(lastPskKey!=null) // not the first record
-                    out.write("</td></tr>"); //close the previous row
-                out.write("<tr><td>"+r.pskKey+"</td><td>");
+                if(multipleKeys)
+                {
+                    if(lastPskKey!=null) // not the first record
+                        out.write("</td></tr>"); //close the previous row
+                    out.write("<tr><td>"+r.pskKey+"</td><td>");
+                }
+                out.write("<a href='"+corrUrl+"'><font color='red'>Correlation Data</font></a>&nbsp&nbsp&nbsp ");
                 lastPskKey=r.pskKey;
             }
+            
             out.write("<a href='"+page+"' "+pskPopup+" >"+r.name+"("+r.size+")</a> &nbsp&nbsp&nbsp ");
             
             if(utils.hasChildren(r))
@@ -243,14 +252,14 @@ public class HtmlPatternFactory
             utils.startTable(out);
             out.write("<tr bgcolor='"+PageColors.title+"'>" +
                 "<th>Affy Probe Set</th>" +
-                "<th>Control Average Intensity</th>" +
-                "<th>Control Std Deviation</th>" +
-                "<th>Treatment Average Intensity</th>" +
-                "<th>Treatment Std Deviation</th></tr>\n");
+                "<th> Average Intensity</th>" +
+                "<th>Standard Deviation</th>" +
+                "<th>MFC</th></tr>\n");
         }
 
         public void printRecord( ProbeSetSummaryRecord r) throws IOException
         {
+            
             String link="QueryPageServlet?displayType=affyView&" +
                     "searchType=Probe_Set_Key&limit=1&dbs=0&inputKey="+r.probeSetId; 
             String corrLink="QueryPageServlet?rpp=200&displayType=correlationView&" +
@@ -259,8 +268,8 @@ public class HtmlPatternFactory
             out.write("<tr>");
             out.write("<td><a href='"+link+"'>"+r.probeSetKey+"</a> &nbsp&nbsp " +
                     "<a href='"+corrLink+"'><font color='red'>correlations</font></a></td>");                 
-            out.write("<td>"+percent.format(r.controlAverage)+"</td><td>"+percent.format(r.controlStddev)+"</td>");
-            out.write("<td>"+percent.format(r.treatAverage)+"</td><td>"+percent.format(r.treatStddev)+"</td>");
+            out.write("<td>"+df.format(r.average)+"</td><td>"+df.format(r.stddev)+"</td>");
+            out.write("<td>"+df.format(r.mfc)+"</td>");
             out.write("</td>");
             
             if(utils.hasChildren(r))
@@ -411,11 +420,12 @@ public class HtmlPatternFactory
         {
             String[] titles=new String[]{"AffyID","Exp","Name","up 2x","down 2x",
                                  "up 4x","down 4x","on","off",
-                                 "ctrl avg","ctrl stddev","treat avg","treat stddev"};
+                                 "Average","Stddev","MFC"};
             String[] feilds=QuerySetProvider.getDataViewQuerySet().getSortableAffyColumns()[DataViewQuerySet.EXPSET]; 
 
             utils.startTable(out);
-            out.write("<tr bgcolor='"+PageColors.title+"'><td><a name='"+r.probeSetId+"'></a>Ratio</td><td>Int</td>");        
+            out.write("<tr bgcolor='"+PageColors.title+"'><td><a name='"+r.probeSetId+"'></a>"+
+                    dm.wrapText("ratio","Ratio")+"</td><td>"+dm.wrapText("int","Int")+"</td>");        
             utils.printTableTitles(new PrintWriter(out),getParameters(), titles, feilds, "expset",r.probeSetId.toString());        
             out.write("</tr>");
             
@@ -472,10 +482,9 @@ public class HtmlPatternFactory
             out.write("<td>"+(r.name.equals("")?"&nbsp":r.name)+"</td>"); //  <td>"+r.description+"</td>");
             out.write("<td>"+r.up2+"</td><td>"+r.down2+"</td><td>"+r.up4+"</td>");
             out.write("<td>"+r.down4+"</td><td>"+(r.on==null?"&nbsp":r.on)+"</td><td>"+(r.off==null?"&nbsp":r.off)+"</td>");
-            out.write("<td>"+(r.controlAverage==null ? "&nbsp":percent.format(r.controlAverage))+
-                    "</td><td>"+(r.controlStddev==null ? "&nbsp":percent.format(r.controlStddev))+"</td>");
-            out.write("<td>"+(r.treatAverage==null ? "&nbsp":percent.format(r.treatAverage))+
-                    "</td><td>"+(r.treatStddev==null ? "&nbsp":percent.format(r.treatStddev))+"</td>");
+            out.write("<td>"+(r.average==null ? "&nbsp":df.format(r.average))+
+                    "</td><td>"+(r.stddev==null ? "&nbsp":df.format(r.stddev))+"</td>");
+            out.write("<td>"+(r.mfc==null ? "&nbsp":df.format(r.mfc))) ;
             out.write("</tr>");
 
             String expDefLink="<a href='"+expDefURL+"/Ex"+
@@ -589,8 +598,13 @@ public class HtmlPatternFactory
         public void printHeader(CorrelationRecord r) throws IOException
         {
             utils.startTable(out);
-            out.write("<tr bgcolor='"+PageColors.title+"'>"+
-                "<th>Catagory</th><th>Pearson</th><th>Spearman</th></tr>");
+            String[] titles=new String[]{"Catagory","Pearson","Spearman"};
+            String[] keys=new String[]{"psk2_key","pearson","spearman"};
+            
+            out.write("<tr bgcolor='"+PageColors.title+"'>");
+            for(int i=0; i < titles.length; i++)
+                out.write("<th>"+dm.wrapText(keys[i],titles[i])+"</th>");
+            out.write("</tr>");
         }
 
         public void printRecord(CorrelationRecord r) throws IOException

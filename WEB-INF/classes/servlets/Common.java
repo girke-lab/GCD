@@ -170,11 +170,10 @@ public class Common {
         
         PrintWriter out=new PrintWriter(w);
         String link="DispatchServlet?hid="+hid+"&script=unknownsText&range=0-"+end;
-        String[] dataTypes=new String[]{"Unknown","Go","Blast","Proteomics","Cluster","ProbeCluster",
-                "ExternalUnknown","AffyExpSet","AffyComp","AffyDetail"};
-        String[] linkNames=new String[]{"Keys","Go","Blast","Proteomics","Sequence Clusters","Expression Clusters",
-                "External Sources","Experiment Sets","Comparisons",
-                "Cel"};
+        //String[] dataTypes=new String[]{"Unknown","Go","Blast","Proteomics","Cluster","ProbeCluster", "ExternalUnknown","AffyExpSet","AffyComp","AffyDetail"};
+        //String[] linkNames=new String[]{"Keys","Go","Blast","Proteomics","Sequence Clusters","Expression Clusters", "External Sources","Experiment Sets","Comparisons","Cel"};
+        String[] dataTypes=new String[]{"Cluster","ProbeCluster","AffyExpSet","AffyComp","AffyDetail"};
+        String[] linkNames=new String[]{"Sequence Clusters","Expression Clusters", "Experiment Sets","Comparisons", "Cel"};
         for(int i=0;i<linkNames.length;i++)
             out.println("&nbsp<a href='"+link+"&dataType="+dataTypes[i]+"&intensityType="+intensityType+"'>"+
                     linkNames[i]+"</a>");

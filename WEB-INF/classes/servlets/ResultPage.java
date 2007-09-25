@@ -27,6 +27,7 @@ public class ResultPage
     int hid,rpp,pos;    
     Map storage;
     
+    DescriptionManager dm=DescriptionManager.getInstance();
     
     /**
      * Creates a new instance of ResultPage
@@ -124,15 +125,18 @@ public class ResultPage
         out.println("<table align='left' border='0'>");
         out.println("<tr>");        
         if(pos > 0) //if we're not at the beginning
-            out.println("<td><a href='"+action+"&pos=0'><img src='images/right_right_arrow.jpg' border='0'/></a></td>");
+            out.println("<td> "+dm.wrapLink("start-arrow","<img src='images/right_right_arrow.jpg' border='0'/>",action+"&pos=0'")+"</td>");
         
         if(pos-rpp >= 0)        
-            out.println("<td><a href='"+action+"&pos="+(pos-rpp)+"'><img src='images/right_arrow.jpg' border='0'/></a></td>");
+            //out.println("<td><a href='"+action+"&pos="+(pos-rpp)+"'><img src='images/right_arrow.jpg' border='0'/></a></td>");
+            out.println("<td> "+dm.wrapLink("prev-arrow","<img src='images/right_arrow.jpg' border='0'/>",action+"&pos="+(pos-rpp)+"'")+"</td>");
         if(pos+rpp < end)
-            out.println("<td><a href='"+action+"&pos="+(pos+rpp)+"'><img src='images/left_arrow.jpg' border='0' /></a></td>");        
+            //out.println("<td><a href='"+action+"&pos="+(pos+rpp)+"'><img src='images/left_arrow.jpg' border='0' /></a></td>");        
+            out.println("<td> "+dm.wrapLink("next-arrow","<img src='images/left_arrow.jpg' border='0'/>",action+"&pos="+(pos+rpp)+"'")+"</td>");
         
         if(pos+rpp < end) // if we're not at the end
-            out.println("<td><a href='"+action+"&pos="+(end-(end%rpp))+"'><img src='images/left_left_arrow.jpg' border='0' /></a></td>");
+            //out.println("<td><a href='"+action+"&pos="+(end-(end%rpp))+"'><img src='images/left_left_arrow.jpg' border='0' />t</a></td>");
+            out.println("<td> "+dm.wrapLink("end-arrow","<img src='images/left_left_arrow.jpg' border='0'/>",action+"&pos="+(end-(end%rpp))+"'")+"</td>");
   
         out.println("</tr>");
         out.println("</table>");

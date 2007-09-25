@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import servlets.DbConnection;
 import servlets.DbConnectionManager;
+import servlets.DescriptionManager;
 import servlets.PageColors;
 import servlets.dataViews.dataSource.display.AbstractPatternFormat;
 import servlets.dataViews.dataSource.display.RecordPattern;
@@ -103,10 +104,16 @@ public class CorrelationSetFormat extends AbstractPatternFormat<CorrelationRecor
         newDir="asc";
         if(sortCol!=null && sortCol.equals(prefix+"_"+colNames[0]))
             newDir=(sortDir.equals("asc"))? "desc" : "asc"; //flip direction
-        out.write("<tr bgcolor='"+PageColors.title+"'><td>&nbsp</td><th><a "+
-                "href='QueryPageServlet?hid="+hid+"&sortCol="+
-                prefix+"_"+colNames[0]+"&sortDirection="+newDir+"'>"+
-                r.psk1_key+"</a></th>\n");
+        
+        
+        out.write("<tr bgcolor='"+PageColors.title+"'><td>&nbsp</td>");
+        out.write("<th>"+DescriptionManager.wrapLink(colNames[0],r.psk1_key,  
+            "QueryPageServlet?hid="+hid+"&sortCol="+prefix+"_"+colNames[0]+"&sortDirection="+newDir)+"</th>");
+        
+        //out.write("<tr bgcolor='"+PageColors.title+"'><td>&nbsp</td><th><a "+
+                //"href='QueryPageServlet?hid="+hid+"&sortCol="+
+                //prefix+"_"+colNames[0]+"&sortDirection="+newDir+"'>"+
+                //r.psk1_key+"</a></th>\n");
 
         String[] catagories=new String[]{"All"};
         for(String catagory : catagories)                            
@@ -115,8 +122,10 @@ public class CorrelationSetFormat extends AbstractPatternFormat<CorrelationRecor
                 newDir="asc";
                 if(sortCol!=null && sortCol.equals(prefix+"_"+colNames[j+1]))
                     newDir=(sortDir.equals("asc"))? "desc" : "asc"; //flip direction
-                out.write("<th nowrap ><a href='QueryPageServlet?hid="+hid+"&sortCol="+prefix+"_"+colNames[j+1]+
-                        "&sortDirection="+newDir+"&catagory="+catagory+"'>"+titles[j]+"</a></th>\n");
+                out.write("<th nowrap >"+DescriptionManager.wrapLink(colNames[j+1],titles[j],
+                    "QueryPageServlet?hid="+hid+"&sortCol="+prefix+"_"+colNames[j+1]+"&sortDirection="+newDir+"&catagory="+catagory )+"</th>\n");
+                //out.write("<th nowrap ><a href='QueryPageServlet?hid="+hid+"&sortCol="+prefix+"_"+colNames[j+1]+
+                        //"&sortDirection="+newDir+"&catagory="+catagory+"'>"+titles[j]+"</a></th>\n");
             }                            
 
         String popup;
@@ -128,7 +137,7 @@ public class CorrelationSetFormat extends AbstractPatternFormat<CorrelationRecor
             out.write("<th nowrap "+popup+"  >"+m[0]+"</th>");
         }
 
-        out.write("<th>&nbsp</th></tr>");
+        out.write("<th align='left'>"+DescriptionManager.wrapText("agi-description","AGI & Description")+"</th></tr>");
     }
 
     public void printRecord(CorrelationRecord r) throws IOException

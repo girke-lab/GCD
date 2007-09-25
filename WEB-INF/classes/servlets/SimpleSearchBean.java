@@ -99,13 +99,13 @@ public class SimpleSearchBean
         "                    <TD  align='center' >\n" +
         "                        Search by\n" +
         "                        <SELECT name='searchType'>\n" + //TODO: these options should be pulled from the queryPage.properties file
-        "                            <OPTION "+(fieldName.equals("Id")?"selected":"")+">Id\n"+
-        "                            <OPTION "+(fieldName.equals("Description")?"selected":"")+">Description\n"+
-        "                            <OPTION "+(fieldName.equals("Cluster Id")?"selected":"")+">Cluster Id\n"+
-        "                            <OPTION "+(fieldName.equals("Cluster Name")?"selected":"")+">Cluster Name\n"+
-        "                            <OPTION "+(fieldName.equals("GO Number")?"selected":"")+">GO Number\n"+
-        "                            <OPTION "+(fieldName.equals("GO Text")?"selected":"")+">GO Text\n"+
-        "                            <OPTION "+(fieldName.equals("Probe Set")?"selected":"")+">Probe Set\n"+
+        "                            <OPTION "+(fieldName.equals("Id")?"selected":"")+" value='Id'>Gene ID\n"+
+        "                            <OPTION "+(fieldName.equals("Probe Set")?"selected":"")+" value='Probe Set'>Affy ID (ATH1)\n"+
+        "                            <OPTION "+(fieldName.equals("Description")?"selected":"")+" value='Description'>Gene Description\n"+
+        "                            <OPTION "+(fieldName.equals("Cluster Id")?"selected":"")+" value='Cluster Id'>Protein Cluster ID\n"+
+        "                            <OPTION "+(fieldName.equals("Cluster Name")?"selected":"")+" value='Cluster Name'>Protein Cluster Name\n"+
+        "                            <OPTION "+(fieldName.equals("GO Number")?"selected":"")+" value='GO Number'>GO ID\n"+
+        "                            <OPTION "+(fieldName.equals("GO Text")?"selected":"")+" value='GO Text'>GO Term\n"+
         "                        </SELECT>\n" +
         "                        <BR> \n" +
         "                    </TD>\n" +

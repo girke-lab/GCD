@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Iterator;
 import org.apache.log4j.Logger;
+import servlets.DescriptionManager;
 import servlets.PageColors;
 import servlets.dataViews.dataSource.display.DisplayParameters;
 import servlets.dataViews.dataSource.structure.Record;
@@ -101,13 +102,24 @@ public class Utilities
             
             if(params.getSortCol()!=null && params.getSortCol().equals(prefix+"_"+dbColNames[i])) //reverse current sort col
                 newDir=(params.getSortDir().equals("asc"))? "desc":"asc"; //flip direction
-            out.println("<th nowrap "+headerOptions+"  ><a href='QueryPageServlet?hid="+params.getHid()+"&sortCol="+prefix+"_"+dbColNames[i]+
-                "&sortDirection="+newDir+"#"+anchor+"'>"+titles[i]+"</a></th>");             
+            
+            out.println("<th nowrap "+headerOptions+"  >");
+            out.println(DescriptionManager.wrapLink(dbColNames[i],titles[i],  "QueryPageServlet?hid="+params.getHid()+"&sortCol="+prefix+"_"+dbColNames[i]+
+                "&sortDirection="+newDir+"#"+anchor )); 
+            out.println("</th>");
+            
+            
+            //out.println("<th nowrap "+headerOptions+"  ><a href='QueryPageServlet?hid="+params.getHid()+"&sortCol="+prefix+"_"+dbColNames[i]+
+                //"&sortDirection="+newDir+"#"+anchor+"'>"+titles[i]+"</a></th>");             
         }
     }
     public static String cn(String s)
     {
         return s==null?"&nbsp":s;
+    }
+    public static String cn(Boolean s)
+    {
+        return s==null?"&nbsp":s.toString();
     }
     public static String bn(String s)
     {

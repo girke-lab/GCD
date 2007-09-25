@@ -290,13 +290,19 @@ public class QueryPageServlet extends HttpServlet
     private Search getSearchObj(String type) 
     {           
         if(type==null)
+        {
+            log.warn("null search type given");
             return new IdSearch();
+        }
         else
         {
             type=type.replaceAll(" ","_");            
             String searchClass=settings.getProperty("search."+type);
             if(searchClass==null)
+            {
+                log.error("no search found with name '"+type+"'");
                 return new IdSearch();
+            }
             Search s=null;
             try{
                 s=(Search)Class.forName(searchClass).newInstance();

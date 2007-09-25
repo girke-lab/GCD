@@ -17,7 +17,6 @@ import servlets.dataViews.dataSource.display.html.AffyCompFormat;
 import servlets.dataViews.dataSource.records.AffyCompRecord;
 import servlets.dataViews.dataSource.records.AffyDetailRecord;
 import servlets.dataViews.dataSource.records.AffyExpSetRecord;
-import servlets.dataViews.dataSource.display.HtmlRecordVisitor;
 import servlets.dataViews.dataSource.QueryParameters;
 import servlets.dataViews.dataSource.display.DebugRecordVisitor;
 import servlets.dataViews.dataSource.display.DisplayParameters;
@@ -100,7 +99,7 @@ public class AffyDataView implements DataView
             }          
             public void printGeneral(PrintWriter out, Search search, String position,Map storage)
             {
-                out.println("Download data: &nbsp");
+                out.println(DescriptionManager.wrapText("download","Download data:")+" &nbsp");
                 Common.printUnknownDownloadLinks(out, hid, search.getResults().size(),dataTypes[dataType]);                               
             }            
             public void printGeneral(PrintWriter out, Search search, String position)
@@ -108,7 +107,8 @@ public class AffyDataView implements DataView
                 if(position.equals("after_stats"))
                 {
                     int nextDataType=(dataType==MAS5 ? RMA : MAS5);
-                    out.println("&nbsp&nbsp Display &nbsp ");
+                    //out.println("&nbsp&nbsp Display &nbsp ");
+                    out.println("&nbsp&nbsp "+DescriptionManager.wrapText("display","Display")  +" &nbsp ");
                     
                     if(dataType==MAS5)
                         out.println(dataTypeTitles[dataType]);

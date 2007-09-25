@@ -216,8 +216,8 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return new String[][] {
                 //experiment_set_summary_mv fields used
                 {"probe_set_key","experiment_set_key","name","up2x","down2x","up4x",
-                         "down4x","pma_on","pma_off","control_average","control_stddev",
-                         "treatment_average","treatment_stddev"},
+                         "down4x","pma_on","pma_off","average","stddev",
+                         "mfc"},
                 //experiment_group_summary_mv fields used
                 {"comparison","control_mean","treatment_mean","control_pma",
                          "treatment_pma","t_c_ratio_lg",
@@ -240,10 +240,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         return new String[][]{
             {"exp_set_key","comparison","control_desc","treatement_desc"},
-            {"probe_set_key","accessions","control_mean",
+            {"probe_set_key","control_mean",
                 "treatment_mean","control_pma","treatment_pma","t_c_ratio_lg",
-                "contrast","p_value","adj_p_value","pfp_up","pfp_down",
-                "cluster_names","acc_descriptions"}            
+                "contrast","p_value","adj_p_value","pfp_up","pfp_down" }            
         };
     }
     public String getCompCountDataViewQuery(String userName)
@@ -282,11 +281,14 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 query="SELECT DISTINCT  " +
                          " ma.model_accession_id, accessions.accession, accessions.description, " +
                          " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
+                         " pfam_unknown_tests.is_unknown as pfam_is_unknown, swp_unknown_tests.is_unknown as swp_is_unknown, "+
                          " gd.db_name "+
                 "   FROM general.accessions " +        
                 "       JOIN general.genome_databases as gd USING(genome_db_id) "+
                 "       JOIN general.to_model_accessions as ma ON(accessions.accession_id=ma.model_accession_id) " +
-                "       JOIN "+uSchema+".unknown_data ON(ma.model_accession_id=unknown_data.accession_id) " +
+                "       LEFT JOIN "+uSchema+".unknown_data ON(ma.model_accession_id=unknown_data.accession_id) " +
+                "       LEFT JOIN "+uSchema+".pfam_unknown_tests ON (ma.model_accession_id=pfam_unknown_tests.accession_id) "+
+                "       LEFT JOIN "+uSchema+".swp_unknown_tests ON (ma.model_accession_id=swp_unknown_tests.accession_id) "+
                 "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
                 "   ORDER BY "+sortCol+" "+sortDir;                
                 break;
@@ -296,11 +298,14 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 query="SELECT DISTINCT  " +
                          " ma.model_accession_id, accessions.accession, accessions.description, " +
                          " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
+                         " pfam_unknown_tests.is_unknown as pfam_is_unknown, swp_unknown_tests.is_unknown as swp_is_unknown, "+
                          " gd.db_name, pska.probe_set_key_id "+
                 "   FROM general.accessions " +        
                 "       JOIN general.genome_databases as gd USING(genome_db_id) "+
                 "       JOIN general.to_model_accessions as ma ON(accessions.accession_id=ma.model_accession_id) " +
                 "       JOIN "+uSchema+".unknown_data ON(ma.model_accession_id=unknown_data.accession_id) " +
+                "       LEFT JOIN "+uSchema+".pfam_unknown_tests ON (ma.model_accession_id=pfam_unknown_tests.accession_id) "+
+                "       LEFT JOIN "+uSchema+".swp_unknown_tests ON (ma.model_accession_id=swp_unknown_tests.accession_id) "+
                 "       JOIN general.to_sequence_accessions as sa ON(ma.accession_id=sa.accession_id) "+
                 "       LEFT JOIN affy.psk_to_accession_view as pska ON(sa.sequence_accession_id=pska.accession_id) "+                
                 "   WHERE "+Common.buildIdListCondition("pska.probe_set_key_id",ids)+
@@ -346,8 +351,8 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         if(sortCol==null)
             sortCol="source";
         String query="SELECT DISTINCT ma.model_accession_id,is_unknown,source,external_id "+
-        "   FROM "+uSchema+".external_unknowns " +
-                "JOIN general.to_model_accessions as ma ON(external_unknowns.accession_id=ma.model_accession_id)" +
+        "   FROM "+uSchema+".external_unknowns_view " +
+                "JOIN general.to_model_accessions as ma ON(external_unknowns_view.accession_id=ma.model_accession_id)" +
         "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
         "   ORDER BY "+sortCol+" "+sortDir;
 
@@ -588,7 +593,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         String query="";
         switch(keyType){
             case ACC:
-                query="SELECT DISTINCT csv.cluster_id, csv.probe_set_key_id,csv.cluster_name, csv.method_name, cs.size," +
+                query="SELECT DISTINCT csv.cluster_id, csv.probe_set_key_id,csv.cluster_name, csv.method_name,csv.method_desc, cs.size," +
                                     "csv.parent_cluster_id is not null as is_child, csv.confidence, csv.psk_key, " +
                                     "pm.accession_id,csv.cluster_method_id "+
                       "FROM   affy.cluster_summary_view as csv " +
@@ -602,7 +607,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                       " ORDER BY "+sortCol+" "+sortDir;
                 break;
             case CORR:
-                query="SELECT DISTINCT csv.cluster_id, csv.probe_set_key_id,csv.cluster_name, csv.method_name, cs.size, " +
+                query="SELECT DISTINCT csv.cluster_id, csv.probe_set_key_id,csv.cluster_name, csv.method_name,csv.method_desc, cs.size, " +
                                         "csv.parent_cluster_id is not null as is_child, csv.confidence, csv.psk_key, " +
                                         "correlation_id,csv.cluster_method_id "+
                       "FROM   affy.cluster_summary_view as csv " +
@@ -612,7 +617,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                       " ORDER BY "+sortCol+" "+sortDir;
                 break;
             case PSK:
-                query="SELECT DISTINCT csv.cluster_id, csv.probe_set_key_id,csv.cluster_name, csv.method_name, cs.size," +
+                query="SELECT DISTINCT csv.cluster_id, csv.probe_set_key_id,csv.cluster_name, csv.method_name,csv.method_desc, cs.size," +
                                         "csv.parent_cluster_id is not null as is_child,csv.confidence, csv.psk_key, " +
                                         "csv.probe_set_key_id,csv.cluster_method_id "+
                       "FROM   affy.cluster_summary_view as csv " +

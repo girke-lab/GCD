@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import org.apache.log4j.Logger;
+import servlets.DescriptionManager;
 import servlets.PageColors;
 import servlets.dataViews.dataSource.display.AbstractPatternFormat;
 import servlets.dataViews.dataSource.display.RecordPattern;
@@ -51,9 +52,18 @@ public class AffyCompFormat extends AbstractPatternFormat<AffyCompRecord>
     public void printHeader(AffyCompRecord r) throws IOException
     {
         Utilities.startTable(out);
-        out.write("<tr bgcolor='"+PageColors.title+"'><td>&nbsp</td>" +
-                            "<th>Comparision</th><th>Exper Type</th><th>Mean</th><th>PMA</th>" +
-                            "<th>Description</th></tr>");
+        String[] titles=new String[]{"Comparison","Exper Type","Mean","PMA","Description" };
+        String[] keys=new String[]{"int-comparison","exper-type","mean","pma","exper-description" };
+        
+        
+        out.write("<tr bgcolor='"+PageColors.title+"'><td>&nbsp</td>");
+        for(int i=0; i < titles.length; i++)
+            out.write("<th>"+DescriptionManager.wrapText(keys[i],titles[i])+"</th>");
+        out.write("</tr>");
+        
+        //out.write("<tr bgcolor='"+PageColors.title+"'><td>&nbsp</td>" +
+                            //"<th>Comparision</th><th>Exper Type</th><th>Mean</th><th>PMA</th>" +
+                            //"<th>Description</th></tr>");
     }
 
     public void printRecord(AffyCompRecord r) throws IOException

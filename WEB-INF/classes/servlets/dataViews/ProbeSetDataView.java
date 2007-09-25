@@ -182,7 +182,7 @@ public class ProbeSetDataView implements DataView
             {
                 String link="DispatchServlet?hid="+hid+"&script=unknownsText&range=0-"+search.getResults().size()+
                                 "&intensityType="+dataTypes[dataType];
-                out.println("Download data: &nbsp");
+                out.println(DescriptionManager.wrapText("download","Download data:")+" &nbsp");
                 out.println("&nbsp<a href='"+link+"&dataType=Comparison'>Comparisons</a>");                           
             }            
             
@@ -191,7 +191,7 @@ public class ProbeSetDataView implements DataView
                 if(position.equals("after_stats"))
                 {
                     int nextDataType=(dataType==MAS5 ? RMA : MAS5);
-                    out.println("&nbsp&nbsp Display &nbsp ");
+                    out.println("&nbsp&nbsp "+DescriptionManager.wrapText("display","Display")  +" &nbsp ");
                     
                     if(dataType==MAS5)
                         out.println(dataTypeTitles[dataType]);
