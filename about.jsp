@@ -6,6 +6,7 @@
    header.setHeaderType(servlets.beans.HeaderBean.HeaderType.GCD);
     header.printStdHeader(out,"About GCD", request.getRemoteUser()!=null);
 %>                    
+
         
         <p>	
         <table><td  width=950, align="justify">
