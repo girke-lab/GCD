@@ -11,15 +11,13 @@ import org.apache.log4j.Logger;
 import servlets.*;
 import servlets.dataViews.AffyKey;
 import servlets.dataViews.dataSource.display.PatternedRecordPrinter;
-import servlets.dataViews.dataSource.display.text.ComparisonExtFormat;
-import servlets.dataViews.dataSource.display.text.CorrelationExtFormat;
 import servlets.dataViews.dataSource.records.*;
 import servlets.dataViews.dataSource.QueryParameters;
 import servlets.dataViews.dataSource.display.DisplayParameters;
 import servlets.dataViews.dataSource.structure.RecordFactory;
-import servlets.dataViews.dataSource.display.RecordVisitor;
-import servlets.dataViews.dataSource.display.TextRecordVisitorFactory;
-import servlets.dataViews.dataSource.display.text.TextPatternFactory;
+//import servlets.dataViews.dataSource.display.RecordVisitor;
+////import servlets.dataViews.dataSource.display.TextRecordVisitorFactory;
+import servlets.dataViews.dataSource.display.text.*;
 import servlets.dataViews.dataSource.records.ProbeClusterRecord;
 import servlets.dataViews.dataSource.records.SequenceRecord;
 import servlets.dataViews.dataSource.records.UnknownRecord;
@@ -31,7 +29,7 @@ public class UnknownsTextScript implements Script
     private static Logger log=Logger.getLogger(UnknownsTextScript.class);
     private DbConnection dbc=null;
     
-    private static final int batchSize=1000;
+    private static  int batchSize=1000;
     
     private String dataType;
     private String intensityType;
@@ -112,6 +110,11 @@ public class UnknownsTextScript implements Script
             prp.addFormat(new CorrelationExtFormat());
         if(dataType.equals("Comparison"))
             prp.addFormat(new ComparisonExtFormat());
+        else if(dataType.equals("UnknownGenes"))
+        {
+            prp.addFormat(new PufFormat());
+            batchSize=350;
+        }
     }
     
     private Collection getRecords(List ids)
@@ -177,7 +180,7 @@ public class UnknownsTextScript implements Script
             f.addSubType(unknowns, ClusterRecord.getRecordInfo(),qp);       
         else if(dataType.equals("ProbeCluster"))
             f.addSubType(unknowns,ProbeClusterRecord.getRecordInfo(),qp);
-        else if(dataType.equals("ExternalUnknown"))    
+        else if(dataType.equals("ExternalUnknown") || dataType.equals("UnknownGenes"))    
             f.addSubType(unknowns, ExternalUnknownRecord.getRecordInfo(),qp);            
         else if(dataType.equals("Go"))    
             f.addSubType(unknowns, GoRecord.getRecordInfo(),qp);            
@@ -191,21 +194,21 @@ public class UnknownsTextScript implements Script
         return unknowns;
     }
     
-    @Deprecated
-    private RecordVisitor getRecordVisitor()
-    {
-        RecordVisitor rv;
-        TextRecordVisitorFactory f=TextRecordVisitorFactory.getInstance();
-        
-        if(dataType.equals("AffyComp"))
-            rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.AFFY_COMP);                
-        else if(dataType.equals("AffyDetail"))//AffyDetail
-            rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.AFFY_DETAIL);        
-        else
-            rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.GENERAL);            
-        
-        return rv;
-    }
+    //@Deprecated
+//    private RecordVisitor getRecordVisitor()
+//    {
+//        RecordVisitor rv;
+//        TextRecordVisitorFactory f=TextRecordVisitorFactory.getInstance();
+//        
+//        if(dataType.equals("AffyComp"))
+//            rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.AFFY_COMP);                
+//        else if(dataType.equals("AffyDetail"))//AffyDetail
+//            rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.AFFY_DETAIL);        
+//        else
+//            rv=f.buildVisitor(TextRecordVisitorFactory.VisitorType.GENERAL);            
+//        
+//        return rv;
+//    }
   
     private Collection getComparisonRecords(List ids)
     {

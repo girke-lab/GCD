@@ -37,7 +37,7 @@ public interface KeyTypeUser
                     PSK_EXP,    PSK_EXP_COMP,
                     GO,         PROT,
                     EXTERNAL,   PSK_EXP_COMP_CEL,
-                    PROBE_CLUST,ANY
+                    PROBE_CLUST,ANY  // the ANY type is used for a recod with no parents, so it doesn't matter what key is used
     };
     
     

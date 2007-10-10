@@ -125,4 +125,10 @@ public class Utilities
     {
         return s==null?"":s;
     }
+    public static String asUnknown(Boolean b)
+    {
+        if(b==null)
+            return "null";
+        return b?"unknown":"known";
+    }
 }

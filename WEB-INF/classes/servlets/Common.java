@@ -151,10 +151,11 @@ public class Common {
     public static void printUnknownsSearchLinks(Writer w)
     {
         PrintWriter out=new PrintWriter(w);
-        out.println("<A href='unknownsBasicSearch.jsp'>Basic Search</A>" +
-                "&nbsp&nbsp&nbsp" +
-                "<A href='unknownsSearch.jsp'>Advanced Search</A>" +
-                "&nbsp&nbsp&nbsp" +
+        out.println(
+               // "<A href='unknownsBasicSearch.jsp'>Basic Search</A>" +
+                //"&nbsp&nbsp&nbsp" +
+                //"<A href='unknownsSearch.jsp'>Advanced Search</A>" +
+                //"&nbsp&nbsp&nbsp" +
                 
                 "<A href='treatmentSearch.jsp'>Expression Search</A>" +
                 "&nbsp&nbsp&nbsp" +

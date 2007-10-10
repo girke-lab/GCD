@@ -82,4 +82,7 @@ public interface SearchQuerySet extends QuerySet
     // for ClusterCorrSearch
     public String getClusterCorrSearchQuery(int cluster_id, int psk_id, KeyTypeUser.KeyType keyType);
     
+    // for UnknownGenesSearch
+    public String getUnknownGenesSearchQuery(Collection sources, KeyTypeUser.KeyType keyType);
+    
 }

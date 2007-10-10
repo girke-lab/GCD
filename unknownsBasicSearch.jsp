@@ -14,7 +14,6 @@
 
         <% bean.initPage("unknownsBasicSearch.jsp",application,request,response); %>           
 
-       
                 
 
             <center><%  common.printUnknownsSearchLinks(out); %></center>

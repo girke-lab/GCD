@@ -230,8 +230,10 @@ public class HeaderBean
                 "                   <a href='http://faculty.ucr.edu/~tgirke/Databases.htm'><i><b><font color='#FFFFFF'>Systomics Network</font></b></i></a></td>" +
                 "               <td valign=center align=center bgColor=#6D7B8D rowspan =3 width='13%'></td>" +
                 "          </tr>" +
-                "	   <tr> <td valign=center align=center height=15 bgColor=#6D7B8D><b><i><font size=5 color='#AFDCEC'>"+title+"</font></i></b></td>" +
-                "          </tr>" +
+                "	   <tr> <td valign=center align=center height=15 bgColor=#6D7B8D>" +
+                                    //"<b><i><font size=5 color='#AFDCEC'>"+title+"</font></i></b>" +
+                                    "<b><font style='font-family: monospace', size=5, color='#000033'>"+title+"</font></b>" +
+                "          </td></tr>" +
                 "	   <tr> <td class=foot align=center bgColor=#6D7B8D>" +
                 "                   <a href='http://www.cepceb.ucr.edu/'><font color='#151B54'>CEPCEB</font></a>&nbsp;&nbsp;" +
                 "                       <font color='#151B54'>|</font>&nbsp;&nbsp;<a href='http://www.genomics.ucr.edu/'><font color='#151B54'>IIGB</font></a>&nbsp;&nbsp;" +
@@ -246,8 +248,10 @@ public class HeaderBean
             "               <a href='http://faculty.ucr.edu/~tgirke/Databases.htm'><font color='#FFFFFF'>Systomics Network</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
             "               <a href='"+urlPrefix+"index.jsp'><font color='#FFFFFF'>GCD</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
             "               <a href='http://bioinfo.ucr.edu/projects/Unknowns/external/express.html'><font color='#FFFFFF'>Expression</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
-            "               <a href='"+urlPrefix+"unknownsBasicSearch.jsp'><font color='#FFFFFF'>POND</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
+            //"               <a href='"+urlPrefix+"unknownsBasicSearch.jsp'><font color='#FFFFFF'>POND</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
+            "               <a href='http://bioweb.ucr.edu/scripts/unknownsDisplay.pl'><font color='#FFFFFF'>POND</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
             "               <a href='http://bioweb.ucr.edu/Cellwall/index.pl'><font color='#FFFFFF'>CWN</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
+            "               <a href='http://bioweb.ucr.edu/bapdb/'><font color='#FFFFFF'>BAP DB</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
             "               <a href='http://bioweb.ucr.edu/ChemMine/search.php'><font color='#FFFFFF'>ChemMine</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
             "               <a href='http://faculty.ucr.edu/~tgirke/Links.htm'><font color='#FFFFFF'>Links</font></a></td></tr>" +                
             "</tbody></table>" 
@@ -277,7 +281,8 @@ public class HeaderBean
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
             "                       <A href='index.jsp'>GCD Search</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='unknownsBasicSearch.jsp'>POND Search</a></td></tr>" +            
+            //"                       <A href='unknownsBasicSearch.jsp'>POND Search</a></td></tr>" +            
+            "                       <A href='http://bioweb.ucr.edu/scripts/unknownsDisplay.pl'>POND Search</a></td></tr>" +            
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
             "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/express.html'>Expression (PED)</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
@@ -345,7 +350,8 @@ public class HeaderBean
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
                 "                    <A href='http://bioweb.ucr.edu/scripts/plotAffyCluster.pl'>R/BioC Tools</a></td></tr>"+
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-                "                   <A href='unknownsBasicSearch.jsp'>POND Search</a></td></tr>" +
+                //"                   <A href='unknownsBasicSearch.jsp'>POND Search</a></td></tr>" +
+                "                   <A href='http://bioweb.ucr.edu/scripts/unknownsDisplay.pl'>POND Search</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
                 "                    <A href='http://bioweb.ucr.edu/bapdb'>BAP DB</a></td></tr>"+
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
@@ -428,7 +434,8 @@ public class HeaderBean
             "                       <A href='http://bioweb.ucr.edu/databaseWeb/index.jsp'>GCD Search</a></td></tr>" +
 
             "			<tr><td class=foot bgColor=#c0c0c0 nowrap><a href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioweb.ucr.edu/databaseWeb/unknownsBasicSearch.jsp'>POND Search</a></td></tr>" 
+            //"                       <A href='http://bioweb.ucr.edu/databaseWeb/unknownsBasicSearch.jsp'>POND Search</a></td></tr>" 
+            "                       <A href='http://bioweb.ucr.edu/scripts/unknownsDisplay.pl'>POND Search</a></td></tr>" 
             
         );   
                            

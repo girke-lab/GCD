@@ -281,14 +281,14 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 query="SELECT DISTINCT  " +
                          " ma.model_accession_id, accessions.accession, accessions.description, " +
                          " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
-                         " pfam_unknown_tests.is_unknown as pfam_is_unknown, swp_unknown_tests.is_unknown as swp_is_unknown, "+
+                         //" pfam_unknown_tests.is_unknown as pfam_is_unknown, swp_unknown_tests.is_unknown as swp_is_unknown, "+
                          " gd.db_name "+
                 "   FROM general.accessions " +        
                 "       JOIN general.genome_databases as gd USING(genome_db_id) "+
-                "       JOIN general.to_model_accessions as ma ON(accessions.accession_id=ma.model_accession_id) " +
+                "       JOIN general.to_model_accessions_mv as ma ON(accessions.accession_id=ma.model_accession_id) " +
                 "       LEFT JOIN "+uSchema+".unknown_data ON(ma.model_accession_id=unknown_data.accession_id) " +
-                "       LEFT JOIN "+uSchema+".pfam_unknown_tests ON (ma.model_accession_id=pfam_unknown_tests.accession_id) "+
-                "       LEFT JOIN "+uSchema+".swp_unknown_tests ON (ma.model_accession_id=swp_unknown_tests.accession_id) "+
+                //"       LEFT JOIN "+uSchema+".pfam_unknown_tests ON (ma.model_accession_id=pfam_unknown_tests.accession_id) "+
+                //"       LEFT JOIN "+uSchema+".swp_unknown_tests ON (ma.model_accession_id=swp_unknown_tests.accession_id) "+
                 "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
                 "   ORDER BY "+sortCol+" "+sortDir;                
                 break;
@@ -298,14 +298,14 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
                 query="SELECT DISTINCT  " +
                          " ma.model_accession_id, accessions.accession, accessions.description, " +
                          " unknown_data.est_count, unknown_data.mfu, unknown_data.ccu, unknown_data.bpu, " +
-                         " pfam_unknown_tests.is_unknown as pfam_is_unknown, swp_unknown_tests.is_unknown as swp_is_unknown, "+
+                         //" pfam_unknown_tests.is_unknown as pfam_is_unknown, swp_unknown_tests.is_unknown as swp_is_unknown, "+
                          " gd.db_name, pska.probe_set_key_id "+
                 "   FROM general.accessions " +        
                 "       JOIN general.genome_databases as gd USING(genome_db_id) "+
-                "       JOIN general.to_model_accessions as ma ON(accessions.accession_id=ma.model_accession_id) " +
+                "       JOIN general.to_model_accessions_mv as ma ON(accessions.accession_id=ma.model_accession_id) " +
                 "       JOIN "+uSchema+".unknown_data ON(ma.model_accession_id=unknown_data.accession_id) " +
-                "       LEFT JOIN "+uSchema+".pfam_unknown_tests ON (ma.model_accession_id=pfam_unknown_tests.accession_id) "+
-                "       LEFT JOIN "+uSchema+".swp_unknown_tests ON (ma.model_accession_id=swp_unknown_tests.accession_id) "+
+                //"       LEFT JOIN "+uSchema+".pfam_unknown_tests ON (ma.model_accession_id=pfam_unknown_tests.accession_id) "+
+                //"       LEFT JOIN "+uSchema+".swp_unknown_tests ON (ma.model_accession_id=swp_unknown_tests.accession_id) "+
                 "       JOIN general.to_sequence_accessions as sa ON(ma.accession_id=sa.accession_id) "+
                 "       LEFT JOIN affy.psk_to_accession_view as pska ON(sa.sequence_accession_id=pska.accession_id) "+                
                 "   WHERE "+Common.buildIdListCondition("pska.probe_set_key_id",ids)+
@@ -333,34 +333,76 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         return query;
     }
 
-    public String getClusterRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
+    public String getClusterRecordQuery(java.util.Collection ids, String sortCol, String sortDir, KeyType keyType)
     {
         if(sortCol==null)
             sortCol="method";
-        String query="SELECT DISTINCT ma.model_accession_id, name, size, method, cluster_id, key "+                 
-        "   FROM general.clusters_and_info " +
-                "JOIN general.to_model_accessions as ma ON(clusters_and_info.accession_id=ma.model_accession_id)" +        
-        "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
-        "   ORDER BY "+sortCol+" "+sortDir;
-        logQuery(query);
+        String query="";
+
+        switch(keyType){
+            case ANY:
+            case ACC:
+                 query="SELECT DISTINCT ma.model_accession_id, name, size, method, cluster_id, key, "+                 
+                                                                    "  arab_count, rice_count"+
+                        "   FROM general.clusters_and_info " +
+                                "JOIN general.to_model_accessions as ma ON(clusters_and_info.accession_id=ma.model_accession_id)" +        
+                        "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
+                        "   ORDER BY "+sortCol+" "+sortDir;
+                break;
+            case SEQ:
+                 query="SELECT DISTINCT ma.accession_id, name, size, method, cluster_id, key, "+                 
+                                                                    "  arab_count, rice_count"+
+                        "   FROM general.clusters_and_info " +
+                                "JOIN general.to_model_accessions as ma ON(clusters_and_info.accession_id=ma.model_accession_id)" +        
+                        "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
+                        "   ORDER BY "+sortCol+" "+sortDir;
+                break;
+            default:
+                log.error("no query defined for key type "+keyType);
+        }
+               logQuery(query);
         return query;
     }
 
-    public String getExternlUnknwownsRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
+    public String getExternlUnknwownsRecordQuery(java.util.Collection ids, String sortCol, String sortDir,KeyType keyType)
     {
         if(sortCol==null)
             sortCol="source";
-        String query="SELECT DISTINCT ma.model_accession_id,is_unknown,source,external_id "+
-        "   FROM "+uSchema+".external_unknowns_view " +
-                "JOIN general.to_model_accessions as ma ON(external_unknowns_view.accession_id=ma.model_accession_id)" +
-        "   WHERE "+Common.buildIdListCondition("ma.accession_id",ids)+
-        "   ORDER BY "+sortCol+" "+sortDir;
-
-        logQuery(query);
+        String query="";
+        log.info("keyType: "+keyType);
+        switch(keyType)
+        {
+            case SEQ:
+                query="SELECT DISTINCT sa.sequence_accession_id,is_unknown,source,external_id "+
+                            "   FROM "+uSchema+".external_unknowns_view " +
+                                    "JOIN general.to_sequence_accessions as sa USING(accession_id) "+
+                            "   WHERE "+Common.buildIdListCondition("sa.sequence_accession_id",ids)+
+                            "   ORDER BY "+sortCol+" "+sortDir;
+                break;
+            case ACC:
+            case MODEL:  
+                query="SELECT DISTINCT ma.model_accession_id,is_unknown,source,external_id "+
+                            "   FROM "+uSchema+".external_unknowns_view " +
+                                    //"JOIN general.to_model_accessions_mv as ma ON(external_unknowns_view.accession_id=ma.model_accession_id)" +
+                                    "JOIN general.to_model_accessions_mv as ma USING(accession_id) "+
+                            "   WHERE "+Common.buildIdListCondition("ma.model_accession_id",ids)+
+                            "   ORDER BY "+sortCol+" "+sortDir;
+                break;
+            case ANY:
+                query="SELECT DISTINCT  accession_id,is_unknown,source,external_id "+
+                            "   FROM "+uSchema+".external_unknowns_view " +
+                            "   WHERE "+Common.buildIdListCondition("accession_id",ids)+
+                            "   ORDER BY "+sortCol+" "+sortDir;
+                break;
+            default:
+                log.error("no query defined for keytype "+keyType);
+                break;
+        }
+            logQuery(query);
         return query;
     }
 
-    public String getGoRecordQuery(java.util.Collection ids, String sortCol, String sortDir)
+    public String getGoRecordQuery(java.util.Collection ids, String sortCol, String sortDir, KeyType keyType)
     {
         if(sortCol==null)
             sortCol="go_numbers.go_number";  
@@ -370,7 +412,9 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
 //                general.accession_gos as ag ON(seq.accession_id=ag.accession_id) JOIN general.go_numbers as gn USING(go_id) 
 //                where md.accession_id=236;
 
-        String query="SELECT DISTINCT md.accession_id, go_numbers.go_number, go_numbers.function,go_numbers.text,go_numbers.go_id " +
+        String query="SELECT DISTINCT md.accession_id, go_numbers.go_number," +
+                                                 " go_numbers.function,go_numbers.text,go_numbers.go_id, " +
+                                                 " sa.sequence_accession_id "+
                 " FROM   general.to_sequence_accessions as sa "+
                 "   JOIN general.accession_gos ON(sa.sequence_accession_id=accession_gos.accession_id) " +
                 "   JOIN general.go_numbers USING(go_id) " +
@@ -643,29 +687,56 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         
         
         switch(keyType){
+            case ANY:
             case ACC:
-                query="SELECT   a.accession_id, a.accession, a.description " +
+                query="SELECT   a.accession_id, a.accession, a.description,gd.db_name " +
                       " FROM     general.accessions as a" +
+                      "                 JOIN general.genome_databases as gd USING(genome_db_id) "+
                       " WHERE "+Common.buildIdListCondition("a.accession_id",ids)+
                       " ORDER BY "+sortCol+" "+sortDir;
                 break;
             case CORR:
-                query="SELECT   DISTINCT a.accession_id, a.accession, a.description, cv.correlation_id " +
+                query="SELECT   DISTINCT a.accession_id, a.accession, a.description, gd.db_name, cv.correlation_id " +
                       " FROM     general.accessions as a" +
+                     "             JOIN general.genome_databases as gd USING(genome_db_id) "+
                       "            JOIN affy.psk_to_accession_view as pska USING(accession_id)" +
                       "            JOIN affy.correlation_view as cv ON(pska.probe_set_key_id=cv.psk2_id) " +
                       " WHERE "+Common.buildIdListCondition("cv.correlation_id",ids)+
                       " ORDER BY "+sortCol+" "+sortDir;
                 break;
             case PSK:
-                query="SELECT   DISTINCT a.accession_id, a.accession, a.description, pska.probe_set_key_id " +
+                query="SELECT   DISTINCT a.accession_id, a.accession, a.description, gd.db_name, pska.probe_set_key_id " +
                       " FROM     general.accessions as a" +
+                     "             JOIN general.genome_databases as gd USING(genome_db_id) "+
                       "            JOIN affy.psk_to_accession_view as pska USING(accession_id)" +                      
                       " WHERE "+Common.buildIdListCondition("pska.probe_set_key_id",ids)+
                       " ORDER BY "+sortCol+" "+sortDir;
                 break;            
+            default:
+                log.error("no query defined for key type: "+keyType);
         }
         
+        return query;
+    }
+
+    public String getModelRecordQuery(Collection ids, KeyType keyType)
+    {
+        String query="";
+        switch(keyType)
+        {
+            case ACC:
+            case SEQ:
+                query="SELECT md.sequence_accession_id, md.accession_id, a.accession "+
+                            " FROM general.accessions as a "+
+                            "             JOIN common.model_data as md USING(accession_id) "+
+                            " WHERE "+Common.buildIdListCondition("md.sequence_accession_id",ids) + 
+                            " ORDER BY a.accession ";
+                break;
+            default:
+                log.error("no query defined for key type: "+keyType);
+        }
+
+        logQuery(query);
         return query;
     }
 // </editor-fold>
@@ -1283,6 +1354,53 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         a.append("]");
         return a.toString();
     }
+   
+    public String getUnknownGenesSearchQuery(Collection sources, KeyTypeUser.KeyType keyType)
+    {
+        String query="";
+        
+        switch(keyType)
+        {
+            case SEQ:
+            case ACC:
+                query="SELECT  tsa.sequence_accession_id " +
+                    "  FROM unknowns.external_unknowns_view as euv " +
+                    "            JOIN general.to_sequence_accessions as tsa USING(accession_id) "+
+                    "           JOIN general.accessions as a ON(a.accession_id=tsa.sequence_accession_id) "+
+                    "  WHERE "+Common.buildIdListCondition("euv.source",sources,true)+
+                    " GROUP BY a.accession,tsa.sequence_accession_id "+
+                    " HAVING bool_or(euv.is_unknown) "+
+                    " ORDER BY a.accession";
+                break;
+            case MODEL:
+                query="SELECT  tma.model_accession_id " +
+                    "  FROM unknowns.external_unknowns_view as euv " +
+                    "            JOIN general.to_model_accessions_mv as tma USING(accession_id) "+
+                    "           JOIN general.accessions as a ON(a.accession_id=tma.model_accession_id) "+
+                    "  WHERE "+Common.buildIdListCondition("euv.source",sources,true)+
+                    " GROUP BY a.accession, tma.model_accession_id "+
+                    " HAVING bool_or(euv.is_unknown) "+
+                    " ORDER BY a.accession";
+                break;
+            case PSK:
+                query="SELECT pska.probe_set_key_id  " +
+                    "  FROM unknowns.external_unknowns_view as euv " +
+                    "            JOIN general.to_sequence_accessions as tsa USING(accession_id) "+
+                    "            JOIN affy.probe_set_keys_to_accessions as pska ON(tsa.sequence_accession_id=pska.accession_id)  "+
+                    "           JOIN general.accessions as a ON(a.accession_id=tsa.sequence_accession_id) "+
+                    "  WHERE "+Common.buildIdListCondition("euv.source",sources,true)+
+                    " GROUP BY a.accession,pska.probe_set_key_id "+
+                    " HAVING bool_or(euv.is_unknown) "+
+                    " ORDER BY a.accession";
+                break;
+            default:
+                log.error("no query defined for key type: "+keyType);
+        }
+        
+        logQuery(query);
+        return query;
+    }
+    
     //</editor-fold>
 
    

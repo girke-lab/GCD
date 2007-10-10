@@ -14,10 +14,23 @@ package servlets.dataViews;
 import java.util.*;
 import java.io.*;
 import servlets.Common;
+import servlets.dataViews.dataSource.display.html.GcdSequenceFormat;
+import servlets.dataViews.dataSource.records.ClusterRecord;
+import servlets.dataViews.dataSource.records.GoRecord;
+import servlets.dataViews.dataSource.records.SequenceRecord;
+import servlets.dataViews.dataSource.structure.RecordFactory;
 import servlets.dataViews.queryWideViews.*; 
 import org.apache.log4j.Logger;
 import servlets.KeyTypeUser.KeyType;
 import servlets.beans.HeaderBean;
+import servlets.dataViews.dataSource.QueryParameters;
+import servlets.dataViews.dataSource.display.DisplayParameters;
+import servlets.dataViews.dataSource.display.PatternedRecordPrinter;
+import servlets.dataViews.dataSource.display.html.ExtendedClusterFormat;
+import servlets.dataViews.dataSource.display.html.HtmlPatternFactory;
+import servlets.dataViews.dataSource.records.ExternalUnknownRecord;
+import servlets.dataViews.dataSource.records.ModelRecord;
+import servlets.dataViews.dataSource.structure.Record;
 import servlets.exceptions.UnsupportedKeyTypeException;
 import servlets.querySets.*;
 
@@ -28,7 +41,8 @@ public class SeqDataView implements DataView
     KeyType keyType;
     String sortCol;
     int[] dbNums;
-    List records=null;
+    List records_old=null;
+    Collection<Record> records;
     
     private String userName; 
     private HeaderBean header=new HeaderBean();
@@ -81,7 +95,25 @@ public class SeqDataView implements DataView
     {        
         if(records==null)
             loadData();
-        printSummary(out,records);
+        //printSummary(out,records);
+
+        try{
+            DisplayParameters dp=new DisplayParameters(out);
+            dp.setHid(hid);
+
+            PatternedRecordPrinter prp=new PatternedRecordPrinter(dp);
+            prp.addFormat(new ExtendedClusterFormat());
+            prp.addFormat(new GcdSequenceFormat());
+            prp.addFormat(HtmlPatternFactory.getAllPatterns());
+
+            prp.printRecord(records);
+
+        }catch(IOException e){
+            log.error("could not print: "+e);
+        }
+
+
+
         out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");
         
     }
@@ -108,12 +140,67 @@ public class SeqDataView implements DataView
 ///////////////////////////////////////////////////////////////////////
     private void loadData()
     {
+        RecordFactory f=RecordFactory.getInstance();
+        QueryParameters qp=new QueryParameters(seq_ids);
+        qp.setUserName(userName);
+
+        records=f.getRecords(SequenceRecord.getRecordInfo(),qp);
+        f.addSubType(records, GoRecord.getRecordInfo(),qp);
+        f.addSubType(records, ModelRecord.getRecordInfo(),qp);
+        f.addSubType(records, ClusterRecord.getRecordInfo(),qp);
+        f.addSubType(records, ExternalUnknownRecord.getRecordInfo(),qp);
+
+    }
+   
+    private void loadData_old()
+    {
         if(seq_ids.size()==0)
             records=new ArrayList();
         else
             records=parseData(getData(seq_ids,sortCol,dbNums));
     }
-    private void printCounts(PrintWriter out,List records)
+
+
+    private void printCounts(PrintWriter out,Collection<Record> records)
+    {
+        // need to count the number of unique clusters
+        // for each method.
+
+        int modelCount,seqCount=records.size();
+        int blast35Count,hmmCount;
+        Map<String,Set<String>> clusterCounts=new HashMap<String,Set<String>>();
+        Set<String> set=null;
+
+        modelCount=blast35Count=hmmCount=0;
+
+        for(Record rec : records)
+        {
+            for(Record cr : rec.childGroup(ModelRecord.class))
+                modelCount++;
+            for(Record cr : rec.childGroup(ClusterRecord.class))
+            {
+                ClusterRecord clusterRec=(ClusterRecord)cr;
+                set=(Set)clusterCounts.get(clusterRec.method);
+                if(set==null)
+                {
+                    set=new HashSet();
+                    clusterCounts.put(clusterRec.method,set);
+                }
+                set.add(clusterRec.key);
+            }
+        }
+
+        if(clusterCounts.get("BLASTCLUST_35")!=null)
+            blast35Count=clusterCounts.get("BLASTCLUST_35").size();
+        
+        if(clusterCounts.get("Domain Composition")!=null)
+            hmmCount=clusterCounts.get("Domain Composition").size();
+
+        Common.printStatsTable(out,"On This Page", 
+            new String[]{"Loci","Models","Blast_35 Clusters", "HMM Clusters"},
+            new Object[]{seqCount,modelCount, blast35Count,hmmCount});          
+    }
+    private void printCounts_old(PrintWriter out,Collection<Record> records)
     { //print number of keys and models
         int modelCount=0;        
         //Collection temp=new HashSet();
@@ -250,6 +337,9 @@ public class SeqDataView implements DataView
     //  Classes 
 //////////////////////////////////////////////////////////////////////    
    
+    /*
+     *   SequenceRecord ( GoRecord, ModelRecord, ClusterRecord)
+     */
     
     class ClusterSet implements Comparable {
         public String clusterNum, size,name,arab_size,rice_size,method;

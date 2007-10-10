@@ -29,9 +29,10 @@ public class ClusterRecord extends MultiChildRecord
     public int size,cluster_id;
     public String name,method,key;
     public Integer accId;
+    public int arabCount, riceCount;
     
     private static Logger log=Logger.getLogger(ClusterRecord.class);
-    private static int reqSize=6;
+    private static int reqSize=8;
     
     
     public ClusterRecord(List values)
@@ -46,6 +47,8 @@ public class ClusterRecord extends MultiChildRecord
         method=(String)values.get(3);        
         cluster_id=Integer.parseInt((String)values.get(4));
         key=(String)values.get(5);        
+        arabCount=Integer.parseInt((String)values.get(6));        
+        riceCount=Integer.parseInt((String)values.get(7));        
     }
     public Object getPrimaryKey()
     {
@@ -88,12 +91,25 @@ public class ClusterRecord extends MultiChildRecord
             }
             public String getQuery(QueryParameters qp,KeyType keyType)
             {
-                return QuerySetProvider.getRecordQuerySet().getClusterRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
+                return QuerySetProvider.getRecordQuerySet().getClusterRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir(),keyType);
             }
             public KeyType[] getSupportedKeyTypes()
             {
-                return new KeyType[]{KeyType.ACC};
+                return new KeyType[]{KeyType.ACC,KeyType.SEQ};
             }
+             public int[] getKeyIndecies(KeyType keyType)
+             {
+                switch(keyType) {
+                    case ANY:
+                    case ACC:
+                        return new int[]{0};
+                    case SEQ:
+                        return new int[]{0};
+                    default:
+                        log.error("invalid keyType: "+keyType);
+                        return null;
+                }
+             }
            
         };
     }

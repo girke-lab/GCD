@@ -24,13 +24,13 @@ public interface RecordQuerySet extends QuerySet
     public String getBlastRecordQuery(Collection ids, String sortCol, String sortDir);
     
     // for ClusterRecord
-    public String getClusterRecordQuery(Collection ids, String sortCol, String sortDir);
+    public String getClusterRecordQuery(Collection ids, String sortCol, String sortDir,KeyType keyType);
     
     // for ExternalUnknownsRecord
-    public String getExternlUnknwownsRecordQuery(Collection ids, String sortCol, String sortDir);
+    public String getExternlUnknwownsRecordQuery(Collection ids, String sortCol, String sortDir,KeyType keyType);
     
     // for GoRecord
-    public String getGoRecordQuery(Collection ids, String sortCol, String sortDir);
+    public String getGoRecordQuery(Collection ids, String sortCol, String sortDir, KeyType keyType);
     
     // for ProteomicsRecord
     public String getProteomicsRecordQuery(Collection ids, String sortCol, String sortDir);
@@ -66,4 +66,7 @@ public interface RecordQuerySet extends QuerySet
     
     // for ProbeClusterRecord
     public String getProbeClusterRecordQuery(Collection ids, String sortCol, String sortDir,KeyType keyType);
+
+    // for ModelRecord
+    public String getModelRecordQuery(Collection ids, KeyType keyType);
 }

@@ -102,15 +102,15 @@ public class HtmlPatternFactory
                 
             out.write("</td><td>"+r.description+"</td></tr>\n");
             
-            out.write("<tr><td colspan='2'><b>PUF Profile</b>  GOMF: "+Utilities.cn(r.go_unknowns[0]));
-            out.write(" &nbsp&nbsp Pfam: "+Utilities.cn(r.pfam_is_unknown)+" &nbsp&nbsp SWP: "+Utilities.cn(r.swp_is_unknown));
-            out.write("</td></tr>");
-            /*
+            //out.write("<tr><td colspan='2'><b>PUF Profile</b>  GOMF: "+Utilities.cn(r.go_unknowns[0]));
+            //out.write(" &nbsp&nbsp Pfam: "+Utilities.cn(r.pfam_is_unknown)+" &nbsp&nbsp SWP: "+Utilities.cn(r.swp_is_unknown));
+            //////out.write("</td></tr>");
+            
             String[] names=new String[]{"mfu","ccu","bpu"};
             out.write("<tr><td colspan='2'>\n");
             for(int i=0;i<r.go_unknowns.length;i++)
                 out.write("<b>"+names[i]+"</b>: "+r.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
-             */
+             
             
             //String url="QueryPageServlet?searchType=Id&displayType=correlationView&rpp=200&inputKey="+r.key;
             //if(r.getGroupList().contains(AffyExpSetRecord.class))
@@ -396,7 +396,7 @@ public class HtmlPatternFactory
         }
         public void printRecord(ExternalUnknownRecord r) throws IOException
         {
-            out.write("<b>"+r.source+":</b> "+(r.isUnknown? "unknown" : "known")+" &nbsp&nbsp&nbsp ");
+            out.write("<b>"+r.source+":</b> "+Utilities.asUnknown(r.isUnknown)+" &nbsp&nbsp&nbsp ");
             if(utils.hasChildren(r))
                 utils.openChildCel(out,1);
         }
@@ -852,11 +852,33 @@ public class HtmlPatternFactory
         {
              if(utils.hasChildren(r))
                 utils.closeChildCel(out);
+            out.write("<tr><td bgcolor='FFFFFF' colspan='5'>&nbsp</td></tr>\n");
             utils.endTable(out);
         }        
     }
    
-    
+   class ModelRecordFormat extends AbstractPatternFormat<ModelRecord>
+   {
+        public RecordPattern getPattern()
+        {
+            return new RecordPattern(ModelRecord.class);
+        }
+        public void printHeader(ModelRecord r) throws IOException
+        {
+            utils.startTable(out);
+            out.write("<tr bgcolor='"+PageColors.title+"'><th>Key</th></tr>");
+        }
+        public void printRecord(ModelRecord r) throws IOException
+        {
+            out.write("<tr><td>"+r.key+"</td></tr>");
+        }
+        public void printFooter(ModelRecord r) throws IOException
+        {
+            if(utils.hasChildren(r))
+                utils.closeChildCel(out);
+            utils.endTable(out);
+        }
+   }
     
    
 }

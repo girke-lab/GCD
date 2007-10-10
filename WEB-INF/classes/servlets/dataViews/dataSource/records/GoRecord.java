@@ -74,7 +74,7 @@ public class GoRecord extends LeafRecord
     
     public static RecordInfo getRecordInfo()
     {
-        return new RecordInfo(new int[]{0}, 0,reqSize){
+        return new RecordInfo( 0,reqSize){
             public Record createRecord(List l)
             {
                 return new GoRecord(l);
@@ -85,11 +85,24 @@ public class GoRecord extends LeafRecord
             }
             public String getQuery(QueryParameters qp,KeyType keyType)
             {
-                return QuerySetProvider.getRecordQuerySet().getGoRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
+                return QuerySetProvider.getRecordQuerySet().getGoRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir(),keyType);
             }
             public KeyType[] getSupportedKeyTypes()
             {
-                return new KeyType[]{KeyType.ACC};
+                return new KeyType[]{KeyType.ACC,KeyType.SEQ};
+            }
+            public int[] getKeyIndecies(KeyType keyType)
+            {
+                switch(keyType){
+                    case ANY:
+                    case ACC:
+                        return new int[]{0};
+                    case SEQ:
+                        return new int[]{reqSize};
+                    default:
+                        log.error("invalide keyType: "+keyType);
+                        return null;
+                }
             }
         };
     }

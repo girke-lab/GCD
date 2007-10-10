@@ -91,11 +91,11 @@ public class ExternalUnknownRecord extends LeafRecord
             }
             public String getQuery(QueryParameters qp,KeyType keyType)
             {
-                return QuerySetProvider.getRecordQuerySet().getExternlUnknwownsRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir());
+                return QuerySetProvider.getRecordQuerySet().getExternlUnknwownsRecordQuery(qp.getIds(),qp.getSortCol(), qp.getSortDir(),keyType);
             }
             public KeyType[] getSupportedKeyTypes()
             {
-                return new KeyType[]{KeyType.ACC};
+                return new KeyType[]{KeyType.ACC, KeyType.MODEL,KeyType.SEQ};
             }
         };
     }

@@ -57,8 +57,8 @@ public class SimpleSearchBean
     }
     public void drawForm(Writer w)
     {
-        drawForm(w, new String[]{"seqView","unknowns2View"},
-                    new String[]{"GCD","POND"});
+        //drawForm(w, new String[]{"seqView","unknowns2View"}, new String[]{"GCD","POND"});
+        drawForm(w, new String[]{"seqView"}, new String[]{"GCD"});
     }
     public void drawForm(Writer w,String[] displays,String[] names)
     {

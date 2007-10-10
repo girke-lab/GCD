@@ -32,7 +32,7 @@ public class UnknownRecord extends MultiChildRecord
     public Integer estCount;
     public int key_id;
     public Boolean[] go_unknowns;
-    public Boolean swp_is_unknown, pfam_is_unknown;
+    //public Boolean swp_is_unknown, pfam_is_unknown;
     
     
 //    public int[] cluster_ids;
@@ -42,7 +42,7 @@ public class UnknownRecord extends MultiChildRecord
 //    public int probe_set_key_id;
     
     private static Logger log=Logger.getLogger(UnknownRecord.class);
-    private static int reqSize=10;
+    private static int reqSize=8;
     
     public UnknownRecord(List values)
     {
@@ -58,9 +58,9 @@ public class UnknownRecord extends MultiChildRecord
         go_unknowns[0]=getBoolean((String)values.get(4));
         go_unknowns[1]=getBoolean((String)values.get(5));
         go_unknowns[2]=getBoolean((String)values.get(6));
-        pfam_is_unknown=getBoolean((String)values.get(7));
-        swp_is_unknown=getBoolean((String)values.get(8));
-        dbName=(String)values.get(9);
+        //pfam_is_unknown=getBoolean((String)values.get(7));
+        //swp_is_unknown=getBoolean((String)values.get(8));
+        dbName=(String)values.get(7);
         
 //        if(values.get(7)!=null)
 //        {

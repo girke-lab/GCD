@@ -27,10 +27,10 @@ import servlets.querySets.QuerySetProvider;
 public class SequenceRecord extends MultiChildRecord
 {
     private static final Logger log=Logger.getLogger(SequenceRecord.class);
-    private static final int reqSize=3;
+    private static final int reqSize=4;
     
     public Integer seqId;
-    public String key,description;
+    public String key,description,genome;
     
     /** Creates a new instance of SequenceRecord */
     public SequenceRecord(List values)
@@ -41,6 +41,7 @@ public class SequenceRecord extends MultiChildRecord
          seqId=new Integer((String)values.get(0));
          key=(String)values.get(1);
          description=(String)values.get(2);
+         genome=(String)values.get(3);
     }
 
     @Deprecated
@@ -65,7 +66,7 @@ public class SequenceRecord extends MultiChildRecord
 
     public KeyTypeUser.KeyType getPrimaryKeyType()
     {
-        return KeyType.ACC;
+        return KeyType.SEQ;
     }
 
     public KeyTypeUser.KeyType[] getSupportedKeyTypes()
