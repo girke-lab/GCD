@@ -26,6 +26,10 @@
                 hostname="db2.bioinfo.ucr.edu";
             else if(newDb.equals("bioweb"))
                 hostname="bioweb.bioinfo.ucr.edu";
+            else if(newDb.equals("space1"))
+                hostname="space1.bioinfo.ucr.edu";
+            else if(newDb.equals("space2"))
+                hostname="space2.bioinfo.ucr.edu";
             else if(newDb.equals("bioweb_dev"))
             {
                 hostname="bioweb.bioinfo.ucr.edu";
@@ -64,6 +68,8 @@
             <option value='db1'>db1.bioinfo.ucr.edu</option>
             <option value='db2'>db2.bioinfo.ucr.edu</option>
             <option value='bioweb'>bioweb.bioinfo.ucr.edu</option>
+            <option value='space1'>space1.bioinfo.ucr.edu</option>
+            <option value='space2'>space2.bioinfo.ucr.edu</option>
             <option value='bioweb_dev'>bioweb.bioinfo.ucr.edu (dev)</option>
             <option value='db1_db2'>db1 and db2</option>
         </select>

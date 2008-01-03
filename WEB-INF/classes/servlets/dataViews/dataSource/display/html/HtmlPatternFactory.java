@@ -179,7 +179,7 @@ public class HtmlPatternFactory
                     "displayType=correlationView&searchType=Cluster_Corr&inputKey="+
                     r.probeClusterId+" "+r.pskId;             
             String pskPopup="onmouseover=\"return escape('"+r.method+"<br>"+r.methodDesc+"')\"";
-            String corrUrl="QueryPageServlet?searchType=Probe_Set_Key&displayType=correlationView&rpp=200&inputKey="+r.pskId;
+            String corrUrl="QueryPageServlet?searchType=Probe_Set_Key&displayType=correlationView&rpp=50&inputKey="+r.pskId;
             
             if( lastPskKey==null || !lastPskKey.equals(r.pskKey)  )
             {
@@ -262,7 +262,7 @@ public class HtmlPatternFactory
             
             String link="QueryPageServlet?displayType=affyView&" +
                     "searchType=Probe_Set_Key&limit=1&dbs=0&inputKey="+r.probeSetId; 
-            String corrLink="QueryPageServlet?rpp=200&displayType=correlationView&" +
+            String corrLink="QueryPageServlet?rpp=50&displayType=correlationView&" +
                     "searchType=Probe_Set_Key&inputKey="+r.probeSetId;
 
             out.write("<tr>");

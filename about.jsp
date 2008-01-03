@@ -112,17 +112,16 @@
                         <dl>
                                 <dd>
                                         <ol>
-                                                <li type=i>TIGR protein sequences used for family clustering</li> 
+                                                <li type=i>Protein sequences used for family clustering</li> 
                                                 <ul>
-
-                                                        <li><i>A. thaliana</i>: <a href="ftp://ftp.tigr.org/pub/data/a_thaliana/ath1/SEQUENCES">ATH1.pep</a></li>
-                                                        <li><i>O. sativa spp. japonica</i>: <a href="ftp://ftp.tigr.org/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_3.0/all_chrs/">all.pep</a></li>
+                                                        <li><i>A. thaliana</i>: <a href="ftp://ftp.arabidopsis.org/home/tair/Sequences/blast_datasets/TAIR7_blastsets">TAIR</a></li>
+                                                        <li><i>O. sativa spp. japonica</i>: <a href="ftp://ftp.tigr.org/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules">TIGR</a></li>
                                                 </ul>
-                                                        <li type=i>TIGR pseudochromosomes for feature download and viewing</li> 
+                                                        <li type=i>Chromosome annotations for feature download and viewing</li> 
                                                 <ul>
-                                                        <li><i>A. thaliana</i>: <a href="ftp://ftp.tigr.org/pub/data/a_thaliana/ath1/PSEUDOCHROMOSOMES">*.xml</a></li>
+                                                        <li><i>A. thaliana</i>: <a href="ftp://ftp.arabidopsis.org/home/tair/Sequences/whole_chromosomes">TAIR</a></li>
 
-                                                        <li><i>O. sativa spp. japonica</i>: <a href="ftp://ftp.tigr.org/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_3.0/">*.xml</a></li>
+                                                        <li><i>O. sativa spp. japonica</i>: <a href="ftp://ftp.tigr.org/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules">TIGR</a></li>
                                                 </ul>
                                                         <li type=i>Ortholog identification in other kingdoms</li> 
                                                 <ul>
