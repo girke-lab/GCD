@@ -67,6 +67,10 @@ public class BlastSearch implements Search
             loadData();
         return data;
     }
+
+    public void compress()
+    {
+    }
     
     private void loadData()
     {

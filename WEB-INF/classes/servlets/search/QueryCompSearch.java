@@ -46,6 +46,10 @@ public class QueryCompSearch implements Search
         return data;
     }
 
+    public void compress()
+    {
+    }
+
     
     public void init(java.util.List data, int limit, int[] dbID)
     {

@@ -113,7 +113,8 @@ public class QueryPageServlet extends HttpServlet
                 log.info("pruning old sessions");
                 for(int i=0;i< history.size()-Common.MAX_SESSIONS;i++)
                     //set old elments to null se we free up some memory.
-                    history.set(i, null); 
+                    //history.set(i, null); 
+                    history.remove(i);
             }
         } 
         
@@ -221,6 +222,8 @@ public class QueryPageServlet extends HttpServlet
                 page.dipslayPage(out);
             }catch(Exception e){
                 log.error("page error: "+e.getMessage(),e);
+            } finally{
+                qi.getSearch().compress();
             }
         }
                         
@@ -228,6 +231,7 @@ public class QueryPageServlet extends HttpServlet
         out.println("</html>");
 
         out.close();
+
         /////////////////////////////////  end of main  ////////////////////////////////////////////
     }
     /**

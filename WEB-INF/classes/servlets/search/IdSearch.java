@@ -26,6 +26,20 @@ public class IdSearch extends AbstractSearch
     public IdSearch() 
     {
     }
+
+    /** drop data if it contains more than 10000 elments
+     */
+    @Override
+    public void compress()
+    {
+        if(data != null && data.size() > 10000)
+        {
+            log.warn("compressing data, size: "+data.size());
+            data=null;
+        }
+    }
+
+
     void loadData()
     {
         List rs=null;

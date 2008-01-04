@@ -112,7 +112,7 @@ public class HtmlPatternFactory
                 out.write("<b>"+names[i]+"</b>: "+r.go_unknowns[i]+" &nbsp&nbsp&nbsp \n");
              
             
-            //String url="QueryPageServlet?searchType=Id&displayType=correlationView&rpp=200&inputKey="+r.key;
+            //String url="QueryPageServlet?searchType=Id&displayType=correlationView&rpp=50&inputKey="+r.key;
             //if(r.getGroupList().contains(AffyExpSetRecord.class))
                 //out.write("&nbsp&nbsp&nbsp <a href='"+url+"'><font color='red'>Correlation Data</font></a>&nbsp&nbsp");
 

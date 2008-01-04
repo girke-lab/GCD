@@ -23,6 +23,16 @@ public class ClusterCorrSearch extends AbstractSearch
     {
     }
 
+    /**
+     *  set data to null so we don't store large key sets
+     *  in the session.
+     */
+    @Override
+    public void compress()
+    {
+        data=null;
+    }
+
     void loadData()
     {
         

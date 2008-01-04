@@ -49,7 +49,12 @@ public class QuerySearch implements Search
         if(data==null)
             loadData();
         return data;        
-    } 
+    }
+
+    public void compress()
+    {
+    }
+
     public List notFound()
     {
       return new ArrayList();  

@@ -95,5 +95,13 @@ public interface Search extends java.io.Serializable, servlets.KeyTypeUser
      * @return a list of index values into the {@link getResults} list.
      */
     Collection<Integer> getBookmarkPositions();
+
+
+    /**
+     *  request Search object to drop any data 
+     * that can be re-created later. Usefull for search objects that 
+     *  store large key sets.
+     */
+    void compress();
     
 }

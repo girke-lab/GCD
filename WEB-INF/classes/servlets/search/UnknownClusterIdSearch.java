@@ -72,6 +72,11 @@ public class UnknownClusterIdSearch implements Search
     {
         return seqIdSearch.getResults();
     }
+
+    public void compress()
+    {
+    }
+
     public java.util.List notFound()
     {
         return seqIdSearch.notFound();

@@ -68,6 +68,12 @@ public abstract class AbstractSearch implements Search, java.io.Serializable
             loadData();
         return data;
     }
+
+    /** default implementation does nothing
+     */
+    public void compress()
+    {
+    }
     
     /**
      * Loads the variables input, limit, and db with the given parameters.
