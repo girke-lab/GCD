@@ -113,8 +113,8 @@ public class QueryPageServlet extends HttpServlet
                 log.info("pruning old sessions");
                 for(int i=0;i< history.size()-Common.MAX_SESSIONS;i++)
                     //set old elments to null se we free up some memory.
-                    //history.set(i, null); 
-                    history.remove(i);
+                    // dont remove the elements though, or existing hid values become invalid
+                    history.set(i, null); 
             }
         } 
         
@@ -154,6 +154,7 @@ public class QueryPageServlet extends HttpServlet
                     ((List)session.getAttribute("history")).get(hid)==null)
             {
                 Common.sendError(response,origin,"hid "+hid+" out of bounds");
+                log.error("hid "+hid+" out of bounds");
                 return;
             }
             qi=(QueryInfo)((ArrayList)session.getAttribute("history")).get(hid);                    
@@ -213,7 +214,10 @@ public class QueryPageServlet extends HttpServlet
         dv.setSortDirection((String)qi.getObject("sortDirection"));
         
         if(wasPost)
+        {
+            log.debug("sending redirect with hid "+hid);
             response.sendRedirect("QueryPageServlet?hid="+hid);
+        }
         else
         {
             Map generalStor=(Map)qi.getObject("general_storage");
