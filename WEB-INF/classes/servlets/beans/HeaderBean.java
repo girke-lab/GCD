@@ -157,6 +157,7 @@ public class HeaderBean
                 "<head>" +
                 "   <title>"+title+"</title>" +
                 "   <meta http-equiv=Content-Type content='text/html; charset=iso-8859-1'>" +
+                "   <META NAME='ROBOTS' CONTENT='INDEX, NOFOLLOW'>"+
                 "   <link rel='stylesheet' type='text/css' href='style.css'>" +
                 "</head>");
     }
