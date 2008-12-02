@@ -48,8 +48,8 @@
                         <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html'>
                         This Project is funded by the NSF 2010 grant # IOB-0420152
                         </center>
-                        </a>
-                   </td>
+                        </A>
+                   </TD>
                 </TR>
             </TABLE> 
             <P>     

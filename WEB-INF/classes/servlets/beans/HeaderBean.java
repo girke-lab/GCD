@@ -181,12 +181,14 @@ public class HeaderBean
     public void printFooter()
     {            
         
-        HitCounter.increment(); 
         
         for(int i=0;i<50;i++)
             out.println("<br>");
+
+        //printCustomCounter();
+        printStatsCounter();
+
         out.println(
-            "This site has been hit "+HitCounter.getHitCount()+" times."+
             "</td></tr></table>" +
             "<p> <p>" +
             "<table class=foot cellSpacing=0 cellPadding=1 width='100%' bgColor=#aaaaaa border=0><tbody>" +
@@ -199,7 +201,31 @@ public class HeaderBean
             "</body>" 
         );        
     }
+    private void printCustomCounter()
+    {
+        HitCounter.increment(); 
+        out.println( "This site has been hit "+HitCounter.getHitCount()+" times.");
 
+    }
+    private void printStatsCounter()
+    {
+        out.println(
+            "<!-- Start of StatCounter Code -->"+
+            "<script type='text/javascript'>"+
+            "var sc_project=4274229; "+
+            "var sc_invisible=0; "+
+            "var sc_partition=48; "+
+            "var sc_click_stat=1; "+
+            "var sc_security='5b04e840'; "+
+            "var sc_text=2; "+
+            "</script>"+
+
+            "<script type='text/javascript' src='http://www.statcounter.com/counter/counter.js'></script><noscript><div class='statcounter'><a title='hits counter' href='http://www.statcounter.com/' target='_blank'><img class='statcounter' src='http://c.statcounter.com/4274229/0/5b04e840/0/' alt='hits counter' ></a></div></noscript>"+
+            "<!-- End of StatCounter Code --><br><a href='http://my.statcounter.com/project/standard/stats.php?project_id=4274229&amp;guest=1'>View Stats</a>"
+        );
+
+
+    }
    
    
     /**
