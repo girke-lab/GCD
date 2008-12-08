@@ -98,7 +98,7 @@ public class DbConnectionManager
                 //for deployment
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5433/khoran","servlet","512256")); //connect to postgres            
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://db1.bioinfo.ucr.edu:5432/khoran","servlet","512256")); 
-                connections.put("khoran",new DbConnection("jdbc:postgresql://space2.bioinfo.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres
+                connections.put("khoran",new DbConnection("jdbc:postgresql://space1.bioinfo.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres
                 
                 //for testing
                 //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); 
