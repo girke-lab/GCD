@@ -38,7 +38,7 @@ public abstract class PageColors
      * should be the same name stored in the database. The value is a WebColor
      * object which contains the color value in hex.
      */
-    public static Map<String,WebColor> catagoryColors=new HashMap<String,WebColor>(); 
+    public static Map<String,WebColor> catagoryColors=new LinkedHashMap<String,WebColor>();
     
     static {
         catagoryColors.put("Abiotic Stress", new WebColor("D5E9F8"));        
@@ -49,6 +49,8 @@ public abstract class PageColors
         catagoryColors.put("Development", new WebColor("B3DCD2"));
         catagoryColors.put("Genotype", new WebColor("d1ccf8"));
         catagoryColors.put("Hormone Treatment", new WebColor("f8e1cb"));
+        //catagoryColors.put("Cell Type", new WebColor("8c8cff"));
+        catagoryColors.put("Cell Type", new WebColor("AAAAFF"));
     }
             
     /**
