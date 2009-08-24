@@ -23,7 +23,11 @@
     <servlet-class>servlets.LogonRouterServlet</servlet-class>
   </servlet>
   
-  <servlet-mapping>
+    <servlet>
+        <servlet-name>coordService</servlet-name>
+        <servlet-class>servlets.gwt.server.CoordServiceImpl</servlet-class>
+    </servlet>
+    <servlet-mapping>
     <servlet-name>QueryPageServlet</servlet-name>
     <url-pattern>/QueryPageServlet</url-pattern>
   </servlet-mapping>
@@ -46,21 +50,25 @@
   <servlet-mapping>
     <servlet-name>queryAdmin</servlet-name>
     <url-pattern>/as2.jsp</url-pattern>
-  </servlet-mapping>  
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>LogonRouterServlet</servlet-name>
     <url-pattern>/LogonRouterServlet</url-pattern>
   </servlet-mapping>
-  <session-config>
+    <servlet-mapping>
+        <servlet-name>coordService</servlet-name>
+        <url-pattern>/servlets.gwt.CySam/coordservice</url-pattern>
+    </servlet-mapping>
+    <session-config>
     <session-timeout>120</session-timeout>
   </session-config>
-  
+
   <error-page>
       <error-code>403</error-code>
       <location>/index.jsp</location>
   </error-page>
-  
-  
+
+
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>queryAdmin page</web-resource-name>
@@ -73,7 +81,7 @@
       <role-name>query_admin</role-name>
     </auth-constraint>
   </security-constraint>
-  
+
   <security-constraint>
     <web-resource-collection>
       <web-resource-name> logon </web-resource-name>
@@ -83,7 +91,7 @@
       <role-name>public_data</role-name>
     </auth-constraint>
   </security-constraint>
-  
+
   <login-config>
     <auth-method>FORM</auth-method>
     <form-login-config>
