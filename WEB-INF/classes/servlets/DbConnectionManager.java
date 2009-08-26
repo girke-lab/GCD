@@ -20,7 +20,39 @@ public class DbConnectionManager
     /**
      * A Map of connection names to DbConnection objects.
      */
-    private static Map<String,DbConnection> connections=null; //this is a shared object.
+
+	private static class Sync {
+		public static Map<String,DbConnection> connections=null; //this is a shared object.
+
+		static{
+			initMap();
+		}
+		private static  void initMap()
+		{
+			connections=Collections.synchronizedMap(new HashMap<String,DbConnection>());
+
+			try{
+				Class.forName("org.postgresql.Driver").newInstance();
+					//for deployment
+					//connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5433/khoran","servlet","512256")); //connect to postgres
+					//connections.put("khoran",new DbConnection("jdbc:postgresql://db1.bioinfo.ucr.edu:5432/khoran","servlet","512256"));
+					//connections.put("khoran",new DbConnection("jdbc:postgresql://space2.bioinfo.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres
+					connections.put("khoran",new DbConnection("jdbc:postgresql://keen-192-131.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres
+
+					//for testing
+					//connections.put("khoran",new DbConnection("jdbc:postgresql://space2.bioinfo.ucr.edu:5432/khoran_reload_test","servlet","512256")); //connect to postgres
+					//connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256"));
+					//connections.put("khoran",new DbConnection("jdbc:postgresql://db2.bioinfo.ucr.edu:5432/khoran","servlet","512256"));
+					//connections.put("khoran",new DbConnection("jdbc:postgresql://localhost:5432/khoran","servlet","512256")); //connect to postgres
+
+					//for home testing
+					//connections.put("khoran",new DbConnection("jdbc:postgresql://localhost:5430/khoran_loading","khoran","512_256_1024")); //connect to postgres
+			}catch(Exception e){
+				log.warn("failed to connect to khoran database: "+e.getMessage());
+			}
+		}
+
+	}
     /**
      * logger
      */
@@ -39,15 +71,13 @@ public class DbConnectionManager
      */
     public static void setConnection(String name,DbConnection dbc)
     {
-        if(connections==null)
-            initMap();
-        connections.put(name,dbc);        
+        Sync.connections.put(name,dbc);
     }
     public static boolean removeConnection(String name)
     {
-        if(connections==null || !connections.containsKey(name))
+        if(Sync.connections==null || !Sync.connections.containsKey(name))
             return false;
-        DbConnection dbc=connections.remove(name);
+        DbConnection dbc=Sync.connections.remove(name);
         if(dbc==null)
             return false;
         dbc.close();
@@ -60,9 +90,7 @@ public class DbConnectionManager
      */
     public static DbConnection getConnection(String name)
     {
-        if(connections==null)
-            initMap();
-        DbConnection dbc=connections.get(name);
+        DbConnection dbc=Sync.connections.get(name);
         if(dbc==null)
             log.error("db connection '"+name+"' not found");
         return dbc;
@@ -73,45 +101,10 @@ public class DbConnectionManager
      */
     public static Collection<String> getConnectionNames()
     {
-        if(connections==null)
-            return new ArrayList<String>(); //empty list of connections
-        return connections.keySet();
+        return Sync.connections.keySet();
     }
     /**
      * This method initializes <CODE>connections</CODE> and creates DbConnection 
      * objects for databases: common, unknowns, and khoran
      */
-    private static synchronized void initMap()
-    {
-        connections=Collections.synchronizedMap(new HashMap<String,DbConnection>());
-        
-        //add some default connections
-//        try{
-//            Class.forName("org.postgresql.Driver").newInstance();            
-//            connections.put("common",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu/khoran_loading","servlet","512256")); //connect to postgres                        
-//        }catch(Exception e){            
-//            log.warn("failed to connect to common database: "+e.getMessage());
-//        }
-
-        try{  
-            Class.forName("org.postgresql.Driver").newInstance();
-                //for deployment
-                //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5433/khoran","servlet","512256")); //connect to postgres            
-                //connections.put("khoran",new DbConnection("jdbc:postgresql://db1.bioinfo.ucr.edu:5432/khoran","servlet","512256")); 
-                //connections.put("khoran",new DbConnection("jdbc:postgresql://space2.bioinfo.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres
-                connections.put("khoran",new DbConnection("jdbc:postgresql://keen-192-131.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres
-                
-                //for testing
-                //connections.put("khoran",new DbConnection("jdbc:postgresql://space2.bioinfo.ucr.edu:5432/khoran_reload_test","servlet","512256")); //connect to postgres
-                //connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256")); 
-                //connections.put("khoran",new DbConnection("jdbc:postgresql://db2.bioinfo.ucr.edu:5432/khoran","servlet","512256")); 
-                //connections.put("khoran",new DbConnection("jdbc:postgresql://localhost:5432/khoran","servlet","512256")); //connect to postgres            
-
-                //for home testing  
-                //connections.put("khoran",new DbConnection("jdbc:postgresql://localhost:5430/khoran_loading","khoran","512_256_1024")); //connect to postgres            
-        }catch(Exception e){            
-            log.warn("failed to connect to khoran database: "+e.getMessage());
-        }
-        
-    }
-}
+   }

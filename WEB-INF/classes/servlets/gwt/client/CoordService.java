@@ -13,5 +13,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
  */
 public interface CoordService extends RemoteService
 {
-	public int[][][][] getPolygons();
+	public ExperimentAreas getPolygons(int image_id);
+	public byte[] getImage(int image_id) ;
+	public int[] getImageInfo(String experimentSetKey);
 }

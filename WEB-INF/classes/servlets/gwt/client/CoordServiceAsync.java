@@ -13,5 +13,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface CoordServiceAsync 
 {
-	public abstract void getPolygons(AsyncCallback<int[][][][]> asyncCallback);
+	public abstract void getPolygons(int image_id, AsyncCallback<ExperimentAreas> asyncCallback);
+
+	public abstract void getImage(int image_id, AsyncCallback<byte[]> asyncCallback);
+
+	public abstract void getImageInfo(java.lang.String experimentSetKey, AsyncCallback<int[]> asyncCallback);
 }

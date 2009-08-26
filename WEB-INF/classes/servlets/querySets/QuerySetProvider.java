@@ -27,6 +27,7 @@ public class QuerySetProvider
     private RecordQuerySet recordSet=null;
     private DatabaseQuerySet dbSet=null;
     private ScriptQuerySet scriptSet=null;
+	private ImageMapQuerySet imageMapSet=null;
     
     public static void setDataViewQuerySet(DataViewQuerySet dvqs)
     {        
@@ -72,6 +73,16 @@ public class QuerySetProvider
     {
         return getProvider().scriptSet;
     }
+
+	public static void setImageMapQuerySet(ImageMapQuerySet imqs)
+	{
+		getProvider().imageMapSet=imqs;
+	}
+	public static ImageMapQuerySet getImageMapQuerySet()
+	{
+		return getProvider().imageMapSet;
+	}
+
 ////////////////////////////////////////////////////////////////////////////////    
     /** Creates a new instance of QuerySetProvider */
     private QuerySetProvider()

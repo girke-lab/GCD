@@ -200,9 +200,13 @@ public class DbConnection
      */
     public List sendQuery(String q) throws SQLException
     {
-        return sendQuery(q,0,null);
-    }    
-    private List sendQuery(String q,int retryCount,SQLException origEx) throws SQLException 
+        return sendQuery(q,true);
+    }
+    public List sendQuery(String q,boolean convertToString) throws SQLException
+	{
+		return sendQuery(q,0,null,convertToString);
+	}
+    private List sendQuery(String q,int retryCount,SQLException origEx,boolean convertToString) throws SQLException
     {
         log.debug("retryCount="+retryCount);
         if(retryCount >= MAX_RETRIES)
@@ -235,7 +239,7 @@ public class DbConnection
             conn=dataSource.getConnection();
             stmt=conn.createStatement();       
             rs=stmt.executeQuery(q);                    
-            l=reformat(rs);
+            l=reformat(rs,convertToString);
         }catch(SQLException e){            
             //some how we should check for a java.net.SocketException here, and 
             //reset all the connections if we find one. 
@@ -282,7 +286,7 @@ public class DbConnection
                 log.error("could not reconnect while retrying query: "+ex);
             }
             log.debug("resending query..");
-            l=sendQuery(q,++retryCount,queryEx);
+            l=sendQuery(q,++retryCount,queryEx,convertToString);
         }
         if(log.isInfoEnabled())
             log.info(l.size()+" records in "+((System.currentTimeMillis()-startTime)/1000.0)+" seconds");
@@ -297,6 +301,10 @@ public class DbConnection
      * @return returns a List of Lists of Strings
      */
     public List sendPreparedQuery(String sql, String[] values) throws SQLException
+	{
+		return sendPreparedQuery(sql, values,true);
+	}
+    public List sendPreparedQuery(String sql, String[] values,boolean convertToString) throws SQLException
     {
         //log.info("sending query "+sql);
         Connection conn=dataSource.getConnection();
@@ -305,7 +313,7 @@ public class DbConnection
             for(int i=0;i<values.length;i++)
                 pstmt.setString(i+1, values[i]); //indexes start at 1
         ResultSet rs=pstmt.executeQuery();
-        List l=reformat(rs);
+        List l=reformat(rs,convertToString);
         conn.close();
         return l;        
     }        
@@ -316,7 +324,7 @@ public class DbConnection
      * @throws java.sql.SQLException thrown if any ResultSet operations fail
      * @return returns a List of Lists of Strings
      */
-    private List reformat(ResultSet rs) throws SQLException
+    private List reformat(ResultSet rs,boolean convertToString) throws SQLException
     {        
         if(rs==null)
             return null;
@@ -346,8 +354,12 @@ public class DbConnection
                             row.add(new String(rs.getBytes(i),"UTF-8"));
                     else if(t==Types.ARRAY)
                         row.add(rs.getArray(i));
-                    else
+					else if(t == Types.BINARY)
+						row.add(rs.getBytes(i));
+                    else if(convertToString)
                         row.add(rs.getString(i));                    
+					else 
+						row.add(rs.getObject(i));
                 }catch(java.io.UnsupportedEncodingException e){
                     log.warn("column "+i+" threw an unsopportedEncodingException");
                     row.add(null);

@@ -35,12 +35,14 @@ import com.google.gwt.widgetideas.graphics.client.ImageLoader;
 public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpHandler,MouseOverHandler
 {
 
+	final String experimentSetKey="CySam";
 
-	final Label status = new Label("init");
-	final PopupPanel popupTest = new PopupPanel(true);
-	final Panel selectionPanel = new VerticalPanel();
+	final Label status = new Label("");
+	final PopupPanel popupPanel = new PopupPanel(true);
+	Panel selectionPanel = new VerticalPanel();
 	final ListeningCanvas canvas = new ListeningCanvas(400,400);
 	final ListeningCanvas backgroundCanvas = new ListeningCanvas(400,400);
+	final Label expLabel = new Label();
 
 	boolean outlinePolys =false;
 
@@ -51,9 +53,10 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpH
 		//{ {100,100},{100,200},{200,200} }
 	//};
 
-	//boolean[] visiblePolys;
 	int litPoly=-1;
 	int[][][][] polygons=null;
+	int[] experimentIds=null;
+	int image_id=-1;
 
 	/** Creates a new instance of MainEntryPoint */
 	public CySamEntryPoint()
@@ -67,49 +70,26 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpH
 	public void onModuleLoad()
 	{
 
-
 		canvas.addMouseMoveHandler(this);
 		canvas.addMouseOverHandler(this);
 		canvas.addMouseUpHandler(this);
 
 
-
 		//String[] urls = new String[] {"http://localhost:8080/gwtTest/clan-vs-full-family-2500.png"};
-		String[] urls = new String[] {"/databaseWeb/images/Ram_SAM.png"};
+		selectionPanel = buildSelectionPanel();
 
-		ImageLoader.loadImages(urls, new ImageLoader.CallBack() {
-			public void onImagesLoaded(ImageElement[] imageElements) {
-				status.setText("images loaded");
-
-				backgroundCanvas.drawImage(imageElements[0], 0, 0,284,98);
-				redraw(canvas);
-			}
-		});
-
-		selectionPanel.add(new Label("select options"));
-		selectionPanel.add(new CheckBox("option 1"));
-		selectionPanel.add(new CheckBox("option 2"));
-		selectionPanel.add(new CheckBox("option 3"));
-		selectionPanel.add(new Button("submit"));
-
-		selectionPanel.setStylePrimaryName("selectionPanel");
-
-
-		popupTest.setWidget(selectionPanel);
+		popupPanel.setWidget(selectionPanel);
 
 
 		RootPanel.get("CySam").add(status);
-		RootPanel.get("CySam").add(new Label(" space "));
-		RootPanel.get("CySam").add(new Label(" space "));
-		RootPanel.get("CySam").add(new Label(" space "));
-		RootPanel.get("CySam").add(new Label(" space "));
-		RootPanel.get("CySam").add(new Label(" space "));
 
 		AbsolutePanel canvasPanel = new AbsolutePanel();
 		canvasPanel.add(backgroundCanvas,0,0);
 		canvasPanel.add(canvas,0,0);
 		canvasPanel.setSize("400", "400");
 		RootPanel.get("CySam").add(canvasPanel);
+
+		getPolygons();
 
 	}
 
@@ -118,68 +98,75 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpH
 		int x,y;
 		x=event.getX();
 		y=event.getY();
-		status.setText("position: "+x+", "+y);
-		boolean needRedraw=false;
 
 		if(getPolygons() == null)
 			return;
 
 		int initLitPoly = litPoly;
 		litPoly=-1;
-		for(int i=0; i < getPolygons().length; i++)
-			for(int j=0; j < getPolygons()[i].length; j++)
-				if(PolygonUtils.inpoly(getPolygons()[i][j], x, y))
-				{
-					if( ! popupTest.isShowing())
+
+		polySearch:
+			for(int i=0; i < getPolygons().length; i++)
+				for(int j=0; j < getPolygons()[i].length; j++)
+					if(PolygonUtils.inpoly(getPolygons()[i][j], x, y))
 					{
-						popupTest.show();
-						popupTest.setPopupPosition(event.getClientX(), event.getClientY());
+						litPoly=i;
+						expLabel.setText(""+experimentIds[litPoly]);
+						break polySearch; // break out of both loops
 					}
-					//needRedraw = i != litPoly;  // poly is not lit but should be
-					//needRedraw = needRedraw || visiblePolys[i] == false;
-					//visiblePolys[i]=true;
-					litPoly=i;
-				}
-				else
-				{
-					//needRedraw = i == litPoly;  // poly is lit but should not be
-					//needRedraw = needRedraw || visiblePolys[i] == true;
-					//visiblePolys[i]=false;
-				}
-		//if(needRedraw)
+
 		if( initLitPoly != litPoly)
-		{
 			redraw(canvas);
-		}
 	}
 	private void redraw(GWTCanvas canvas)
 	{
 		canvas.clear();
 
-		//if(backgroundImage[0] != null)
-			//canvas.drawImage(backgroundImage[0], 0, 0,200,200);
-
 		if(getPolygons() != null)
 			for(int i=0; i < getPolygons().length; i++)
-				//drawPoly(canvas,getPolygons()[i],visiblePolys[i]);
 				drawPoly(canvas,getPolygons()[i], i == litPoly );
-
-
 	}
+
 	int[][][][] getPolygons()
 	{
 		if(polygons == null)
 		{
-			getCoordService().getPolygons(new AsyncCallback<int[][][][]>(){
+			// first fetch the image info ( id and dimensions) for this experiment set
+			getCoordService().getImageInfo(experimentSetKey, new AsyncCallback<int[]>(){
 				public void onFailure(Throwable caught) {
-					status.setText("failed to get polygons "+caught.getLocalizedMessage());
+					status.setText("failed to get image id: "+caught);
 				}
-				public void onSuccess(int[][][][] result) {
-					// init value is false
-					//visiblePolys = new boolean[result.length];
-					polygons = result;
+				public void onSuccess(int[] info)
+				{
+					image_id= info[0];
+					final int width = info[1];
+					final int height = info[2];
+					// then we can load both the image and the polygons in parallel
+					getCoordService().getPolygons(image_id,new AsyncCallback<ExperimentAreas>(){
+						public void onFailure(Throwable caught) {
+							status.setText("failed to get polygons "+caught.getLocalizedMessage());
+						}
+						public void onSuccess(ExperimentAreas result) {
+							polygons = result.polys;
+							experimentIds = result.experimentIds;
+						}
+					});
+
+					// load image and redraw canvas when done
+					String[] urls = new String[] {"/databaseWeb/servlets.gwt.CySam/coordservice?imageId="+image_id};
+					ImageLoader.loadImages(urls, new ImageLoader.CallBack() {
+						public void onImagesLoaded(ImageElement[] imageElements) {
+
+							backgroundCanvas.drawImage(imageElements[0], 0, 0,width,height);
+							redraw(canvas);
+						}
+					});
+
 				}
+
 			});
+
+
 		}
 		// we  expect this to return null until the polygons are actually created by the async callback
 		return polygons;
@@ -211,13 +198,33 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpH
 	}
 	public void onMouseUp(MouseUpEvent event)
 	{
-		status.setText("mouse up");
+		if( ! popupPanel.isShowing() && litPoly != -1)
+		{
+			popupPanel.show();
+			popupPanel.setPopupPosition(event.getClientX(), event.getClientY());
+		}
+
 	}
 	public void onMouseOver(MouseOverEvent event)
 	{
-		status.setText("mouse is over");
 	}
 
+	Panel buildSelectionPanel()
+	{
+
+		Panel panel  = new VerticalPanel();
+		
+		panel.add(new Label("select options"));
+		panel.add(expLabel);
+		panel.add(new CheckBox("option 1"));
+		panel.add(new CheckBox("option 2"));
+		panel.add(new CheckBox("option 3"));
+		panel.add(new Button("submit"));
+
+		panel.setStylePrimaryName("selectionPanel");
+
+		return panel;
+	}
 	public static CoordServiceAsync getCoordService()
 	{
 		CoordServiceAsync service = (CoordServiceAsync) GWT.create(CoordService.class);
