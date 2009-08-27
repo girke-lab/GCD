@@ -5,6 +5,8 @@
 
 package servlets.querySets;
 
+import java.util.Collection;
+
 /**
  *
  * @author khoran
@@ -16,4 +18,8 @@ public interface ImageMapQuerySet  extends QuerySet
 	public String getPolygonCountQuery(int image_id);
 	public String getExperimentSetImageInfo(String key);
 	public String getImage(int image_id);
+	public String getComparisonQuery(Collection expIds);
+	public String getProbeSetComparisonQuery(String expSetKey,
+			String intensityType, int comparison, double maxPval,
+			double lowerRatio, double upperRatio,double maxIntensity);
 }

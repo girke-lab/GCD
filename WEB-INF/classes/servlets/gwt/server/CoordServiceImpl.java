@@ -6,21 +6,23 @@
 package servlets.gwt.server;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.sql.Array;
 import java.sql.SQLException;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.postgresql.geometric.PGpolygon;
 import servlets.DbConnection;
 import servlets.DbConnectionManager;
+import servlets.advancedSearch.NewParametersHttpRequestWrapper;
 import servlets.gwt.client.CoordService;
 import servlets.gwt.client.ExperimentAreas;
 import servlets.querySets.QuerySetProvider;
@@ -34,19 +36,20 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 {
     private static final Logger log=Logger.getLogger(CoordServiceImpl.class);
 
+	DbConnection dbc;
+
 	public CoordServiceImpl()
 	{
 		if(QuerySetProvider.getImageMapQuerySet() == null)
 			QuerySetProvider.setImageMapQuerySet(new V1ImageMapQuerySet());
+		dbc = DbConnectionManager.getConnection("khoran");
 	}
 
-	//TODO: need to include experiment_id  for each area
 	public ExperimentAreas getPolygons(int image_id)
 	{
 
 		int[][][][] polys=null;
-		int[] experimentIds=null;
-		DbConnection dbc = DbConnectionManager.getConnection("khoran");
+		int[][] experimentIds=null;
 
 		try{
 
@@ -56,7 +59,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 
 			int i=0,size;
 			polys = new int[results.size()][][][];
-			experimentIds = new int[results.size()];
+			experimentIds = new int[results.size()][];
 			for(Object o : results)  //each row has area_id,  number of components
 			{
 				List row = (List)o;
@@ -79,7 +82,6 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 
 				if(prevAreaId != null && ! prevAreaId.equals((Integer)row.get(0)))
 				{
-					experimentIds[currentArea] = (Integer)row.get(2);
 					currentArea++;
 					currentComponent=0;
 				}
@@ -93,6 +95,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 					polys[currentArea][currentComponent][j][1] = (int) pgPoly.points[j].y;
 				}
 
+				experimentIds[currentArea] = (int[])((Array)row.get(2)).getArray();
 				currentComponent++;
 				prevAreaId = (Integer)row.get(0);
 			}
@@ -103,71 +106,9 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 
 		return new ExperimentAreas(experimentIds, polys);
 	}
-	final static String stripOuterParinths(String s)
-	{
-		int l = s.length();
-		if( l  > 1 && s.charAt(0)=='(')
-		{
-			s=s.substring(1);
-			l--;
-		}
-		if( l > 1 && s.charAt(l-1)==')')
-			s=s.substring(0, l-1);
-		return s;
-	}
-	public int[][][][] getPolygons()
-	{
-
-		InputStream coordStream = CoordServiceImpl.class.getResourceAsStream("mapCoords");
-
-		BufferedReader br =null;
-		int[][][][] polys=null;
-		try{
-			br =new BufferedReader(new InputStreamReader(coordStream));
-			String line;
-			String[] polygonDefs, coordDefs;
-			List<String> lines=new LinkedList<String>();
-			while( (line = br.readLine()) != null)
-				lines.add(line);
-			polys=new int[lines.size()][][][];
-			//log.debug("num lines: "+lines.size());
-
-			int c=0;
-			for( String l : lines)
-			{
-				polygonDefs = l.split("\\s+");
-				polys[c] = new int[polygonDefs.length-1][][];
-				//log.debug("num polys: "+polygonDefs.length);
-
-				// first element is id number, ignored for now
-				for(int i=0; i < polygonDefs.length-1; i++)
-				{
-					coordDefs = polygonDefs[i+1].split(",");
-					//log.debug("c="+c+", i="+i);
-					polys[c][i]= new int[coordDefs.length/2][2];
-					for(int j=0; j < coordDefs.length/2; j++)
-					{
-						polys[c][i][j][0] = Integer.parseInt(coordDefs[j*2]);
-						polys[c][i][j][1] = Integer.parseInt(coordDefs[j*2+1]);
-					}
-				}
-				c++;
-			}
-		}catch(IOException e){
-			log.error("failed to read map coords: "+e,e);
-		}finally{
-			if(br!= null)
-				try{br.close();}catch(IOException e){}
-		}
-
-		//if(log.isDebugEnabled())
-			//log.debug(Arrays.deepToString(polys));
-		return polys;
-	}
 
 	public byte[] getImage(int image_id) 
 	{
-		DbConnection dbc = DbConnectionManager.getConnection("khoran");
 
 		try{
 			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getImage(image_id),false);
@@ -182,7 +123,6 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 
 	public int[] getImageInfo(String experimentSetKey)
 	{
-		DbConnection dbc = DbConnectionManager.getConnection("khoran");
 		try{
 			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getExperimentSetImageInfo(experimentSetKey),false);
 			if(result.size() > 0 )
@@ -198,6 +138,53 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 	}
 
 
+	public String[][] getComparableExperiments(int[] experimentIds)
+	{
+		String[][] data =null;
+		try{
+			List ids =new ArrayList(experimentIds.length);
+			for(int  value : experimentIds)
+				ids.add(value);
+			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getComparisonQuery(ids  ));
+
+			data =new String[result.size()][2];
+			int i=0;
+			for(Object o : result)
+			{
+				List row = (List)o;
+				data[i][0] = (String)row.get(0);  // comparison
+				data[i][1] = (String)row.get(1); // description
+				i++;
+			}
+		}catch(SQLException e){
+			log.error("failed to get comparable experiments: "+e,e);
+		}
+		return data;
+	}
+	public int doQuery(String expSetKey, String intensityType, int comparison, double maxPval, double lowerRatio, double upperRatio,double maxIntensity)
+	{
+
+		try{
+			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getProbeSetComparisonQuery(expSetKey, intensityType, comparison, maxPval, lowerRatio, upperRatio, maxIntensity));
+
+			HttpServletRequest req=this.getThreadLocalRequest();
+			HttpServletResponse response = this.getThreadLocalResponse();
+			ServletRequest sr =getNewRequest(req, result);
+			try
+			{
+				req.getSession().getServletContext().getRequestDispatcher("/QueryPageServlet").forward(sr, response);
+			}catch(ServletException ex) {
+				ex.printStackTrace();
+			}catch(IOException ex) {
+				ex.printStackTrace();
+			}
+
+		}catch(SQLException e){
+			log.debug("sql error: "+e,e);
+		}
+
+		return -1;
+	}
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
@@ -214,5 +201,32 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 
 
 	}
+
+    protected ServletRequest getNewRequest(HttpServletRequest request,List results)
+    { //this can be overridden by sub classes to send different parameters
+        NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(
+                    (HttpServletRequest)request,new HashMap(),false,"POST");
+
+        mRequest.getParameterMap().put("searchType","seq_id");
+        //mRequest.getParameterMap().put("limit", 100000);
+        //mRequest.getParameterMap().put("sortCol","psk_"+getFields()[state.getSortField()].dbName);
+        //mRequest.getParameterMap().put("rpp",new Integer(rpp).toString());
+
+        mRequest.getParameterMap().put("displayType","probeSetView");
+        mRequest.getParameterMap().put("origin_page","unknownsSearch.jsp");
+
+        StringBuilder inputStr=new StringBuilder();
+        List row;
+
+        for(Iterator i=results.iterator();i.hasNext();)
+        {
+            row=(List)i.next();
+            inputStr.append(row.get(0)+"_"+row.get(2)+" ");
+        }
+
+        mRequest.getParameterMap().put("inputKey",inputStr.toString());
+        return mRequest;
+    }
+
 
 }

@@ -15,14 +15,14 @@ public class ExperimentAreas implements IsSerializable
 {
 
 	public int[][][][] polys;
-	public int[] experimentIds;
+	public int[][] experimentIds;
 
 	public ExperimentAreas()
 	{
 		polys=null;
 		experimentIds=null;
 	}
-	public ExperimentAreas(int[] experimentIds, int[][][][] polys)
+	public ExperimentAreas(int[][] experimentIds, int[][][][] polys)
 	{
 		this.polys=polys;
 		this.experimentIds=experimentIds;

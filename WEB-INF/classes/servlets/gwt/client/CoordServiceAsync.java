@@ -18,4 +18,8 @@ public interface CoordServiceAsync
 	public abstract void getImage(int image_id, AsyncCallback<byte[]> asyncCallback);
 
 	public abstract void getImageInfo(java.lang.String experimentSetKey, AsyncCallback<int[]> asyncCallback);
+	public abstract void getComparableExperiments(int[] experimentIds, AsyncCallback<String[][]> asyncCallback);
+
+	public abstract void doQuery(String expSetKey, String intensityType, int comparison,
+			double maxPval, double lowerRatio, double upperRatio,double maxIntensity, AsyncCallback<Integer> asyncCallback);
 }
