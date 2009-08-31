@@ -5,6 +5,8 @@
 
 package servlets.gwt.server;
 
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -163,12 +165,15 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 	}
 	public int doQuery(String expSetKey, String intensityType, int comparison, double maxPval, double lowerRatio, double upperRatio,double maxIntensity)
 	{
+		return -1;
+	}
+	public int doQuery(HttpServletRequest req, HttpServletResponse response,
+			String expSetKey, String intensityType, int comparison, double maxPval, double lowerRatio, double upperRatio,double maxIntensity)
+	{
 
 		try{
 			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getProbeSetComparisonQuery(expSetKey, intensityType, comparison, maxPval, lowerRatio, upperRatio, maxIntensity));
 
-			HttpServletRequest req=this.getThreadLocalRequest();
-			HttpServletResponse response = this.getThreadLocalResponse();
 			ServletRequest sr =getNewRequest(req, result);
 			try
 			{
@@ -189,6 +194,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 		String imageId = req.getParameter("imageId");
+		String experimentSetKey = req.getParameter("experimentSetKey");
 
 		if(imageId != null)
 		{
@@ -197,6 +203,25 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 			OutputStream os = resp.getOutputStream();
 			os.write(getImage(image_id));
 			os.close();
+		}
+		else if(experimentSetKey != null)
+		{
+			try{
+				for(String name : new String[]{"comparison", "maxPValue", "lowerRatio","upperRatio","maxIntensity","intensityType","experimentSetKey" })
+					log.debug(name+": " +req.getParameter(name));
+
+				int comparison = Integer.parseInt(req.getParameter("comparison"));
+				double maxPValue = Double.parseDouble(req.getParameter("maxPValue"));
+				double lowerRatio = Double.parseDouble(req.getParameter("lowerRatio"));
+				double upperRatio = Double.parseDouble(req.getParameter("upperRatio"));
+				double maxIntensity = Double.parseDouble(req.getParameter("maxIntensity"));
+				String intensityType = req.getParameter("intensityType");
+
+				doQuery(req,resp, experimentSetKey,intensityType,comparison,maxPValue,lowerRatio,upperRatio,maxIntensity);
+
+			}catch(NumberFormatException e){
+				log.error(" bad entry : "+e,e);
+			}
 		}
 
 
@@ -227,6 +252,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
         mRequest.getParameterMap().put("inputKey",inputStr.toString());
         return mRequest;
     }
+
 
 
 }

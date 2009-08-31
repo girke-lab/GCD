@@ -68,6 +68,7 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 				"ORDER BY experiment_group_summary_view.comparison_id, experiment_group_summary_view.probe_set_key_id, affy.experiment_group_summary_view.probe_set_key asc " +
 				" LIMIT 100000";
 
+		query = " SELECT 7709, '267517_at', 367";
 		return query;
 	}
 }

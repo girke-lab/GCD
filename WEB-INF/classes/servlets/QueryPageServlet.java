@@ -216,7 +216,7 @@ public class QueryPageServlet extends HttpServlet
         if(wasPost)
         {
             log.debug("sending redirect with hid "+hid);
-            response.sendRedirect("QueryPageServlet?hid="+hid);
+            response.sendRedirect("/databaseWeb/QueryPageServlet?hid="+hid);
         }
         else
         {

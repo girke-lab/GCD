@@ -169,7 +169,8 @@ public class HeaderBean
         out.println(
                 
           "<body text=#333333 vLink=#666666 aLink=#ff0000 link=#333333 bgColor=#e8e8e8 " +
-                "leftMargin=0 background='resources/background.gif' " +
+                //"leftMargin=0 background='resources/background.gif' " +
+                "leftMargin=0  " +
                 "topMargin=0 marginheight='0' marginwidth='0'>      "
         );
     }

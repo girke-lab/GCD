@@ -16,16 +16,22 @@ import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.widgetideas.graphics.client.Color;
@@ -36,10 +42,13 @@ import com.google.gwt.widgetideas.graphics.client.ImageLoader;
  *
  * @author khoran
  */
-public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpHandler,MouseOverHandler, ClickHandler
+public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, 
+		MouseUpHandler,MouseOverHandler, ClickHandler, FormPanel.SubmitCompleteHandler,
+		SelectionHandler<Integer>
 {
 
 	final String experimentSetKey="CySam";
+	final String rootDivTag=experimentSetKey;
 
 	//final PopupPanel popupPanel = new PopupPanel(true);
 
@@ -56,6 +65,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpH
 	final TextBox upperRatioTB = new TextBox();
 	final TextBox  lowerRatioTB = new TextBox();
 	final Button submitButton = new Button("Submit");
+	final HTML resultPage = new HTML();
+	final TabPanel tabs =new TabPanel();
 
 	boolean outlinePolys =false;
 
@@ -97,17 +108,36 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpH
 
 		//popupPanel.setWidget(selectionPanel);
 
+		maxIntensityTB.setName("maxIntensity");
+		maxPValueTB.setName("maxPValue") ;
+		upperRatioTB.setName("upperRatio");
+		lowerRatioTB.setName("lowerRatio");
+
+
 		menuPanel = buildMenuPanel();
 		menuPanel.setVisible(false);
 
-		RootPanel.get("CySam").add(status);
+		RootPanel.get(rootDivTag).add(status);
 
 		AbsolutePanel canvasPanel = new AbsolutePanel();
 		canvasPanel.add(backgroundCanvas,0,0);
 		canvasPanel.add(canvas,0,0);
-		canvasPanel.setSize("300", "300");
-		RootPanel.get("CySam").add(canvasPanel);
-		RootPanel.get("CySam").add(menuPanel);
+		canvasPanel.setSize("300", "250");
+
+		//RootPanel.get(rootDivTag).add(canvasPanel);
+		//RootPanel.get(rootDivTag).add(menuPanel);
+		//RootPanel.get(rootDivTag).add(resultPage);
+		Panel searchPanel = new VerticalPanel();
+		searchPanel.add(canvasPanel);
+		searchPanel.add(menuPanel);
+
+		tabs.add(searchPanel,"Search");
+		tabs.add(resultPage,"Results");
+
+		tabs.selectTab(0);
+		tabs.getTabBar().setStyleName("tab-bar");
+
+		RootPanel.get(rootDivTag).add(tabs);
 
 		getPolygons();
 
@@ -232,6 +262,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpH
 	void buildSelectionPanel()
 	{
 		menuPanel.setVisible(false);
+		if(litPoly == -1 || experimentIds == null || experimentIds[litPoly] == null)
+			return;
 		getCoordService().getComparableExperiments(experimentIds[litPoly],new AsyncCallback<String[][]>(){
 			public void onFailure(Throwable caught) {
 				status.setText("failed to get experiments: "+caught);
@@ -245,7 +277,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpH
 
 				for(int i=0; i < result.length; i++)
 				{
-					comparisonRadios[i] = new RadioButton("A", result[i][1]);
+					comparisonRadios[i] = new RadioButton("comparison", result[i][1]);
 					comparisons[i] = Integer.parseInt(result[i][0]);
 
 					containerPanel.add(comparisonRadios[i]);
@@ -326,12 +358,78 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, MouseUpH
 		});
 
 	}
+	void submitQueryAsForm()
+	{
+
+		FormPanel form = new FormPanel();
+		Panel formPanel = new VerticalPanel();
+		TextBox experimentSetKeyTB = new TextBox();
+		TextBox intensityTypeTB = new TextBox();
+		TextBox comparisonTB = new TextBox();
+
+
+		for(int i=0; i < comparisonRadios.length; i++)
+			if(comparisonRadios[i].getValue())
+			{
+				//comparison = comparisons[i];
+				comparisonTB.setText(""+comparisons[i]);
+				break;
+			}
+		comparisonTB.setName("comparison");
+		formPanel.add(comparisonTB);
+
+
+		formPanel.add(maxIntensityTB);
+
+		formPanel.add(maxPValueTB);
+
+		formPanel.add(upperRatioTB);
+
+		formPanel.add(lowerRatioTB);
+
+		experimentSetKeyTB.setText(experimentSetKey);
+		experimentSetKeyTB.setName("experimentSetKey");
+		formPanel.add(experimentSetKeyTB);
+
+		intensityTypeTB.setText("mas5");
+		intensityTypeTB.setName("intensityType");
+		formPanel.add(intensityTypeTB);
+
+		form.setAction("/databaseWeb/servlets.gwt.CySam/coordservice");
+		form.setMethod(FormPanel.METHOD_GET);
+		form.setWidget(formPanel);
+		form.addSubmitCompleteHandler(this);
+
+		form.setVisible(false);
+
+		RootPanel.get(rootDivTag).add(form);
+
+		status.setText("submitting query");
+		resultPage.setHTML("");
+		form.submit();
+		menuPanel.setVisible(false);
+
+
+	}
 
 	public void onClick(ClickEvent event)
 	{
 		if(submitButton == event.getSource())
 		{
-			submitQuery();
+			//submitQuery();
+			submitQueryAsForm();
 		}
 	}
+
+	public void onSubmitComplete(SubmitCompleteEvent event)
+	{
+		resultPage.setHTML(event.getResults());
+		tabs.selectTab(1);
+		Window.Location.replace("http://www.google.com");
+	}
+
+	public void onSelection(SelectionEvent<Integer> event)
+	{
+	}
+
 }
