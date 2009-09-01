@@ -92,7 +92,7 @@ public class CorrelationsDataView implements DataView
     public void printData(java.io.PrintWriter out)
     {
         printData(out,getRecords());
-        
+        out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");
     }
 
     public void printHeader(java.io.PrintWriter out)
@@ -114,7 +114,6 @@ public class CorrelationsDataView implements DataView
     }
     public void printFooter(java.io.PrintWriter out)
     {
-        out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");        
         header.printFooter();
     }
 

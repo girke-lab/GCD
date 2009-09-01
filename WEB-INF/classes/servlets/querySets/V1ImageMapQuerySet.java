@@ -57,18 +57,21 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 
 		query = "SELECT DISTINCT ON (experiment_group_summary_view.comparison_id,experiment_group_summary_view.probe_set_key_id) " +
 						"affy.experiment_group_summary_view.probe_set_key_id,    affy.experiment_group_summary_view.probe_set_key,   experiment_group_summary_view.comparison_id " +
-				" FROM affy.experiment_set_summary_view,affy.experiment_group_summary_view " +
-				" WHERE affy.experiment_group_summary_view.probe_set_key_id = affy.experiment_set_summary_view.probe_set_key_id " +
-					"and (affy.experiment_group_summary_view.t_c_ratio_lg < "+lowerRatio+" or affy.experiment_group_summary_view.t_c_ratio_lg > "+upperRatio+") " +
+				" FROM  affy.experiment_group_summary_view "+ //,  affy.experiment_set_summary_view" +
+				" WHERE " +
+					//"affy.experiment_group_summary_view.probe_set_key_id = affy.experiment_set_summary_view.probe_set_key_id " +
+					"(affy.experiment_group_summary_view.t_c_ratio_lg < "+lowerRatio+" or affy.experiment_group_summary_view.t_c_ratio_lg > "+upperRatio+") " +
 					"and affy.experiment_group_summary_view.experiment_set_key = '"+expSetKey+"' " +
 					"and affy.experiment_group_summary_view.comparison = "+comparison+" and " +
 					"affy.experiment_group_summary_view.adj_p_value < " +maxPval+" "+
 					"and affy.experiment_group_summary_view.data_type = '"+intensityType+"' "+
-					"and affy.experiment_set_summary_view.average <  " +maxIntensity+" "+
+					//"and affy.experiment_set_summary_view.average <  " +maxIntensity+" "+
 				"ORDER BY experiment_group_summary_view.comparison_id, experiment_group_summary_view.probe_set_key_id, affy.experiment_group_summary_view.probe_set_key asc " +
 				" LIMIT 100000";
 
-		query = " SELECT 7709, '267517_at', 367";
+		query = "SELECT * FROM ("+query+") as t ORDER BY 3,2";
+
+		//query = " SELECT 7709, '267517_at', 367";
 		return query;
 	}
 }

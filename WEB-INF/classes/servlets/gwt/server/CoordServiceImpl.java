@@ -5,8 +5,6 @@
 
 package servlets.gwt.server;
 
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.postgresql.geometric.PGpolygon;
 import servlets.DbConnection;
@@ -129,7 +128,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getExperimentSetImageInfo(experimentSetKey),false);
 			if(result.size() > 0 )
 			{
-				List row = (List)result.get(0);
+				List row = (List)result.get(0); // image_id, width, height
 				return new int[] { (Integer)row.get(0), (Integer)row.get(1), (Integer)row.get(2) };
 			}
 		}catch(SQLException e){
@@ -165,30 +164,35 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 	}
 	public int doQuery(String expSetKey, String intensityType, int comparison, double maxPval, double lowerRatio, double upperRatio,double maxIntensity)
 	{
-		return -1;
+		HttpServletRequest request = this.getThreadLocalRequest();
+		HttpServletResponse response = this.getThreadLocalResponse();
+		return doQuery(request,response,expSetKey, intensityType, comparison, maxPval, lowerRatio, upperRatio, maxIntensity);
 	}
 	public int doQuery(HttpServletRequest req, HttpServletResponse response,
 			String expSetKey, String intensityType, int comparison, double maxPval, double lowerRatio, double upperRatio,double maxIntensity)
 	{
 
+		Integer hid=-1;
 		try{
 			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getProbeSetComparisonQuery(expSetKey, intensityType, comparison, maxPval, lowerRatio, upperRatio, maxIntensity));
 
 			ServletRequest sr =getNewRequest(req, result);
-			try
-			{
-				req.getSession().getServletContext().getRequestDispatcher("/QueryPageServlet").forward(sr, response);
-			}catch(ServletException ex) {
-				ex.printStackTrace();
-			}catch(IOException ex) {
-				ex.printStackTrace();
-			}
 
+			req.getSession().getServletContext().getRequestDispatcher("/QueryPageServlet").include(sr, response);
+			HttpSession session = req.getSession(false);
+			hid = (Integer)session.getAttribute("hid")-1;  // session stores the next  hid to use, but we want the one just used
+			if(hid == null)
+				hid = -1;
+
+		}catch(ServletException ex) {
+			ex.printStackTrace();
+		}catch(IOException ex) {
+			ex.printStackTrace();
 		}catch(SQLException e){
 			log.debug("sql error: "+e,e);
 		}
 
-		return -1;
+		return hid;
 	}
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -233,12 +237,14 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
                     (HttpServletRequest)request,new HashMap(),false,"POST");
 
         mRequest.getParameterMap().put("searchType","seq_id");
-        //mRequest.getParameterMap().put("limit", 100000);
-        //mRequest.getParameterMap().put("sortCol","psk_"+getFields()[state.getSortField()].dbName);
-        //mRequest.getParameterMap().put("rpp",new Integer(rpp).toString());
+        mRequest.getParameterMap().put("limit", "100000");
+        mRequest.getParameterMap().put("sortCol","psk_"+"affy.experiment_group_summary_view.probe_set_key");
+        mRequest.getParameterMap().put("rpp","25");
 
         mRequest.getParameterMap().put("displayType","probeSetView");
         mRequest.getParameterMap().put("origin_page","unknownsSearch.jsp");
+        mRequest.getParameterMap().put("printBorder","false");
+        mRequest.getParameterMap().put("noRedirect","true");
 
         StringBuilder inputStr=new StringBuilder();
         List row;

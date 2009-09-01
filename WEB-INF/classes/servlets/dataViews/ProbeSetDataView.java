@@ -143,6 +143,7 @@ public class ProbeSetDataView implements DataView
         PageColors.printColorKey(out);
         out.println("<P>");
         printData(out,getRecords());   
+        out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");
     }
 
     public void printHeader(PrintWriter out)
@@ -156,7 +157,6 @@ public class ProbeSetDataView implements DataView
 
     public void printFooter(PrintWriter out)
     {
-        out.println("<script language='JavaScript' type='text/javascript' src='wz_tooltip.js'></script>");        
         header.printFooter();
     }
 

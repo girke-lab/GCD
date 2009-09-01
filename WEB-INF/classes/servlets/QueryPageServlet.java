@@ -84,11 +84,10 @@ public class QueryPageServlet extends HttpServlet
         throws ServletException, java.io.IOException
     {
         HttpSession session = request.getSession(true);
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
-        HeaderBean header=new HeaderBean();
-        header.setHeaderType(HeaderBean.HeaderType.COMMON);
-        header.setWriter(out);
+        //HeaderBean header=new HeaderBean();
+        //header.setHeaderType(HeaderBean.HeaderType.COMMON);
+        //header.setWriter(out);
+		Boolean printBorder;
                         
         
         if(wasPost)
@@ -117,14 +116,37 @@ public class QueryPageServlet extends HttpServlet
                     history.set(i, null); 
             }
         } 
-        
+
+		// iff we ever have a request to not print the border, keep this value for the entire session
+
+
+		if(request.getParameter("printBorder") !=null)
+		{
+			printBorder = Boolean.parseBoolean(request.getParameter("printBorder"));
+			log.debug("setting new printBorder value: "+printBorder);
+			session.setAttribute("printBorder", printBorder);
+		}
+		else if ( (printBorder = (Boolean)session.getAttribute("printBorder"))==null)
+			printBorder = true;
+
+
+		//printBorder = (Boolean)session.getAttribute("printBorder");
+		//log.debug("print border (session): "+printBorder);
+		//if(printBorder == null && request.getParameter("printBorder") !=null)
+		//{
+			//printBorder = Boolean.parseBoolean(request.getParameter("printBorder"));
+			//session.setAttribute("printBorder", printBorder);
+		//}
+		//else
+			//printBorder=true;
+		log.debug("print border: "+printBorder);
+
+
         if(request.getRemoteUser()!=null)
             log.info("authenticated user: "+request.getRemoteUser());
         else
             log.info("not authenticated");
         
-        ////////////////////////// HTML headers  ////////////////////////////////////////////
-        out.println("<html>");                
         /////////////////////////// main   ////////////////////////////////////////////////////
         
         Search s=null;
@@ -138,16 +160,7 @@ public class QueryPageServlet extends HttpServlet
         String origin=request.getParameter("origin_page"); //should be the name of a jsp to send errors back to
         if(origin==null || origin.equals(""))
             origin="index.jsp";
-//        if(request.getParameter("log_off")!=null)
-//        {
-//            String referer=request.getHeader("Referer");
-//            log.info("referer="+referer); 
-//            if(referer==null || "".equals(referer))
-//                referer="index.jsp";
-//            session.invalidate();           
-//            response.sendRedirect(referer);
-//            return;
-//        }
+
         try{
             hid=Integer.parseInt(request.getParameter("hid"));           
             if(hid < 0 || hid >= ((ArrayList)session.getAttribute("history")).size() ||
@@ -162,7 +175,6 @@ public class QueryPageServlet extends HttpServlet
             qi=getStaticSettings(request);
             if(qi==null)
             {
-                //Common.quit(out,"no results found");
                 log.debug("qi was null");
                 Common.sendError(response,origin,"No results found");
                 return;
@@ -215,13 +227,21 @@ public class QueryPageServlet extends HttpServlet
         
         if(wasPost)
         {
-            log.debug("sending redirect with hid "+hid);
-            response.sendRedirect("/databaseWeb/QueryPageServlet?hid="+hid);
+			if( request.getParameter("noRedirect") == null)
+			{
+				log.debug("sending redirect with hid "+hid);
+				response.sendRedirect("/databaseWeb/QueryPageServlet?hid="+hid);
+			}
+			log.debug("hid: "+session.getAttribute("hid"));
         }
         else
         {
+			response.setContentType("text/html");
+			PrintWriter out = response.getWriter();
+			out.println("<html>");
             Map generalStor=(Map)qi.getObject("general_storage");
             ResultPage page=new ResultPage(dv, s, pos, hid, rpp,generalStor);             
+			page.setPrintBorder(printBorder);
             try{
                 page.dipslayPage(out);
             }catch(Exception e){
@@ -229,12 +249,11 @@ public class QueryPageServlet extends HttpServlet
             } finally{
                 qi.getSearch().compress();
             }
+			out.println("</html>");
+			out.close();
         }
                         
             
-        out.println("</html>");
-
-        out.close();
 
         /////////////////////////////////  end of main  ////////////////////////////////////////////
     }

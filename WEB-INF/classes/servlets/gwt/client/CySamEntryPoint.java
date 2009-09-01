@@ -12,13 +12,15 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -26,6 +28,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
@@ -44,11 +47,12 @@ import com.google.gwt.widgetideas.graphics.client.ImageLoader;
  */
 public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, 
 		MouseUpHandler,MouseOverHandler, ClickHandler, FormPanel.SubmitCompleteHandler,
-		SelectionHandler<Integer>
+		SelectionHandler<Integer>, MouseOutHandler
 {
 
 	final String experimentSetKey="CySam";
 	final String rootDivTag=experimentSetKey;
+	final double maxIntensity = 1000, maxPValue = 0.01, lowerRatio = -1, upperRatio = 1;
 
 	//final PopupPanel popupPanel = new PopupPanel(true);
 
@@ -58,6 +62,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	final ListeningCanvas backgroundCanvas = new ListeningCanvas(400,400);
 	final Label expLabel = new Label();
 	final Panel containerPanel = new VerticalPanel();
+	final AbsolutePanel canvasPanel = new AbsolutePanel();
 	Panel menuPanel;
 
 	final TextBox maxIntensityTB = new TextBox();
@@ -66,24 +71,18 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	final TextBox  lowerRatioTB = new TextBox();
 	final Button submitButton = new Button("Submit");
 	final HTML resultPage = new HTML();
-	final TabPanel tabs =new TabPanel();
+	//final TabPanel tabs =new TabPanel();
 
 	boolean outlinePolys =false;
 
 	RadioButton[] comparisonRadios;
 	int[] comparisons;
 
-	//ImageElement[] backgroundImage= new ImageElement[1];
-
-	//final int testPolys[][][]= new int[][][] {
-		//{ {1,1} , { 1,50}, {10,60}, {50,30},{30,10} },
-		//{ {100,100},{100,200},{200,200} }
-	//};
-
 	int litPoly=-1;
 	int[][][][] polygons=null;
 	int[][] experimentIds=null;
 	int image_id=-1;
+	boolean loadingPolygons=false;
 
 	/** Creates a new instance of MainEntryPoint */
 	public CySamEntryPoint()
@@ -100,18 +99,15 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		canvas.addMouseMoveHandler(this);
 		canvas.addMouseOverHandler(this);
 		canvas.addMouseUpHandler(this);
+		canvas.addMouseOutHandler(this);
 
 		submitButton.addClickHandler(this);
 
-		//String[] urls = new String[] {"http://localhost:8080/gwtTest/clan-vs-full-family-2500.png"};
-		//selectionPanel = buildSelectionPanel();
 
-		//popupPanel.setWidget(selectionPanel);
-
-		maxIntensityTB.setName("maxIntensity");
-		maxPValueTB.setName("maxPValue") ;
-		upperRatioTB.setName("upperRatio");
-		lowerRatioTB.setName("lowerRatio");
+		maxIntensityTB.setText(""+maxIntensity);
+		maxPValueTB.setText(""+maxPValue);
+		upperRatioTB.setText(""+upperRatio);
+		lowerRatioTB.setText(""+lowerRatio);
 
 
 		menuPanel = buildMenuPanel();
@@ -119,28 +115,24 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 		RootPanel.get(rootDivTag).add(status);
 
-		AbsolutePanel canvasPanel = new AbsolutePanel();
+		// make sure these two canvases overlap each other
 		canvasPanel.add(backgroundCanvas,0,0);
 		canvasPanel.add(canvas,0,0);
-		canvasPanel.setSize("300", "250");
 
-		//RootPanel.get(rootDivTag).add(canvasPanel);
-		//RootPanel.get(rootDivTag).add(menuPanel);
-		//RootPanel.get(rootDivTag).add(resultPage);
 		Panel searchPanel = new VerticalPanel();
 		searchPanel.add(canvasPanel);
 		searchPanel.add(menuPanel);
 
-		tabs.add(searchPanel,"Search");
-		tabs.add(resultPage,"Results");
+		//tabs.add(searchPanel,"Search");
+		//tabs.add(resultPage,"Results");
 
-		tabs.selectTab(0);
-		tabs.getTabBar().setStyleName("tab-bar");
+		//tabs.selectTab(0);
+		//tabs.getTabBar().setStyleName("tab-bar");
+		//RootPanel.get(rootDivTag).add(tabs);
 
-		RootPanel.get(rootDivTag).add(tabs);
+		RootPanel.get(rootDivTag).add(searchPanel);
 
 		getPolygons();
-
 	}
 
 	public void onMouseMove(MouseMoveEvent event)
@@ -168,6 +160,14 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		if( initLitPoly != litPoly)
 			redraw(canvas);
 	}
+	public void onMouseOut(MouseOutEvent event)
+	{
+		if(litPoly !=  -1) // some polygon is still lit
+		{
+			litPoly = -1;
+			redraw(canvas);
+		}
+	}
 	private void redraw(GWTCanvas canvas)
 	{
 		canvas.clear();
@@ -179,26 +179,33 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 	int[][][][] getPolygons()
 	{
-		if(polygons == null)
+		if(polygons == null &&  ! loadingPolygons)  //try to avoid loading several times, but not a problem if a few slip through
 		{
+			loadingPolygons =true;
 			// first fetch the image info ( id and dimensions) for this experiment set
 			getCoordService().getImageInfo(experimentSetKey, new AsyncCallback<int[]>(){
 				public void onFailure(Throwable caught) {
 					status.setText("failed to get image id: "+caught);
+					loadingPolygons=false;
 				}
 				public void onSuccess(int[] info)
 				{
+
 					image_id= info[0];
 					final int width = info[1];
 					final int height = info[2];
+					canvasPanel.setSize(""+width,""+(height+30));
+
 					// then we can load both the image and the polygons in parallel
 					getCoordService().getPolygons(image_id,new AsyncCallback<ExperimentAreas>(){
 						public void onFailure(Throwable caught) {
+							loadingPolygons=false;
 							status.setText("failed to get polygons "+caught.getLocalizedMessage());
 						}
 						public void onSuccess(ExperimentAreas result) {
 							polygons = result.polys;
 							experimentIds = result.experimentIds;
+							loadingPolygons=false;
 						}
 					});
 
@@ -232,7 +239,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 			canvas.setLineWidth(1);
 			canvas.setStrokeStyle(Color.GREEN);
-			canvas.setFillStyle(Color.ALPHA_RED);
+			canvas.setFillStyle(Color.ALPHA_GREY);
 
 			canvas.beginPath();
 			canvas.moveTo(poly[0][0], poly[0][1]);
@@ -353,7 +360,10 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			}
 			public void onSuccess(Integer result)
 			{
-				status.setText("query returned");
+				if(result == -1)
+					status.setText("query failed");
+				else
+					Location.assign("/databaseWeb/QueryPageServlet?hid="+result);
 			}
 		});
 
@@ -363,37 +373,20 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 		FormPanel form = new FormPanel();
 		Panel formPanel = new VerticalPanel();
-		TextBox experimentSetKeyTB = new TextBox();
-		TextBox intensityTypeTB = new TextBox();
-		TextBox comparisonTB = new TextBox();
-
 
 		for(int i=0; i < comparisonRadios.length; i++)
 			if(comparisonRadios[i].getValue())
 			{
-				//comparison = comparisons[i];
-				comparisonTB.setText(""+comparisons[i]);
+				formPanel.add(new Hidden("comparison",""+comparisons[i]));
 				break;
 			}
-		comparisonTB.setName("comparison");
-		formPanel.add(comparisonTB);
 
-
-		formPanel.add(maxIntensityTB);
-
-		formPanel.add(maxPValueTB);
-
-		formPanel.add(upperRatioTB);
-
-		formPanel.add(lowerRatioTB);
-
-		experimentSetKeyTB.setText(experimentSetKey);
-		experimentSetKeyTB.setName("experimentSetKey");
-		formPanel.add(experimentSetKeyTB);
-
-		intensityTypeTB.setText("mas5");
-		intensityTypeTB.setName("intensityType");
-		formPanel.add(intensityTypeTB);
+		formPanel.add(new Hidden("maxIntensity",maxIntensityTB.getText()));
+		formPanel.add(new Hidden("maxPValue",maxPValueTB.getText()));
+		formPanel.add(new Hidden("upperRatio",upperRatioTB.getText()));
+		formPanel.add(new Hidden("lowerRatio",lowerRatioTB.getText()));
+		formPanel.add(new Hidden("experimentSetKey",experimentSetKey));
+		formPanel.add(new Hidden("intensityType","mas5"));
 
 		form.setAction("/databaseWeb/servlets.gwt.CySam/coordservice");
 		form.setMethod(FormPanel.METHOD_GET);
@@ -409,27 +402,26 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		form.submit();
 		menuPanel.setVisible(false);
 
-
 	}
 
 	public void onClick(ClickEvent event)
 	{
 		if(submitButton == event.getSource())
 		{
-			//submitQuery();
-			submitQueryAsForm();
+			submitQuery();
+			//submitQueryAsForm();
 		}
 	}
 
 	public void onSubmitComplete(SubmitCompleteEvent event)
 	{
 		resultPage.setHTML(event.getResults());
-		tabs.selectTab(1);
-		Window.Location.replace("http://www.google.com");
+		//tabs.selectTab(1);
 	}
 
 	public void onSelection(SelectionEvent<Integer> event)
 	{
 	}
+
 
 }

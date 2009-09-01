@@ -26,6 +26,7 @@ public class ResultPage
     Search search;
     int hid,rpp,pos;    
     Map storage;
+	boolean printBorder=true; // header and footer
     
     DescriptionManager dm=DescriptionManager.getInstance();
     
@@ -48,6 +49,14 @@ public class ResultPage
         this.storage=stor;
     }
     
+	/**
+	 *  set whether to print the header and footer or not.
+	 * @param b
+	 */
+	public void setPrintBorder(boolean b)
+	{
+		printBorder=b;
+	}
     /**
      * Calls the various methods of {@link DataView} and {@link QueryWideView} to
      * print the result page.  Also prints the paging controls and the list of keys
@@ -64,7 +73,11 @@ public class ResultPage
 //            positions[i]=search.getDbStartPos(i);                        
         
         
-        dv.printHeader(out);
+		if(printBorder)
+			dv.printHeader(out);
+		else
+			out.println("<link rel='stylesheet' type='text/css' href='style.css'>");
+
         if(!dv.getQueryWideView().printAllData())
         {
             printControls(out);        
@@ -101,7 +114,9 @@ public class ResultPage
         }
 
         printMismatches(out,search.notFound());
-        dv.printFooter(out);
+
+		if(printBorder)
+			dv.printFooter(out);
     }
     
     private void printMismatches(PrintWriter out,List keys)
