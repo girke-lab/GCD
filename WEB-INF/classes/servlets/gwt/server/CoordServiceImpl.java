@@ -50,7 +50,8 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 	{
 
 		int[][][][] polys=null;
-		int[][] experimentIds=null;
+		int[] experimentIds=null;
+		String[] descriptions=null;
 
 		try{
 
@@ -60,7 +61,8 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 
 			int i=0,size;
 			polys = new int[results.size()][][][];
-			experimentIds = new int[results.size()][];
+			experimentIds = new int[results.size()];
+			descriptions = new String[results.size()];
 			for(Object o : results)  //each row has area_id,  number of components
 			{
 				List row = (List)o;
@@ -96,7 +98,9 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 					polys[currentArea][currentComponent][j][1] = (int) pgPoly.points[j].y;
 				}
 
-				experimentIds[currentArea] = (int[])((Array)row.get(2)).getArray();
+				//experimentIds[currentArea] = (int[])((Array)row.get(2)).getArray();
+				experimentIds[currentArea] = (Integer)row.get(2);
+				descriptions[currentArea] = (String)row.get(3);
 				currentComponent++;
 				prevAreaId = (Integer)row.get(0);
 			}
@@ -104,8 +108,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 			log.error("failed to fetch polygons: "+e,e);
 		}
 
-
-		return new ExperimentAreas(experimentIds, polys);
+		return new ExperimentAreas(experimentIds,descriptions, polys);
 	}
 
 	public byte[] getImage(int image_id) 
@@ -139,14 +142,14 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 	}
 
 
-	public String[][] getComparableExperiments(int[] experimentIds)
+	public String[][] getComparableExperiments(int experimentId)
 	{
 		String[][] data =null;
 		try{
-			List ids =new ArrayList(experimentIds.length);
-			for(int  value : experimentIds)
-				ids.add(value);
-			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getComparisonQuery(ids  ));
+			//List ids =new ArrayList(experimentIds.length);
+			//for(int  value : experimentIds)
+				//ids.add(value);
+			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getComparisonQuery(experimentId  ));
 
 			data =new String[result.size()][2];
 			int i=0;

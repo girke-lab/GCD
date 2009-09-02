@@ -19,7 +19,7 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 
 	public String getPolygonQuery(int image_id)
 	{
-		return "SELECT area_id, area, experiment_ids " +
+		return "SELECT area_id, area, experiment_id,description " +
 				"FROM affy_images.image_areas_view " +
 				"WHERE image_id="+image_id+
 				" ORDER by area_id";
@@ -45,11 +45,12 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 		return "SELECT image FROM affy_images.image_view " +
 				"WHERE image_id="+image_id;
 	}
-	public String getComparisonQuery(Collection expIds)
+	public String getComparisonQuery(int experiment_id)
 	{
-		return "SELECT  group_no, description "+
+		return "SELECT  group_no, comparable_experiment_description "+
 					"FROM  affy_images.comparable_experiments "+
-					"WHERE "+Common.buildIdListCondition("experiment_id", expIds);
+					"WHERE experiment_id="+experiment_id+
+					" ORDER BY comparable_experiment_description";
 	}
 	public String getProbeSetComparisonQuery(String expSetKey, String intensityType, int comparison, double maxPval, double lowerRatio, double upperRatio,double maxIntensity)
 	{

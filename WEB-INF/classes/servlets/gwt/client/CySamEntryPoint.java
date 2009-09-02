@@ -34,7 +34,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.widgetideas.graphics.client.Color;
@@ -60,10 +59,11 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	Panel selectionPanel = new VerticalPanel();
 	final ListeningCanvas canvas = new ListeningCanvas(400,400);
 	final ListeningCanvas backgroundCanvas = new ListeningCanvas(400,400);
-	final Label expLabel = new Label();
+	//final Label expLabel = new Label();
 	final Panel containerPanel = new VerticalPanel();
 	final AbsolutePanel canvasPanel = new AbsolutePanel();
 	Panel menuPanel;
+	final Label experimentName=new Label();
 
 	final TextBox maxIntensityTB = new TextBox();
 	final TextBox maxPValueTB = new TextBox();
@@ -80,7 +80,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 	int litPoly=-1;
 	int[][][][] polygons=null;
-	int[][] experimentIds=null;
+	int[] experimentIds=null;
+	String[] descriptions=null;
 	int image_id=-1;
 	boolean loadingPolygons=false;
 
@@ -153,7 +154,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 					if(PolygonUtils.inpoly(getPolygons()[i][j], x, y))
 					{
 						litPoly=i;
-						expLabel.setText(""+experimentIds[litPoly][0]);
+						//expLabel.setText(""+experimentIds[litPoly][0]);
 						break polySearch; // break out of both loops
 					}
 
@@ -175,6 +176,10 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		if(getPolygons() != null)
 			for(int i=0; i < getPolygons().length; i++)
 				drawPoly(canvas,getPolygons()[i], i == litPoly );
+		if(litPoly == -1)
+			experimentName.setText("");
+		else
+			experimentName.setText( descriptions[litPoly]); //     comparisonRadios[litPoly].getText());
 	}
 
 	int[][][][] getPolygons()
@@ -195,6 +200,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 					final int width = info[1];
 					final int height = info[2];
 					canvasPanel.setSize(""+width,""+(height+30));
+					canvasPanel.add(experimentName,width/2,height+10);
 
 					// then we can load both the image and the polygons in parallel
 					getCoordService().getPolygons(image_id,new AsyncCallback<ExperimentAreas>(){
@@ -205,6 +211,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 						public void onSuccess(ExperimentAreas result) {
 							polygons = result.polys;
 							experimentIds = result.experimentIds;
+							descriptions = result.descriptions;
 							loadingPolygons=false;
 						}
 					});
@@ -269,7 +276,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	void buildSelectionPanel()
 	{
 		menuPanel.setVisible(false);
-		if(litPoly == -1 || experimentIds == null || experimentIds[litPoly] == null)
+		if(litPoly == -1 || experimentIds == null )
 			return;
 		getCoordService().getComparableExperiments(experimentIds[litPoly],new AsyncCallback<String[][]>(){
 			public void onFailure(Throwable caught) {
@@ -298,24 +305,27 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	}
 	Panel buildMenuPanel()
 	{
-		Panel panel = new VerticalPanel();
+		VerticalPanel panel = new VerticalPanel();
 		panel.add(new Label("Compare to:"));
 		panel.add(containerPanel);
 
-		Panel h =new HorizontalPanel();
+		HorizontalPanel h =new HorizontalPanel();
+		h.setSpacing(2);
 		h.add(new Label("Max Intensity: "));
 		h.add(maxIntensityTB);
 		panel.add(h);
 
 		h=new HorizontalPanel();
-		h.add(new Label("Max P-Value: "));
+		h.setSpacing(2);
+		h.add(new Label("Max P-Value:    "));
 		h.add(maxPValueTB);
 		panel.add(h);
 
 		h=new HorizontalPanel();
-		h.add(new Label("Change ratio less than "));
+		h.setSpacing(2);
+		h.add(new Label("Change ratio less than   "));
 		h.add(lowerRatioTB);
-		h.add(new Label(" or greater than "));
+		h.add(new Label("   or greater than    "));
 		h.add(upperRatioTB);
 		panel.add(h);
 
