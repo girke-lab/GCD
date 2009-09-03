@@ -20,6 +20,8 @@ public interface CoordServiceAsync
 	public abstract void getImageInfo(java.lang.String experimentSetKey, AsyncCallback<int[]> asyncCallback);
 	public abstract void getComparableExperiments(int experimentId, AsyncCallback<String[][]> asyncCallback);
 
-	public abstract void doQuery(String expSetKey, String intensityType, int comparison,
-			double maxPval, double lowerRatio, double upperRatio,double maxIntensity, AsyncCallback<Integer> asyncCallback);
+	public abstract void doRatioQuery(String expSetKey, String intensityType, int comparison,
+			double maxPval, double lowerRatio, double upperRatio, AsyncCallback<Integer> asyncCallback);
+	public abstract void doIntensityQuery(String expSetKey, String intensityType, int comparison,
+			double minIntensity, AsyncCallback<Integer> asyncCallback);
 }

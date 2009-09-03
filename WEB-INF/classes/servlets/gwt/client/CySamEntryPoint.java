@@ -25,6 +25,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.HTML;
@@ -53,25 +54,26 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	final String rootDivTag=experimentSetKey;
 	final double maxIntensity = 1000, maxPValue = 0.01, lowerRatio = -1, upperRatio = 1;
 
-	//final PopupPanel popupPanel = new PopupPanel(true);
 
 	final Label status = new Label("");
 	Panel selectionPanel = new VerticalPanel();
 	final ListeningCanvas canvas = new ListeningCanvas(400,400);
 	final ListeningCanvas backgroundCanvas = new ListeningCanvas(400,400);
-	//final Label expLabel = new Label();
 	final Panel containerPanel = new VerticalPanel();
 	final AbsolutePanel canvasPanel = new AbsolutePanel();
 	Panel menuPanel;
 	final Label experimentName=new Label();
+	final Label compareToLabel=new Label();
 
 	final TextBox maxIntensityTB = new TextBox();
 	final TextBox maxPValueTB = new TextBox();
 	final TextBox upperRatioTB = new TextBox();
 	final TextBox  lowerRatioTB = new TextBox();
-	final Button submitButton = new Button("Submit");
+	final Button submitRatioSearchButton = new Button("Submit");
+	final Button submitIntensitySearchButton = new Button("Submit");
 	final HTML resultPage = new HTML();
-	//final TabPanel tabs =new TabPanel();
+	final CheckBox lowerRatioCB=new CheckBox("less than");
+	final CheckBox upperRatioCB=new CheckBox("greater than");
 
 	boolean outlinePolys =false;
 
@@ -102,8 +104,11 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		canvas.addMouseUpHandler(this);
 		canvas.addMouseOutHandler(this);
 
-		submitButton.addClickHandler(this);
+		submitRatioSearchButton.addClickHandler(this);
+		submitIntensitySearchButton.addClickHandler(this);
 
+		lowerRatioCB.addClickHandler(this);
+		upperRatioCB.addClickHandler(this);
 
 		maxIntensityTB.setText(""+maxIntensity);
 		maxPValueTB.setText(""+maxPValue);
@@ -275,9 +280,10 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 	void buildSelectionPanel()
 	{
-		menuPanel.setVisible(false);
+		//menuPanel.setVisible(false);
 		if(litPoly == -1 || experimentIds == null )
 			return;
+		compareToLabel.setText(descriptions[litPoly]);
 		getCoordService().getComparableExperiments(experimentIds[litPoly],new AsyncCallback<String[][]>(){
 			public void onFailure(Throwable caught) {
 				status.setText("failed to get experiments: "+caught);
@@ -305,15 +311,34 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	}
 	Panel buildMenuPanel()
 	{
+		lowerRatioCB.setValue(true);
+		upperRatioCB.setValue(false);
+
+		lowerRatioTB.setEnabled(lowerRatioCB.getValue());
+		upperRatioTB.setEnabled(upperRatioCB.getValue());
+
 		VerticalPanel panel = new VerticalPanel();
-		panel.add(new Label("Compare to:"));
-		panel.add(containerPanel);
 
 		HorizontalPanel h =new HorizontalPanel();
 		h.setSpacing(2);
-		h.add(new Label("Max Intensity: "));
+		h.add(new Label("Compare "));
+		h.add(compareToLabel);
+		h.add(new Label(" to: "));
+		panel.add(h);
+
+		panel.add(containerPanel);
+
+		panel.add(new HTML("<hr>"));
+
+		 h =new HorizontalPanel();
+		h.setSpacing(2);
+		h.add(new Label("Min Intensity: "));
 		h.add(maxIntensityTB);
 		panel.add(h);
+
+		panel.add(submitIntensitySearchButton);
+
+		panel.add(new HTML("<hr>"));
 
 		h=new HorizontalPanel();
 		h.setSpacing(2);
@@ -321,15 +346,23 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		h.add(maxPValueTB);
 		panel.add(h);
 
+		panel.add(new Label("Change ratio: "));
+
 		h=new HorizontalPanel();
 		h.setSpacing(2);
-		h.add(new Label("Change ratio less than   "));
+		h.add(lowerRatioCB);
 		h.add(lowerRatioTB);
-		h.add(new Label("   or greater than    "));
+		panel.add(h);
+
+		panel.add(new Label("or"));
+
+		h=new HorizontalPanel();
+		h.setSpacing(2);
+		h.add(upperRatioCB);
 		h.add(upperRatioTB);
 		panel.add(h);
 
-		panel.add(submitButton);
+		panel.add(submitRatioSearchButton);
 
 		panel.setStylePrimaryName("selectionPanel");
 
@@ -343,26 +376,24 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		endpoint.setServiceEntryPoint(moduleRelativeURL);
 		return service;
 	}
-	void submitQuery()
+	int getSelectedComparison()
 	{
-		int comparison=-1;
-		double maxIntensity, maxPValue, upperRatio, lowerRatio;
-
 		for(int i=0; i < comparisonRadios.length; i++)
 			if(comparisonRadios[i].getValue())
-			{
-				comparison = comparisons[i];
-				break;
-			}
+				return comparisons[i];
+		return -1;
+	}
+	void submitIntensityQuery()
+	{
+		int comparison=getSelectedComparison();
+		double maxIntensity;
+
 		maxIntensity = Double.parseDouble(maxIntensityTB.getText());
-		maxPValue = Double.parseDouble(maxPValueTB.getText());
-		upperRatio= Double.parseDouble(upperRatioTB.getText());
-		lowerRatio = Double.parseDouble(lowerRatioTB.getText());
 
 		status.setText("submitting query, comparison="+comparison);
 
 
-		getCoordService().doQuery(experimentSetKey, "mas5",comparison,maxPValue,lowerRatio,upperRatio,
+		getCoordService().doIntensityQuery(experimentSetKey, "mas5",comparison,
 				maxIntensity,new AsyncCallback<Integer>(){
 
 			public void onFailure(Throwable caught) {
@@ -376,6 +407,34 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 					Location.assign("/databaseWeb/QueryPageServlet?hid="+result);
 			}
 		});
+
+	}
+	void submitRatioQuery()
+	{
+		int comparison=getSelectedComparison();
+		double  maxPValue, upperRatio, lowerRatio;
+
+		maxPValue = Double.parseDouble(maxPValueTB.getText());
+		upperRatio= upperRatioCB.getValue() ? Double.parseDouble(upperRatioTB.getText())  : Double.POSITIVE_INFINITY;
+		lowerRatio = lowerRatioCB.getValue() ? Double.parseDouble(lowerRatioTB.getText()) : Double.NEGATIVE_INFINITY;
+
+		status.setText("submitting query, comparison="+comparison);
+
+		getCoordService().doRatioQuery(experimentSetKey, "mas5",comparison,maxPValue,lowerRatio,upperRatio,
+				new AsyncCallback<Integer>(){
+
+			public void onFailure(Throwable caught) {
+				status.setText("query failed: "+caught);
+			}
+			public void onSuccess(Integer result)
+			{
+				if(result == -1)
+					status.setText("query failed");
+				else
+					Location.assign("/databaseWeb/QueryPageServlet?hid="+result);
+			}
+		});
+
 
 	}
 	void submitQueryAsForm()
@@ -416,11 +475,19 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 	public void onClick(ClickEvent event)
 	{
-		if(submitButton == event.getSource())
+		if(submitRatioSearchButton == event.getSource())
 		{
-			submitQuery();
+			submitRatioQuery();
 			//submitQueryAsForm();
 		}
+		else if(submitIntensitySearchButton == event.getSource())
+		{
+			submitIntensityQuery();
+		}
+		else if(lowerRatioCB == event.getSource())
+			lowerRatioTB.setEnabled(lowerRatioCB.getValue());
+		else if(upperRatioCB == event.getSource())
+			upperRatioTB.setEnabled(upperRatioCB.getValue());
 	}
 
 	public void onSubmitComplete(SubmitCompleteEvent event)

@@ -165,22 +165,35 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 		}
 		return data;
 	}
-	public int doQuery(String expSetKey, String intensityType, int comparison, double maxPval, double lowerRatio, double upperRatio,double maxIntensity)
+	public int doIntensityQuery(String expSetKey, String intensityType, int comparison,double minIntensity)
 	{
-		HttpServletRequest request = this.getThreadLocalRequest();
-		HttpServletResponse response = this.getThreadLocalResponse();
-		return doQuery(request,response,expSetKey, intensityType, comparison, maxPval, lowerRatio, upperRatio, maxIntensity);
+		return doQuery( QuerySetProvider.getImageMapQuerySet().
+					getIntensityComparisonQuery(expSetKey, intensityType, comparison, minIntensity) );
 	}
-	public int doQuery(HttpServletRequest req, HttpServletResponse response,
-			String expSetKey, String intensityType, int comparison, double maxPval, double lowerRatio, double upperRatio,double maxIntensity)
+	public int doRatioQuery(String expSetKey, String intensityType, int comparison, double maxPval,
+			double lowerRatio, double upperRatio)
+	{
+		return doQuery( QuerySetProvider.getImageMapQuerySet().
+					getRatioComparisonQuery(expSetKey, intensityType, comparison, maxPval, lowerRatio, upperRatio) );
+	}
+
+	int doQuery(String query)
+	{
+
+		HttpServletRequest req = this.getThreadLocalRequest();
+		HttpServletResponse response = this.getThreadLocalResponse();
+		return doQuery(query, req, response);
+	}
+	int doQuery(String query,HttpServletRequest req, HttpServletResponse response)
 	{
 
 		Integer hid=-1;
 		try{
-			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getProbeSetComparisonQuery(expSetKey, intensityType, comparison, maxPval, lowerRatio, upperRatio, maxIntensity));
+			List result = dbc.sendQuery(query);
 
 			ServletRequest sr =getNewRequest(req, result);
 
+			// TODO: need to check for errors with this request
 			req.getSession().getServletContext().getRequestDispatcher("/QueryPageServlet").include(sr, response);
 			HttpSession session = req.getSession(false);
 			hid = (Integer)session.getAttribute("hid")-1;  // session stores the next  hid to use, but we want the one just used
@@ -224,7 +237,10 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 				double maxIntensity = Double.parseDouble(req.getParameter("maxIntensity"));
 				String intensityType = req.getParameter("intensityType");
 
-				doQuery(req,resp, experimentSetKey,intensityType,comparison,maxPValue,lowerRatio,upperRatio,maxIntensity);
+				doQuery( QuerySetProvider.getImageMapQuerySet().
+					getRatioComparisonQuery(experimentSetKey, intensityType, comparison, maxPValue, lowerRatio, upperRatio),
+					req, resp);
+				//doQuery(req,resp, experimentSetKey,intensityType,comparison,maxPValue,lowerRatio,upperRatio,maxIntensity);
 
 			}catch(NumberFormatException e){
 				log.error(" bad entry : "+e,e);

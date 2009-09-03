@@ -52,21 +52,30 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 					"WHERE experiment_id="+experiment_id+
 					" ORDER BY comparable_experiment_description";
 	}
-	public String getProbeSetComparisonQuery(String expSetKey, String intensityType, int comparison, double maxPval, double lowerRatio, double upperRatio,double maxIntensity)
+
+	public String getIntensityComparisonQuery(String expSetKey, String intensityType, int comparison, double minIntensity)
+	{
+		return "";
+	}
+	public String getRatioComparisonQuery(String expSetKey, String intensityType, int comparison,
+			double maxPval, double lowerRatio, double upperRatio)
 	{
 		String query;
+		String lowerRatioValue, upperRatioValue;
+		lowerRatioValue = Double.isInfinite(lowerRatio) ? "'"+lowerRatio+"'::float" : ""+lowerRatio;
+		upperRatioValue = Double.isInfinite(upperRatio) ? "'"+upperRatio+"'::float" : ""+upperRatio;
 
 		query = "SELECT DISTINCT ON (experiment_group_summary_view.comparison_id,experiment_group_summary_view.probe_set_key_id) " +
 						"affy.experiment_group_summary_view.probe_set_key_id,    affy.experiment_group_summary_view.probe_set_key,   experiment_group_summary_view.comparison_id " +
 				" FROM  affy.experiment_group_summary_view "+ //,  affy.experiment_set_summary_view" +
 				" WHERE " +
 					//"affy.experiment_group_summary_view.probe_set_key_id = affy.experiment_set_summary_view.probe_set_key_id " +
-					"(affy.experiment_group_summary_view.t_c_ratio_lg < "+lowerRatio+" or affy.experiment_group_summary_view.t_c_ratio_lg > "+upperRatio+") " +
+					"(affy.experiment_group_summary_view.t_c_ratio_lg < "+lowerRatioValue+" or affy.experiment_group_summary_view.t_c_ratio_lg > "+upperRatioValue+") " +
 					"and affy.experiment_group_summary_view.experiment_set_key = '"+expSetKey+"' " +
 					"and affy.experiment_group_summary_view.comparison = "+comparison+" and " +
 					"affy.experiment_group_summary_view.adj_p_value < " +maxPval+" "+
 					"and affy.experiment_group_summary_view.data_type = '"+intensityType+"' "+
-					//"and affy.experiment_set_summary_view.average <  " +maxIntensity+" "+
+					//"and affy.experiment_set_summary_view.average >  " +maxIntensity+" "+
 				"ORDER BY experiment_group_summary_view.comparison_id, experiment_group_summary_view.probe_set_key_id, affy.experiment_group_summary_view.probe_set_key asc " +
 				" LIMIT 100000";
 

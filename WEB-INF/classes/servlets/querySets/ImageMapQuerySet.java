@@ -19,7 +19,9 @@ public interface ImageMapQuerySet  extends QuerySet
 	public String getExperimentSetImageInfo(String key);
 	public String getImage(int image_id);
 	public String getComparisonQuery(int experiment_id);
-	public String getProbeSetComparisonQuery(String expSetKey,
+	public String getRatioComparisonQuery(String expSetKey,
 			String intensityType, int comparison, double maxPval,
-			double lowerRatio, double upperRatio,double maxIntensity);
+			double lowerRatio, double upperRatio);
+	public String getIntensityComparisonQuery(String expSetKey,
+			String intensityType, int comparison, double minIntensity);
 }
