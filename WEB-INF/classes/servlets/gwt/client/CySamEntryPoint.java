@@ -80,7 +80,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	RadioButton[] comparisonRadios;
 	int[] comparisons;
 
-	int litPoly=-1;
+	int litPoly=-1; //hilighted on mouse over
+	int stickyLitPoly =-1;  //stays hightlighed after clicking
 	int[][][][] polygons=null;
 	int[] experimentIds=null;
 	String[] descriptions=null;
@@ -119,6 +120,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		menuPanel = buildMenuPanel();
 		menuPanel.setVisible(false);
 
+		status.setStyleName("statusLabel");
 		RootPanel.get(rootDivTag).add(status);
 
 		// make sure these two canvases overlap each other
@@ -159,7 +161,6 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 					if(PolygonUtils.inpoly(getPolygons()[i][j], x, y))
 					{
 						litPoly=i;
-						//expLabel.setText(""+experimentIds[litPoly][0]);
 						break polySearch; // break out of both loops
 					}
 
@@ -180,7 +181,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 		if(getPolygons() != null)
 			for(int i=0; i < getPolygons().length; i++)
-				drawPoly(canvas,getPolygons()[i], i == litPoly );
+				drawPoly(canvas,getPolygons()[i], i == litPoly || i == stickyLitPoly);
 		if(litPoly == -1)
 			experimentName.setText("");
 		else
@@ -266,13 +267,14 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	}
 	public void onMouseUp(MouseUpEvent event)
 	{
-		//if( ! popupPanel.isShowing() && litPoly != -1)
+		//if(stickyLitPoly != -1 && stickyLitPoly != litPoly )
+			//comparisonRadios[litPoly].setValue(true);
+		//else
 		//{
-			//popupPanel.show();
-			//popupPanel.setPopupPosition(event.getClientX(), event.getClientY());
+			buildSelectionPanel();
+			stickyLitPoly = litPoly;
+			redraw(canvas);
 		//}
-
-		buildSelectionPanel();
 	}
 	public void onMouseOver(MouseOverEvent event)
 	{
@@ -390,24 +392,20 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 		maxIntensity = Double.parseDouble(maxIntensityTB.getText());
 
-		status.setText("submitting query, comparison="+comparison);
+		//status.setText("submitting query, comparison="+comparison);
+		status.setText("Fetching results, please wait");
 
 
 		getCoordService().doIntensityQuery(experimentSetKey, "mas5",comparison,
 				maxIntensity,new AsyncCallback<Integer>(){
 
 			public void onFailure(Throwable caught) {
-				status.setText("query failed: "+caught);
+				status.setText("Query failed: "+caught);
 			}
-			public void onSuccess(Integer result)
-			{
-				if(result == -1)
-					status.setText("query failed");
-				else
-					Location.assign("/databaseWeb/QueryPageServlet?hid="+result);
+			public void onSuccess(Integer result) {
+				handleQueryResult(result);
 			}
 		});
-
 	}
 	void submitRatioQuery()
 	{
@@ -418,23 +416,28 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		upperRatio= upperRatioCB.getValue() ? Double.parseDouble(upperRatioTB.getText())  : Double.POSITIVE_INFINITY;
 		lowerRatio = lowerRatioCB.getValue() ? Double.parseDouble(lowerRatioTB.getText()) : Double.NEGATIVE_INFINITY;
 
-		status.setText("submitting query, comparison="+comparison);
+		//status.setText("submitting query, comparison="+comparison);
+		status.setText("Fetching results, please wait");
 
 		getCoordService().doRatioQuery(experimentSetKey, "mas5",comparison,maxPValue,lowerRatio,upperRatio,
 				new AsyncCallback<Integer>(){
 
 			public void onFailure(Throwable caught) {
-				status.setText("query failed: "+caught);
+				status.setText("Query failed: "+caught);
 			}
-			public void onSuccess(Integer result)
-			{
-				if(result == -1)
-					status.setText("query failed");
-				else
-					Location.assign("/databaseWeb/QueryPageServlet?hid="+result);
+			public void onSuccess(Integer result) {
+				handleQueryResult(result);
 			}
 		});
-
+	}
+	void handleQueryResult(Integer result)
+	{
+		if(result == -1)
+			status.setText("Query failed");
+		if(result == -2)
+			status.setText("No results found");
+		else
+			Location.assign("/databaseWeb/QueryPageServlet?hid="+result);
 
 	}
 	void submitQueryAsForm()
@@ -466,7 +469,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 		RootPanel.get(rootDivTag).add(form);
 
-		status.setText("submitting query");
+		//status.setText("submitting query");
 		resultPage.setHTML("");
 		form.submit();
 		menuPanel.setVisible(false);

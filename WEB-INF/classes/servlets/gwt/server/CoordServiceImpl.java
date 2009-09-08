@@ -190,6 +190,8 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 		Integer hid=-1;
 		try{
 			List result = dbc.sendQuery(query);
+			if(result.size()==0)
+				return -2;
 
 			ServletRequest sr =getNewRequest(req, result);
 

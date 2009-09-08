@@ -22,15 +22,15 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 		return "SELECT area_id, area, experiment_id,description " +
 				"FROM affy_images.image_areas_view " +
 				"WHERE image_id="+image_id+
-				" ORDER by area_id";
+				" ORDER by description";
 	}
 	public String getPolygonCountQuery(int image_id)
 	{
 		return " SELECT area_id, count(area_id) " +
 				"FROM affy_images.image_areas_view " +
 				"WHERE image_id= " + image_id+
-				" GROUP by area_id "+
-				"ORDER by area_id";
+				" GROUP by area_id , description "+
+				"ORDER by description";
 	}
 
 	public String getExperimentSetImageInfo(String key)
@@ -55,7 +55,23 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 
 	public String getIntensityComparisonQuery(String expSetKey, String intensityType, int comparison, double minIntensity)
 	{
-		return "";
+		String query;
+		query = "SELECT DISTINCT ON (experiment_group_summary_view.comparison_id,experiment_group_summary_view.probe_set_key_id) " +
+						"affy.experiment_group_summary_view.probe_set_key_id,    affy.experiment_group_summary_view.probe_set_key,   experiment_group_summary_view.comparison_id " +
+				" FROM  affy.experiment_group_summary_view "+
+				" WHERE " +
+
+					"(affy.experiment_group_summary_view.control_mean > "+minIntensity+" or affy.experiment_group_summary_view.treatment_mean > "+minIntensity+") " +
+					"and affy.experiment_group_summary_view.experiment_set_key = '"+expSetKey+"' " +
+					"and affy.experiment_group_summary_view.comparison = "+comparison+ " "+
+					"and affy.experiment_group_summary_view.data_type = '"+intensityType+"' "+
+				"ORDER BY experiment_group_summary_view.comparison_id, experiment_group_summary_view.probe_set_key_id, affy.experiment_group_summary_view.probe_set_key asc " +
+				" LIMIT 100000";
+
+		query = "SELECT * FROM ("+query+") as t ORDER BY 3,2";
+
+		return query;
+
 	}
 	public String getRatioComparisonQuery(String expSetKey, String intensityType, int comparison,
 			double maxPval, double lowerRatio, double upperRatio)
@@ -67,15 +83,13 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 
 		query = "SELECT DISTINCT ON (experiment_group_summary_view.comparison_id,experiment_group_summary_view.probe_set_key_id) " +
 						"affy.experiment_group_summary_view.probe_set_key_id,    affy.experiment_group_summary_view.probe_set_key,   experiment_group_summary_view.comparison_id " +
-				" FROM  affy.experiment_group_summary_view "+ //,  affy.experiment_set_summary_view" +
+				" FROM  affy.experiment_group_summary_view "+ 
 				" WHERE " +
-					//"affy.experiment_group_summary_view.probe_set_key_id = affy.experiment_set_summary_view.probe_set_key_id " +
 					"(affy.experiment_group_summary_view.t_c_ratio_lg < "+lowerRatioValue+" or affy.experiment_group_summary_view.t_c_ratio_lg > "+upperRatioValue+") " +
 					"and affy.experiment_group_summary_view.experiment_set_key = '"+expSetKey+"' " +
-					"and affy.experiment_group_summary_view.comparison = "+comparison+" and " +
-					"affy.experiment_group_summary_view.adj_p_value < " +maxPval+" "+
+					"and affy.experiment_group_summary_view.comparison = "+comparison +
+					"and affy.experiment_group_summary_view.adj_p_value < " +maxPval+" "+
 					"and affy.experiment_group_summary_view.data_type = '"+intensityType+"' "+
-					//"and affy.experiment_set_summary_view.average >  " +maxIntensity+" "+
 				"ORDER BY experiment_group_summary_view.comparison_id, experiment_group_summary_view.probe_set_key_id, affy.experiment_group_summary_view.probe_set_key asc " +
 				" LIMIT 100000";
 
