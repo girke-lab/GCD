@@ -59,3 +59,8 @@
 .tab-bar {
 
 }
+.statusLabel{
+
+    color: #cc0000;
+    font-weight: bold;
+}
