@@ -50,62 +50,30 @@ import com.google.gwt.widgetideas.graphics.client.ImageLoader;
  * @author khoran
  */
 public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, 
-		MouseUpHandler,MouseOverHandler, ClickHandler, FormPanel.SubmitCompleteHandler,
-		SelectionHandler<Integer>, MouseOutHandler, ValueChangeHandler<Boolean>
+		MouseUpHandler, ClickHandler, MouseOutHandler, ValueChangeHandler<Boolean>
 {
 
 	final String experimentSetKey="CySam";
 	final String rootDivTag=experimentSetKey;
-	final double maxIntensity = 1000, maxPValue = 0.01, lowerRatio = -1, upperRatio = 1;
 
 
 	final Label status = new Label("");
 	final Label helpLabel = new Label();
-	final Panel selectionPanel = new VerticalPanel();
 	final ListeningCanvas canvas = new ListeningCanvas(400,400);
 	final ListeningCanvas backgroundCanvas = new ListeningCanvas(400,400);
-	final Panel containerPanel = new VerticalPanel();
 	final AbsolutePanel canvasPanel = new AbsolutePanel();
-	Panel menuPanel;
 	final Label experimentName=new Label();
-	final Label compareToLabel=new Label();
 
-	final TextBox maxIntensityTB = new TextBox();
-	final TextBox maxPValueTB = new TextBox();
-	final TextBox upperRatioTB = new TextBox();
-	final TextBox  lowerRatioTB = new TextBox();
-	final TextBox controlIntensityTB=new TextBox();
-	final TextBox treatmentIntensityTB=new TextBox();
-	final ListBox controlPmaLB=new ListBox();
-	final ListBox treatmentPmaLB=new ListBox();
-	final ListBox intensityType = new ListBox();
-	final Button submitRatioSearchButton = new Button("Submit");
-	final Button submitIntensitySearchButton = new Button("Submit");
-	final Button submitSearchButton = new Button("Submit");
-	final HTML resultPage = new HTML();
-
-	final CheckBox lowerRatioCB=new CheckBox("less than");
-	final CheckBox upperRatioCB=new CheckBox("greater than");
-	final CheckBox minIntensityCB=new CheckBox("Min Intensity: ");
-	final CheckBox controlIntensityCB=new CheckBox();
-	final CheckBox treatmentIntensityCB=new CheckBox();
-	final CheckBox  controlPmaCB= new CheckBox("PMA");
-	final CheckBox  treatmentPmaCB= new CheckBox("PMA");
-	final CheckBox maxPValueCB = new CheckBox("Max P-Value: ");
-	final CheckBox ratioCB = new CheckBox("Log2 Ratio:");
-
-	final RadioButton minIntensityOperationAnd =new RadioButton("minIntensityOperation","and");
-	final RadioButton minIntensityOperationOr =new RadioButton("minIntensityOperation","or");
+	QueryPanel queryPanel = new QueryPanel(buildSubmissionHandler());
 
 	boolean outlinePolys =false;
 
-	RadioButton[] comparisonRadios;
-	int[] comparisons;
 
 	int litPoly=-1; //hilighted on mouse over
 	int stickyLitPoly =-1;  //stays hightlighed after clicking
 	int[][][][] polygons=null;
 	int[] experimentIds=null;
+	int[] comparisons;
 	String[] descriptions=null;
 	int image_id=-1;
 	boolean loadingPolygons=false;
@@ -123,44 +91,15 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	{
 
 		canvas.addMouseMoveHandler(this);
-		canvas.addMouseOverHandler(this);
 		canvas.addMouseUpHandler(this);
 		canvas.addMouseOutHandler(this);
 
-		submitRatioSearchButton.addClickHandler(this);
-		submitIntensitySearchButton.addClickHandler(this);
-		submitSearchButton.addClickHandler(this);
 
-		lowerRatioCB.addValueChangeHandler(this);
-		upperRatioCB.addValueChangeHandler(this);
-		minIntensityCB.addValueChangeHandler(this);
-		controlIntensityCB.addValueChangeHandler(this);
-		treatmentIntensityCB.addValueChangeHandler(this);
-		controlPmaCB.addValueChangeHandler(this);
-		treatmentPmaCB.addValueChangeHandler(this);
-		maxPValueCB.addValueChangeHandler(this);
-		ratioCB.addValueChangeHandler(this);
-
-
-
-		maxIntensityTB.setText(""+maxIntensity);
-		controlIntensityTB.setText(""+maxIntensity);
-		treatmentIntensityTB.setText(""+maxIntensity);
-		maxPValueTB.setText(""+maxPValue);
-		upperRatioTB.setText(""+upperRatio);
-		lowerRatioTB.setText(""+lowerRatio);
-
-		controlPmaLB.addItem("P"); controlPmaLB.addItem("M"); controlPmaLB.addItem("A");
-		treatmentPmaLB.addItem("P"); treatmentPmaLB.addItem("M"); treatmentPmaLB.addItem("A");
-		intensityType.addItem("mas5");  intensityType.addItem("rma");
-
-		minIntensityOperationOr.setValue(true);
-
-		menuPanel = buildMenuPanel();
-		menuPanel.setVisible(false);
+		queryPanel.setVisible(false);
 
 		status.setStyleName("statusLabel");
 		RootPanel.get(rootDivTag).add(status);
+
 
 		// make sure these two canvases overlap each other
 		canvasPanel.add(backgroundCanvas,0,0);
@@ -169,14 +108,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		Panel searchPanel = new VerticalPanel();
 		searchPanel.add(canvasPanel);
 		searchPanel.add(helpLabel);
-		searchPanel.add(menuPanel);
+		searchPanel.add(queryPanel);
 
-		//tabs.add(searchPanel,"Search");
-		//tabs.add(resultPage,"Results");
-
-		//tabs.selectTab(0);
-		//tabs.getTabBar().setStyleName("tab-bar");
-		//RootPanel.get(rootDivTag).add(tabs);
 
 		helpLabel.setText("Click on the image to start a query");
 
@@ -217,6 +150,20 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			redraw(canvas);
 		}
 	}
+	public void onMouseUp(MouseUpEvent event)
+	{
+		//if(stickyLitPoly != -1 && stickyLitPoly != litPoly )
+			//comparisonRadios[litPoly].setValue(true); // not correct, cannot use litPoly here
+		//else
+		//{
+
+			displayQueryPanel();
+			//buildSelectionPanel();
+			stickyLitPoly = litPoly;
+			redraw(canvas);
+		//}
+	}
+
 	private void redraw(GWTCanvas canvas)
 	{
 		canvas.clear();
@@ -273,11 +220,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 							redraw(canvas);
 						}
 					});
-
 				}
-
 			});
-
 		}
 		// we  expect this to return null until the polygons are actually created by the async callback
 		return polygons;
@@ -307,219 +251,52 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			if(fill)
 				canvas.fill();
 	}
-	public void onMouseUp(MouseUpEvent event)
+		void displayQueryPanel()
 	{
-		//if(stickyLitPoly != -1 && stickyLitPoly != litPoly )
-			//comparisonRadios[litPoly].setValue(true); // not correct, cannot use litPoly here
-		//else
-		//{
-			buildSelectionPanel();
-			stickyLitPoly = litPoly;
-			redraw(canvas);
-		//}
-	}
-	public void onMouseOver(MouseOverEvent event)
-	{
-	}
-
-	void buildSelectionPanel()
-	{
-		//menuPanel.setVisible(false);
 		if(litPoly == -1 || experimentIds == null )
 			return;
-		compareToLabel.setText(descriptions[litPoly]);
-		controlIntensityCB.setText(descriptions[litPoly]);
-		treatmentIntensityCB.setText("other");
-		helpLabel.setText("");
 
-		final ValueChangeHandler<Boolean> handler = this; // 'this' does not refer to the right thing inside the anonymous class
 
 		getCoordService().getComparableExperiments(experimentIds[litPoly],new AsyncCallback<String[][]>(){
 			public void onFailure(Throwable caught) {
 				status.setText("failed to get experiments: "+caught);
 			}
 			public void onSuccess(String[][] result) {
-				Panel panel  = new VerticalPanel();
-				comparisonRadios = new RadioButton[result.length];
+				String[] names = new String[result.length];
 				comparisons = new int[result.length];
 
-				containerPanel.clear();
+				helpLabel.setText("");
 
 				for(int i=0; i < result.length; i++)
 				{
-					comparisonRadios[i] = new RadioButton("comparison", result[i][1]);
-					comparisonRadios[i].addValueChangeHandler(handler);
 					comparisons[i] = Integer.parseInt(result[i][0]);
-
-					containerPanel.add(comparisonRadios[i]);
-
+					names[i] = result[i][1];
 				}
 
-
-				menuPanel.setVisible(true);
+				queryPanel.setComparisons(descriptions[litPoly],names);
+				queryPanel.setVisible(true);
 			}
 		});
 	}
-	Panel buildMenuPanel()
+	Runnable buildSubmissionHandler()
 	{
-		// set all to true, then change some to false so
-		// that they actually fire a value changed event
-		// and update the enabled state of other things
-		minIntensityCB.setValue(true);
-		controlIntensityCB.setValue(true);
-		treatmentIntensityCB.setValue(true);
-		controlPmaCB.setValue(true);
-		treatmentPmaCB.setValue(true);
-		maxPValueCB.setValue(true);
-		ratioCB.setValue(true);
-		lowerRatioCB.setValue(true);
-		upperRatioCB.setValue(true);
-
-		upperRatioCB.setValue(false,true);
-		minIntensityCB.setValue(false,true);
-		controlPmaCB.setValue(false,true);
-		treatmentPmaCB.setValue(false,true);
-
-		VerticalPanel panel = new VerticalPanel();
-
-		panel.add(buildHorizontalPanel(new Label("Compare"),compareToLabel,new Label("to: ")));
-		panel.add(containerPanel);
-
-		panel.add(new HTML("<hr>"));
-		panel.add(buildHorizontalPanel(new Label("Intensity type: "), intensityType));
-
-		panel.add(new HTML("<hr>"));
-
-		panel.add(minIntensityCB);
-		panel.add(buildHorizontalPanel(controlIntensityCB, controlIntensityTB, controlPmaCB,controlPmaLB));
-		panel.add(buildHorizontalPanel(minIntensityOperationAnd,minIntensityOperationOr));
-		panel.add(buildHorizontalPanel(treatmentIntensityCB, treatmentIntensityTB, treatmentPmaCB,treatmentPmaLB));
-
-		panel.add(new HTML("<hr>"));
-
-		panel.add(buildHorizontalPanel(maxPValueCB,maxPValueTB));
-
-		panel.add(new HTML("<hr>"));
-
-		panel.add(ratioCB);
-		panel.add(buildHorizontalPanel(lowerRatioCB, lowerRatioTB));
-		panel.add(new Label("or"));
-		panel.add(buildHorizontalPanel(upperRatioCB, upperRatioTB));
-
-		panel.add(submitSearchButton);
-		panel.setStylePrimaryName("selectionPanel");
-
-		return panel;
-	}
-	private Panel buildHorizontalPanel(Widget... widgets)
-	{
-		HorizontalPanel h=new HorizontalPanel();
-		h.setSpacing(2);
-		for(Widget w : widgets)
-			h.add(w);
-		return h;
-	}
-	public static CoordServiceAsync getCoordService()
-	{
-		CoordServiceAsync service = (CoordServiceAsync) GWT.create(CoordService.class);
-		ServiceDefTarget endpoint = (ServiceDefTarget) service;
-		String moduleRelativeURL = GWT.getModuleBaseURL()+"coordservice";
-		endpoint.setServiceEntryPoint(moduleRelativeURL);
-		return service;
-	}
-	int getSelectedComparison()
-	{
-		for(int i=0; i < comparisonRadios.length; i++)
-			if(comparisonRadios[i].getValue())
-				return comparisons[i];
-		return -1;
-	}
-	void submitIntensityQuery()
-	{
-		int comparison=getSelectedComparison();
-		double maxIntensity;
-
-		maxIntensity = Double.parseDouble(maxIntensityTB.getText());
-
-		//status.setText("submitting query, comparison="+comparison);
-		status.setText("Fetching results, please wait");
-
-
-		getCoordService().doIntensityQuery(experimentSetKey, "mas5",comparison,
-				maxIntensity,new AsyncCallback<Integer>(){
-
-			public void onFailure(Throwable caught) {
-				status.setText("Query failed: "+caught);
+		return new Runnable(){
+			public void run() {
+				submitQuery();
 			}
-			public void onSuccess(Integer result) {
-				handleQueryResult(result);
-			}
-		});
-	}
-	void submitRatioQuery()
-	{
-		int comparison=getSelectedComparison();
-		double  maxPValue, upperRatio, lowerRatio;
-
-		maxPValue = Double.parseDouble(maxPValueTB.getText());
-		upperRatio= upperRatioCB.getValue() ? Double.parseDouble(upperRatioTB.getText())  : Double.POSITIVE_INFINITY;
-		lowerRatio = lowerRatioCB.getValue() ? Double.parseDouble(lowerRatioTB.getText()) : Double.NEGATIVE_INFINITY;
-
-		//status.setText("submitting query, comparison="+comparison);
-		status.setText("Fetching results, please wait");
-
-		getCoordService().doRatioQuery(experimentSetKey, "mas5",comparison,maxPValue,lowerRatio,upperRatio,
-				new AsyncCallback<Integer>(){
-
-			public void onFailure(Throwable caught) {
-				status.setText("Query failed: "+caught);
-			}
-			public void onSuccess(Integer result) {
-				handleQueryResult(result);
-			}
-		});
+		};
 	}
 	void submitQuery()
 	{
-		status.setText("Fetching results, please wait, test");
+		status.setText("Fetching results, please wait");
 
-		Integer comparison=getSelectedComparison();
-		Double  maxPValue, upperRatio, lowerRatio,minControlIntensity,minTreatmentIntensity;
-		String controlPma, treatmentPma,intensityOperation;
+		Integer comparison=comparisons[queryPanel.getSelectedComparison()];
 
-		maxPValue=upperRatio=lowerRatio=minControlIntensity=minTreatmentIntensity=null;
-		controlPma=treatmentPma = null;
-		intensityOperation = "AND";
-
-		if(minIntensityCB.getValue() )
-		{
-			if(controlIntensityCB.getValue())
-				minControlIntensity = getDouble(controlIntensityTB);
-			if(treatmentIntensityCB.getValue())
-				minTreatmentIntensity = getDouble(treatmentIntensityTB);
-			if(controlPmaCB.getValue())
-				controlPma = controlPmaLB.getValue(controlPmaLB.getSelectedIndex());
-			if(treatmentPmaCB.getValue())
-				treatmentPma = treatmentPmaLB.getValue(treatmentPmaLB.getSelectedIndex());
-		}
-		if(maxPValueCB.getValue())
-			maxPValue = getDouble(maxPValueTB);
-		if(ratioCB.getValue())
-		{
-			if(lowerRatioCB.getValue())
-				lowerRatio = getDouble(lowerRatioTB);
-			if(upperRatioCB.getValue())
-				upperRatio = getDouble(upperRatioTB);
-		}
-		if(minIntensityOperationAnd.getValue())
-			intensityOperation = " AND";
-		else if(minIntensityOperationOr.getValue())
-			intensityOperation= "OR";
-
-		getCoordService().doQuery(experimentSetKey, intensityType.getValue(intensityType.getSelectedIndex()), comparison,
-						minControlIntensity, minTreatmentIntensity, 
-						controlPma, treatmentPma, intensityOperation,
-						maxPValue, lowerRatio, upperRatio,new AsyncCallback<Integer>(){
+		getCoordService().doQuery(experimentSetKey, queryPanel.getIntensityType(), comparison,
+				queryPanel.getMinControlIntensity(), queryPanel.getMinTreatmentIntensity(),
+				queryPanel.getControlPma(), queryPanel.getTreatementPma(), queryPanel.getIntensityOperation(),
+				queryPanel.getMaxAdjPValue(), queryPanel.getlowerRatio(), queryPanel.getUpperRatio(),
+				new AsyncCallback<Integer>(){
 			public void onFailure(Throwable caught) {
 				status.setText("Query failed: "+caught);
 			}
@@ -527,17 +304,6 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 				handleQueryResult(result);
 			}
 		}) ;
-	}
-	private static final Double getDouble(TextBox tb)
-	{
-		Double d=null;
-		try{
-			d=Double.parseDouble(tb.getText());
-		}catch(NumberFormatException e)
-		{
-			return null;
-		}
-		return d;
 	}
 	void handleQueryResult(Integer result)
 	{
@@ -549,121 +315,20 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			Location.assign("/databaseWeb/QueryPageServlet?hid="+result);
 
 	}
-	void submitQueryAsForm()
-	{
-
-		FormPanel form = new FormPanel();
-		Panel formPanel = new VerticalPanel();
-
-		for(int i=0; i < comparisonRadios.length; i++)
-			if(comparisonRadios[i].getValue())
-			{
-				formPanel.add(new Hidden("comparison",""+comparisons[i]));
-				break;
-			}
-
-		formPanel.add(new Hidden("maxIntensity",maxIntensityTB.getText()));
-		formPanel.add(new Hidden("maxPValue",maxPValueTB.getText()));
-		formPanel.add(new Hidden("upperRatio",upperRatioTB.getText()));
-		formPanel.add(new Hidden("lowerRatio",lowerRatioTB.getText()));
-		formPanel.add(new Hidden("experimentSetKey",experimentSetKey));
-		formPanel.add(new Hidden("intensityType","mas5"));
-
-		form.setAction("/databaseWeb/servlets.gwt.CySam/coordservice");
-		form.setMethod(FormPanel.METHOD_GET);
-		form.setWidget(formPanel);
-		form.addSubmitCompleteHandler(this);
-
-		form.setVisible(false);
-
-		RootPanel.get(rootDivTag).add(form);
-
-		//status.setText("submitting query");
-		resultPage.setHTML("");
-		form.submit();
-		menuPanel.setVisible(false);
-
-	}
-
 	public void onClick(ClickEvent event)
 	{
-		if(submitRatioSearchButton == event.getSource())
-		{
-			submitRatioQuery();
-			//submitQueryAsForm();
-		}
-		else if(submitIntensitySearchButton == event.getSource())
-		{
-			submitIntensityQuery();
-		}
-		else if(submitSearchButton == event.getSource())
-			submitQuery();
-
 	}
-
-	public void onSubmitComplete(SubmitCompleteEvent event)
-	{
-		resultPage.setHTML(event.getResults());
-		//tabs.selectTab(1);
-	}
-
-	public void onSelection(SelectionEvent<Integer> event)
-	{
-	}
-
 	public void onValueChange(ValueChangeEvent<Boolean> event)
 	{
-		//status.setText(status.getText()+"\n<p> value changed on "+((CheckBox)event.getSource()).getText()+" object value: "+
-						//((CheckBox)event.getSource()).getValue()+", given value: "+event.getValue());
+	}
 
-		if( event.getSource() instanceof RadioButton  && ((RadioButton)event.getSource()).getValue())
-		{
-			for(int i=0; i < comparisonRadios.length; i++)
-				if(event.getSource() == comparisonRadios[i])
-				{
-					treatmentIntensityCB.setText(comparisonRadios[i].getText());
-					break;
-				}
-		}
-		else if(lowerRatioCB == event.getSource())
-			lowerRatioTB.setEnabled(lowerRatioCB.getValue());
-		else if(upperRatioCB == event.getSource())
-			upperRatioTB.setEnabled(upperRatioCB.getValue());
-		else if(minIntensityCB  == event.getSource())
-		{
-			controlIntensityTB.setEnabled(controlIntensityCB.getValue());
-			treatmentIntensityTB.setEnabled(treatmentIntensityCB.getValue());
-			controlPmaLB.setEnabled(controlPmaCB.getValue());
-			treatmentPmaLB.setEnabled(treatmentPmaCB.getValue());
-
-			controlIntensityCB.setEnabled(minIntensityCB.getValue());
-			treatmentIntensityCB.setEnabled(minIntensityCB.getValue());
-			controlPmaCB.setEnabled(minIntensityCB.getValue());
-			treatmentPmaCB.setEnabled(minIntensityCB.getValue());
-
-			minIntensityOperationAnd.setEnabled(minIntensityCB.getValue());
-			minIntensityOperationOr.setEnabled(minIntensityCB.getValue());
-
-		}
-		else if( controlIntensityCB == event.getSource())
-			controlIntensityTB.setEnabled(controlIntensityCB.getValue());
-		else if( treatmentIntensityCB == event.getSource())
-			treatmentIntensityTB.setEnabled(treatmentIntensityCB.getValue());
-		else if( controlPmaCB == event.getSource())
-			controlPmaLB.setEnabled(controlPmaCB.getValue());
-		else if(treatmentPmaCB  == event.getSource())
-			treatmentPmaLB.setEnabled(treatmentPmaCB.getValue());
-		else if(  maxPValueCB== event.getSource())
-			maxPValueTB.setEnabled(maxPValueCB.getValue());
-		else if(ratioCB  == event.getSource())
-		{
-			upperRatioTB.setEnabled(upperRatioCB.getValue());
-			lowerRatioTB.setEnabled(lowerRatioCB.getValue());
-
-			upperRatioCB.setEnabled(ratioCB.getValue());
-			lowerRatioCB.setEnabled(ratioCB.getValue());
-		}
-
+	public static CoordServiceAsync getCoordService()
+	{
+		CoordServiceAsync service = (CoordServiceAsync) GWT.create(CoordService.class);
+		ServiceDefTarget endpoint = (ServiceDefTarget) service;
+		String moduleRelativeURL = GWT.getModuleBaseURL()+"coordservice";
+		endpoint.setServiceEntryPoint(moduleRelativeURL);
+		return service;
 	}
 
 
