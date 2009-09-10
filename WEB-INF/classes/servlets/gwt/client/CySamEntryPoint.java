@@ -61,7 +61,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 	final Label status = new Label("");
 	final Label helpLabel = new Label();
-	Panel selectionPanel = new VerticalPanel();
+	final Panel selectionPanel = new VerticalPanel();
 	final ListeningCanvas canvas = new ListeningCanvas(400,400);
 	final ListeningCanvas backgroundCanvas = new ListeningCanvas(400,400);
 	final Panel containerPanel = new VerticalPanel();
@@ -78,6 +78,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	final TextBox treatmentIntensityTB=new TextBox();
 	final ListBox controlPmaLB=new ListBox();
 	final ListBox treatmentPmaLB=new ListBox();
+	final ListBox intensityType = new ListBox();
 	final Button submitRatioSearchButton = new Button("Submit");
 	final Button submitIntensitySearchButton = new Button("Submit");
 	final Button submitSearchButton = new Button("Submit");
@@ -151,6 +152,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 		controlPmaLB.addItem("P"); controlPmaLB.addItem("M"); controlPmaLB.addItem("A");
 		treatmentPmaLB.addItem("P"); treatmentPmaLB.addItem("M"); treatmentPmaLB.addItem("A");
+		intensityType.addItem("mas5");  intensityType.addItem("rma");
 
 		minIntensityOperationOr.setValue(true);
 
@@ -384,6 +386,9 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		panel.add(containerPanel);
 
 		panel.add(new HTML("<hr>"));
+		panel.add(buildHorizontalPanel(new Label("Intensity type: "), intensityType));
+
+		panel.add(new HTML("<hr>"));
 
 		panel.add(minIntensityCB);
 		panel.add(buildHorizontalPanel(controlIntensityCB, controlIntensityTB, controlPmaCB,controlPmaLB));
@@ -478,6 +483,61 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	{
 		status.setText("Fetching results, please wait, test");
 
+		Integer comparison=getSelectedComparison();
+		Double  maxPValue, upperRatio, lowerRatio,minControlIntensity,minTreatmentIntensity;
+		String controlPma, treatmentPma,intensityOperation;
+
+		maxPValue=upperRatio=lowerRatio=minControlIntensity=minTreatmentIntensity=null;
+		controlPma=treatmentPma = null;
+		intensityOperation = "AND";
+
+		if(minIntensityCB.getValue() )
+		{
+			if(controlIntensityCB.getValue())
+				minControlIntensity = getDouble(controlIntensityTB);
+			if(treatmentIntensityCB.getValue())
+				minTreatmentIntensity = getDouble(treatmentIntensityTB);
+			if(controlPmaCB.getValue())
+				controlPma = controlPmaLB.getValue(controlPmaLB.getSelectedIndex());
+			if(treatmentPmaCB.getValue())
+				treatmentPma = treatmentPmaLB.getValue(treatmentPmaLB.getSelectedIndex());
+		}
+		if(maxPValueCB.getValue())
+			maxPValue = getDouble(maxPValueTB);
+		if(ratioCB.getValue())
+		{
+			if(lowerRatioCB.getValue())
+				lowerRatio = getDouble(lowerRatioTB);
+			if(upperRatioCB.getValue())
+				upperRatio = getDouble(upperRatioTB);
+		}
+		if(minIntensityOperationAnd.getValue())
+			intensityOperation = " AND";
+		else if(minIntensityOperationOr.getValue())
+			intensityOperation= "OR";
+
+		getCoordService().doQuery(experimentSetKey, intensityType.getValue(intensityType.getSelectedIndex()), comparison,
+						minControlIntensity, minTreatmentIntensity, 
+						controlPma, treatmentPma, intensityOperation,
+						maxPValue, lowerRatio, upperRatio,new AsyncCallback<Integer>(){
+			public void onFailure(Throwable caught) {
+				status.setText("Query failed: "+caught);
+			}
+			public void onSuccess(Integer result) {
+				handleQueryResult(result);
+			}
+		}) ;
+	}
+	private static final Double getDouble(TextBox tb)
+	{
+		Double d=null;
+		try{
+			d=Double.parseDouble(tb.getText());
+		}catch(NumberFormatException e)
+		{
+			return null;
+		}
+		return d;
 	}
 	void handleQueryResult(Integer result)
 	{

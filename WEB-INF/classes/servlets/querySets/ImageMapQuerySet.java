@@ -24,4 +24,9 @@ public interface ImageMapQuerySet  extends QuerySet
 			double lowerRatio, double upperRatio);
 	public String getIntensityComparisonQuery(String expSetKey,
 			String intensityType, int comparison, double minIntensity);
+
+	public String getComparisonQuery(String expSetKey, String intensityType, Integer comparison,
+			Double minControlntensity, Double minTreatmentIntensity,
+			String controlPma, String treatmentPma, String intensityOperation,
+			Double maxAdjPValue, Double lowerRatio, Double upperRatio);
 }

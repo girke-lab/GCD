@@ -24,4 +24,7 @@ public interface CoordServiceAsync
 			double maxPval, double lowerRatio, double upperRatio, AsyncCallback<Integer> asyncCallback);
 	public abstract void doIntensityQuery(String expSetKey, String intensityType, int comparison,
 			double minIntensity, AsyncCallback<Integer> asyncCallback);
+
+	public abstract void doQuery(java.lang.String expSetKey, java.lang.String intensityType, java.lang.Integer comparison, java.lang.Double minControlntensity, java.lang.Double minTreatmentIntensity, java.lang.String controlPma, java.lang.String treatmentPma, java.lang.String intensityOperation, java.lang.Double maxAdjPValue, java.lang.Double lowerRatio, java.lang.Double upperRatio, AsyncCallback<Integer> asyncCallback);
+
 }

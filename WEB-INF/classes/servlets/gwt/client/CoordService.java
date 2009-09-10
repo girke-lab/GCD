@@ -20,4 +20,8 @@ public interface CoordService extends RemoteService
 	public int doRatioQuery(String expSetKey, String intensityType, int comparison, double maxPval,
 			double lowerRatio, double upperRatio);
 	public int doIntensityQuery(String expSetKey, String intensityType, int comparison, double minIntensity);
+	public int doQuery(String expSetKey, String intensityType, Integer comparison, 
+							Double minControlntensity, Double minTreatmentIntensity,
+							String controlPma, String treatmentPma, String intensityOperation,
+							Double maxAdjPValue,  Double lowerRatio, Double upperRatio);
 }

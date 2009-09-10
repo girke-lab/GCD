@@ -5,9 +5,7 @@
 
 package servlets.querySets;
 
-import java.util.Collection;
 import org.apache.log4j.Logger;
-import servlets.Common;
 
 /**
  *
@@ -98,4 +96,80 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 		//query = " SELECT 7709, '267517_at', 367";
 		return query;
 	}
+	public String getComparisonQuery(String expSetKey, String intensityType, Integer comparison,
+								Double minControllntensity, Double minTreatmentIntensity,
+								String controlPma, String treatmentPma, String intensityOperation,
+								Double maxAdjPValue, Double lowerRatio, Double upperRatio)
+	{
+
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT * FROM ( ");
+		query.append( "SELECT DISTINCT ON (experiment_group_summary_view.comparison_id,experiment_group_summary_view.probe_set_key_id) " +
+						"affy.experiment_group_summary_view.probe_set_key_id,    affy.experiment_group_summary_view.probe_set_key,   experiment_group_summary_view.comparison_id " +
+				" FROM  affy.experiment_group_summary_view "+
+				" WHERE " +
+					" affy.experiment_group_summary_view.experiment_set_key = '"+expSetKey+"' " +
+					" and affy.experiment_group_summary_view.comparison = "+comparison +
+					" and affy.experiment_group_summary_view.data_type = '"+intensityType+"' "
+		);
+		if(minControllntensity != null)
+		{
+			query.append(" and ( affy.experiment_group_summary_view.control_mean > "+minControllntensity);
+			if( minTreatmentIntensity != null)
+				query.append(intensityOperation+" affy.experiment_group_summary_view.treatment_mean > "+minTreatmentIntensity);
+			query.append(")");
+		}
+		else if(minTreatmentIntensity != null)  // minControlIntensity must be null if we get here
+			query.append(" and  affy.experiment_group_summary_view.treatment_control < "+minTreatmentIntensity);
+
+		if(controlPma != null)
+		{
+			query.append(" and ( affy.experiment_group_summary_view.control_pma  ~ "+pmaRe(controlPma));
+			if( treatmentPma != null)
+				query.append(intensityOperation+" affy.experiment_group_summary_view.treatment_pma ~ "+pmaRe(treatmentPma));
+			query.append(")");
+		}
+		else if(treatmentPma != null)  // controlPma must be null if we get here
+			query.append(" and  affy.experiment_group_summary_view.treatment_pma  ~ "+pmaRe(treatmentPma));
+
+		if(maxAdjPValue != null)
+			query.append(" and affy.experiment_group_summary_view.adj_p_value < "+maxAdjPValue);
+
+		if(lowerRatio != null)
+		{
+			query.append(" and ( affy.experiment_group_summary_view.t_c_ratio_lg < "+lowerRatio);
+			if(upperRatio != null)
+				query.append(" or affy.experiment_group_summary_view.t_c_ratio_lg > "+upperRatio);
+			query.append(")");
+		}
+		else if(upperRatio != null)
+				query.append(" and  affy.experiment_group_summary_view.t_c_ratio_lg > "+upperRatio);
+
+		query.append(" ORDER BY experiment_group_summary_view.comparison_id, experiment_group_summary_view.probe_set_key_id, affy.experiment_group_summary_view.probe_set_key asc " +
+				" LIMIT 100000");
+
+		query.append( ") as t ORDER BY 3,2");
+		return query.toString();
+	}
+	private final String pmaRe(String pma)
+	{
+		return "'^"+pma+"+$'";
+	}
+	/*
+	private String binarySubExpression(Object v1, Object v2, String operation)
+	{
+		StringBuilder query=new StringBuilder();
+		if(v1 != null)
+		{
+			query.append(" and ( affy.experiment_group_summary_view.control_mean < "+minControllntensity);
+			if( minTreatmentIntensity != null)
+				query.append(intensityOperation+" affy.experiment_group_summary_view.treatment_mean < "+minTreatmentIntensity);
+			query.append(")");
+		}
+		else if(minTreatmentIntensity != null)  // minControlIntensity must be null if we get here
+			query.append(" and  affy.experiment_group_summary_view.treatment_control < "+minTreatmentIntensity);
+	
+		return query.toString();
+	}
+	 */
 }

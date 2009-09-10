@@ -177,14 +177,27 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 					getRatioComparisonQuery(expSetKey, intensityType, comparison, maxPval, lowerRatio, upperRatio) );
 	}
 
+	public int doQuery(String expSetKey, String intensityType, Integer comparison,
+			Double minControlntensity, Double minTreatmentIntensity,
+			String controlPma, String treatmentPma, String intensityOperation,
+			Double maxAdjPValue, Double lowerRatio, Double upperRatio)
+	{
+		return doQuery(QuerySetProvider.getImageMapQuerySet().
+				getComparisonQuery(expSetKey, intensityType, comparison, minControlntensity, minTreatmentIntensity, 
+															controlPma, treatmentPma, intensityOperation, maxAdjPValue, lowerRatio, upperRatio), intensityType);
+	}
 	int doQuery(String query)
+	{
+		return  doQuery(query,"mas5");
+	}
+	int doQuery(String query,String dataType)
 	{
 
 		HttpServletRequest req = this.getThreadLocalRequest();
 		HttpServletResponse response = this.getThreadLocalResponse();
-		return doQuery(query, req, response);
+		return doQuery(query, dataType,req, response);
 	}
-	int doQuery(String query,HttpServletRequest req, HttpServletResponse response)
+	int doQuery(String query,String dataType,HttpServletRequest req, HttpServletResponse response)
 	{
 
 		Integer hid=-1;
@@ -193,7 +206,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 			if(result.size()==0)
 				return -2;
 
-			ServletRequest sr =getNewRequest(req, result);
+			ServletRequest sr =getNewRequest(req, result, dataType);
 
 			// TODO: need to check for errors with this request
 			req.getSession().getServletContext().getRequestDispatcher("/QueryPageServlet").include(sr, response);
@@ -241,7 +254,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 
 				doQuery( QuerySetProvider.getImageMapQuerySet().
 					getRatioComparisonQuery(experimentSetKey, intensityType, comparison, maxPValue, lowerRatio, upperRatio),
-					req, resp);
+					intensityType, req, resp);
 				//doQuery(req,resp, experimentSetKey,intensityType,comparison,maxPValue,lowerRatio,upperRatio,maxIntensity);
 
 			}catch(NumberFormatException e){
@@ -252,7 +265,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 
 	}
 
-    protected ServletRequest getNewRequest(HttpServletRequest request,List results)
+    protected ServletRequest getNewRequest(HttpServletRequest request,List results,String dataType)
     { //this can be overridden by sub classes to send different parameters
         NewParametersHttpRequestWrapper mRequest=new NewParametersHttpRequestWrapper(
                     (HttpServletRequest)request,new HashMap(),false,"POST");
@@ -261,6 +274,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
         mRequest.getParameterMap().put("limit", "100000");
         mRequest.getParameterMap().put("sortCol","psk_"+"affy.experiment_group_summary_view.probe_set_key");
         mRequest.getParameterMap().put("rpp","25");
+        mRequest.getParameterMap().put("data_type",dataType);
 
         mRequest.getParameterMap().put("displayType","probeSetView");
         mRequest.getParameterMap().put("origin_page","unknownsSearch.jsp");
@@ -279,6 +293,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
         mRequest.getParameterMap().put("inputKey",inputStr.toString());
         return mRequest;
     }
+
 
 
 

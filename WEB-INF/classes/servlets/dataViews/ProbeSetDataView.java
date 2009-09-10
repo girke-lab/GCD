@@ -89,12 +89,16 @@ public class ProbeSetDataView implements DataView
         Object obj=params.get(key);
         if(obj!=null && obj instanceof String[] && ((String[])obj).length!=0)
             return ((String[])obj)[0];
-        return null;
+		if(obj != null)
+			return obj.toString();
+		return null;
     }
     public void setParameters(Map parameters)
     {
         for(Iterator i=parameters.keySet().iterator();i.hasNext();)
             log.debug(" got key: "+i.next());
+		//for(Object entry : parameters.entrySet())
+			//log.debug("go key  "+((Map.Entry)entry).getKey()+",  value: '"+((Map.Entry)entry).getValue()+"'");
         
         
 //        String[] ids=(String[])parameters.get("comparisonIds");
