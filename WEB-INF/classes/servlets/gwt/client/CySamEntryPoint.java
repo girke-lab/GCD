@@ -5,6 +5,7 @@
 
 package servlets.gwt.client;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.ImageElement;
@@ -22,11 +23,13 @@ import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.widgetideas.graphics.client.Color;
 import com.google.gwt.widgetideas.graphics.client.GWTCanvas;
 import com.google.gwt.widgetideas.graphics.client.ImageLoader;
@@ -41,6 +44,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 	final String experimentSetKey="CySam";
 	final String rootDivTag=experimentSetKey;
+	final double absoluteHeatmapMin=0.0;
+	final double absoluteHeatmapMax=101000.0;
 
 
 	final Label status = new Label("");
@@ -53,6 +58,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 	final QueryPanel queryPanel = new QueryPanel(buildSubmissionHandler());
 	final HeatmapPanel heatmapPanel = new HeatmapPanel(buildAccessionQueryHandler(), buildProbeKeyQueryHandler());
+	final HeatmapLegend heatmapLegend = new HeatmapLegend(Color.RED, Color.YELLOW);
 
 	boolean outlinePolys =false;
 
@@ -86,8 +92,10 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 		heatmapLink.addClickHandler(this);
 
+
 		queryPanel.setVisible(false);
-		heatmapPanel.setVisible(false);
+		//heatmapLegend.setVisible(false);
+		heatmapPanel.setScalingHandler(buildScalingHandler());
 
 		status.setStyleName("statusLabel");
 		RootPanel.get(rootDivTag).add(status);
@@ -98,11 +106,13 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		canvasPanel.add(canvas,0,0);
 
 		Panel searchPanel = new VerticalPanel();
-		searchPanel.add(canvasPanel);
+		//searchPanel.add(canvasPanel);
+		searchPanel.add(buildHorizontalPanel(canvasPanel, heatmapPanel));
+		searchPanel.add(heatmapLegend);
 		searchPanel.add(helpLabel);
-		searchPanel.add(heatmapLink);
+		//searchPanel.add(heatmapLink);
 		searchPanel.add(queryPanel);
-		searchPanel.add(heatmapPanel);
+		//searchPanel.add(heatmapPanel);
 
 
 		helpLabel.setText("Click on the image to start a query");
@@ -260,7 +270,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	{
 		for(int j=0; j < polygons.length; j++)
 		{
-			canvas.setFillStyle(getColor((heatmapValues[j] - heatmapMin) / heatmapMax));
+			canvas.setFillStyle(getColor( scaleHeatmapValue(heatmapPanel.getScalingMethod(),  heatmapValues[j])));
 			for(int[][] poly : polygons[j])
 			{
 				canvas.beginPath();
@@ -273,61 +283,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	}
 	Color getColor(double value)
 	{
-		int[] rgb;
-		double startAngle, endAngle;
-		startAngle=0;
-		endAngle= 60;
-
-		//rgb = HSBtoRGB( (endAngle-startAngle) * value  , 1.0,1.0);
-		//return new Color(rgb[0],rgb[1],rgb[2]);
 		return new Color(255, (int)(value*255), 0);
-	}
-	public static int[] HSBtoRGB(double hue, double saturation, double brightness)
-	{
-		double r = 0, g = 0, b = 0;
-    	if (saturation == 0) {
-			r = g = b = (int) (brightness * 255.0f + 0.5f);
-		} else {
-			double h = (hue - (double)Math.floor(hue)) * 6.0f;
-			double f = h - (double)java.lang.Math.floor(h);
-			double p = brightness * (1.0f - saturation);
-			double q = brightness * (1.0f - saturation * f);
-			double t = brightness * (1.0f - (saturation * (1.0f - f)));
-			switch ((int) h)
-			{
-				case 0:
-					r = brightness;
-					g = t;
-					b = p;
-					break;
-				case 1:
-					r = q;
-					g = brightness;
-					b = p;
-					break;
-				case 2:
-					r = p;
-					g = brightness;
-					b = t;
-					break;
-				case 3:
-					r = p;
-					g = q;
-					b = brightness ;
-					break;
-				case 4:
-					r = t;
-					g = p;
-					b = brightness;
-					break;
-				case 5:
-					r = brightness;
-					g = p;
-					b = q;
-					break;
-			}
-		}
-		return new int[]{ (int) (r*255.0+0.5), (int)(g*255.0+0.5), (int)(b*255.0+0.5)};
 	}
 	void displayQueryPanel()
 	{
@@ -395,6 +351,15 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			}
 		};
 	}
+	Runnable buildScalingHandler()
+	{
+		return new Runnable(){
+			public void run() {
+				scaleHeatmap(heatmapPanel.getScalingMethod());
+				redraw(canvas);
+			}
+		};
+	}
 	void displayHeatmap(final String probeSetKey)
 	{
 		if(experimentIds == null)
@@ -412,21 +377,44 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 				}
 				status.setText(" ");
 				heatmapValues = result;
+				scaleHeatmap(heatmapPanel.getScalingMethod());
 
-				// compute min and max for later normalization
-				heatmapMin=Double.POSITIVE_INFINITY;
-				heatmapMax = Double.NEGATIVE_INFINITY;
-				for(int i=0; i < heatmapValues.length; i++)
-					if( heatmapValues[i] < heatmapMin)
-						heatmapMin=heatmapValues[i];
-					else if(heatmapValues[i] > heatmapMax)
-						heatmapMax=heatmapValues[i];
-				heatmapMax-=heatmapMin;
+				heatmapLegend.setMinValue(heatmapMin);
+				heatmapLegend.setMaxValue(heatmapMax);
+				heatmapLegend.setVisible(true);
 
 				redraw(canvas);
 			}
 
 		});
+	}
+	void scaleHeatmap(String method)
+	{
+		if("relative".equals(method))
+		{
+			// compute min and max for later normalization
+			heatmapMin=Double.POSITIVE_INFINITY;
+			heatmapMax = Double.NEGATIVE_INFINITY;
+			for(int i=0; i < heatmapValues.length; i++)
+				if( heatmapValues[i] < heatmapMin)
+					heatmapMin=heatmapValues[i];
+				else if(heatmapValues[i] > heatmapMax)
+					heatmapMax=heatmapValues[i];
+		}
+		else 
+		{
+			heatmapMin=absoluteHeatmapMin;
+			heatmapMax=absoluteHeatmapMax;
+		}
+	}
+	double scaleHeatmapValue(String method,double value)
+	{
+		if("absoluteLog".equals(method))
+			value= Math.log(value);
+
+		double v = (value - heatmapMin )/(heatmapMax-heatmapMin);
+		//Log.debug("method: "+method+", orig value: "+value+", scaled: "+v);
+		return v;
 	}
 	void submitQuery()
 	{
@@ -476,6 +464,15 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		String moduleRelativeURL = GWT.getModuleBaseURL()+"coordservice";
 		endpoint.setServiceEntryPoint(moduleRelativeURL);
 		return service;
+	}
+
+	private Panel buildHorizontalPanel(Widget... widgets)
+	{
+		HorizontalPanel h=new HorizontalPanel();
+		h.setSpacing(2);
+		for(Widget w : widgets)
+			h.add(w);
+		return h;
 	}
 
 

@@ -32,8 +32,9 @@ public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandl
 	final Button submitAccessionB=new Button("Submit");
 	final ListBox probeSetKeysLB=new ListBox();
 	final Panel probeKeyQueryPanel;
+	final ListBox scalingLB=new ListBox();
 
-	Runnable accessionQueryHandler, probeKeyQueryHandler;
+	Runnable accessionQueryHandler, probeKeyQueryHandler, scalingHandler=null;
 
 	public HeatmapPanel(Runnable accessionQueryHandler, Runnable probeKeyQueryHandler)
 	{
@@ -43,6 +44,11 @@ public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandl
 		submitAccessionB.addClickHandler(this);
 		accessionTB.addKeyPressHandler(this);
 		probeSetKeysLB.addChangeHandler(this);
+		scalingLB.addChangeHandler(this);
+
+		scalingLB.addItem("Relative scale", "relative");
+		scalingLB.addItem("Aboslute scale","absolute");
+		scalingLB.addItem("Aboslute log scale", "absoluteLog");
 
 		probeKeyQueryPanel = buildHorizontalPanel(new Label("Select probe set key: "),probeSetKeysLB);
 		probeKeyQueryPanel.setVisible(false);
@@ -71,16 +77,26 @@ public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandl
 
 		probeKeyQueryPanel.setVisible(true);
 	}
+	public void setScalingHandler(Runnable scalingHandler)
+	{
+		this.scalingHandler=scalingHandler;
+	}
+	public String getScalingMethod()
+	{
+		return scalingLB.getValue(scalingLB.getSelectedIndex());
+	}
 
 	private Panel buildMainPanel()
 	{
 
-		Panel mainPanel=new VerticalPanel();
+		VerticalPanel mainPanel=new VerticalPanel();
 		mainPanel.setStyleName("selectionPanel");
+		mainPanel.setSpacing(2);
 
 		Label title = new Label("Heatmap settings");
 		title.setStyleName("heatmapTitle");
 		mainPanel.add(title);
+		mainPanel.add(scalingLB);
 		mainPanel.add(buildHorizontalPanel(new Label("Accession ID: "),accessionTB,submitAccessionB));
 		mainPanel.add(probeKeyQueryPanel);
 
@@ -110,6 +126,8 @@ public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandl
 	{
 		if(probeSetKeysLB == event.getSource())
 			probeKeyQueryHandler.run();
+		else if(scalingLB==event.getSource())
+			scalingHandler.run();
 	}
 
 	public void onKeyPress(KeyPressEvent event)
