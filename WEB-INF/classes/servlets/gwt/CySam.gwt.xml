@@ -2,6 +2,8 @@
 <module>
 	<inherits name="com.google.gwt.user.User"/>
 	<inherits name='com.google.gwt.widgetideas.GWTCanvas'/>
+	<inherits name="com.allen_sauer.gwt.log.gwt-log-DEBUG" />
+	<!-- <inherits name="com.allen_sauer.gwt.log.gwt-log-OFF" /> -->
 	<entry-point class="servlets.gwt.client.CySamEntryPoint"/>
 	<!-- Do not define servlets here, use web.xml -->
 </module>

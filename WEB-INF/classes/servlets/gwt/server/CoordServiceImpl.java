@@ -8,7 +8,6 @@ package servlets.gwt.server;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -165,18 +164,6 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 		}
 		return data;
 	}
-	public int doIntensityQuery(String expSetKey, String intensityType, int comparison,double minIntensity)
-	{
-		return doQuery( QuerySetProvider.getImageMapQuerySet().
-					getIntensityComparisonQuery(expSetKey, intensityType, comparison, minIntensity) );
-	}
-	public int doRatioQuery(String expSetKey, String intensityType, int comparison, double maxPval,
-			double lowerRatio, double upperRatio)
-	{
-		return doQuery( QuerySetProvider.getImageMapQuerySet().
-					getRatioComparisonQuery(expSetKey, intensityType, comparison, maxPval, lowerRatio, upperRatio) );
-	}
-
 	public int doQuery(String expSetKey, String intensityType, Integer comparison,
 			Double minControlntensity, Double minTreatmentIntensity,
 			String controlPma, String treatmentPma, String intensityOperation,
@@ -225,6 +212,48 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 
 		return hid;
 	}
+	public String[] getProbeSetKeys(String accession)
+	{
+		String query = QuerySetProvider.getImageMapQuerySet().getProbeSetKeyQuery(accession);
+		String[] probeSetKeys = null;
+		try {
+			List result = dbc.sendQuery(query);
+			probeSetKeys = new String[result.size()];
+			for(int i=0; i < result.size(); i++)
+				probeSetKeys[i] = (String)((List)result.get(i)).get(0);
+
+		}catch(SQLException ex) {
+			log.error("query failed: "+ex,ex);
+		}
+		return probeSetKeys;
+	}
+
+	public double[] getIntensities(String probeSetKey,int[] experimentIds)
+	{
+		double[] intensities=null;
+
+		try{
+			List expIds = new ArrayList();
+			for(Integer i : experimentIds)
+				expIds.add(i);
+			List results = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().
+					getIntensityesByProbeSetKeyQuery(probeSetKey,expIds   ));
+
+			intensities = new double[results.size()];
+			for(int i=0; i < intensities.length; i++)
+				intensities[i] = Double.parseDouble((String)((List)results.get(i)).get(0));
+
+		}catch(SQLException e){
+			log.error("query failed: "+e,e);
+		}catch(NumberFormatException e){
+			log.error(" bad number: "+e,e);
+		}
+
+		return intensities;
+	}
+
+
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{

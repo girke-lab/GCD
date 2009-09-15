@@ -5,7 +5,9 @@
 
 package servlets.querySets;
 
+import java.util.Collection;
 import org.apache.log4j.Logger;
+import servlets.Common;
 
 /**
  *
@@ -155,21 +157,30 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 	{
 		return "'^"+pma+"+$'";
 	}
-	/*
-	private String binarySubExpression(Object v1, Object v2, String operation)
+
+	public String getProbeSetKeyQuery(String accession)
 	{
-		StringBuilder query=new StringBuilder();
-		if(v1 != null)
-		{
-			query.append(" and ( affy.experiment_group_summary_view.control_mean < "+minControllntensity);
-			if( minTreatmentIntensity != null)
-				query.append(intensityOperation+" affy.experiment_group_summary_view.treatment_mean < "+minTreatmentIntensity);
-			query.append(")");
-		}
-		else if(minTreatmentIntensity != null)  // minControlIntensity must be null if we get here
-			query.append(" and  affy.experiment_group_summary_view.treatment_control < "+minTreatmentIntensity);
-	
-		return query.toString();
+		return "SELECT key FROM affy.psk_to_accession_view WHERE accession='"+accession+"'";
 	}
-	 */
+
+	public String getIntensityesByProbeSetKeyQuery(String probeSetKey, Collection experimentIds)
+	{
+		String query ="SELECT  mean " +
+				"FROM affy.probe_set_means_view  " +
+				"	JOIN affy.experiments_view USING(experiment_id) " +
+				"	JOIN affy.cel_analysis_type_list USING(cat_id) "+
+				"WHERE probe_set_key_id IN ( " +    // using a sub-select here is faster than joining to probe_set_keys
+				"	SELECT probe_set_key_id " +
+				"	FROM affy.probe_set_keys_view " +
+				"	WHERE key='"+probeSetKey+"' ) " +
+				"AND type_name='mas5' " +
+				"AND "+Common.buildIdListCondition("experiment_id", experimentIds)+" "+
+				"ORDER BY exp_desc";
+
+		return query;
+	}
+
+
+
+
 }

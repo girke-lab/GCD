@@ -7,6 +7,7 @@
 package servlets.scriptInterfaces;
 import java.util.*;
 import java.io.*;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import servlets.*;
 import servlets.dataViews.AffyKey;
@@ -36,9 +37,12 @@ public class UnknownsTextScript implements Script
     private String userName;
     private boolean printDescription;
     
+    HttpServletResponse response;
+
     /** Creates a new instance of UnknownsTextScript */
-    public UnknownsTextScript(Map parameters,String userName)
+    public UnknownsTextScript(Map parameters,String userName,  HttpServletResponse response )
     {        
+		this.response=response;
         dbc=DbConnectionManager.getConnection("khoran");
         if(dbc==null)
             log.error("could not get db connection for text dump");
@@ -53,11 +57,17 @@ public class UnknownsTextScript implements Script
         this.userName=userName;
         if(this.userName==null)
             this.userName="public";
+
+		response.setHeader("Content-disposition","attatchment; filename="+dataType+".txt" );
     }    
 
     public void run(java.io.OutputStream os, java.util.List ids)
     {        
         PrintWriter out=new PrintWriter(os);
+
+		out.print(" "); //force the save as box to pop up before the query finishes
+		out.flush();
+
         writeData(out,ids);
         out.close();
     }

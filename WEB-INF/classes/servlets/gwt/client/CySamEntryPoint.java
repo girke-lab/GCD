@@ -14,33 +14,19 @@ import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
-import com.google.gwt.event.dom.client.MouseOverEvent;
-import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Hidden;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.widgetideas.graphics.client.Color;
 import com.google.gwt.widgetideas.graphics.client.GWTCanvas;
 import com.google.gwt.widgetideas.graphics.client.ImageLoader;
@@ -63,8 +49,10 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	final ListeningCanvas backgroundCanvas = new ListeningCanvas(400,400);
 	final AbsolutePanel canvasPanel = new AbsolutePanel();
 	final Label experimentName=new Label();
+	final Hyperlink heatmapLink=new Hyperlink("heatmap","");
 
-	QueryPanel queryPanel = new QueryPanel(buildSubmissionHandler());
+	final QueryPanel queryPanel = new QueryPanel(buildSubmissionHandler());
+	final HeatmapPanel heatmapPanel = new HeatmapPanel(buildAccessionQueryHandler(), buildProbeKeyQueryHandler());
 
 	boolean outlinePolys =false;
 
@@ -77,6 +65,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	String[] descriptions=null;
 	int image_id=-1;
 	boolean loadingPolygons=false;
+	double[] heatmapValues=null;
+	double heatmapMin, heatmapMax;
 
 	/** Creates a new instance of MainEntryPoint */
 	public CySamEntryPoint()
@@ -94,8 +84,10 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		canvas.addMouseUpHandler(this);
 		canvas.addMouseOutHandler(this);
 
+		heatmapLink.addClickHandler(this);
 
 		queryPanel.setVisible(false);
+		heatmapPanel.setVisible(false);
 
 		status.setStyleName("statusLabel");
 		RootPanel.get(rootDivTag).add(status);
@@ -108,7 +100,9 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		Panel searchPanel = new VerticalPanel();
 		searchPanel.add(canvasPanel);
 		searchPanel.add(helpLabel);
+		searchPanel.add(heatmapLink);
 		searchPanel.add(queryPanel);
+		searchPanel.add(heatmapPanel);
 
 
 		helpLabel.setText("Click on the image to start a query");
@@ -169,12 +163,23 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		canvas.clear();
 
 		if(getPolygons() != null)
+		{
+			if(heatmapValues != null)
+				drawHeatmap(canvas);
 			for(int i=0; i < getPolygons().length; i++)
 				drawPoly(canvas,getPolygons()[i], i == litPoly || i == stickyLitPoly);
+		}
 		if(litPoly == -1)
 			experimentName.setText("");
 		else
-			experimentName.setText( descriptions[litPoly]); //     comparisonRadios[litPoly].getText());
+			experimentName.setText( descriptions[litPoly] +"   " + currentHeatmapValue());
+	}
+	final String currentHeatmapValue()
+	{
+		if(heatmapValues==null || litPoly==-1)
+			return "";
+		double v = ((int)(heatmapValues[litPoly] * 1000))/1000.0;
+		return ""+v;
 	}
 
 	int[][][][] getPolygons()
@@ -251,7 +256,80 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			if(fill)
 				canvas.fill();
 	}
-		void displayQueryPanel()
+	private void drawHeatmap(GWTCanvas canvas)
+	{
+		for(int j=0; j < polygons.length; j++)
+		{
+			canvas.setFillStyle(getColor((heatmapValues[j] - heatmapMin) / heatmapMax));
+			for(int[][] poly : polygons[j])
+			{
+				canvas.beginPath();
+				canvas.moveTo(poly[0][0], poly[0][1]);
+				for(int i=0; i < poly.length; i++)
+					canvas.lineTo(poly[i][0], poly[i][1]);
+				canvas.fill();
+			}
+		}
+	}
+	Color getColor(double value)
+	{
+		int[] rgb;
+		double startAngle, endAngle;
+		startAngle=0;
+		endAngle= 60;
+
+		//rgb = HSBtoRGB( (endAngle-startAngle) * value  , 1.0,1.0);
+		//return new Color(rgb[0],rgb[1],rgb[2]);
+		return new Color(255, (int)(value*255), 0);
+	}
+	public static int[] HSBtoRGB(double hue, double saturation, double brightness)
+	{
+		double r = 0, g = 0, b = 0;
+    	if (saturation == 0) {
+			r = g = b = (int) (brightness * 255.0f + 0.5f);
+		} else {
+			double h = (hue - (double)Math.floor(hue)) * 6.0f;
+			double f = h - (double)java.lang.Math.floor(h);
+			double p = brightness * (1.0f - saturation);
+			double q = brightness * (1.0f - saturation * f);
+			double t = brightness * (1.0f - (saturation * (1.0f - f)));
+			switch ((int) h)
+			{
+				case 0:
+					r = brightness;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = brightness;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = brightness;
+					b = t;
+					break;
+				case 3:
+					r = p;
+					g = q;
+					b = brightness ;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = brightness;
+					break;
+				case 5:
+					r = brightness;
+					g = p;
+					b = q;
+					break;
+			}
+		}
+		return new int[]{ (int) (r*255.0+0.5), (int)(g*255.0+0.5), (int)(b*255.0+0.5)};
+	}
+	void displayQueryPanel()
 	{
 		if(litPoly == -1 || experimentIds == null )
 			return;
@@ -286,6 +364,70 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			}
 		};
 	}
+	Runnable buildProbeKeyQueryHandler()
+	{
+		return new Runnable(){
+			public void run() {
+				displayHeatmap(heatmapPanel.getProbeSetKey());
+			}
+		};
+	}
+	Runnable buildAccessionQueryHandler()
+	{
+		return new Runnable(){
+			public void run() {
+				getCoordService().getProbeSetKeys(heatmapPanel.getAccession(), new AsyncCallback<String[]>(){
+					public void onFailure(Throwable caught) {
+						status.setText("could not find any probe set keys for " +heatmapPanel.getAccession());
+					}
+					public void onSuccess(String[] result) {
+						if(result.length==0)
+							status.setText("could not find any probe set keys for " +heatmapPanel.getAccession());
+						else if(result.length == 1)
+							displayHeatmap(result[0]);
+						else
+						{
+							status.setText(" ");
+							heatmapPanel.setProbeSetKeys(result);
+						}
+					}
+				});
+			}
+		};
+	}
+	void displayHeatmap(final String probeSetKey)
+	{
+		if(experimentIds == null)
+			return;
+		status.setText("Please wait");
+		getCoordService().getIntensities(probeSetKey, experimentIds, new AsyncCallback<double[]>(){
+			public void onFailure(Throwable caught) {
+				status.setText("no results found for "+probeSetKey);
+			}
+			public void onSuccess(double[] result) {
+				if(result.length==0)
+				{
+					status.setText("no results found for "+probeSetKey);
+					return;
+				}
+				status.setText(" ");
+				heatmapValues = result;
+
+				// compute min and max for later normalization
+				heatmapMin=Double.POSITIVE_INFINITY;
+				heatmapMax = Double.NEGATIVE_INFINITY;
+				for(int i=0; i < heatmapValues.length; i++)
+					if( heatmapValues[i] < heatmapMin)
+						heatmapMin=heatmapValues[i];
+					else if(heatmapValues[i] > heatmapMax)
+						heatmapMax=heatmapValues[i];
+				heatmapMax-=heatmapMin;
+
+				redraw(canvas);
+			}
+
+		});
+	}
 	void submitQuery()
 	{
 		status.setText("Fetching results, please wait");
@@ -317,6 +459,11 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	}
 	public void onClick(ClickEvent event)
 	{
+		if(heatmapLink == event.getSource())
+		{
+			queryPanel.setVisible(false);
+			heatmapPanel.setVisible(true);
+		}
 	}
 	public void onValueChange(ValueChangeEvent<Boolean> event)
 	{

@@ -29,4 +29,6 @@ public interface ImageMapQuerySet  extends QuerySet
 			Double minControlntensity, Double minTreatmentIntensity,
 			String controlPma, String treatmentPma, String intensityOperation,
 			Double maxAdjPValue, Double lowerRatio, Double upperRatio);
+	public String getProbeSetKeyQuery(String accession);
+	public String getIntensityesByProbeSetKeyQuery(String probeSetKey,  Collection exerimentIds);
 }
