@@ -38,7 +38,7 @@ import com.google.gwt.widgetideas.graphics.client.ImageLoader;
  *
  * @author khoran
  */
-public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler, 
+public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		MouseUpHandler, ClickHandler, MouseOutHandler, ValueChangeHandler<Boolean>
 {
 
@@ -57,7 +57,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	final Hyperlink heatmapLink=new Hyperlink("heatmap","");
 
 	final QueryPanel queryPanel = new QueryPanel(buildSubmissionHandler());
-	final HeatmapPanel heatmapPanel = new HeatmapPanel(buildAccessionQueryHandler(), buildProbeKeyQueryHandler());
+	//final HeatmapPanel heatmapPanel = new HeatmapPanel(buildAccessionQueryHandler(), buildProbeKeyQueryHandler());
+	final HeatmapPanel heatmapPanel = new HeatmapPanel();
 	final HeatmapLegend heatmapLegend = new HeatmapLegend(Color.RED, Color.YELLOW);
 
 	boolean outlinePolys =false;
@@ -73,6 +74,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	boolean loadingPolygons=false;
 	double[] heatmapValues=null;
 	double heatmapMin, heatmapMax;
+
+	ValueChangeHandler<String> heatmapHandler=new StringValueChangeHandler();
 
 	/** Creates a new instance of MainEntryPoint */
 	public CySamEntryPoint()
@@ -91,11 +94,12 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		canvas.addMouseOutHandler(this);
 
 		heatmapLink.addClickHandler(this);
+		heatmapPanel.addValueChangeHandler(heatmapHandler);
 
 
 		queryPanel.setVisible(false);
 		//heatmapLegend.setVisible(false);
-		heatmapPanel.setScalingHandler(buildScalingHandler());
+		//heatmapPanel.setScalingHandler(buildScalingHandler());
 
 		status.setStyleName("statusLabel");
 		RootPanel.get(rootDivTag).add(status);
@@ -198,12 +202,12 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		{
 			loadingPolygons =true;
 			// first fetch the image info ( id and dimensions) for this experiment set
-			getCoordService().getImageInfo(experimentSetKey, new AsyncCallback<int[]>(){
+			getCoordService().getImageInfo(experimentSetKey, new AsyncCallback<int[][]>(){
 				public void onFailure(Throwable caught) {
 					status.setText("failed to get image id: "+caught);
 					loadingPolygons=false;
 				}
-				public void onSuccess(int[] info)
+				public void onSuccess(int[][] info)
 				{
 
 					image_id= info[0];
@@ -317,46 +321,6 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		return new Runnable(){
 			public void run() {
 				submitQuery();
-			}
-		};
-	}
-	Runnable buildProbeKeyQueryHandler()
-	{
-		return new Runnable(){
-			public void run() {
-				displayHeatmap(heatmapPanel.getProbeSetKey());
-			}
-		};
-	}
-	Runnable buildAccessionQueryHandler()
-	{
-		return new Runnable(){
-			public void run() {
-				getCoordService().getProbeSetKeys(heatmapPanel.getAccession(), new AsyncCallback<String[]>(){
-					public void onFailure(Throwable caught) {
-						status.setText("could not find any probe set keys for " +heatmapPanel.getAccession());
-					}
-					public void onSuccess(String[] result) {
-						if(result.length==0)
-							status.setText("could not find any probe set keys for " +heatmapPanel.getAccession());
-						else if(result.length == 1)
-							displayHeatmap(result[0]);
-						else
-						{
-							status.setText(" ");
-							heatmapPanel.setProbeSetKeys(result);
-						}
-					}
-				});
-			}
-		};
-	}
-	Runnable buildScalingHandler()
-	{
-		return new Runnable(){
-			public void run() {
-				scaleHeatmap(heatmapPanel.getScalingMethod());
-				redraw(canvas);
 			}
 		};
 	}
@@ -475,5 +439,63 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		return h;
 	}
 
+	class StringValueChangeHandler implements ValueChangeHandler<String>
+	{
+		public void onValueChange(ValueChangeEvent<String> event)
+		{
+			if(event.getValue().equals("accession"))
+				getCoordService().getProbeSetKeys(heatmapPanel.getAccession(), new AsyncCallback<String[]>(){
+					public void onFailure(Throwable caught) {
+						status.setText("could not find any probe set keys for " +heatmapPanel.getAccession());
+					}
+					public void onSuccess(String[] result) {
+						if(result.length==0)
+							status.setText("could not find any probe set keys for " +heatmapPanel.getAccession());
+						else if(result.length == 1)
+							displayHeatmap(result[0]);
+						else
+						{
+							status.setText(" ");
+							heatmapPanel.setProbeSetKeys(result);
+						}
+					}
+				});
+			else if(event.getValue().equals("probeKey"))
+				displayHeatmap(heatmapPanel.getProbeSetKey());
+			else if(event.getValue().equals("scaling"))
+			{
+				scaleHeatmap(heatmapPanel.getScalingMethod());
+				redraw(canvas);
+			}
+			else if(event.getValue().equals("clear"))
+			{
+				heatmapValues=null;
+				heatmapLegend.setVisible(false);
+				redraw(canvas);
+			}
+
+		}
+	}
+	Runnable buildProbeKeyQueryHandler()
+	{
+		return new Runnable(){
+			public void run() {
+			}
+		};
+	}
+	Runnable buildAccessionQueryHandler()
+	{
+		return new Runnable(){
+			public void run() {
+						}
+		};
+	}
+	Runnable buildScalingHandler()
+	{
+		return new Runnable(){
+			public void run() {
+			}
+		};
+	}
 
 }

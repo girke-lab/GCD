@@ -17,7 +17,7 @@ public interface CoordServiceAsync
 
 	public abstract void getImage(int image_id, AsyncCallback<byte[]> asyncCallback);
 
-	public abstract void getImageInfo(java.lang.String experimentSetKey, AsyncCallback<int[]> asyncCallback);
+	public abstract void getImageInfo(java.lang.String experimentSetKey, AsyncCallback<int[][]> asyncCallback);
 	public abstract void getComparableExperiments(int experimentId, AsyncCallback<String[][]> asyncCallback);
 
 

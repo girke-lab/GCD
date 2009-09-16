@@ -11,6 +11,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -20,31 +22,37 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import java.lang.String;
 
 /**
  *
  * @author khoran
  */
-public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandler, KeyPressHandler
+public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandler, KeyPressHandler,
+		HasValueChangeHandlers<String>
 {
 	final TextBox accessionTB=new TextBox();
 	final Button submitAccessionB=new Button("Submit");
+	final Button clearB=new Button("Clear");
 	final ListBox probeSetKeysLB=new ListBox();
 	final Panel probeKeyQueryPanel;
 	final ListBox scalingLB=new ListBox();
 
-	Runnable accessionQueryHandler, probeKeyQueryHandler, scalingHandler=null;
+	//Runnable accessionQueryHandler, probeKeyQueryHandler, scalingHandler=null;
 
-	public HeatmapPanel(Runnable accessionQueryHandler, Runnable probeKeyQueryHandler)
+	//public HeatmapPanel(Runnable accessionQueryHandler, Runnable probeKeyQueryHandler)
+	public HeatmapPanel()
 	{
-		this.accessionQueryHandler=accessionQueryHandler;
-		this.probeKeyQueryHandler = probeKeyQueryHandler;
+		//this.accessionQueryHandler=accessionQueryHandler;
+		//this.probeKeyQueryHandler = probeKeyQueryHandler;
 
 		submitAccessionB.addClickHandler(this);
 		accessionTB.addKeyPressHandler(this);
 		probeSetKeysLB.addChangeHandler(this);
 		scalingLB.addChangeHandler(this);
+		clearB.addClickHandler(this);
 
 		scalingLB.addItem("Relative scale", "relative");
 		scalingLB.addItem("Aboslute scale","absolute");
@@ -77,10 +85,10 @@ public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandl
 
 		probeKeyQueryPanel.setVisible(true);
 	}
-	public void setScalingHandler(Runnable scalingHandler)
-	{
-		this.scalingHandler=scalingHandler;
-	}
+	//public void setScalingHandler(Runnable scalingHandler)
+	//{
+		//this.scalingHandler=scalingHandler;
+	//}
 	public String getScalingMethod()
 	{
 		return scalingLB.getValue(scalingLB.getSelectedIndex());
@@ -99,6 +107,7 @@ public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandl
 		mainPanel.add(scalingLB);
 		mainPanel.add(buildHorizontalPanel(new Label("Accession ID: "),accessionTB,submitAccessionB));
 		mainPanel.add(probeKeyQueryPanel);
+		mainPanel.add(clearB);
 
 
 		return mainPanel;
@@ -114,20 +123,25 @@ public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandl
 
 	private void handleAccessionQuery()
 	{
-		accessionQueryHandler.run();
+		//accessionQueryHandler.run();
+		ValueChangeEvent.fire(this,"accession");
 		probeKeyQueryPanel.setVisible(false);
 	}
 	public void onClick(ClickEvent event)
 	{
 		if(submitAccessionB == event.getSource())
 			handleAccessionQuery();
+		if(clearB==event.getSource())
+			ValueChangeEvent.fire(this,"clear");
 	}
 	public void onChange(ChangeEvent event)
 	{
 		if(probeSetKeysLB == event.getSource())
-			probeKeyQueryHandler.run();
+			ValueChangeEvent.fire(this,"probeKey");
+			//probeKeyQueryHandler.run();
 		else if(scalingLB==event.getSource())
-			scalingHandler.run();
+			ValueChangeEvent.fire(this,"scaling");
+			//scalingHandler.run();
 	}
 
 	public void onKeyPress(KeyPressEvent event)
@@ -135,6 +149,11 @@ public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandl
 		if(accessionTB == event.getSource())
 			if( ! event.isAnyModifierKeyDown() && event.getCharCode() == '\r')
 				handleAccessionQuery();
+	}
+
+	public HandlerRegistration addValueChangeHandler(ValueChangeHandler<String> handler)
+	{
+		return addHandler(handler,ValueChangeEvent.getType());
 	}
 
 }

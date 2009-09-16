@@ -124,15 +124,17 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 		throw new IllegalStateException("no image found for id: "+image_id);
 	}
 
-	public int[] getImageInfo(String experimentSetKey)
+	public int[][] getImageInfo(String experimentSetKey)
 	{
 		try{
 			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getExperimentSetImageInfo(experimentSetKey),false);
-			if(result.size() > 0 )
+			int[][] images = new int[result.size()][];
+			for(int i=0; i < result.size(); i++)
 			{
-				List row = (List)result.get(0); // image_id, width, height
-				return new int[] { (Integer)row.get(0), (Integer)row.get(1), (Integer)row.get(2) };
+				List row = (List)result.get(1); // image_id, width, height
+				images[i] = new int[] { (Integer)row.get(0), (Integer)row.get(1), (Integer)row.get(2) };
 			}
+			return images;
 		}catch(SQLException e){
 			log.error(" failed to find an image for "+experimentSetKey+": "+e,e);
 			throw new IllegalStateException(e);

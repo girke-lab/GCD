@@ -35,11 +35,8 @@ public class HeatmapLegend extends Composite
 		mainPanel.add(heatmapLegend,0,0);
 		mainPanel.add(minValue,12,0);
 		mainPanel.add(maxValue,102,0);
-		//mainPanel.add(new Label("hello"),0,0);
 
 		initWidget(mainPanel);
-		//initWidget(new Label("hello"));
-
 	}
 	private void redraw()
 	{
