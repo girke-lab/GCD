@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.widgetideas.graphics.client.Color;
@@ -52,7 +53,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	final Label helpLabel = new Label();
 	final ListeningCanvas canvas = new ListeningCanvas(400,400);
 	final ListeningCanvas backgroundCanvas = new ListeningCanvas(400,400);
-	final AbsolutePanel canvasPanel = new AbsolutePanel();
+	//final AbsolutePanel canvasPanel = new AbsolutePanel();
+	final HorizontalPanel canvasPanel = new HorizontalPanel();
 	final Label experimentName=new Label();
 	final Hyperlink heatmapLink=new Hyperlink("heatmap","");
 
@@ -60,6 +62,9 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	//final HeatmapPanel heatmapPanel = new HeatmapPanel(buildAccessionQueryHandler(), buildProbeKeyQueryHandler());
 	final HeatmapPanel heatmapPanel = new HeatmapPanel();
 	final HeatmapLegend heatmapLegend = new HeatmapLegend(Color.RED, Color.YELLOW);
+
+	PaintableImage[] images=null;
+	ExperimentAreas[] experimentAreas;
 
 	boolean outlinePolys =false;
 
@@ -106,12 +111,16 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 
 		// make sure these two canvases overlap each other
-		canvasPanel.add(backgroundCanvas,0,0);
-		canvasPanel.add(canvas,0,0);
+		//canvasPanel.add(backgroundCanvas,0,0);
+		//canvasPanel.add(canvas,0,0);
+
+		ScrollPanel imageScrollPanel = new ScrollPanel(canvasPanel);
 
 		Panel searchPanel = new VerticalPanel();
 		//searchPanel.add(canvasPanel);
-		searchPanel.add(buildHorizontalPanel(canvasPanel, heatmapPanel));
+		//searchPanel.add(buildHorizontalPanel(canvasPanel, heatmapPanel));
+		searchPanel.add(imageScrollPanel);
+		searchPanel.add(heatmapPanel);
 		searchPanel.add(heatmapLegend);
 		searchPanel.add(helpLabel);
 		//searchPanel.add(heatmapLink);
@@ -201,6 +210,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		if(polygons == null &&  ! loadingPolygons)  //try to avoid loading several times, but not a problem if a few slip through
 		{
 			loadingPolygons =true;
+			final CySamEntryPoint handler = this;
 			// first fetch the image info ( id and dimensions) for this experiment set
 			getCoordService().getImageInfo(experimentSetKey, new AsyncCallback<int[][]>(){
 				public void onFailure(Throwable caught) {
@@ -210,33 +220,56 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 				public void onSuccess(int[][] info)
 				{
 
-					image_id= info[0];
-					final int width = info[1];
-					final int height = info[2];
-					canvasPanel.setSize(""+width,""+(height+30));
-					canvasPanel.add(experimentName,width/2,height+10);
+					//image_id= info[0];
+					//final int width = info[1];
+					//final int height = info[2];
+					//canvasPanel.setSize(""+width,""+(height+30));
 
-					// then we can load both the image and the polygons in parallel
-					getCoordService().getPolygons(image_id,new AsyncCallback<ExperimentAreas>(){
-						public void onFailure(Throwable caught) {
-							loadingPolygons=false;
-							status.setText("failed to get polygons "+caught.getLocalizedMessage());
-						}
-						public void onSuccess(ExperimentAreas result) {
-							polygons = result.polys;
-							experimentIds = result.experimentIds;
-							descriptions = result.descriptions;
-							loadingPolygons=false;
-						}
-					});
+					images = new PaintableImage[info.length];
+					experimentAreas = new ExperimentAreas[info.length];
+					String[] urls = new String[info.length];
+					canvasPanel.clear();
+
+					for(int i=0; i < info.length; i++)
+					{
+						urls[i] = "/databaseWeb/servlets.gwt.CySam/coordservice?imageId="+info[i][0];
+						final int index = i;
+						//canvasPanel.add(experimentName,width/2,height+10);
+
+						// then we can load both the image and the polygons in parallel
+						getCoordService().getPolygons(image_id,new AsyncCallback<ExperimentAreas>(){
+							public void onFailure(Throwable caught) {
+								loadingPolygons=false;
+								status.setText("failed to get polygons "+caught.getLocalizedMessage());
+								experimentAreas[index]=null;
+							}
+							public void onSuccess(ExperimentAreas result) {
+								experimentAreas[index]=result;
+								//polygons = result.polys;
+								//experimentIds = result.experimentIds;
+								//descriptions = result.descriptions;
+								loadingPolygons=false;
+							}
+						});
+					}
 
 					// load image and redraw canvas when done
-					String[] urls = new String[] {"/databaseWeb/servlets.gwt.CySam/coordservice?imageId="+image_id};
-					ImageLoader.loadImages(urls, new ImageLoader.CallBack() {
-						public void onImagesLoaded(ImageElement[] imageElements) {
+					//String[] urls = new String[] {"/databaseWeb/servlets.gwt.CySam/coordservice?imageId="+image_id};
 
-							backgroundCanvas.drawImage(imageElements[0], 0, 0,width,height);
-							redraw(canvas);
+					ImageLoader.loadImages(urls, new ImageLoader.CallBack() {
+						public void onImagesLoaded(ImageElement[] imageElements)
+						{
+							for(int i=0; i < imageElements.length; i++)
+							{
+								images[i] = new PaintableImage(imageElements[i]);
+								images[i].addMouseMoveHandler(handler);
+								images[i].addMouseUpHandler(handler);
+								images[i].addMouseOutHandler(handler);
+								canvasPanel.add(images[i]);
+							}
+
+							//backgroundCanvas.drawImage(imageElements[0], 0, 0,width,height);
+							//redraw(canvas);
 						}
 					});
 				}
