@@ -103,19 +103,21 @@ public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandl
 
 		Label title = new Label("Heatmap settings");
 		title.setStyleName("heatmapTitle");
-		mainPanel.add(title);
-		mainPanel.add(scalingLB);
-		mainPanel.add(buildHorizontalPanel(new Label("Accession ID: "),accessionTB,submitAccessionB));
+		mainPanel.add(buildHorizontalPanel(5, title,clearB));
+		mainPanel.add(buildHorizontalPanel( 3,scalingLB,new Label("Accession ID: "),accessionTB,submitAccessionB));
 		mainPanel.add(probeKeyQueryPanel);
-		mainPanel.add(clearB);
 
 
 		return mainPanel;
 	}
-	private Panel buildHorizontalPanel(Widget... widgets)
+	private Panel buildHorizontalPanel( Widget... widgets)
+	{
+		return buildHorizontalPanel(2,widgets);
+	}
+	private Panel buildHorizontalPanel(int spacing, Widget... widgets)
 	{
 		HorizontalPanel h=new HorizontalPanel();
-		h.setSpacing(2);
+		h.setSpacing(spacing);
 		for(Widget w : widgets)
 			h.add(w);
 		return h;

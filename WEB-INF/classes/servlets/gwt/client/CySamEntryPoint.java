@@ -5,7 +5,6 @@
 
 package servlets.gwt.client;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.ImageElement;
@@ -22,7 +21,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
-import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Hyperlink;
@@ -39,20 +38,21 @@ import com.google.gwt.widgetideas.graphics.client.ImageLoader;
  *
  * @author khoran
  */
-public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
-		MouseUpHandler, ClickHandler, MouseOutHandler, ValueChangeHandler<Boolean>
+public class CySamEntryPoint  implements  EntryPoint, 
+		 ClickHandler,  ValueChangeHandler<Boolean>
 {
 
 	final String experimentSetKey="CySam";
 	final String rootDivTag=experimentSetKey;
 	final double absoluteHeatmapMin=0.0;
 	final double absoluteHeatmapMax=101000.0;
+	final float heatmapAlpha=0.8f;
 
 
-	final Label status = new Label("");
+	final Label status = new Label("        ");
 	final Label helpLabel = new Label();
-	final ListeningCanvas canvas = new ListeningCanvas(400,400);
-	final ListeningCanvas backgroundCanvas = new ListeningCanvas(400,400);
+	//final ListeningCanvas canvas = new ListeningCanvas(400,400);
+	//final ListeningCanvas backgroundCanvas = new ListeningCanvas(400,400);
 	//final AbsolutePanel canvasPanel = new AbsolutePanel();
 	final HorizontalPanel canvasPanel = new HorizontalPanel();
 	final Label experimentName=new Label();
@@ -69,22 +69,25 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	boolean outlinePolys =false;
 
 
-	int litPoly=-1; //hilighted on mouse over
-	int stickyLitPoly =-1;  //stays hightlighed after clicking
-	int[][][][] polygons=null;
-	int[] experimentIds=null;
+	//int litPoly=-1; //hilighted on mouse over
+	//int stickyLitPoly =-1;  //stays hightlighed after clicking
+	//int[][][][] polygons=null;
+	//int[] experimentIds=null;
 	int[] comparisons;
-	String[] descriptions=null;
-	int image_id=-1;
-	boolean loadingPolygons=false;
-	double[] heatmapValues=null;
+	//String[] descriptions=null;
+	//int image_id=-1;
+	boolean loadingPolygons=false, havePolygons=false;
+	double[][] heatmapValues=null;
 	double heatmapMin, heatmapMax;
+
+	int litImage,litPoly, stickyLitImage, stickyLitPoly;
 
 	ValueChangeHandler<String> heatmapHandler=new StringValueChangeHandler();
 
 	/** Creates a new instance of MainEntryPoint */
 	public CySamEntryPoint()
 	{
+		litImage=litPoly= stickyLitImage= stickyLitPoly=-1;
 	}
 
 	/**
@@ -94,9 +97,9 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	public void onModuleLoad()
 	{
 
-		canvas.addMouseMoveHandler(this);
-		canvas.addMouseUpHandler(this);
-		canvas.addMouseOutHandler(this);
+		//canvas.addMouseMoveHandler(this);
+		//canvas.addMouseUpHandler(this);
+		//canvas.addMouseOutHandler(this);
 
 		heatmapLink.addClickHandler(this);
 		heatmapPanel.addValueChangeHandler(heatmapHandler);
@@ -120,8 +123,8 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 		//searchPanel.add(canvasPanel);
 		//searchPanel.add(buildHorizontalPanel(canvasPanel, heatmapPanel));
 		searchPanel.add(imageScrollPanel);
+		searchPanel.add(buildHorizontalPanel(heatmapLegend, experimentName));
 		searchPanel.add(heatmapPanel);
-		searchPanel.add(heatmapLegend);
 		searchPanel.add(helpLabel);
 		//searchPanel.add(heatmapLink);
 		searchPanel.add(queryPanel);
@@ -132,9 +135,9 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 
 		RootPanel.get(rootDivTag).add(searchPanel);
 
-		getPolygons();
+		loadPolygons();
 	}
-
+/*
 	public void onMouseMove(MouseMoveEvent event)
 	{
 		int x,y;
@@ -180,37 +183,52 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			redraw(canvas);
 		//}
 	}
+*/
+	private void redraw()
+	{
+		if( ! havePolygons)
+			return;
 
-	private void redraw(GWTCanvas canvas)
+		for(int i=0; i < images.length; i++)
+			redraw(images[i].getCanvas(), i);
+					
+					//experimentAreas[i].polys, experimentAreas[i].descriptions,
+					//heatmapValues==null? null : heatmapValues[i]);
+	}
+	private void redraw(GWTCanvas canvas, int imageIndex)
+			//int[][][][] polys, String[] descriptions, double[] heatmapValues)
 	{
 		canvas.clear();
 
-		if(getPolygons() != null)
-		{
-			if(heatmapValues != null)
-				drawHeatmap(canvas);
-			for(int i=0; i < getPolygons().length; i++)
-				drawPoly(canvas,getPolygons()[i], i == litPoly || i == stickyLitPoly);
-		}
+		int[][][][] polys = experimentAreas[imageIndex].polys;
+
+		if(heatmapValues != null)
+			drawHeatmap(canvas,polys, heatmapValues[imageIndex]);
+		for(int i=0; i < polys.length; i++)
+			drawPoly(canvas,polys[i],	(imageIndex == litImage && i == litPoly ) ||
+															(imageIndex == stickyLitImage && i == stickyLitPoly) );
+
 		if(litPoly == -1)
-			experimentName.setText("");
-		else
-			experimentName.setText( descriptions[litPoly] +"   " + currentHeatmapValue());
+			experimentName.setText("           ");
+		else if(imageIndex == litImage)
+		{
+			//Log.debug(imageIndex+": descriptions "+Arrays.toString(experimentAreas[litImage].descriptions));
+			experimentName.setText( experimentAreas[litImage].descriptions[litPoly] +"   " + currentHeatmapValue());
+		}
 	}
 	final String currentHeatmapValue()
 	{
 		if(heatmapValues==null || litPoly==-1)
 			return "";
-		double v = ((int)(heatmapValues[litPoly] * 1000))/1000.0;
+		double v = ((int)(heatmapValues[litImage][litPoly] * 1000))/1000.0;
 		return ""+v;
 	}
 
-	int[][][][] getPolygons()
+	void loadPolygons()
 	{
-		if(polygons == null &&  ! loadingPolygons)  //try to avoid loading several times, but not a problem if a few slip through
+		if( ! havePolygons &&  ! loadingPolygons)  //try to avoid loading several times, but not a problem if a few slip through
 		{
 			loadingPolygons =true;
-			final CySamEntryPoint handler = this;
 			// first fetch the image info ( id and dimensions) for this experiment set
 			getCoordService().getImageInfo(experimentSetKey, new AsyncCallback<int[][]>(){
 				public void onFailure(Throwable caught) {
@@ -237,7 +255,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 						//canvasPanel.add(experimentName,width/2,height+10);
 
 						// then we can load both the image and the polygons in parallel
-						getCoordService().getPolygons(image_id,new AsyncCallback<ExperimentAreas>(){
+						getCoordService().getPolygons(info[index][0],new AsyncCallback<ExperimentAreas>(){
 							public void onFailure(Throwable caught) {
 								loadingPolygons=false;
 								status.setText("failed to get polygons "+caught.getLocalizedMessage());
@@ -249,6 +267,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 								//experimentIds = result.experimentIds;
 								//descriptions = result.descriptions;
 								loadingPolygons=false;
+								havePolygons=true;
 							}
 						});
 					}
@@ -261,6 +280,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 						{
 							for(int i=0; i < imageElements.length; i++)
 							{
+								ImageHandler handler = new ImageHandler(i);
 								images[i] = new PaintableImage(imageElements[i]);
 								images[i].addMouseMoveHandler(handler);
 								images[i].addMouseUpHandler(handler);
@@ -275,8 +295,6 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 				}
 			});
 		}
-		// we  expect this to return null until the polygons are actually created by the async callback
-		return polygons;
 	}
 	private void drawPoly( GWTCanvas canvas, int[][][] poly,boolean fill)
 	{
@@ -303,12 +321,12 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			if(fill)
 				canvas.fill();
 	}
-	private void drawHeatmap(GWTCanvas canvas)
+	private void drawHeatmap(GWTCanvas canvas, int[][][][] polys, double[] heatmapValues)
 	{
-		for(int j=0; j < polygons.length; j++)
+		for(int j=0; j < polys.length; j++)
 		{
 			canvas.setFillStyle(getColor( scaleHeatmapValue(heatmapPanel.getScalingMethod(),  heatmapValues[j])));
-			for(int[][] poly : polygons[j])
+			for(int[][] poly : polys[j])
 			{
 				canvas.beginPath();
 				canvas.moveTo(poly[0][0], poly[0][1]);
@@ -320,15 +338,11 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	}
 	Color getColor(double value)
 	{
-		return new Color(255, (int)(value*255), 0);
+		return new Color(255, (int)(value*255), 0,heatmapAlpha);
 	}
-	void displayQueryPanel()
+	void displayQueryPanel(final String description, int experimentId)
 	{
-		if(litPoly == -1 || experimentIds == null )
-			return;
-
-
-		getCoordService().getComparableExperiments(experimentIds[litPoly],new AsyncCallback<String[][]>(){
+		getCoordService().getComparableExperiments(experimentId,new AsyncCallback<String[][]>(){
 			public void onFailure(Throwable caught) {
 				status.setText("failed to get experiments: "+caught);
 			}
@@ -344,7 +358,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 					names[i] = result[i][1];
 				}
 
-				queryPanel.setComparisons(descriptions[litPoly],names);
+				queryPanel.setComparisons(description, names);
 				queryPanel.setVisible(true);
 			}
 		});
@@ -359,31 +373,44 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 	}
 	void displayHeatmap(final String probeSetKey)
 	{
-		if(experimentIds == null)
+		if( ! havePolygons)
 			return;
 		status.setText("Please wait");
-		getCoordService().getIntensities(probeSetKey, experimentIds, new AsyncCallback<double[]>(){
-			public void onFailure(Throwable caught) {
-				status.setText("no results found for "+probeSetKey);
-			}
-			public void onSuccess(double[] result) {
-				if(result.length==0)
-				{
+		final int[] count=new int[]{0};
+		heatmapValues = new double[experimentAreas.length][];
+
+		for(int i=0; i < experimentAreas.length; i++)
+		{
+			final int index=i;
+			getCoordService().getIntensities(probeSetKey, experimentAreas[index].experimentIds, new AsyncCallback<double[]>(){
+				public void onFailure(Throwable caught) {
 					status.setText("no results found for "+probeSetKey);
-					return;
 				}
-				status.setText(" ");
-				heatmapValues = result;
-				scaleHeatmap(heatmapPanel.getScalingMethod());
+				public void onSuccess(double[] result) {
+					if(result.length==0)
+					{
+						status.setText("no results found for "+probeSetKey);
+						return;
+					}
+					status.setText("          ");
+					heatmapValues[index] = result;
 
-				heatmapLegend.setMinValue(heatmapMin);
-				heatmapLegend.setMaxValue(heatmapMax);
-				heatmapLegend.setVisible(true);
+					//TODO: this is a little fragile
+					count[0]++;   // to see if we are the last to execute
+					if(count[0] == experimentAreas.length)
+					{
+						scaleHeatmap(heatmapPanel.getScalingMethod());
 
-				redraw(canvas);
-			}
+						heatmapLegend.setMinValue(heatmapMin);
+						heatmapLegend.setMaxValue(heatmapMax);
+						heatmapLegend.setVisible(true);
 
-		});
+						redraw();
+					}
+				}
+
+			});
+		}
 	}
 	void scaleHeatmap(String method)
 	{
@@ -392,11 +419,12 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			// compute min and max for later normalization
 			heatmapMin=Double.POSITIVE_INFINITY;
 			heatmapMax = Double.NEGATIVE_INFINITY;
-			for(int i=0; i < heatmapValues.length; i++)
-				if( heatmapValues[i] < heatmapMin)
-					heatmapMin=heatmapValues[i];
-				else if(heatmapValues[i] > heatmapMax)
-					heatmapMax=heatmapValues[i];
+			for(int j=0; j < experimentAreas.length; j++)
+				for(int i=0; i < heatmapValues[j].length; i++)
+					if( heatmapValues[j][i] < heatmapMin)
+						heatmapMin=heatmapValues[j][i];
+					else if(heatmapValues[j][i] > heatmapMax)
+						heatmapMax=heatmapValues[j][i];
 		}
 		else 
 		{
@@ -488,7 +516,7 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 							displayHeatmap(result[0]);
 						else
 						{
-							status.setText(" ");
+							status.setText("             ");
 							heatmapPanel.setProbeSetKeys(result);
 						}
 					}
@@ -498,37 +526,82 @@ public class CySamEntryPoint  implements  EntryPoint, MouseMoveHandler,
 			else if(event.getValue().equals("scaling"))
 			{
 				scaleHeatmap(heatmapPanel.getScalingMethod());
-				redraw(canvas);
+				redraw();
 			}
 			else if(event.getValue().equals("clear"))
 			{
 				heatmapValues=null;
 				heatmapLegend.setVisible(false);
-				redraw(canvas);
+				redraw();
 			}
 
 		}
 	}
-	Runnable buildProbeKeyQueryHandler()
-	{
-		return new Runnable(){
-			public void run() {
-			}
-		};
-	}
-	Runnable buildAccessionQueryHandler()
-	{
-		return new Runnable(){
-			public void run() {
-						}
-		};
-	}
-	Runnable buildScalingHandler()
-	{
-		return new Runnable(){
-			public void run() {
-			}
-		};
-	}
 
+	private class ImageHandler implements MouseMoveHandler, MouseUpHandler, MouseOutHandler
+	{
+
+		int imageIndex;
+
+		public ImageHandler(int index)
+		{
+			this.imageIndex=index;
+		}
+		private void setLitPoly(int i)
+		{
+			litImage=imageIndex;
+			litPoly=i;
+		}
+		private void setStickyListPoly(int i)
+		{
+			stickyLitImage=imageIndex;
+			stickyLitPoly = i;
+		}
+		public void onMouseMove(MouseMoveEvent event)
+		{
+			int x=event.getX();
+			int y=event.getY();
+
+			if( ! havePolygons )
+			{
+				loadPolygons();
+				return;
+			}
+
+			int initLitPoly = litPoly;
+			setLitPoly(-1);
+			int[][][][] polygons = experimentAreas[imageIndex].polys;
+
+			polySearch:
+				for(int i=0; i < polygons.length; i++)
+					for(int j=0; j < polygons[i].length; j++)
+						if(PolygonUtils.inpoly(polygons[i][j], x, y))
+						{
+							setLitPoly(i);
+							break polySearch; // break out of both loops
+						}
+
+			if( initLitPoly != litPoly)
+				redraw();
+		}
+		public void onMouseOut(MouseOutEvent event)
+		{
+			if(litPoly !=  -1) // some polygon is still lit
+			{
+				setLitPoly(-1);
+				redraw();
+			}
+		}
+		public void onMouseUp(MouseUpEvent event)
+		{
+			if(litPoly == -1)
+				return;
+
+			displayQueryPanel(experimentAreas[imageIndex].descriptions[litPoly],
+					experimentAreas[imageIndex].experimentIds[litPoly]);
+			setStickyListPoly(litPoly);
+			redraw();
+		}
+
+	}
 }

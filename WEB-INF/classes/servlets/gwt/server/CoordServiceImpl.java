@@ -131,7 +131,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 			int[][] images = new int[result.size()][];
 			for(int i=0; i < result.size(); i++)
 			{
-				List row = (List)result.get(1); // image_id, width, height
+				List row = (List)result.get(i); // image_id, width, height
 				images[i] = new int[] { (Integer)row.get(0), (Integer)row.get(1), (Integer)row.get(2) };
 			}
 			return images;
@@ -139,7 +139,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 			log.error(" failed to find an image for "+experimentSetKey+": "+e,e);
 			throw new IllegalStateException(e);
 		}
-		throw new IllegalStateException("no image found for experiment set key: "+experimentSetKey);
+		//throw new IllegalStateException("no image found for experiment set key: "+experimentSetKey);
 	}
 
 

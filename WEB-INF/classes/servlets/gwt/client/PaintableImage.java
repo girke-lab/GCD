@@ -5,6 +5,7 @@
 
 package servlets.gwt.client;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.dom.client.ImageElement;
 import com.google.gwt.event.dom.client.HasMouseMoveHandlers;
 import com.google.gwt.event.dom.client.HasMouseOutHandlers;
@@ -28,10 +29,19 @@ public class PaintableImage extends Composite implements HasMouseUpHandlers, Has
 {
 	GWTCanvas background;
 	GWTCanvas imageCanvas;
+
 	public PaintableImage(ImageElement image)
 	{
+		//Log.debug("width: "+image.getWidth()+", height: "+image.getHeight());
+		String width = ""+image.getWidth();
+		String height = ""+image.getHeight();
+
 		AbsolutePanel p = new AbsolutePanel();
-		p.setSize(""+image.getWidth(), ""+image.getHeight());
+		p.setSize(width,height);
+
+		background = new GWTCanvas(image.getWidth(),image.getHeight());
+		imageCanvas = new GWTCanvas(image.getWidth(),image.getHeight());
+
 		p.add(background,0,0);
 		p.add(imageCanvas,0,0);
 
