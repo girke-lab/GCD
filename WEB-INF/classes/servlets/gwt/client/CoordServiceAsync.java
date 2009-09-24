@@ -27,4 +27,6 @@ public interface CoordServiceAsync
 
 	public abstract void getIntensities(java.lang.String probeSetKey, int[] experimentIds, AsyncCallback<double[]> asyncCallback);
 
+	public abstract void getAllExperiments(java.lang.String experimentSetKey, AsyncCallback<String[][]> asyncCallback);
+
 }

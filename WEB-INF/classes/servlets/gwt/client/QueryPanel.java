@@ -5,10 +5,14 @@
 
 package servlets.gwt.client;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
@@ -26,7 +30,8 @@ import com.google.gwt.user.client.ui.Widget;
  *
  * @author khoran
  */
-public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean>, ClickHandler
+public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean>, ClickHandler,
+		HasValueChangeHandlers<String>, ChangeHandler
 {
 
 	final double maxIntensity = 1000, maxPValue = 0.01, lowerRatio = -1, upperRatio = 1;
@@ -40,6 +45,8 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 	final ListBox controlPmaLB=new ListBox();
 	final ListBox treatmentPmaLB=new ListBox();
 	final ListBox intensityType = new ListBox();
+	final ListBox controlsLB=new ListBox();
+	final ListBox treatmentsLB=new ListBox();
 	final Button submitSearchButton = new Button("Submit");
 
 	final CheckBox lowerRatioCB=new CheckBox("less than");
@@ -55,15 +62,13 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 	final RadioButton minIntensityOperationAnd =new RadioButton("minIntensityOperation","and");
 	final RadioButton minIntensityOperationOr =new RadioButton("minIntensityOperation","or");
 
-	final Label compareToLabel=new Label();
-	final Panel containerPanel = new VerticalPanel();
-	RadioButton[] comparisonRadios;
+	//final Label compareToLabel=new Label();
+	//final Panel containerPanel = new VerticalPanel();
+	//RadioButton[] comparisonRadios;
 
-	Runnable submissionHandler;
 
-	public QueryPanel(Runnable submissionHandler)
+	public QueryPanel()
 	{
-		this.submissionHandler=submissionHandler;
 
 		lowerRatioCB.addValueChangeHandler(this);
 		upperRatioCB.addValueChangeHandler(this);
@@ -74,6 +79,8 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 		treatmentPmaCB.addValueChangeHandler(this);
 		maxPValueCB.addValueChangeHandler(this);
 		ratioCB.addValueChangeHandler(this);
+		controlsLB.addChangeHandler(this);
+		treatmentsLB.addChangeHandler(this);
 
 
 		submitSearchButton.addClickHandler(this);
@@ -91,6 +98,8 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 
 		minIntensityOperationOr.setValue(true);
 
+		//containerPanel.add(treatmentsLB);
+
 		initWidget(buildMenuPanel());
 	}
 
@@ -98,12 +107,25 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 	{
 		buildSelectionPanel(controlDescription, comparisons);
 	}
+	public void setControls(String[] descriptions)
+	{
+		controlsLB.clear();
+		for(String s : descriptions)
+			controlsLB.addItem(s);
+		if(controlsLB.getItemCount() > 0)
+			controlsLB.setSelectedIndex(0);
+	}
 	public int getSelectedComparison()
 	{
-		for(int i=0; i < comparisonRadios.length; i++)
-			if(comparisonRadios[i].getValue())
-				return i;
-		return -1;
+		return treatmentsLB.getSelectedIndex();
+		//for(int i=0; i < comparisonRadios.length; i++)
+			//if(comparisonRadios[i].getValue())
+				//return i;
+		//return -1;
+	}
+	public int getSelectedControl()
+	{
+		return controlsLB.getSelectedIndex();
 	}
 	public String getIntensityType()
 	{
@@ -174,7 +196,8 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 	public void onClick(ClickEvent event)
 	{
 		if(submitSearchButton == event.getSource())
-			submissionHandler.run();
+			ValueChangeEvent.fire(this, "submit");
+			//submissionHandler.run();
 	}
 
 	Panel buildMenuPanel()
@@ -199,8 +222,9 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 
 		VerticalPanel panel = new VerticalPanel();
 
-		panel.add(buildHorizontalPanel(new Label("Compare"),compareToLabel,new Label("to: ")));
-		panel.add(containerPanel);
+		//panel.add(buildHorizontalPanel(new Label("Compare"),compareToLabel,new Label("to: ")));
+		panel.add(buildHorizontalPanel(new Label("Compare"),controlsLB,new Label("to: "),treatmentsLB));
+		//panel.add(containerPanel);
 
 		panel.add(new HTML("<hr>"));
 		panel.add(buildHorizontalPanel(new Label("Intensity type: "), intensityType));
@@ -231,21 +255,37 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 
 	void buildSelectionPanel(String description, String[] comparables)
 	{
-		compareToLabel.setText(description);
+		//compareToLabel.setText(description);
+		selectControl(description);
 		controlIntensityCB.setText(description);
 		treatmentIntensityCB.setText("other");
 
-		comparisonRadios = new RadioButton[comparables.length];
-		containerPanel.clear();
+		//comparisonRadios = new RadioButton[comparables.length];
+		treatmentsLB.clear();
+		//containerPanel.clear();
 
-		for(int i=0; i < comparisonRadios.length; i++)
+
+		for(int i=0; i < comparables.length; i++)
 		{
-			comparisonRadios[i] = new RadioButton("comparison",comparables[i]);
-			comparisonRadios[i].addValueChangeHandler(this);
-			containerPanel.add(comparisonRadios[i]);
+			treatmentsLB.addItem(comparables[i]);
+			//comparisonRadios[i] = new RadioButton("comparison",comparables[i]);
+			//comparisonRadios[i].addValueChangeHandler(this);
+			//containerPanel.add(comparisonRadios[i]);
 		}
-		if(comparisonRadios.length > 0)
-			comparisonRadios[0].setValue(true,true);
+		if(comparables.length > 0)
+		{
+			treatmentsLB.setSelectedIndex(0);
+			treatmentIntensityCB.setText(treatmentsLB.getValue(0));
+		}
+	}
+	private void selectControl(String description)
+	{
+		for(int i=0; i < controlsLB.getItemCount(); i++)
+			if(description.equals(controlsLB.getValue(i)))
+			{
+				controlsLB.setSelectedIndex(i);
+				break;
+			}
 	}
 	private Panel buildHorizontalPanel(Widget... widgets)
 	{
@@ -255,9 +295,22 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 			h.add(w);
 		return h;
 	}
+
+	public void onChange(ChangeEvent event)
+	{
+		if( controlsLB == event.getSource())
+			ValueChangeEvent.fire(this, "control");
+		else if(treatmentsLB == event.getSource() && treatmentsLB.getSelectedIndex() != -1)
+		{
+			treatmentIntensityCB.setText(treatmentsLB.getValue(treatmentsLB.getSelectedIndex()));
+		}
+	}
+
+
 	public void onValueChange(ValueChangeEvent<Boolean> event)
 	{
 
+		/*
 		if( event.getSource() instanceof RadioButton  && ((RadioButton)event.getSource()).getValue())
 		{
 			for(int i=0; i < comparisonRadios.length; i++)
@@ -267,7 +320,8 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 					break;
 				}
 		}
-		else if(lowerRatioCB == event.getSource())
+		 */
+		if(lowerRatioCB == event.getSource())
 			lowerRatioTB.setEnabled(lowerRatioCB.getValue());
 		else if(upperRatioCB == event.getSource())
 			upperRatioTB.setEnabled(upperRatioCB.getValue());
@@ -306,6 +360,11 @@ public class QueryPanel  extends Composite implements ValueChangeHandler<Boolean
 			lowerRatioCB.setEnabled(ratioCB.getValue());
 		}
 
+	}
+
+	public HandlerRegistration addValueChangeHandler(ValueChangeHandler<String> handler)
+	{
+		return addHandler(handler, ValueChangeEvent.getType());
 	}
 
 

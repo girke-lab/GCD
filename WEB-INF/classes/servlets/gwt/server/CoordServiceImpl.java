@@ -254,6 +254,26 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
 		return intensities;
 	}
 
+	public String[][] getAllExperiments(String experimentSetKey)
+	{
+		try{
+			List result = dbc.sendQuery(QuerySetProvider.getImageMapQuerySet().getAllExperimentsQuery(experimentSetKey));
+			String[][] experiments = new String[result.size()][2];
+
+			List row;
+			for(int i=0; i < result.size(); i++)
+			{
+				row = (List)result.get(i);
+				experiments[i][0]=(String)row.get(0); //description
+				experiments[i][1]=(String)row.get(1); //experiment id
+			}
+
+			return experiments;
+		}catch(SQLException e){
+			log.error("query failed: "+e,e);
+		}
+		return null;
+	}
 
 
 	@Override
@@ -324,6 +344,7 @@ public class CoordServiceImpl extends RemoteServiceServlet implements CoordServi
         mRequest.getParameterMap().put("inputKey",inputStr.toString());
         return mRequest;
     }
+
 
 
 

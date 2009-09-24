@@ -56,7 +56,7 @@ public class HeatmapPanel extends Composite implements ClickHandler, ChangeHandl
 
 		scalingLB.addItem("Relative scale", "relative");
 		scalingLB.addItem("Aboslute scale","absolute");
-		scalingLB.addItem("Aboslute log scale", "absoluteLog");
+		//scalingLB.addItem("Aboslute log scale", "absoluteLog");
 
 		probeKeyQueryPanel = buildHorizontalPanel(new Label("Select probe set key: "),probeSetKeysLB);
 		probeKeyQueryPanel.setVisible(false);

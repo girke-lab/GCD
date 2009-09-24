@@ -24,4 +24,5 @@ public interface CoordService extends RemoteService
 							Double maxAdjPValue,  Double lowerRatio, Double upperRatio);
 	public String[] getProbeSetKeys(String accession);
 	public double[] getIntensities(String probeSetKey, int[] experimentIds);
+	public String[][] getAllExperiments(String experimentSetKey);
 }

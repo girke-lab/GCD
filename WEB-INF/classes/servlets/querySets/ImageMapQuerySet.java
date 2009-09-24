@@ -31,4 +31,5 @@ public interface ImageMapQuerySet  extends QuerySet
 			Double maxAdjPValue, Double lowerRatio, Double upperRatio);
 	public String getProbeSetKeyQuery(String accession);
 	public String getIntensityesByProbeSetKeyQuery(String probeSetKey,  Collection exerimentIds);
+	public String getAllExperimentsQuery(String expSetKey);
 }

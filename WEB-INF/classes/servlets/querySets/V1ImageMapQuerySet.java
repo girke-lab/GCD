@@ -181,6 +181,11 @@ public class V1ImageMapQuerySet  implements ImageMapQuerySet
 	}
 
 
+	public String getAllExperimentsQuery(String expSetKey)
+	{
+		return "SELECT DISTINCT ON (exp_desc) exp_desc, experiment_id " +
+				"FROM affy.summary_view WHERE exp_key='"+expSetKey+"'";
+	}
 
 
 }
