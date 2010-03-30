@@ -63,6 +63,19 @@ public class HeatmapLegend extends Composite
 		maxValue.setText(""+round(v));
 		redraw();
 	}
+	public void setMinColor(Color minColor)
+	{
+		this.minColor=minColor;
+	}
+	public void setMaxColor(Color maxColor)
+	{
+		this.maxColor=maxColor;
+	}
+	public void clear()
+	{
+		maxValue.setText("");
+		minValue.setText("");
+	}
 
 	private double round(double v)
 	{

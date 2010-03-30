@@ -32,6 +32,8 @@
                 hostname="space2.bioinfo.ucr.edu";
             else if(newDb.equals("keen-192-131"))
                 hostname="keen-192-131.ucr.edu";
+            else if(newDb.equals("gcd"))
+                hostname="gcd.ucr.edu";
             else if(newDb.equals("bioweb_dev"))
             {
                 hostname="bioweb.bioinfo.ucr.edu";

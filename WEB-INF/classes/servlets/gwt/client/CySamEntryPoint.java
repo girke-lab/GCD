@@ -242,7 +242,7 @@ public class CySamEntryPoint  implements  EntryPoint , ValueChangeHandler<String
 	{
 		for(int j=0; j < polys.length; j++)
 		{
-			canvas.setFillStyle(getColor( scaleHeatmapValue(heatmapPanel.getScalingMethod(),  heatmapValues[j])));
+			canvas.setFillStyle(getHeatmapColor( scaleHeatmapValue(heatmapPanel.getScalingMethod(),  heatmapValues[j])));
 			for(int[][] poly : polys[j])
 			{
 				canvas.beginPath();
@@ -253,7 +253,7 @@ public class CySamEntryPoint  implements  EntryPoint , ValueChangeHandler<String
 			}
 		}
 	}
-	Color getColor(double value)
+	Color getHeatmapColor(double value)
 	{
 		return new Color(255, (int)(value*255), 0,heatmapAlpha);
 	}
@@ -319,7 +319,9 @@ public class CySamEntryPoint  implements  EntryPoint , ValueChangeHandler<String
 						scaleHeatmap(heatmapPanel.getScalingMethod());
 
 						heatmapLegend.setMinValue(heatmapMin);
+						heatmapLegend.setMinColor(getHeatmapColor(heatmapMin));
 						heatmapLegend.setMaxValue(heatmapMax);
+						heatmapLegend.setMaxColor(getHeatmapColor(heatmapMax));
 						heatmapLegend.setVisible(true);
 
 						redraw();
@@ -432,12 +434,15 @@ public class CySamEntryPoint  implements  EntryPoint , ValueChangeHandler<String
 			else if(event.getValue().equals("scaling"))
 			{
 				scaleHeatmap(heatmapPanel.getScalingMethod());
+				heatmapLegend.setMinColor(getHeatmapColor(heatmapMin));
+				heatmapLegend.setMinColor(getHeatmapColor(heatmapMax));
 				redraw();
 			}
 			else if(event.getValue().equals("clear"))
 			{
 				heatmapValues=null;
-				heatmapLegend.setVisible(false);
+				//heatmapLegend.setVisible(false);
+				heatmapLegend.clear();
 				redraw();
 			}
 		}
