@@ -21,7 +21,7 @@
         
                     
 
-                <center><%  common.printUnknownsSearchLinks(out); %></center
+                <center><%  common.printUnknownsSearchLinks(out); %></center>
                 <P>
                 <%  bean.printMessage(out); %>
                 <center>
