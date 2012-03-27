@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/databaseWeb">
+<Context path="/databaseWeb" allowLinking="true">
   <Logger className="org.apache.catalina.logger.FileLogger" prefix="databaseWeb." suffix=".log" timestamp="true"/>
 </Context>

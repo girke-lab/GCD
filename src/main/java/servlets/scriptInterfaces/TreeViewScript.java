@@ -31,8 +31,9 @@ public class TreeViewScript implements Script
     public TreeViewScript(HttpServletRequest request,HttpServletResponse response)
     {
         try{
-            url=new URL("http://bioinfo.ucr.edu/projects/internal/TreeBrowse/index.pl");        
+            //url=new URL("http://bioinfo.ucr.edu/projects/internal/TreeBrowse/index.pl");        
             //url=new URL("http://bioinfo.ucr.edu/cgi-bin/chrplot2.pl");      
+            url=new URL(" http://www.biocluster.ucr.edu/projects/internal/TreeBrowse/index.pl");
         }catch(MalformedURLException e)
         {
             e.printStackTrace();

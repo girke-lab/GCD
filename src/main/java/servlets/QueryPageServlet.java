@@ -28,7 +28,7 @@ import servlets.querySets.*;
 public class QueryPageServlet extends HttpServlet 
 {    
 
-    private static Logger log; 
+    private static Logger log=Logger.getLogger(QueryPageServlet.class);
     //private static Properties searches=null,dataViews=null;
     private static Properties settings=null;
         
@@ -42,6 +42,7 @@ public class QueryPageServlet extends HttpServlet
     {       
         super.init(config);       
         
+        /*
         //setup logger
         Properties props=new Properties();
         try{        
@@ -51,10 +52,13 @@ public class QueryPageServlet extends HttpServlet
             System.err.println("could not configure logger");
         }
         log=Logger.getLogger(QueryPageServlet.class);
+        * 
+        */
         
         try{
             settings=new Properties();
-            settings.load(this.getClass().getResourceAsStream("queryPage.properties"));                        
+            
+            settings.load(this.getClass().getResourceAsStream("/queryPage.properties"));                        
         }catch(IOException e){
             log.error("could not load properites: "+e.getMessage());
         }

@@ -23,7 +23,7 @@ public class DescriptionManager
 {
     
     private static final Logger log=Logger.getLogger(DescriptionManager.class);
-    private static final String filename="descriptions.properties";
+    private static final String filename="/descriptions.properties";
     private final URL propertiesUrl;
     
     private static DescriptionManager manager=null;
@@ -34,7 +34,7 @@ public class DescriptionManager
     /** Creates a new instance of DescriptionManager */
     private DescriptionManager()
     {
-        propertiesUrl=this.getClass().getResource(filename);
+        propertiesUrl=getClass().getResource(filename);
         descriptions=new Properties();
         
         try{
