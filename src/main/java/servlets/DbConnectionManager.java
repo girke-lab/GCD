@@ -38,11 +38,11 @@ public class DbConnectionManager
 					//connections.put("khoran",new DbConnection("jdbc:postgresql://db1.bioinfo.ucr.edu:5432/khoran","servlet","512256"));
 					//connections.put("khoran",new DbConnection("jdbc:postgresql://space2.bioinfo.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres
 					//connections.put("khoran",new DbConnection("jdbc:postgresql://keen-192-131.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres
-					connections.put("khoran",new DbConnection("jdbc:postgresql://gcd.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres
+					//connections.put("khoran",new DbConnection("jdbc:postgresql://gcd.ucr.edu:5432/khoran","servlet","512256")); //connect to postgres
 
 					//for testing
 					//connections.put("khoran",new DbConnection("jdbc:postgresql://space2.bioinfo.ucr.edu:5432/khoran_reload_test","servlet","512256")); //connect to postgres
-					//connections.put("khoran",new DbConnection("jdbc:postgresql://bioweb.bioinfo.ucr.edu:5432/khoran_loading","servlet","512256"));
+					connections.put("khoran",new DbConnection("jdbc:postgresql://gcd.ucr.edu:5432/khoran_loading","servlet","512256"));
 					//connections.put("khoran",new DbConnection("jdbc:postgresql://db2.bioinfo.ucr.edu:5432/khoran","servlet","512256"));
 					//connections.put("khoran",new DbConnection("jdbc:postgresql://localhost:5432/khoran","servlet","512256")); //connect to postgres
 
