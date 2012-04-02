@@ -97,10 +97,6 @@ public class SearchState2Query
         
         if(dbName.equals("common"))
             sd=new CommonDatabase();
-        else if(dbName.equals("unknowns"))
-            sd=new UnknownsDatabase();
-        else if(dbName.equals("unknowns2"))
-            sd=new Unknowns2Database();        
         
         if(sd==null)
             System.out.println("could not find class for database "+dbName);

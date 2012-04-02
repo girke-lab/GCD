@@ -95,10 +95,6 @@ public class AdvancedSearchBean2
             setDatabase(defaultDb);
         else if(name.equals("common"))
             db=dqs.getCommonDatabase();            
-        else if(name.equals("unknowns"))
-            db=dqs.getUnknownsDatabase();            
-        else if(name.equals("unknowns2"))
-            db=dqs.getUnknowns2Database();
         else if(name.equals("treatment"))
             db=dqs.getTreatmentDatabase(request.getRemoteUser());
         else //default to common

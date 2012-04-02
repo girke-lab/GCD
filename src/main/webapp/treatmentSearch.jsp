@@ -41,7 +41,7 @@
             </tr>
             <tr>
                 <td align='center'>
-                    <%  bean.drawSearchForm(out,new String[]{"unknowns","unknowns2","treatment"}); %>
+                    <%  bean.drawSearchForm(out,new String[]{"treatment"}); %>
                 </td>
             </tr>
             <tr>

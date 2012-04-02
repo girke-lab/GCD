@@ -5,7 +5,7 @@
  */
 
 package servlets;
-
+//TODO make this go away
 /**
  * This bean is used by the statusQueries jsp page.
  * @author  khoran

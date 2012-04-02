@@ -749,14 +749,6 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     {
         return new CommonDatabaseV2();
     }
-    public servlets.advancedSearch.SearchableDatabase getUnknowns2Database()
-    {
-        return new Unknowns2DatabaseV2();
-    }
-    public servlets.advancedSearch.SearchableDatabase getUnknownsDatabase()
-    {
-        return new UnknownsDatabase();
-    }    
     public SearchableDatabase getTreatmentDatabase(String userName)
     {
         return new TreatmentDatabase(userName);
