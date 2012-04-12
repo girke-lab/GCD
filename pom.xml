@@ -26,6 +26,13 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+	 <repositories>
+		 <repository>
+			 <id>biocluster</id>
+			 <name>biocluster repo</name>
+			 <url>http://biocluster.ucr.edu/~khoran/m2/repository/</url>
+		 </repository>
+	 </repositories>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -183,6 +190,32 @@
                     </tasks>
                 </configuration>
             </plugin>
+
+				<plugin>
+				  <groupId>org.apache.maven.plugins</groupId>
+				  <artifactId>maven-source-plugin</artifactId>
+				  <executions>
+					 <execution>
+						<id>attach-sources</id>
+						<goals>
+						  <goal>jar</goal>
+						</goals>
+					 </execution>
+				  </executions>
+				</plugin>
+				<plugin>
+				  <groupId>org.apache.maven.plugins</groupId>
+				  <artifactId>maven-javadoc-plugin</artifactId>
+				  <executions>
+					 <execution>
+						<id>attach-javadocs</id>
+						<goals>
+						  <goal>jar</goal>
+						</goals>
+					 </execution>
+				  </executions>
+				</plugin>
+
         </plugins>
     </build>
 </project>
