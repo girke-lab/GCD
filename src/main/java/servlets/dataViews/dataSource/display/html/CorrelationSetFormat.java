@@ -36,7 +36,7 @@ public class CorrelationSetFormat extends AbstractPatternFormat<CorrelationRecor
 {
     private static final RecordPattern pattern=buildPattern();
     private static final Logger log=Logger.getLogger(CorrelationSetFormat.class);
-    private static final String plotScript="http://bioweb.ucr.edu/scripts/plotAffyCluster.pl";
+    private static final String plotScript="http://"+servlets.Common.hostname+"/scripts/plotAffyCluster.pl";
     
     private static DecimalFormat percent=new DecimalFormat("0%");
     

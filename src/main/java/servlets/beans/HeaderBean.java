@@ -21,6 +21,7 @@ import servlets.HitCounter;
 public class HeaderBean
 {
     private static final Logger log=Logger.getLogger(HeaderBean.class);
+    public static final String hostname = servlets.Common.hostname;
     
     public enum HeaderType {GCD,POND,PED,COMMON};
     

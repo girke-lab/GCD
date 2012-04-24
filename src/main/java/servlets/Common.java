@@ -11,9 +11,12 @@ package servlets;
 import java.util.*;
 import java.io.*;
 import org.apache.log4j.Logger;
-import servlets.beans.HeaderBean;
 
 public class Common {
+    /**
+     * We use this hostname to build urls so that we can specify the protocol, http or https
+     */
+    public final static String hostname="java-1.bioinfo.ucr.edu"; 
     public final static int arab=0, rice=1;    
     public final static int dbCount=2;
     //TODO: change these to enums.
@@ -55,7 +58,6 @@ public class Common {
     public static void printList(PrintWriter out,List list)
     {
         int rows=0,cols=0;
-        String cell;
         for(ListIterator l=list.listIterator();l.hasNext();)
         {
             rows++;
@@ -72,7 +74,6 @@ public class Common {
     public static void printList(PrintStream out,List list)
     {
         int rows=0,cols=0;
-        String cell;
         for(ListIterator l=list.listIterator();l.hasNext();)
         {
             rows++;
