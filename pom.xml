@@ -145,7 +145,10 @@
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat6-maven-plugin</artifactId>
                 <version>2.0-SNAPSHOT</version>
-                <configuration/>
+                <configuration>
+						 <url>http://java-1.bioinfo.ucr.edu:8080/manager</url>
+						 <server>java-1.bioinfo.ucr.edu</server>
+					 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -172,6 +175,7 @@
                     <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
                 </configuration>
             </plugin>
+				<!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -190,6 +194,7 @@
                     </tasks>
                 </configuration>
             </plugin>
+				-->
 
 				<plugin>
 				  <groupId>org.apache.maven.plugins</groupId>
@@ -215,6 +220,14 @@
 					 </execution>
 				  </executions>
 				</plugin>
+
+		<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skipTests>true</skipTests>
+        </configuration>
+      </plugin>
 
         </plugins>
     </build>
