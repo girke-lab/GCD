@@ -46,7 +46,7 @@ public class ExtendedClusterFormat extends AbstractPatternFormat<ClusterRecord>
 
     public void printRecord(ClusterRecord r) throws IOException
     {
-        out.write("<td nowrap>"+r.method+"</td><td>"+r.name+"</td>");
+        out.write("<td nowrap>"+r.method+"</td><td>"+r.name+"&nbsp;</td>");
         
         out.write("<td>");
         if("Domain Composition".equals(r.method))
@@ -69,9 +69,13 @@ public class ExtendedClusterFormat extends AbstractPatternFormat<ClusterRecord>
             out.write("<a href='http://"+servlets.Common.hostname+"/scripts/domainShader?cid="+r.key+"'>Domain shaded</a>");
             out.write("</td>");
 
-            String treeViewLink="DispatchServlet?hid="+this.getParameters().getHid()+
+            if(r.size > 2 ){
+                String treeViewLink="DispatchServlet?hid="+this.getParameters().getHid()+
                     "&script=treeViewer.pl&range=0&clusterId="+r.key;
-            out.write("<td><a href='"+treeViewLink+"' target='_blank'>view</a></td>");
+                out.write("<td><a href='"+treeViewLink+"' target='_blank'>view</a></td>");
+            }else{
+                out.write("<td>&nbsp;</td>");
+            }
          }                     
          else
              out.write("<td>&nbsp</td><td>&nbsp</td>");

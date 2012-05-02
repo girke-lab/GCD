@@ -103,9 +103,8 @@ public class GcdSequenceFormat extends AbstractPatternFormat<SequenceRecord>
          if(g==Common.arab)
          {
              out.write("<a href='http://www.arabidopsis.org/servlets/TairObject?type=locus&name="+key+"'>TAIR</a>&nbsp&nbsp");
-             out.write("<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+ key+"'>MIPS</a>&nbsp&nbsp");
-         }
-         out.write("<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+ "ORF_infopage.cgi?db="+db+"&orf="+key+"'>TIGR</a>&nbsp&nbsp");
+         }else if(g==Common.rice)
+             out.write("<a href='http://rice.plantbiology.msu.edu/cgi-bin/ORF_infopage.cgi?orf="+key+"'>TIGR</a>&nbsp&nbsp");
          out.write("<a href='http://"+servlets.Common.hostname+"/scripts/geneview.pl?accession="+key+"'>GeneStructure*</a>&nbsp&nbsp");
          //expression link goes here
          if(g==Common.arab)
@@ -119,18 +118,21 @@ public class GcdSequenceFormat extends AbstractPatternFormat<SequenceRecord>
          if(querys.length()!=0)//we have at least one go number
             out.write("<a href='http://www.godatabase.org/cgi-bin/go.cgi?depth=0&advanced_query=&search_constraint=terms&"+querys+"action=replace_tree'>GO</a>&nbsp&nbsp");
 
-         //does this link work for rice? no
-         out.write("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");         
 
          if(g==Common.arab)
-            out.write("<a href='http://www.arabidopsis.org:1555/ARA/NEW-IMAGE?type=GENE&object="+key+"'>AraCyc</a>");
+         {
+            out.write("<a href='http://www.genome.ad.jp/dbget-bin/www_bget?ath:"+key+"'>KEGG</a>&nbsp&nbsp");         
+            out.write("<a href='http://pmn.plantcyc.org/PLANT/substring-search?type=NIL&object="+key+"'>AraCyc</a>");
+         }
 
+         /*
          //link to uniprot blast results
          StringBuffer modelList=new StringBuffer();
          for(Record rec : modelRecords)
              modelList.append( ((ModelRecord)rec).key+" ");
          out.write("&nbsp&nbsp&nbsp<a href='QueryPageServlet?searchType=blast&displayType=blastView&inputKey=dbs: swp trembl keys: "+modelList+"'>" +
                      "<font color='red' >Cross-Species Profile</font></a>");
+         */
          
          //printPedLinks(out,key,genome);
     }        
