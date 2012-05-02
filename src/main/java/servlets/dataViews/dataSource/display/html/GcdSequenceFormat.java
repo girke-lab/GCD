@@ -61,7 +61,7 @@ public class GcdSequenceFormat extends AbstractPatternFormat<SequenceRecord>
 
     public void printRecord(SequenceRecord r) throws IOException
     {
-        String keyLink="http://bioweb.ucr.edu/scripts/seqview.pl?database=all&accession=";
+        String keyLink="http://"+servlets.Common.hostname+"/scripts/seqview.pl?database=all&accession=";
         out.write("<tr>");
         out.write("<td><a href='"+keyLink+r.key+"' >"+r.key+"</a></td>");
         out.write("<td>"+r.description+"</td></tr>");
@@ -106,7 +106,7 @@ public class GcdSequenceFormat extends AbstractPatternFormat<SequenceRecord>
              out.write("<a href='http://mips.gsf.de/cgi-bin/proj/thal/search_gene?code="+ key+"'>MIPS</a>&nbsp&nbsp");
          }
          out.write("<a href='http://www.tigr.org/tigr-scripts/euk_manatee/shared/"+ "ORF_infopage.cgi?db="+db+"&orf="+key+"'>TIGR</a>&nbsp&nbsp");
-         out.write("<a href='http://bioweb.ucr.edu/scripts/geneview.pl?accession="+key+"'>GeneStructure*</a>&nbsp&nbsp");
+         out.write("<a href='http://"+servlets.Common.hostname+"/scripts/geneview.pl?accession="+key+"'>GeneStructure*</a>&nbsp&nbsp");
          //expression link goes here
          if(g==Common.arab)
             out.write("<a href='http://signal.salk.edu/cgi-bin/tdnaexpress?GENE="+key+"&FUNCTION=&JOB=HITT&DNA=&INTERVAL=10'>KO</a>&nbsp&nbsp");

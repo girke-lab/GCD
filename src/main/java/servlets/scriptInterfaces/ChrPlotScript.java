@@ -27,7 +27,7 @@ public class ChrPlotScript  implements Script
     public ChrPlotScript() 
     {
         try{
-            url=new URL("http://bioweb.ucr.edu/scripts/chrplot.pl");        
+            url=new URL("http://"+servlets.Common.hostname+"/scripts/chrplot.pl");        
         }catch(MalformedURLException e){e.printStackTrace();}
     }
     
@@ -61,7 +61,7 @@ public class ChrPlotScript  implements Script
                 
              is.close();   
         }catch(IOException e){
-            new PrintWriter(out).println("could no open connection to "+url.getFile()+":"+e.getMessage());
+            new PrintWriter(out).println("could not open connection to "+url.getFile()+":"+e.getMessage());
         }finally{
             try{out.flush();}catch(IOException e){}
         }

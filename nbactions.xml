@@ -10,7 +10,49 @@
         <action>
             <actionName>run</actionName>
             <goals>
-                <goal>tomcat6:run-war</goal>
+                <goal>jetty:run</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-tomcat6:start</actionName>
+            <displayName>tomcat6:start</displayName>
+            <goals>
+                <goal>tomcat6:start</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-inplace</actionName>
+            <displayName>inplace</displayName>
+            <goals>
+                <goal>war:inplace</goal>
+                <goal>tomcat6:redeploy</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-jetty</actionName>
+            <displayName>jetty</displayName>
+            <goals>
+                <goal>jetty:run</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-compile</actionName>
+            <displayName>compile</displayName>
+            <goals>
+                <goal>compile</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>build</actionName>
+            <goals>
+                <goal>compile</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-redeploy</actionName>
+            <displayName>redeploy</displayName>
+            <goals>
+                <goal>tomcat6:redeploy</goal>
             </goals>
         </action>
     </actions>

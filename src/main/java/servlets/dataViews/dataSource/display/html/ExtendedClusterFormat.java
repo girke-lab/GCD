@@ -61,12 +61,12 @@ public class ExtendedClusterFormat extends AbstractPatternFormat<ClusterRecord>
                             r.arabCount+" Ath &nbsp&nbsp "+r.riceCount+" Osa</a></td>");
          if(r.size > 1 && !r.method.endsWith("_50") && !r.method.endsWith("_70"))
          {
-            String webBase="http://bioweb.ucr.edu/scripts/getClusterFiles.pl?cid="+r.key+ 
+            String webBase="http://"+servlets.Common.hostname+"/scripts/getClusterFiles.pl?cid="+r.key+ 
                  "&cluster_type="+r.method+"&file_type=";
 
             out.write("<td nowrap>");
             out.write("<a href='"+webBase+"html'>Consensus shaded</a>&nbsp&nbsp");
-            out.write("<a href='http://bioweb.ucr.edu/scripts/domainShader?cid="+r.key+"'>Domain shaded</a>");
+            out.write("<a href='http://"+servlets.Common.hostname+"/scripts/domainShader?cid="+r.key+"'>Domain shaded</a>");
             out.write("</td>");
 
             String treeViewLink="DispatchServlet?hid="+this.getParameters().getHid()+

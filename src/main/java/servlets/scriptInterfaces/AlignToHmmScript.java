@@ -29,7 +29,7 @@ public class AlignToHmmScript implements Script
     public AlignToHmmScript() 
     {
         try{
-            url=new URL("http://bioweb.ucr.edu/scripts/alignToHmm");        
+            url=new URL("http://"+servlets.Common.hostname+"/scripts/alignToHmm");        
         }catch(MalformedURLException e){e.printStackTrace();}
     }
     
@@ -73,7 +73,7 @@ public class AlignToHmmScript implements Script
                 out.println(in.readLine());
             in.close();
         }catch(IOException e){
-            out.println("could no open connection to "+url.getFile()+":"+e.getMessage());
+            out.println("could not open connection to "+url.getFile()+":"+e.getMessage());
         }finally{
             out.flush();
         }

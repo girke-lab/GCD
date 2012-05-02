@@ -27,7 +27,7 @@ public class MultigeneScript  implements Script
     public MultigeneScript()
     {
         try{
-            url=new URL("http://bioweb.ucr.edu/scripts/multigene.pl");        
+            url=new URL("http://"+servlets.Common.hostname+"/scripts/multigene.pl");        
         }catch(MalformedURLException e){e.printStackTrace();}
     }
     
@@ -61,7 +61,7 @@ public class MultigeneScript  implements Script
                 out.println(in.readLine());
             in.close();
         }catch(IOException e){
-            out.println("could no open connection to "+url.getFile()+":"+e.getMessage());
+            out.println("could not open connection to "+url.getFile()+":"+e.getMessage());
         }finally{
             out.flush();
         }

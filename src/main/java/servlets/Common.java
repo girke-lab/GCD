@@ -16,7 +16,11 @@ public class Common {
     /**
      * We use this hostname to build urls so that we can specify the protocol, http or https
      */
-    public final static String hostname="java-1.bioinfo.ucr.edu"; 
+    public final static String hostname;
+    static { //stop the inlining!
+        hostname="java-1.bioinfo.ucr.edu";
+        //hostname="localhost:8080"; 
+    }
     public final static int arab=0, rice=1;    
     public final static int dbCount=2;
     //TODO: change these to enums.

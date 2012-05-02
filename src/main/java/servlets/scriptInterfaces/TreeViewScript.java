@@ -23,7 +23,8 @@ public class TreeViewScript implements Script
 {
     private static Logger log=Logger.getLogger(TreeViewScript.class);
     URL url;
-    String dndBase="http://bioweb.ucr.edu/databaseWeb/clusters/";
+    //String dndBase="http://"+servlets.Common.hostname+"/databaseWeb/clusters/";
+    String dndBase="http://"+servlets.Common.hostname+"/scripts/getClusterFiles.pl";
     String clusterId;
     HttpServletResponse response; 
     
@@ -86,7 +87,7 @@ public class TreeViewScript implements Script
             
             
             String dnd,link,lastMethod=null;            
-            link="http://bioweb.ucr.edu/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
+            link="http://"+servlets.Common.hostname+"/databaseWeb/QueryPageServlet?searchType=Id&displayType=seqView&inputKey=";
             log.debug("number of rows: "+data.size());
             log.debug("data="+data);
             for(Iterator i=data.iterator();i.hasNext();)
@@ -121,6 +122,8 @@ public class TreeViewScript implements Script
             BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String newUrl=br.readLine();
             br.close();
+            // the new url is not correct any more. So we need to extract the _session_id and form our own URL
+            newUrl=newUrl.replaceAll("^.*_session_id=", "http://www.biocluster.ucr.edu/projects/internal/TreeBrowse/index.pl?action=display&_session_id=");
             log.debug("newUrl="+newUrl);
             response.sendRedirect(newUrl);                        
 
@@ -136,6 +139,7 @@ public class TreeViewScript implements Script
     private String getDnd(String clusterId,String method) throws IOException
     {
         log.debug("getting dnd for cluster "+clusterId+", of method "+method);
+        /*
         String clusterType;
         if(method.startsWith("BLASTCLUST"))
             clusterType="blastClusters/data/";
@@ -146,8 +150,11 @@ public class TreeViewScript implements Script
             log.error("invalid cluster method: "+method);
             return "";
         }
+        */
+
         log.debug("opening url");
-        URL dnd=new URL(dndBase+clusterType+clusterId+".dnd");
+        //URL dnd=new URL(dndBase+clusterType+clusterId+".dnd");
+        URL dnd=new URL(dndBase+"?cid="+clusterId+"&file_type=dnd");
         log.debug("url="+dnd);
         BufferedReader br=new BufferedReader(new InputStreamReader(dnd.openStream()));
         StringBuffer str=new StringBuffer();

@@ -26,7 +26,7 @@ public class GoSlimCountsScript implements Script
     public GoSlimCountsScript() 
     {
         try{
-            url=new URL("http://bioweb.ucr.edu/scripts/goSlimCounts");        
+            url=new URL("http://"+servlets.Common.hostname+"/scripts/goSlimCounts");        
         }catch(MalformedURLException e){e.printStackTrace();}
     }
     
@@ -67,7 +67,7 @@ public class GoSlimCountsScript implements Script
                 out.println(in.readLine());
             in.close();
         }catch(IOException e){
-            out.println("could no open connection to "+url.getFile()+":"+e.getMessage());
+            out.println("could not open connection to "+url.getFile()+":"+e.getMessage());
         }finally{
             out.flush();
         }

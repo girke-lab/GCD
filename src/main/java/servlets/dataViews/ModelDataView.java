@@ -284,7 +284,7 @@ public class ModelDataView implements DataView
                             "ORF_infopage.cgi?db="+tigrDb+"&orf="+key+"'>TIGR</a>" +
                     "</TD></TR>");      
                 standard.append("\t<TR bgcolor='"+PageColors.title+"'><TH align='left'>Accession</TH><TD>"+
-                    "<A href='http://bioweb.ucr.edu/scripts/seqview.pl?db=all&accession="+key+"'>"+key+"</A>"+
+                    "<A href='http://"+servlets.Common.hostname+"/scripts/seqview.pl?db=all&accession="+key+"'>"+key+"</A>"+
                     "&nbsp&nbsp<INPUT type=submit value='Blast it'></TD></TR>"+
                     "\t<TR bgcolor='"+PageColors.title+"'><TH align='left'>Model Accession</TH><TD>"+key2+"</TD></TR>"+
                     "\t<TR bgcolor='"+PageColors.title+"'><TH align='left'>Description</TH><TD>"+desc+"</TD></TR>\n");

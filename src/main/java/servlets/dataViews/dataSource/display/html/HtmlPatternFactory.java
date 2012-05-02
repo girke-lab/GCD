@@ -41,7 +41,7 @@ public class HtmlPatternFactory
     private static DecimalFormat ldf=new DecimalFormat("0.##E0");
     private static final DescriptionManager dm=DescriptionManager.getInstance();
     
-    String expDefURL="http://bioweb.ucr.edu/databaseWeb/data/exp_definitions";
+    String expDefURL="http://"+servlets.Common.hostname+"/databaseWeb/data/exp_definitions";
     
     /** Creates a new instance of HtmlPatternFactory */
     private HtmlPatternFactory()
