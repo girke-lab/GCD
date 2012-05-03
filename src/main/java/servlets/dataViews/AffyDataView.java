@@ -353,7 +353,6 @@ public class AffyDataView implements DataView
         //log.debug("printing "+data.size()+" records");
         
         try{
-            Writer out2=new BufferedWriter(new FileWriter("/home/khoran/debug_affy.out"));
             
             DisplayParameters dp=new DisplayParameters(out);
             dp.setHid(hid);
@@ -369,7 +368,6 @@ public class AffyDataView implements DataView
             
             prp.printRecord(data);
             
-            out2.close();
         }catch(IOException e){
             log.error("could not print to output: "+e.getMessage());
         }
