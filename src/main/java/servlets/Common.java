@@ -18,7 +18,7 @@ public class Common {
      */
     public final static String hostname;
     static { //stop the inlining!
-        hostname="java-1.bioinfo.ucr.edu";
+        hostname="gcd.bioinfo.ucr.edu";
         //hostname="localhost:8080"; 
     }
     public final static int arab=0, rice=1;    
