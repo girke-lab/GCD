@@ -275,7 +275,7 @@ public class HeaderBean
             "		<tr><td class=foot align=center bgColor=#646D7E>&nbsp;&nbsp;" +
             "               <a href='http://faculty.ucr.edu/~tgirke/Databases.htm'><font color='#FFFFFF'>Systomics Network</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
             "               <a href='"+urlPrefix+"index.jsp'><font color='#FFFFFF'>GCD</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
-            "               <a href='http://bioinfo.ucr.edu/projects/Unknowns/external/express.html'><font color='#FFFFFF'>Expression</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
+            "               <a href='/unknowns/express.html'><font color='#FFFFFF'>Expression</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
             //"               <a href='"+urlPrefix+"unknownsBasicSearch.jsp'><font color='#FFFFFF'>POND</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
             "               <a href='http://pond.bioinfo.ucr.edu'><font color='#FFFFFF'>POND</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
             "               <a href='http://bioweb.ucr.edu/Cellwall/index.pl'><font color='#FFFFFF'>CWN</font></a>&nbsp;&nbsp;|&nbsp;&nbsp;" +
@@ -303,7 +303,7 @@ public class HeaderBean
             "	<tr><td class=navcol vAlign=top width='13%' height=500 bgColor=#d8d8d8>"+sidebarTitle+"<br><br>" +
             "		<table cellSpacing=3 cellPadding=4 width='100%' border=0><tbody>" +
             "			<tr><td class=foot bgColor=#f0f0f0><a href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html'>Project</a></td></tr>" +            
+            "                       <A href='/unknowns/index.html'>Project</a></td></tr>" +            
             "			<tr><td class=foot bgColor=#f0f0f0><a href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
             "                       <A href='http://bioweb.ucr.edu/bapdb'>BAP DB</a></td></tr>" +                
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
@@ -312,19 +312,19 @@ public class HeaderBean
             //"                       <A href='unknownsBasicSearch.jsp'>POND Search</a></td></tr>" +            
             "                       <A href='http://pond.bioinfo.ucr.edu'>POND Search</a></td></tr>" +            
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/express.html'>Expression (PED)</a></td></tr>" +
+            "                       <A href='/unknowns/express.html'>Expression (PED)</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/interaction.html'>Interactome</a></td></tr>" +
+            "                       <A href='/unknowns/interaction.html'>Interactome</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/tools.html'>Protocols</a></td></tr>" +
+            "                       <A href='/unknowns/tools.html'>Protocols</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/external.html'>Literature</a></td></tr>" +
+            "                       <A href='/unknowns/external.html'>Literature</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/downloads.html'>Downloads</a></td></tr>" +            
+            "                       <A href='/unknowns/downloads.html'>Downloads</a></td></tr>" +            
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/links.html'>Links</a></td></tr>" +
+            "                       <A href='/unknowns/links.html'>Links</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html'>Contacts</a></td></tr>" 
+            "                       <A href='/unknowns/index.html'>Contacts</a></td></tr>" 
         );
         
         out.println( 
@@ -349,20 +349,7 @@ public class HeaderBean
             title="Log off";
             query="?action=log_off";
         }            
-        
-        /*
-       <table cellSpacing=0 cellPadding=4 width='100%' bgColor=#ffffff border=0><tbody>	<tr><td class=navcol vAlign=top width='13%' height=500 bgColor=#d8d8d8>PED Toolbar<br><br>
-           <table cellSpacing=3 cellPadding=4 width='100%' border=0><tbody>			<tr><td class=foot bgColor=#f0f0f0 nowrap ><a href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>    
-           <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/express.html'>About PED</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>     
-           <A href='index.jsp'>Gene Search</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>          
-           <A href='treatmentSearch.jsp'>DEG Search</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>            
-           <A href='http://"+servlets.Common.hostname+"/scripts/plotAffyCluster.pl'>R/BioC Tools</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>      
-           <A href='unknownsBasicSearch.jsp'>POND Search</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>             
-           <A href='http://bioweb.ucr.edu/bapdb>BAP DB</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>            
-           <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/links.html'>Links</a></td></tr>			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>           
-           <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html#participants'>Contacts</a></td></tr>
-         */
-
+       
  
         out.println(
             "<table cellSpacing=0 cellPadding=4 width='100%' bgColor=#ffffff border=0><tbody>" +
@@ -370,7 +357,7 @@ public class HeaderBean
            
             "		<table cellSpacing=3 cellPadding=4 width='100%' border=0><tbody>" +
             "			<tr><td class=foot bgColor=#f0f0f0 nowrap ><a href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a>" +
-                "                    <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/express.html'>About PED</a></td></tr>" +
+                "                    <A href='/unknowns/express.html'>About PED</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
                 "                   <A href='index.jsp'>Gene Search</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
@@ -383,9 +370,9 @@ public class HeaderBean
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
                 "                    <A href='http://bioweb.ucr.edu/bapdb'>BAP DB</a></td></tr>"+
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-                "                   <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/links.html'>Links</a></td></tr>" +
+                "                   <A href='/unknowns/links.html'>Links</a></td></tr>" +
             "			<tr><td class=foot BgColor=#f0f0f0 nowrap ><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-                "                   <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/index.html#participants'>Contacts</a></td></tr>"                 
+                "                   <A href='/unknowns/index.html#participants'>Contacts</a></td></tr>"                 
        );
                        
         
@@ -428,16 +415,8 @@ public class HeaderBean
             "			<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
             "                       <A href='http://"+servlets.Common.hostname+"/databaseWeb/data'>Downloads</a></td></tr>" 
 
-//            "			<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-//            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/external.html'>Literature</a></td></tr>" +
-//            "			<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-//            "                       <A href='http://bioinfo.ucr.edu/projects/Unknowns/external/downloads.html'>Downloads</a></td></tr>"
         );   
                     
-//        out.println( 
-//            "<tr><td class=foot BgColor=#f0f0f0><A href='./index.html'><IMG height=7 src='./images/bullet.gif' width=4 border=0 alt='Home'></a> " +
-//            "    <A href='login.jsp"+query+"'>"+title+"</a></td></tr>"
-//        );
                         
         out.println(
             "		</tbody></table>" +
