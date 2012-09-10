@@ -14,9 +14,7 @@ import servlets.*;
 import servlets.KeyTypeUser.KeyType;
 import servlets.beans.HeaderBean;
 import servlets.dataViews.dataSource.display.html.AffyCompFormat;
-import servlets.dataViews.dataSource.records.AffyCompRecord;
-import servlets.dataViews.dataSource.records.AffyDetailRecord;
-import servlets.dataViews.dataSource.records.AffyExpSetRecord;
+import servlets.dataViews.dataSource.records.*;
 import servlets.dataViews.dataSource.QueryParameters;
 import servlets.dataViews.dataSource.display.DebugRecordVisitor;
 import servlets.dataViews.dataSource.display.DisplayParameters;
@@ -26,7 +24,6 @@ import servlets.dataViews.dataSource.display.html.HtmlPatternFactory;
 import servlets.dataViews.dataSource.records.ProbeClusterRecord;
 import servlets.dataViews.dataSource.structure.Record;
 import servlets.dataViews.dataSource.structure.RecordFactory;
-import servlets.dataViews.dataSource.records.UnknownRecord;
 import servlets.dataViews.queryWideViews.DefaultQueryWideView;
 import servlets.search.Search;
 
@@ -321,7 +318,7 @@ public class AffyDataView implements DataView
     }
     private Collection getRecords()
     {                       
-        Collection unknowns;
+        Collection models;
         RecordFactory f=RecordFactory.getInstance();
         log.debug("sortCol="+sortCol);
         QueryParameters qp=new QueryParameters(accIds,sortCol,sortDir);
@@ -331,12 +328,12 @@ public class AffyDataView implements DataView
         
         QueryParameters accQp=new QueryParameters(accIds);
                         
-        unknowns=f.getRecords(UnknownRecord.getRecordInfo(),accQp);
-        f.addSubType(unknowns,ProbeClusterRecord.getRecordInfo(),accQp);
+        models=f.getRecords(ModelRecord.getRecordInfo(),accQp);
+        f.addSubType(models,ProbeClusterRecord.getRecordInfo(),accQp);
         f.addSubType(
             f.addSubType(
                 f.addSubType(
-                    unknowns,  
+                    models,  
                     AffyExpSetRecord.getRecordInfo(), qp
                 ),
                 AffyCompRecord.getRecordInfo(),qp
@@ -344,7 +341,7 @@ public class AffyDataView implements DataView
             AffyDetailRecord.getRecordInfo(), qp
         );
 
-        return unknowns;                                                
+        return models;                                                
     }        
     
     private void printData(PrintWriter out,Collection data)

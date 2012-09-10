@@ -636,6 +636,7 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
         
         String query="";
         switch(keyType){
+				case MODEL:
             case ACC:
                 query="SELECT DISTINCT csv.cluster_id, csv.probe_set_key_id,csv.cluster_name, csv.method_name,csv.method_desc, cs.size," +
                                     "csv.parent_cluster_id is not null as is_child, csv.confidence, csv.psk_key, " +
@@ -722,11 +723,20 @@ public class V2QuerySets implements DataViewQuerySet , RecordQuerySet , Database
     public String getModelRecordQuery(Collection ids, KeyType keyType)
     {
         String query="";
+		  log.info("keyType:" + keyType);
         switch(keyType)
         {
+				case ANY:
+				case MODEL:
+                query="SELECT md.sequence_accession_id, md.accession_id, a.accession, a.description "+
+                            " FROM general.accessions as a "+
+                            "             JOIN common.model_data as md USING(accession_id) "+
+                            " WHERE "+Common.buildIdListCondition("md.accession_id",ids) + 
+                            " ORDER BY a.accession ";
+					 break;
             case ACC:
             case SEQ:
-                query="SELECT md.sequence_accession_id, md.accession_id, a.accession "+
+                query="SELECT md.sequence_accession_id, md.accession_id, a.accession, a.description "+
                             " FROM general.accessions as a "+
                             "             JOIN common.model_data as md USING(accession_id) "+
                             " WHERE "+Common.buildIdListCondition("md.sequence_accession_id",ids) + 

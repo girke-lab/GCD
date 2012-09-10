@@ -866,11 +866,11 @@ public class HtmlPatternFactory
         public void printHeader(ModelRecord r) throws IOException
         {
             utils.startTable(out);
-            out.write("<tr bgcolor='"+PageColors.title+"'><th>Key</th></tr>");
+            out.write("<tr bgcolor='"+PageColors.title+"'><th>Key</th><th>Description</th></tr>");
         }
         public void printRecord(ModelRecord r) throws IOException
         {
-            out.write("<tr><td>"+r.key+"</td></tr>");
+            out.write("<tr><td>"+r.key+"</td><td>"+(r.description==null||"".equals(r.description)?"&nbsp":r.description)+"</td></tr>");
         }
         public void printFooter(ModelRecord r) throws IOException
         {

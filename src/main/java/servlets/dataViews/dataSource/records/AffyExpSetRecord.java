@@ -122,7 +122,7 @@ public class AffyExpSetRecord extends UniChildRecord
             }
             public KeyType[] getSupportedKeyTypes()
             {
-                return new KeyType[]{KeyType.ACC};
+                return new KeyType[]{KeyType.ACC,KeyType.MODEL};
             }
         };
     }        

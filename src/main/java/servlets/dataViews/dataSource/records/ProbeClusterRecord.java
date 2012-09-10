@@ -102,7 +102,7 @@ public class ProbeClusterRecord extends  UniChildRecord
             }
             public KeyType[] getSupportedKeyTypes()
             {
-                return new KeyType[]{KeyType.ACC,KeyType.PSK,KeyType.CORR};
+                return new KeyType[]{KeyType.ACC,KeyType.PSK,KeyType.CORR,KeyType.MODEL};
             }
             public Object buildKey(List data,KeyType keyType)
             {
@@ -117,6 +117,7 @@ public class ProbeClusterRecord extends  UniChildRecord
                 {
                     case ANY:
                     case ACC:
+						  case MODEL:
                     case PSK:
                     case CORR:
                         return new int[]{reqSize};

@@ -18,20 +18,22 @@ import servlets.dataViews.dataSource.display.RecordVisitor;
 import servlets.dataViews.dataSource.structure.LeafRecord;
 import servlets.dataViews.dataSource.structure.Record;
 import servlets.dataViews.dataSource.structure.RecordInfo;
+import servlets.dataViews.dataSource.structure.MultiChildRecord;
 import servlets.querySets.QuerySetProvider;
 
 /**
  *
  * @author khoran
  */
-public class ModelRecord  extends LeafRecord
+public class ModelRecord  extends MultiChildRecord
 {
     
     private static final Logger log=Logger.getLogger(ModelRecord.class);
-    private static final int reqSize=2;
+    private static final int reqSize=3;
     
     public Integer model_id;
     public String key;
+	 public String description;
 
 
     /** Creates a new instance of ModelRecord */
@@ -42,6 +44,7 @@ public class ModelRecord  extends LeafRecord
 
         model_id=new Integer((String)values.get(0));
         key=(String)values.get(1);
+        description=(String)values.get(2);
     }
 
     @Deprecated public void printHeader(Writer out, RecordVisitor visitor) throws IOException { }
